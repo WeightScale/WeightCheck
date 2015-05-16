@@ -1,0 +1,206 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:orientation="vertical"
+              android:layout_width="fill_parent"
+              android:layout_height="wrap_content"
+              android:background="@color/transparent"
+        >
+
+    <LinearLayout
+            android:orientation="vertical"
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent" android:layout_margin="@dimen/corners"
+            android:background="@drawable/round_item_check" android:padding="@dimen/corners">
+        <LinearLayout
+                android:orientation="vertical"
+                android:layout_width="fill_parent"
+                android:layout_height="fill_parent">
+            <LinearLayout
+                    android:orientation="horizontal"
+                    android:layout_width="fill_parent"
+                    android:layout_height="fill_parent">
+                <LinearLayout
+                        android:orientation="horizontal"
+                        android:layout_width="fill_parent"
+                        android:layout_height="fill_parent"
+                        >
+                    <ImageView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:id="@+id/imageDirect" android:src="@drawable/ic_action_up"
+                            android:layout_gravity="center"
+                            android:contentDescription="@null"/>
+                    <LinearLayout
+                            android:orientation="vertical"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            >
+                        <TextView
+                                android:layout_width="fill_parent"
+                                android:layout_height="wrap_content"
+                                android:textAppearance="?android:attr/textAppearanceMedium"
+                                android:text="@string/Vendor"
+                                android:id="@+id/textView2" android:textSize="@dimen/text_small"
+                                android:textColor="@drawable/text_selector" android:layout_margin="@dimen/stroke"
+                                android:background="@drawable/item_selector"/>
+                        <TextView
+                                android:layout_width="fill_parent"
+                                android:layout_height="wrap_content"
+                                android:text="@string/Check_N"
+                                android:id="@+id/textView" android:textColor="@drawable/text_selector"
+                                android:textSize="@dimen/text_micro"
+                                android:gravity="center" android:layout_margin="@dimen/stroke"
+                                android:background="@drawable/item_selector"/>
+                    </LinearLayout>
+                    <TableLayout
+                            android:layout_width="fill_parent"
+                            android:layout_height="wrap_content" android:orientation="horizontal"
+                            android:id="@+id/tableLayout"
+                            >
+                        <TableRow
+                                android:layout_width="fill_parent"
+                                android:layout_height="wrap_content">
+                            <LinearLayout
+                                    android:orientation="horizontal"
+                                    android:layout_width="fill_parent"
+                                    android:layout_height="wrap_content" android:layout_weight="1">
+                                <TextView
+                                        android:layout_width="0dp"
+                                        android:layout_height="wrap_content"
+                                        android:id="@+id/vendor"
+                                        android:textColor="@drawable/text_selector"
+                                        android:background="@drawable/item_selector_w"
+                                        android:textSize="@dimen/text_small" android:textStyle="bold"
+                                        android:gravity="center_vertical|center_horizontal" android:layout_weight="1"
+                                        android:layout_margin="@dimen/stroke"/>
+                            </LinearLayout>
+                        </TableRow>
+                        <TableRow
+                                android:layout_width="fill_parent"
+                                android:layout_height="wrap_content">
+                            <LinearLayout
+                                    android:orientation="horizontal"
+                                    android:layout_width="fill_parent"
+                                    android:layout_height="wrap_content" android:layout_weight="1">
+                                <TextView
+                                        android:layout_width="wrap_content"
+                                        android:layout_height="wrap_content"
+                                        android:id="@+id/check_id"
+                                        android:textColor="@drawable/text_selector"
+                                        android:background="@drawable/item_selector_w"
+                                        android:textSize="@dimen/text_micro" android:textStyle="bold"
+                                        android:gravity="center_vertical|center_horizontal"
+                                        android:layout_margin="@dimen/stroke" android:layout_weight="1"/>
+                                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                                          android:textAppearance="?android:attr/textAppearanceMedium"
+                                          android:text="@string/Date"
+                                          android:id="@+id/textView3" android:textSize="@dimen/text_micro"
+                                          android:textColor="@drawable/text_selector"
+                                          android:layout_margin="@dimen/stroke"
+                                          android:background="@drawable/item_selector"/>
+                                <TextView
+                                        android:layout_width="wrap_content"
+                                        android:layout_height="wrap_content"
+                                        android:id="@+id/date"
+                                        android:textColor="@drawable/text_selector"
+                                        android:background="@drawable/item_selector_w"
+                                        android:textSize="@dimen/text_micro" android:textStyle="bold"
+                                        android:layout_weight="2" android:layout_margin="@dimen/stroke"
+                                        android:gravity="center"/>
+                                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                                          android:id="@+id/time" android:textColor="@drawable/text_selector"
+                                          android:background="@drawable/item_selector_w"
+                                          android:textSize="@dimen/text_micro"
+                                          android:textStyle="bold" android:layout_weight="2"
+                                          android:layout_margin="@dimen/stroke" android:gravity="center"/>
+                            </LinearLayout>
+                        </TableRow>
+                    </TableLayout>
+                </LinearLayout>
+            </LinearLayout>
+            <LinearLayout
+                    android:orientation="horizontal"
+                    android:layout_width="fill_parent"
+                    android:layout_height="fill_parent" android:baselineAligned="false">
+                <LinearLayout
+                        android:orientation="vertical"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content" android:layout_weight="1">
+                    <TextView android:layout_width="fill_parent" android:layout_height="wrap_content"
+                              android:text="@string/Gross"
+                              android:id="@+id/gross"
+                              android:textColor="@drawable/text_selector"
+                              android:textSize="@dimen/text_micro"
+                              android:gravity="center" android:layout_margin="@dimen/stroke"
+                              android:background="@drawable/item_selector"/>
+                    <TextView android:layout_width="fill_parent" android:layout_height="wrap_content"
+                              android:id="@+id/gross_row"
+                              android:textColor="@drawable/text_selector" android:background="@drawable/item_selector_w"
+                              android:textStyle="bold"
+                              android:textSize="@dimen/text_small"
+                              android:layout_margin="@dimen/stroke"
+                              android:gravity="center_vertical|center_horizontal"/>
+                </LinearLayout>
+                <LinearLayout
+                        android:orientation="vertical"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content" android:layout_weight="1">
+                    <TextView
+                            android:layout_width="fill_parent"
+                            android:layout_height="wrap_content"
+                            android:text="@string/Tape"
+                            android:id="@+id/tare"
+                            android:textColor="@drawable/text_selector"
+                            android:textSize="@dimen/text_micro"
+                            android:gravity="center" android:layout_margin="@dimen/stroke"
+                            android:background="@drawable/item_selector"/>
+                    <TextView android:layout_width="fill_parent" android:layout_height="wrap_content"
+                              android:id="@+id/tare_row"
+                              android:textColor="@drawable/text_selector" android:background="@drawable/item_selector_w"
+                              android:textStyle="bold"
+                              android:textSize="@dimen/text_small"
+                              android:layout_margin="@dimen/stroke"
+                              android:gravity="center_vertical|center_horizontal"/>
+                </LinearLayout>
+                <LinearLayout
+                        android:orientation="vertical"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content" android:layout_weight="1">
+                    <TextView android:layout_width="fill_parent" android:layout_height="wrap_content"
+                              android:text="@string/Netto"
+                              android:id="@+id/netto"
+                              android:textColor="@drawable/text_selector"
+                              android:textSize="@dimen/text_micro"
+                              android:gravity="center" android:layout_margin="@dimen/stroke"
+                              android:background="@drawable/item_selector"/>
+                    <TextView android:layout_width="fill_parent" android:layout_height="wrap_content"
+                              android:id="@+id/netto_row"
+                              android:textColor="@drawable/text_selector" android:background="@drawable/item_selector_w"
+                              android:textStyle="bold"
+                              android:textSize="@dimen/text_small"
+                              android:layout_margin="@dimen/stroke"
+                              android:gravity="center_vertical|center_horizontal"/>
+                </LinearLayout>
+                <LinearLayout
+                        android:orientation="vertical"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content" android:layout_weight="1">
+                    <TextView android:layout_width="fill_parent" android:layout_height="wrap_content"
+                              android:text="@string/Sum"
+                              android:id="@+id/sum"
+                              android:textColor="@drawable/text_selector"
+                              android:textSize="@dimen/text_micro"
+                              android:gravity="center" android:layout_margin="@dimen/stroke"
+                              android:background="@drawable/item_selector"/>
+                    <TextView android:layout_width="fill_parent" android:layout_height="wrap_content"
+                              android:id="@+id/sum_row"
+                              android:textColor="@drawable/text_selector" android:background="@drawable/item_selector_w"
+                              android:textStyle="bold"
+                              android:textSize="@dimen/text_small" android:layout_margin="@dimen/stroke"
+                              android:gravity="center_vertical|center_horizontal"/>
+                </LinearLayout>
+            </LinearLayout>
+        </LinearLayout>
+    </LinearLayout>
+</LinearLayout>

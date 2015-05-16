@@ -1,0 +1,22 @@
+<component name="libraryTable">
+  <library name="activation">
+    <CLASSES>
+      <root url="file://C:/android/sdk/extras/android/support/v4" />
+      <root url="jar://$PROJECT_DIR$/../../library/activation.jar!/" />
+      <root url="jar://$PROJECT_DIR$/../../library/additionnal.jar!/" />
+      <root url="jar://$PROJECT_DIR$/../../library/androidmarketapi-0.6.jar!/" />
+      <root url="jar://$PROJECT_DIR$/../../library/gdata-core-1.0.jar!/" />
+      <root url="jar://$PROJECT_DIR$/../../library/gdata-spreadsheet-3.0.jar!/" />
+      <root url="jar://$PROJECT_DIR$/../../library/google-api-client-1.18.0-rc.jar!/" />
+      <root url="jar://$PROJECT_DIR$/../../library/gson-2.1.jar!/" />
+      <root url="jar://$PROJECT_DIR$/../../library/guava-11.0.2.jar!/" />
+      <root url="jar://$PROJECT_DIR$/../../library/jackson-core-2.1.3.jar!/" />
+      <root url="jar://$PROJECT_DIR$/../../library/javax.mail-1.5.2.jar!/" />
+      <root url="jar://$PROJECT_DIR$/../../library/jsr305.jar!/" />
+      <root url="jar://$PROJECT_DIR$/../../library/protobuf-java-2.4.1.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+    <jarDirectory url="file://C:/android/sdk/extras/android/support/v4" recursive="false" />
+  </library>
+</component>

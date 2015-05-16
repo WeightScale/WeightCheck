@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="text_big">80sp</dimen>
+    <dimen name="text_large_xx">40sp</dimen>
+    <dimen name="text_large_x">30sp</dimen>
+    <dimen name="text_large">22sp</dimen>
+    <dimen name="text_medium">18sp</dimen>
+    <dimen name="text_small">14sp</dimen>
+    <dimen name="text_micro">12sp</dimen>
+    <dimen name="text_nano">10sp</dimen>
+    <dimen name="corners">5dip</dimen>
+    <dimen name="corners1">6dip</dimen>
+    <dimen name="corners2">8dip</dimen>
+    <dimen name="corners3">10dip</dimen>
+    <dimen name="padding">2dp</dimen>
+    <dimen name="stroke">1dip</dimen>
+    <dimen name="stroke1">2dip</dimen>
+    <dimen name="width_button">120dp</dimen>
+    <dimen name="width_battery">28sp</dimen>
+    <dimen name="height_progress_weight">10dp</dimen>
+    <dimen name="image_button_size">65dp</dimen>
+    <dimen name="title_size">30dip</dimen>
+</resources>

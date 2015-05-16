@@ -1,0 +1,9 @@
+<component name="libraryTable">
+  <library name="WeightModule">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/../../WeightModule/out/artifacts/WeightModule_jar/weight_module.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>

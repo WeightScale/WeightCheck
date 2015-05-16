@@ -1,0 +1,214 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!--<style name="oad_theme" parent="android:Theme">
+        &lt;!&ndash;<item name="android:windowTitleSize">48.0dip</item>&ndash;&gt;
+        <item name="android:topLeftRadius">10dp</item>
+    </style>-->
+    <!--<style name="LargeTitleTheme" >
+        <item name="android:windowTitleSize">30dip</item>
+        <item name="android:windowTitleStyle">@style/titleTextStyle</item>
+    </style>-->
+    <style name="titleTextStyle">
+        <item name="android:singleLine">true</item>
+        <item name="android:textAppearance">@style/TextAppearanceWindowTitle</item>
+        <item name="android:shadowColor">#BB000000</item>
+        <item name="android:shadowRadius">2.75</item>
+    </style>
+    <!--<style name="myBackgroundStyle" parent="@android:style/Theme.Dialog">
+            <item name="android:background">#FF0000</item>
+    </style>-->
+    <!--<style name="AlertDialogCustom" parent="@android:style/Theme.Dialog">
+        <item name="android:textColor">#00FF00</item>
+        <item name="android:textSize">15sp</item>
+    </style>-->
+    <!--<style name="Radius" >
+        <item name="android:radius">10sp</item>
+    </style>-->
+    <style name="Preferences.white" parent="android:Theme.Light.NoTitleBar">
+    </style>
+
+    <style name="Widget.TextView.ListSeparator" parent="@android:style/Widget.TextView">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <!--<item name="android:textStyle">bold</item>-->
+        <!--<item name="android:textSize">@dimen/text_small</item>-->
+        <item name="android:gravity">center_vertical</item>
+    </style>
+
+    <style name="PreferenceListHeader" parent="Widget.TextView.ListSeparator">
+        <item name="android:textColor">@color/text</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:textSize">@dimen/text_small</item>
+        <item name="android:background">@color/background</item>
+        <item name="android:paddingTop">@dimen/corners</item>
+        <item name="android:paddingBottom">@dimen/corners</item>
+        <item name="android:paddingLeft">@dimen/corners</item>
+    </style>
+
+    <style name="Preferences.black" parent="android:Theme.Black.NoTitleBar">
+        <item name="android:windowBackground">@color/background2</item>
+        <item name="android:horizontalDivider">@color/background</item>
+        <item name="android:dividerHeight">@dimen/stroke</item>
+        <item name="android:listSeparatorTextViewStyle">@style/PreferenceListHeader</item>
+    </style>
+    <style name="CustomImageButton">
+        <item name="android:background">@drawable/design</item>
+        <item name="android:textColor">@color/text</item>
+        <item name="android:gravity">center</item>
+    </style>
+    <!--<style name="CustomImageView">
+        <item name="android:background">@drawable/image_selector</item>
+        &lt;!&ndash;<item name="android:selectable">@drawable/image_selector</item>&ndash;&gt;
+        <item name="android:textColor">@color/text</item>
+        <item name="android:gravity">center</item>
+    </style>-->
+    <style name="CustomButton">
+        <item name="android:background">@drawable/design</item>
+        <item name="android:textColor">@color/text</item>
+        <item name="android:gravity">center</item>
+    </style>
+    <style name="CustomButton1">
+        <item name="android:background">@drawable/design1</item>
+        <item name="android:textColor">@drawable/text_button_selector</item>
+        <item name="android:gravity">center</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+    <style name="CustomButtonImage">
+        <item name="android:background">@drawable/image_selector</item>
+        <item name="android:layout_marginLeft">@dimen/corners3</item>
+        <!--<item name="android:layout_marginTop">@dimen/corners</item>-->
+        <item name="android:layout_marginRight">@dimen/corners3</item>
+        <!--<item name="android:layout_marginBottom">@dimen/corners</item>-->
+        <item name="android:clickable">true</item>
+        <item name="android:paddingTop">@dimen/corners</item>
+        <item name="android:paddingBottom">@dimen/corners</item>
+    </style>
+    <!-- <style name="CustomButtonSearch">
+         <item name="android:background">@drawable/design1</item>
+         <item name="android:textColor">@drawable/text_button_search_selector</item>
+         <item name="android:gravity">center</item>
+         <item name="android:textStyle">bold</item>
+     </style>-->
+    <style name="CustomSpinner" parent="android:Widget.Spinner">
+        <item name="android:background">@drawable/spinner_background</item>
+        <item name="android:clickable">true</item>
+        <item name="android:layout_width">wrap_content</item>
+    </style>
+    <!--<style name="spinner_style">
+        &lt;!&ndash;<item name="android:background">@drawable/gradient_spinner</item>&ndash;&gt;
+        <item name="android:layout_marginLeft">5dp</item>
+        <item name="android:layout_marginRight">5dp</item>
+        <item name="android:layout_marginBottom">0dp</item>
+        <item name="android:paddingLeft">6dp</item>
+        <item name="android:paddingTop">4dp</item>
+        <item name="android:paddingBottom">0dp</item>
+        <item name="android:popupBackground">#DFFFFFFF</item>
+    </style>-->
+
+    <!--<style name="progress_bar_style">
+        <item name="android:windowFrame">@null</item>
+        <item name="android:windowBackground">@android:color/transparent</item>
+        <item name="android:windowIsFloating">true</item>
+        <item name="android:windowContentOverlay">@null</item>
+        <item name="android:windowTitleStyle">@null</item>
+        <item name="android:windowAnimationStyle">@android:style/Animation.Dialog</item>
+        <item name="android:windowSoftInputMode">stateUnspecified|adjustPan</item>
+        <item name="android:backgroundDimEnabled">false</item>
+        <item name="android:background">@android:color/transparent</item>
+    </style>-->
+
+    <!--<style name="CustomAlertDialogStyle" parent="android:Theme.Dialog">
+        <item name="@android:background">@android:color/background_light</item>
+        <item name="@android:textColor">@android:color/primary_text_light</item>
+        <item name="android:textColorPrimary">@color/text</item>
+        <item name="android:textColorSecondary">@color/text</item>
+        <item name="android:panelBackground">@color/dialog</item>
+    </style>-->
+
+    <style name="CustomProgressDialogStyle">
+        <item name="android:bottomBright">@color/background1</item>
+        <item name="android:bottomDark">@color/background1</item>
+        <item name="android:bottomMedium">@color/background1</item>
+        <item name="android:centerBright">@color/background1</item>
+        <item name="android:centerDark">@color/background1</item>
+        <item name="android:centerMedium">@color/background1</item>
+        <item name="android:fullBright">@color/background1</item>
+        <item name="android:fullDark">@color/background1</item>
+        <item name="android:topBright">@color/background1</item>
+        <item name="android:topDark">@color/background1</item>
+    </style>
+
+    <!--<style name="CustomWindowTitleText" parent="android:TextAppearance.WindowTitle">
+        <item name="android:textSize">40sp</item>
+        <item name="android:textColor">#5599FF</item>
+        <item name="android:textStyle">bold|italic</item>
+    </style>-->
+    <!-- Changes the background color of the title bar -->
+    <!--<style name="CustomWindowTitleBackground">
+        <item name="android:background">#222222</item>
+    </style>-->
+
+    <style name="TextAppearanceWindowTitle">
+        <item name="android:textColor">@color/white</item>
+        <item name="android:textSize">@dimen/text_small</item>
+        <item name="android:textStyle">normal</item>
+    </style>
+
+    <!-- Set the theme for the window title -->
+    <!-- NOTE: setting android:textAppearence to style defined above -->
+    <!--<style name="CustomWindowTitle" >
+        <item name="android:textAppearance">@style/TextAppearanceWindowTitle</item>
+        <item name="android:shadowDx">0</item>
+        <item name="android:shadowDy">0</item>
+        <item name="android:shadowRadius">5</item>
+        <item name="android:shadowColor">#1155CC</item>
+    </style>-->
+    <!-- Override properties in the default theme -->
+    <!-- NOTE: you must explicitly the windowTitleSize property, the title bar will not re-size automatically, text will be clipped -->
+    <!--<style name="CustomTheme" parent="android:Theme">
+        <item name="android:windowTitleSize">40dip</item>
+        <item name="android:windowTitleStyle">@style/CustomWindowTitle</item>
+        <item name="android:windowTitleBackgroundStyle">@style/CustomWindowTitleBackground</item>
+    </style>-->
+
+    <style name="CustomWeightTextView">
+        <item name="android:indeterminateOnly">false</item>
+        <item name="android:progressDrawable">@drawable/weight_progress</item>
+        <!--<item name="android:indeterminateDrawable">@android:drawable/progress_indeterminate_horizontal</item>-->
+        <item name="android:minHeight">20dip</item>
+        <item name="android:maxHeight">20dip</item>
+    </style>
+
+    <!--<style name="CustomItemListView">
+        <item name="android:background">@drawable/list_item_selector</item>
+    </style>-->
+
+    <style name="CustomTemperatureProgressBar" parent="android:Widget.ProgressBar.Horizontal">
+        <item name="android:indeterminateOnly">false</item>
+        <item name="android:progressDrawable">@drawable/temperature</item>
+        <item name="android:max">120</item>
+        <item name="android:secondaryProgress">120</item>
+    </style>
+
+    <style name="CustomBatteryProgressBar" parent="android:Widget.ProgressBar.Horizontal">
+        <item name="android:layout_width">@dimen/width_battery</item>
+        <item name="android:indeterminateOnly">false</item>
+        <item name="android:progressDrawable">@drawable/battery</item>
+        <item name="android:background">@drawable/b_low</item>
+        <item name="android:max">100</item>
+        <item name="android:paddingTop">6dp</item>
+        <item name="android:paddingBottom">3dp</item>
+    </style>
+
+    <style name="CustomTabWidget" parent="@android:style/Widget.TabWidget">
+        <item name="android:textAppearance">@style/CustomTabWidgetText</item>
+    </style>
+    <style name="CustomTabWidgetText" parent="@android:style/TextAppearance.Widget.TabWidget">
+        <item name="android:textSize">@dimen/text_small</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:textColor">@color/text</item>
+        <item name="android:padding">@dimen/corners</item>
+        <!--<item name="android:layout_margin">@dimen/padding</item>-->
+    </style>
+
+</resources>

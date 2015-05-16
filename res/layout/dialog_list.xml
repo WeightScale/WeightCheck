@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:orientation="vertical"
+              android:layout_width="fill_parent"
+              android:layout_height="wrap_content"
+              android:padding="20dp" android:gravity="center" android:contentDescription="@null">
+    <LinearLayout
+            android:orientation="vertical"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" android:background="@android:color/white">
+        <LinearLayout
+                android:orientation="horizontal"
+                android:layout_width="fill_parent"
+                android:layout_height="fill_parent" android:background="@color/background"
+                android:layout_margin="@dimen/padding">
+            <ImageView
+                    android:id="@+id/dialog_title_image"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:background="@android:drawable/ic_dialog_info" android:layout_marginLeft="10dp"
+                    android:layout_marginTop="5dp" android:layout_marginBottom="5dp"
+                    android:layout_marginRight="10dp" android:contentDescription="@null"/>
+            <TextView
+                    android:id="@+id/dialog_title"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textColor="@android:color/black"
+                    android:textSize="20sp" android:layout_gravity="center" android:layout_margin="@dimen/padding"/>
+        </LinearLayout>
+        <TextView
+                android:layout_width="fill_parent"
+                android:layout_height="3dip"
+                android:background="#1e90ff" android:layout_marginLeft="@dimen/padding"
+                android:layout_marginRight="@dimen/padding"/>
+        <ListView
+                android:id="@+id/component_list"
+                android:layout_width="fill_parent"
+                android:layout_height="200dp" android:background="@color/white" android:layout_margin="@dimen/padding"/>
+        <LinearLayout
+                android:orientation="horizontal"
+                android:layout_width="fill_parent"
+                android:layout_height="fill_parent" android:background="@color/background"
+                android:layout_marginLeft="@dimen/padding" android:layout_marginRight="@dimen/padding"
+                android:layout_marginBottom="@dimen/padding">
+            <LinearLayout
+                    android:orientation="horizontal"
+                    android:layout_width="fill_parent"
+                    android:layout_height="fill_parent"
+                    android:layout_margin="@dimen/padding">
+                <Button
+                        android:layout_width="wrap_content"
+                        android:layout_height="match_parent"
+                        android:text="@string/New"
+                        android:id="@+id/buttonNew"
+                        style="?android:attr/buttonStyle" android:layout_weight="1"
+                        android:layout_margin="@dimen/padding"/>
+                <Button
+                        style="?android:attr/buttonStyle"
+                        android:layout_width="wrap_content"
+                        android:layout_height="match_parent"
+                        android:text="@string/All"
+                        android:id="@+id/buttonAll" android:layout_margin="@dimen/padding" android:layout_weight="1"/>
+                <Button
+                        android:id="@+id/positive_button"
+                        android:layout_width="wrap_content"
+                        android:layout_height="match_parent"
+                        android:text="@string/Close"
+                        style="?android:attr/buttonStyle" android:layout_weight="1"
+                        android:layout_margin="@dimen/padding"/>
+            </LinearLayout>
+        </LinearLayout>
+    </LinearLayout>
+</LinearLayout>

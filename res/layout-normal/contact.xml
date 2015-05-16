@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:orientation="vertical"
+              android:layout_width="fill_parent"
+              android:layout_height="fill_parent"
+              android:padding="@dimen/padding">
+
+    <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content" android:background="#ff4e4e4e">
+        <LinearLayout
+                android:orientation="horizontal"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content" android:background="#ff4e4e4e"
+                android:id="@+id/layoutSearch" android:visibility="visible" android:layout_marginLeft="@dimen/corners"
+                android:layout_marginRight="@dimen/corners" android:layout_margin="@dimen/corners">
+            <LinearLayout
+                    android:orientation="horizontal"
+                    android:layout_width="fill_parent"
+                    android:layout_height="fill_parent" android:background="@drawable/round_rectangle_w">
+                <ImageView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:id="@+id/imageView" android:src="@drawable/ic_action_search_light"
+                        android:layout_gravity="center"
+                        android:contentDescription="@null"/>
+                <EditText
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:imeOptions="actionDone"
+                        android:id="@+id/textSearch" android:inputType="textFilter"
+                        android:textSize="@dimen/text_large_x"
+                        android:gravity="left|center" android:layout_margin="@dimen/padding"
+                        android:layout_gravity="center" android:layout_weight="1"
+                        android:focusable="true"
+                        android:focusableInTouchMode="true" android:background="@color/white"/>
+                <ImageView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:id="@+id/closedSearch" android:src="@drawable/ic_action_closed_light"
+                        android:layout_gravity="center"
+                        android:clickable="true" android:background="@drawable/image_selector"
+                        android:contentDescription="@string/Closed_search"/>
+            </LinearLayout>
+        </LinearLayout>
+    </LinearLayout>
+    <LinearLayout
+            android:orientation="vertical"
+            android:layout_width="fill_parent"
+            android:layout_height="0dp" android:layout_weight="1" android:background="#ff4e4e4e"
+            android:paddingTop="@dimen/corners">
+        <ListView
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:id="@android:id/list" android:layout_gravity="left|center_vertical" android:clickable="true"
+                android:layout_margin="@dimen/padding" android:background="#ff4e4e4e"
+                android:divider="@color/background" android:dividerHeight="@dimen/stroke"/>
+    </LinearLayout>
+    <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content" android:background="#ff4e4e4e">
+        <ImageView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/buttonBack" android:src="@drawable/ic_action_back" style="@style/CustomButtonImage"
+                android:layout_weight="1" android:clickable="true"
+                android:contentDescription="@string/Come_back"/>
+        <ImageView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/buttonSearch"
+                android:src="@drawable/ic_action_search" style="@style/CustomButtonImage" android:layout_weight="1"
+                android:clickable="true"
+                android:contentDescription="@string/Open_search"/>
+        <ImageView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/buttonNew" style="@style/CustomButtonImage"
+                android:src="@drawable/ic_action_new_contact"
+                android:layout_weight="1" android:clickable="true"
+                android:contentDescription="@string/Add_contact"/>
+    </LinearLayout>
+</LinearLayout>

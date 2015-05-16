@@ -1,0 +1,152 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="weightcheck" default="all">
+
+
+    <property file="weightcheck.properties"/>
+    <!-- Uncomment the following property if no tests compilation is needed -->
+    <!--
+    <property name="skip.tests" value="true"/>
+     -->
+
+    <!-- Compiler options -->
+
+    <property name="compiler.debug" value="on"/>
+    <property name="compiler.generate.no.warnings" value="off"/>
+    <property name="compiler.args" value=""/>
+    <property name="compiler.max.memory" value="700m"/>
+    <patternset id="ignored.files">
+        <exclude name="**/CVS/**"/>
+        <exclude name="**/SCCS/**"/>
+        <exclude name="**/RCS/**"/>
+        <exclude name="**/rcs/**"/>
+        <exclude name="**/.DS_Store/**"/>
+        <exclude name="**/.svn/**"/>
+        <exclude name="**/.pyc/**"/>
+        <exclude name="**/.pyo/**"/>
+        <exclude name="**/*.pyc/**"/>
+        <exclude name="**/*.pyo/**"/>
+        <exclude name="**/.git/**"/>
+        <exclude name="**/*.hprof/**"/>
+        <exclude name="**/_svn/**"/>
+        <exclude name="**/.hg/**"/>
+        <exclude name="**/*.lib/**"/>
+        <exclude name="**/*~/**"/>
+        <exclude name="**/__pycache__/**"/>
+        <exclude name="**/.bundle/**"/>
+        <exclude name="**/*.rbc/**"/>
+        <exclude name="**/vssver.scc/**"/>
+        <exclude name="**/vssver2.scc/**"/>
+    </patternset>
+    <patternset id="library.patterns">
+        <include name="*.war"/>
+        <include name="*.ear"/>
+        <include name="*.apk"/>
+        <include name="*.zip"/>
+        <include name="*.swc"/>
+        <include name="*.ane"/>
+        <include name="*.egg"/>
+        <include name="*.jar"/>
+    </patternset>
+    <patternset id="compiler.resources">
+        <exclude name="**/?*.java"/>
+        <exclude name="**/?*.form"/>
+        <exclude name="**/?*.class"/>
+        <exclude name="**/?*.groovy"/>
+        <exclude name="**/?*.scala"/>
+        <exclude name="**/?*.flex"/>
+        <exclude name="**/?*.kt"/>
+        <exclude name="**/?*.clj"/>
+    </patternset>
+
+    <!-- JDK definitions -->
+
+    <property name="jdk.bin.android_4.0.3_google_apis"
+              value="${jdk.home.android_4.0.3_google_apis}/../../Program Files (x86)/Java/jdk1.7.0/bin"/>
+    <path id="jdk.classpath.android_4.0.3_google_apis">
+        <fileset dir="${jdk.home.android_4.0.3_google_apis}">
+            <include name="platforms/android-15/android.jar"/>
+            <include name="add-ons/addon-google_apis-google-15/libs/usb.jar"/>
+            <include name="add-ons/addon-google_apis-google-15/libs/effects.jar"/>
+            <include name="add-ons/addon-google_apis-google-15/libs/maps.jar"/>
+            <include name="platforms/android-15/data/res"/>
+            <include name="tools/support/annotations.jar"/>
+        </fileset>
+    </path>
+
+    <property name="project.jdk.home" value=""/>
+    <property name="project.jdk.bin" value=""/>
+    <property name="project.jdk.classpath" value=""/>
+
+
+    <!-- Project Libraries -->
+
+    <path id="library.activation.classpath">
+        <fileset dir="C:/android/sdk/extras/android/support/v4">
+            <patternset refid="library.patterns"/>
+        </fileset>
+        <pathelement location="${basedir}/libs/androidmarketapi-0.6.jar"/>
+        <pathelement location="${basedir}/libs/gdata-core-1.0.jar"/>
+        <pathelement location="${basedir}/libs/gdata-spreadsheet-3.0.jar"/>
+        <pathelement location="${basedir}/libs/google-api-client-1.18.0-rc.jar"/>
+        <pathelement location="${basedir}/libs/gson-2.1.jar"/>
+        <pathelement location="${basedir}/libs/guava-11.0.2.jar"/>
+        <pathelement location="${basedir}/libs/jackson-core-2.1.3.jar"/>
+        <pathelement location="${basedir}/libs/jsr305.jar"/>
+        <pathelement location="${basedir}/libs/protobuf-java-2.4.1.jar"/>
+    </path>
+    <!-- Register Custom Compiler Taskdefs -->
+    <property name="javac2.home" value="${idea.home}/lib"/>
+    <path id="javac2.classpath">
+        <pathelement location="${javac2.home}/javac2.jar"/>
+        <pathelement location="${javac2.home}/jdom.jar"/>
+        <pathelement location="${javac2.home}/asm4-all.jar"/>
+        <pathelement location="${javac2.home}/jgoodies-forms.jar"/>
+    </path>
+    <target name="register.custom.compilers">
+        <taskdef name="javac2" classname="com.intellij.ant.Javac2" classpathref="javac2.classpath"/>
+        <taskdef name="instrumentIdeaExtensions" classname="com.intellij.ant.InstrumentIdeaExtensions"
+                 classpathref="javac2.classpath"/>
+    </target>
+
+    <!-- Modules -->
+
+    <import file="${basedir}/module_weightcheck.xml"/>
+
+    <target name="init" description="Build initialization">
+        <!-- Perform any build initialization in this target -->
+    </target>
+
+    <target name="clean" depends="clean.module.weightcheck" description="cleanup all"/>
+
+    <target name="build.modules" depends="init, clean, compile.module.weightcheck" description="build all modules"/>
+
+    <target name="init.artifacts">
+        <property name="artifacts.temp.dir" value="${basedir}/__artifacts_temp"/>
+        <property name="artifact.output.weightcheck" value="${basedir}/out/artifacts/WeightCheck"/>
+        <mkdir dir="${artifacts.temp.dir}"/>
+        <property name="temp.jar.path.WeightCheck.apk" value="${artifacts.temp.dir}/WeightCheck.apk"/>
+    </target>
+
+    <target name="artifact.weightcheck" depends="init.artifacts, compile.module.weightcheck"
+            description="Build &#39;WeightCheck&#39; artifact">
+        <property name="artifact.temp.output.weightcheck" value="${artifacts.temp.dir}/WeightCheck"/>
+        <mkdir dir="${artifact.temp.output.weightcheck}"/>
+        <zip destfile="${temp.jar.path.WeightCheck.apk}">
+            <zipfileset
+                    src="D:/MY/Proect/IdeaProjects/Viktor/WeightCheck/out/production/WeightCheck/WeightCheck.afp.apk!/"/>
+        </zip>
+        <copy file="${temp.jar.path.WeightCheck.apk}" tofile="${artifact.temp.output.weightcheck}/WeightCheck.apk"/>
+    </target>
+
+    <target name="build.all.artifacts" depends="artifact.weightcheck" description="Build all artifacts">
+        <mkdir dir="${artifact.output.weightcheck}"/>
+        <copy todir="${artifact.output.weightcheck}">
+            <fileset dir="${artifact.temp.output.weightcheck}"/>
+        </copy>
+
+        <!-- Delete temporary files -->
+        <delete dir="${artifacts.temp.dir}"/>
+    </target>
+
+    <target name="all" depends="build.modules, build.all.artifacts" description="build all"/>
+</project>

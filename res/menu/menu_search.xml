@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:id="@+id/checks_all" android:title="@string/CHECKS" android:icon="@drawable/accept_database"/>
+    <item android:id="@+id/search" android:title="@string/SEARCH" android:icon="@drawable/ic_action_bluetooth"/>
+    <item android:id="@+id/exit" android:title="@string/EXIT" android:icon="@drawable/exit"/>
+</menu>

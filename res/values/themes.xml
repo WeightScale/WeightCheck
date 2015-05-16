@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="MyTheme" parent="android:Theme">
+        <item name="android:windowBackground">@color/background_light</item>
+        <!--<item name="android:alertDialogStyle">@style/CustomAlertDialogStyle</item>-->
+        <item name="android:windowTitleStyle">@style/titleTextStyle</item>
+        <item name="android:windowTitleSize">@dimen/title_size</item>
+        <item name="android:buttonStyle">@style/CustomButton1</item>
+        <item name="android:imageButtonStyle">@style/CustomImageButton</item>
+        <item name="android:windowSoftInputMode">adjustPan</item>
+        <!--<item name="android:spinnerStyle">@android:style/Widget.Spinner</item>-->
+        <item name="android:spinnerStyle">@style/CustomSpinner</item>
+        <item name="android:tabWidgetStyle">@style/CustomTabWidget</item>
+    </style>
+    <style name="ProgressDialogCustom" parent="android:Theme.Panel">
+        <item name="android:alertDialogStyle">@style/CustomProgressDialogStyle</item>
+    </style>
+</resources>

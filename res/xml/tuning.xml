@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+    <PreferenceCategory android:title="Калибровка весов">
+        <PreferenceScreen android:title="Калибровка весов"
+                          android:summary="Калибровка весов с ипользыванием калиброваного веса">
+            <PreferenceCategory android:title="Калибровка весов">
+                <Preference android:title="Нулевой вес"
+                            android:summary="Установите нулевой вес на весах, и нажминте на поле" android:key="point1"/>
+                <EditTextPreference android:title="Контрольный вес"
+                                    android:summary=" Установите калиброваный вес на весах, и введите вес в поле"
+                                    android:key="point2" android:inputType="number"/>
+                <EditTextPreference android:title="Максимальный вес"
+                                    android:summary="Введите в поле максимальный вес который взвешивают весы"
+                                    android:key="weightMax" android:inputType="number"/>
+                <EditTextPreference android:title="Установить температуру"
+                                    android:summary="Введите в поле текущую температуру" android:key="call_temp"
+                                    android:inputType="number"/>
+                <EditTextPreference android:title="Батарея"
+                                    android:summary="Введите в поле текущий заряд батареи в процентах"
+                                    android:key="call_battery" android:inputType="number"/>
+            </PreferenceCategory>
+        </PreferenceScreen>
+    </PreferenceCategory>
+    <PreferenceCategory android:title="Ввод калибровочных данных">
+        <PreferenceScreen android:title="Ввод калибровочных данных"
+                          android:summary="Ввод в ручную калибровочных данных которые известны">
+            <PreferenceCategory android:title="Ввод калибровочных данных">
+                <EditTextPreference android:title="Константа А"
+                                    android:summary="Введите константу А которая была вычеслена при калибровке весов"
+                                    android:key="coefficientA" android:inputType="numberDecimal"/>
+                <EditTextPreference android:title="Константа B"
+                                    android:summary="Введите константу В которая была вычеслена при калибровке весов"
+                                    android:key="coefficientB" android:inputType="numberDecimal"/>
+            </PreferenceCategory>
+        </PreferenceScreen>
+    </PreferenceCategory>
+    <PreferenceCategory android:title="Настройки для облака">
+        <PreferenceScreen android:title="Настройки для облака"
+                          android:summary="Настройки для отправки данных через интернет">
+            <PreferenceCategory android:title="Настройки для облака">
+                <EditTextPreference android:title="Таблица" android:summary="Имя таблици spreadsheet в Google drive "
+                                    android:key="sheet" android:inputType="text"/>
+                <EditTextPreference android:title="Пользователь" android:summary="Account Google" android:key="name"
+                                    android:inputType="textEmailAddress"/>
+                <EditTextPreference android:title="Пароль" android:summary="Password account Google"
+                                    android:key="password" android:inputType="textPassword"/>
+            </PreferenceCategory>
+        </PreferenceScreen>
+    </PreferenceCategory>
+    <PreferenceCategory android:title="Настройки для сообщений"
+                        android:summary="Настройки для отправки сообщений через смс">
+        <PreferenceScreen android:title="Настройки для сообщений">
+            <EditTextPreference android:title="Телефон" android:summary="Номер телефона для смс" android:key="phone_msg"
+                                android:inputType="phone"/>
+        </PreferenceScreen>
+    </PreferenceCategory>
+</PreferenceScreen>

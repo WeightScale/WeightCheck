@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="type_array">
+        <item>Mixed</item>
+        <item>Colourless</item>
+        <item>Window</item>
+        <item>Reweighing</item>
+        <item>Test</item>
+    </string-array>
+</resources>

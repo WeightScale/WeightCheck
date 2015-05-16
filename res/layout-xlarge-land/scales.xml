@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:layout_width="fill_parent"
+              android:layout_height="fill_parent"
+              android:orientation="vertical" android:padding="@dimen/padding"
+              android:id="@+id/searchScreen">
+    <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="fill_parent"
+            android:layout_height="0dp" android:baselineAligned="false" android:layout_weight="1"
+            android:background="@color/background2">
+        <LinearLayout
+                android:orientation="vertical"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/scaleSection">
+            <RelativeLayout
+                    android:layout_width="fill_parent"
+                    android:layout_height="@dimen/image_button_size"
+                    android:paddingLeft="@dimen/padding" android:paddingTop="@dimen/padding"
+                    android:paddingRight="@dimen/padding">
+                <LinearLayout
+                        android:orientation="horizontal"
+                        android:layout_width="wrap_content"
+                        android:layout_height="fill_parent" android:id="@+id/linearSectionScale"
+                        android:weightSum="1" android:gravity="bottom"
+                        android:layout_alignParentBottom="true" android:layout_alignParentLeft="true">
+                    <com.victjava.scales.BatteryProgressBar
+                            style="@style/CustomBatteryProgressBar"
+                            android:layout_height="match_parent"
+                            android:id="@+id/progressBarBattery"
+                            android:visibility="visible"
+                            android:progress="100"
+                            android:layout_margin="@dimen/padding" android:layout_width="wrap_content"/>
+                    <com.victjava.scales.TemperatureProgressBar
+                            style="@style/CustomTemperatureProgressBar"
+                            android:layout_width="@dimen/image_button_size"
+                            android:layout_height="fill_parent"
+                            android:id="@+id/progressBarTemperature"
+                            android:visibility="visible"
+                            android:indeterminate="false"
+                            android:clickable="false"
+                            android:progress="22"
+                            android:layout_margin="@dimen/padding"/>
+                </LinearLayout>
+                <ImageView
+                        android:layout_width="@dimen/image_button_size"
+                        android:layout_height="wrap_content"
+                        android:id="@+id/imageViewRemote"
+                        android:layout_gravity="center_horizontal|bottom"
+                        android:contentDescription="@string/des_image_remote"
+                        android:adjustViewBounds="false" android:src="@drawable/rss_off"
+                        android:baselineAlignBottom="false"
+                        android:layout_alignParentTop="true" android:layout_alignParentBottom="true"
+                        style="@style/CustomButtonImage"
+                        android:layout_alignParentRight="true" android:layout_marginRight="0dp"/>
+                <!--android:visibility="invisible"-->
+            </RelativeLayout>
+            <RelativeLayout
+                    android:layout_width="fill_parent"
+                    android:layout_height="match_parent"
+                    android:paddingLeft="@dimen/padding"
+                    android:paddingRight="@dimen/padding" android:paddingBottom="@dimen/padding"
+                    >
+                <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/Checks_unclosed"
+                        android:id="@+id/textView"
+                        android:layout_alignParentTop="true" android:background="@drawable/round_rectangle"
+                        android:textColor="@color/text" android:gravity="center_vertical|center_horizontal"
+                        android:layout_alignParentRight="true" android:layout_alignParentLeft="true"
+                        />
+                <ListView
+                        android:layout_width="fill_parent"
+                        android:layout_height="match_parent"
+                        android:id="@+id/listViewWeights"
+                        android:layout_gravity="left|center_vertical"
+                        android:layout_alignParentRight="true"
+                        android:layout_alignLeft="@+id/textView"
+                        android:layout_below="@+id/textView"
+                        />
+            </RelativeLayout>
+        </LinearLayout>
+    </LinearLayout>
+    <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content" android:id="@+id/linearLayout"
+            android:background="@color/background2">
+        <ImageView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:id="@+id/buttonMenu" android:src="@drawable/ic_action_sett"
+                android:layout_weight="1"
+                style="@style/CustomButtonImage" android:contentDescription="@string/Menu_settings"/>
+        <ImageView style="@style/CustomButtonImage" android:layout_width="match_parent"
+                   android:layout_height="match_parent" android:id="@+id/imageNewCheck"
+                   android:contentDescription="@string/des_image_down" android:src="@drawable/ic_add_check"
+                   android:layout_marginRight="@dimen/padding" android:focusableInTouchMode="true"
+                   android:layout_marginLeft="@dimen/padding" android:layout_gravity="center_horizontal"
+                   android:layout_weight="1"/>
+        <ImageView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/buttonBack" android:src="@drawable/ic_action_back" android:layout_weight="1"
+                style="@style/CustomButtonImage" android:contentDescription="@string/Come_back"/>
+    </LinearLayout>
+</LinearLayout>

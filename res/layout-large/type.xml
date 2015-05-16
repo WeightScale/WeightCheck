@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:orientation="vertical"
+              android:layout_width="fill_parent"
+              android:layout_height="fill_parent"
+              android:padding="@dimen/padding">
+
+    <LinearLayout
+            android:orientation="vertical"
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent" android:background="#ff4e4e4e">
+        <!--<Button
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/NEW_TYPE"
+                android:id="@+id/buttonNew" android:textSize="@dimen/text_medium" android:layout_margin="@dimen/padding"
+                />-->
+        <ListView
+                android:layout_width="fill_parent"
+                android:layout_height="0dp"
+                android:id="@android:id/list" android:layout_gravity="left|center_vertical"
+                android:layout_margin="@dimen/padding" android:layout_weight="1"/>
+        <LinearLayout
+                android:orientation="horizontal"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content">
+            <ImageView
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:id="@+id/buttonBack" android:src="@drawable/ic_action_back"
+                    style="@style/CustomButtonImage"
+                    android:layout_weight="1" android:contentDescription="@string/Come_back"/>
+            <ImageView
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:id="@+id/buttonNew" style="@style/CustomButtonImage"
+                    android:src="@drawable/ic_action_type"
+                    android:layout_weight="1" android:contentDescription="@string/New_goods"/>
+        </LinearLayout>
+    </LinearLayout>
+</LinearLayout>

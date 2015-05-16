@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:layout_height="wrap_content"
+              android:orientation="horizontal" android:layout_width="fill_parent"
+              android:weightSum="1" android:padding="@dimen/padding"
+              android:focusable="false" android:focusableInTouchMode="false" android:clickable="false"
+        >
+    <LinearLayout
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content" android:focusable="false"
+            android:focusableInTouchMode="false" android:clickable="false"
+            android:orientation="horizontal" android:padding="@dimen/padding">
+        <TextView android:layout_height="fill_parent"
+                  android:textSize="@dimen/text_medium"
+                  android:layout_width="0dp"
+                  android:textColor="@android:color/white"
+                  android:longClickable="false" android:id="@+id/contactName"
+                  android:clickable="false" android:focusable="false"
+                  android:focusableInTouchMode="false" android:layout_weight="1"
+                  android:background="@color/transparent" android:gravity="left|center"
+                  android:layout_margin="@dimen/padding" android:textStyle="bold"/>
+        <ImageView
+                android:layout_width="60sp"
+                android:layout_height="60sp"
+                android:id="@+id/contactPhoto"
+                android:background="@color/background_item_list"
+                android:clickable="false" android:longClickable="false" android:focusable="false"
+                android:focusableInTouchMode="false" android:layout_margin="@dimen/padding"
+                android:contentDescription="@string/Photo"/>
+    </LinearLayout>
+</LinearLayout>

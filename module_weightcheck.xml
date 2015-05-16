@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="module_weightcheck" default="compile.module.weightcheck">
+    <dirname property="module.weightcheck.basedir" file="${ant.file.module_weightcheck}"/>
+
+    <property name="module.jdk.home.weightcheck" value="${jdk.home.android_4.0.3_google_apis}"/>
+    <property name="module.jdk.bin.weightcheck" value="${jdk.bin.android_4.0.3_google_apis}"/>
+    <property name="module.jdk.classpath.weightcheck" value="jdk.classpath.android_4.0.3_google_apis"/>
+
+    <property name="compiler.args.weightcheck" value="-encoding UTF-8 -source 1.6 ${compiler.args}"/>
+
+    <property name="weightcheck.output.dir" value="${module.weightcheck.basedir}/out/production/WeightCheck"/>
+    <property name="weightcheck.testoutput.dir" value="${module.weightcheck.basedir}/out/test/WeightCheck"/>
+
+    <path id="weightcheck.module.bootclasspath">
+        <!-- Paths to be included in compilation bootclasspath -->
+    </path>
+
+    <path id="weightcheck.module.production.classpath">
+        <path refid="${module.jdk.classpath.weightcheck}"/>
+        <path refid="library.activation.classpath"/>
+    </path>
+
+    <path id="weightcheck.runtime.production.module.classpath">
+        <pathelement location="${weightcheck.output.dir}"/>
+        <path refid="library.activation.classpath"/>
+    </path>
+
+    <path id="weightcheck.module.classpath">
+        <path refid="${module.jdk.classpath.weightcheck}"/>
+        <pathelement location="${weightcheck.output.dir}"/>
+        <path refid="library.activation.classpath"/>
+    </path>
+
+    <path id="weightcheck.runtime.module.classpath">
+        <pathelement location="${weightcheck.testoutput.dir}"/>
+        <pathelement location="${weightcheck.output.dir}"/>
+        <path refid="library.activation.classpath"/>
+    </path>
+
+
+    <patternset id="excluded.from.module.weightcheck">
+        <patternset refid="ignored.files"/>
+    </patternset>
+
+    <patternset id="excluded.from.compilation.weightcheck">
+        <patternset refid="excluded.from.module.weightcheck"/>
+    </patternset>
+
+    <path id="weightcheck.module.sourcepath">
+        <dirset dir="${module.weightcheck.basedir}">
+            <include name="src"/>
+            <include name="gen"/>
+        </dirset>
+    </path>
+
+
+    <target name="compile.module.weightcheck"
+            depends="compile.module.weightcheck.production,compile.module.weightcheck.tests"
+            description="Compile module WeightCheck"/>
+
+    <target name="compile.module.weightcheck.production" depends="register.custom.compilers"
+            description="Compile module WeightCheck; production classes">
+        <mkdir dir="${weightcheck.output.dir}"/>
+        <javac2 destdir="${weightcheck.output.dir}" debug="${compiler.debug}" nowarn="${compiler.generate.no.warnings}"
+                memorymaximumsize="${compiler.max.memory}" fork="true" executable="${module.jdk.bin.weightcheck}/javac">
+            <compilerarg line="${compiler.args.weightcheck}"/>
+            <bootclasspath refid="weightcheck.module.bootclasspath"/>
+            <classpath refid="weightcheck.module.production.classpath"/>
+            <src refid="weightcheck.module.sourcepath"/>
+            <patternset refid="excluded.from.compilation.weightcheck"/>
+        </javac2>
+
+        <copy todir="${weightcheck.output.dir}">
+            <fileset dir="${module.weightcheck.basedir}/src">
+                <patternset refid="compiler.resources"/>
+                <type type="file"/>
+            </fileset>
+            <fileset dir="${module.weightcheck.basedir}/gen">
+                <patternset refid="compiler.resources"/>
+                <type type="file"/>
+            </fileset>
+        </copy>
+    </target>
+
+    <target name="compile.module.weightcheck.tests"
+            depends="register.custom.compilers,compile.module.weightcheck.production"
+            description="compile module WeightCheck; test classes" unless="skip.tests"/>
+
+    <target name="clean.module.weightcheck" description="cleanup module">
+        <delete dir="${weightcheck.output.dir}"/>
+        <delete dir="${weightcheck.testoutput.dir}"/>
+    </target>
+</project>

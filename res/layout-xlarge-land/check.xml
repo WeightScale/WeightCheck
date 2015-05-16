@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:orientation="vertical"
+              android:layout_width="fill_parent"
+              android:layout_height="fill_parent"
+              android:padding="@dimen/padding"
+              android:id="@+id/screenCheck"
+              android:clickable="true">
+
+
+    <LinearLayout android:layout_width="fill_parent" android:layout_height="wrap_content"
+                  android:background="#ff4e4e4e"
+                  android:orientation="vertical">
+        <LinearLayout android:layout_width="fill_parent" android:layout_height="wrap_content"
+                      android:id="@+id/linearLayout"
+                      android:layout_gravity="center" android:layout_margin="@dimen/padding"
+                      android:orientation="horizontal">
+            <com.victjava.scales.WeightTextView
+                    style="@style/CustomWeightTextView"
+                    android:layout_width="fill_parent"
+                    android:layout_height="@dimen/text_big"
+                    android:id="@+id/weightTextView"
+                    android:interpolator="@android:anim/linear_interpolator" android:clickable="true"/>
+        </LinearLayout>
+        <ProgressBar style="@android:style/Widget.ProgressBar.Horizontal" android:layout_width="fill_parent"
+                     android:layout_height="@dimen/height_progress_weight" android:id="@+id/progressBarWeight"
+                     android:layout_gravity="left|center_vertical" android:progressDrawable="@drawable/progress_weight"
+                     android:focusableInTouchMode="false"
+                     android:layout_marginBottom="@dimen/padding" android:layout_marginLeft="@dimen/padding"
+                     android:layout_marginRight="@dimen/padding"/>
+    </LinearLayout>
+    <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="fill_parent"
+            android:layout_height="0dp" android:background="@color/background2" android:layout_weight="1"
+            >
+        <TabHost android:id="@android:id/tabhost"
+                 android:layout_width="fill_parent"
+                 android:layout_height="fill_parent"
+                 android:layout_marginLeft="@dimen/padding" android:layout_marginRight="@dimen/padding"
+                >
+            <LinearLayout
+                    android:orientation="vertical"
+                    android:layout_width="fill_parent"
+                    android:layout_height="fill_parent">
+                <FrameLayout
+                        android:id="@android:id/tabcontent"
+                        android:layout_width="0dp"
+                        android:layout_height="0dp"
+                        />
+                <TabWidget
+                        android:id="@android:id/tabs"
+                        android:layout_width="fill_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal" android:layout_marginLeft="@dimen/padding"
+                        android:layout_marginRight="@dimen/padding" android:layout_marginTop="@dimen/padding"
+                        style="@style/CustomTabWidget"/>
+                <android.support.v4.view.ViewPager
+                        android:id="@+id/pager"
+                        android:layout_width="fill_parent"
+                        android:layout_height="fill_parent"
+                        />
+            </LinearLayout>
+        </TabHost>
+    </LinearLayout>
+    <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content" android:background="@color/background2">
+        <ImageView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/buttonFinish" android:src="@drawable/ic_action_back" android:layout_weight="1"
+                android:layout_gravity="bottom"
+                android:contentDescription="@string/Come_back"
+                android:adjustViewBounds="false"
+                style="@style/CustomButtonImage"/>
+        <ImageView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/imageViewPage" android:layout_weight="1"
+                android:layout_gravity="bottom"
+                android:contentDescription="@string/Send_messages"
+                android:src="@drawable/ic_action_mail"
+                style="@style/CustomButtonImage"/>
+    </LinearLayout>
+</LinearLayout>

@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="text_big">180sp</dimen>
+    <dimen name="text_large">66sp</dimen>
+    <dimen name="text_medium">54sp</dimen>
+    <dimen name="text_small">42sp</dimen>
+    <dimen name="text_micro">30sp</dimen>
+    <dimen name="text_nano">30sp</dimen>
+    <dimen name="corners">5dip</dimen>
+    <dimen name="padding">5dp</dimen>
+    <dimen name="stroke">2dp</dimen>
+    <dimen name="stroke1">4dip</dimen>
+    <dimen name="width_button">300dp</dimen>
+    <dimen name="width_battery">60sp</dimen>
+    <dimen name="height_progress_weight">20dp</dimen>
+    <dimen name="image_button_size">150dp</dimen>
+</resources>

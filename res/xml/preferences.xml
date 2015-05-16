@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+    <PreferenceCategory android:title="@string/information">
+        <EditTextPreference android:title="@string/name_scales" android:key="name"/>
+        <Preference android:title="@string/address_scales" android:key="address" android:enabled="false"/>
+    </PreferenceCategory>
+    <PreferenceCategory android:title="@string/Settings">
+        <PreferenceScreen android:title="@string/Set_values" android:summary="@string/TEXT_MESSAGES13">
+            <PreferenceCategory android:title="@string/Settings">
+                <PreferenceScreen android:title="@string/setting_auto_zero"
+                                  android:summary="@string/sum_setting_auto_zero">
+                    <PreferenceCategory android:title="@string/Auto_zero" android:summary="@string/sum_auto_zero">
+                        <EditTextPreference android:title="@string/Time" android:summary="@string/sum_time_auto_zero"
+                                            android:key="timer_null" android:inputType="number"/>
+                        <EditTextPreference android:title="@string/weight" android:summary="@string/sum_weight"
+                                            android:key="max_null" android:inputType="number"/>
+                    </PreferenceCategory>
+                </PreferenceScreen>
+                <EditTextPreference android:title="@string/Timer_off" android:key="timer" android:inputType="number"/>
+                <EditTextPreference android:title="@string/measuring_step" android:key="step"
+                                    android:inputType="number"/>
+                <EditTextPreference android:title="@string/auto_capture" android:key="auto_capture"
+                                    android:inputType="number"/>
+                <EditTextPreference android:title="@string/removing_checks"
+                                    android:summary="@string/sum_removing_checks" android:key="day_check_delete"
+                                    android:inputType="number"/>
+                <EditTextPreference android:title="@string/closed_checks" android:summary="@string/sum_closed_checks"
+                                    android:key="day_closed_check" android:inputType="number"/>
+            </PreferenceCategory>
+        </PreferenceScreen>
+        <EditTextPreference android:title="@string/filter_adc" android:summary="@string/sum_filter_adc"
+                            android:key="filter" android:inputType="number"/>
+    </PreferenceCategory>
+    <PreferenceCategory>
+        <Preference android:title="@string/zeroing" android:key="null" android:inputType="number"/>
+        <Preference android:title="@string/Update_scale" android:summary="@string/TEXT_MESSAGE14" android:key="update"
+                    android:enabled="false"/>
+        <Preference android:title="@string/about" android:key="about"/>
+    </PreferenceCategory>
+</PreferenceScreen>

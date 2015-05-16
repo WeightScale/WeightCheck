@@ -1,0 +1,58 @@
+<LinearLayout
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        android:orientation="vertical"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent" android:padding="@dimen/padding">
+    <LinearLayout
+            android:orientation="vertical"
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent" android:background="@color/background2"
+            android:padding="@dimen/padding">
+        <LinearLayout
+                android:orientation="horizontal"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content">
+            <ProgressBar
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/progressBarSearch"
+                    android:visibility="gone"/>
+        </LinearLayout>
+        <TextView android:layout_width="fill_parent" android:layout_height="wrap_content" android:id="@+id/textView"
+                  android:gravity="center_horizontal" android:background="@drawable/round_rectangle"
+                  android:singleLine="false" android:text="@string/search_log" android:textColor="@color/text"
+                  android:layout_marginTop="2dp"/>
+        <LinearLayout
+                android:orientation="vertical"
+                android:layout_width="fill_parent"
+                android:layout_height="0dp" android:layout_weight="1">
+            <ScrollView
+                    android:layout_width="fill_parent"
+                    android:layout_height="match_parent"
+                    >
+                <TextView
+                        android:layout_width="fill_parent"
+                        android:layout_height="wrap_content"
+                        android:id="@+id/textLog" android:maxLines="100" android:minLines="3"
+                        android:textColor="@android:color/white"/>
+            </ScrollView>
+        </LinearLayout>
+        <LinearLayout
+                android:orientation="horizontal"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content" android:id="@+id/layoutControl">
+            <ImageView
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:id="@+id/buttonBack" android:textSize="@dimen/text_medium"
+                    style="@style/CustomButtonImage" android:src="@drawable/ic_action_back" android:layout_weight="1"/>
+            <ImageView
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:text="@string/start_load"
+                    android:id="@+id/buttonBoot"
+                    android:textSize="@dimen/text_medium"
+                    style="@style/CustomButtonImage" android:src="@drawable/ic_action_boot" android:layout_weight="1"/>
+        </LinearLayout>
+    </LinearLayout>
+</LinearLayout>
