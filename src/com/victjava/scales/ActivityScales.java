@@ -482,7 +482,7 @@ public class ActivityScales extends Activity implements View.OnClickListener, Vi
         public void handleMessage(Message msg) {
             switch (msg.what){
                 case RESULT_CANCELED:
-
+                    listView.setEnabled(false);
                     break;
                 default:
             }
@@ -508,7 +508,7 @@ public class ActivityScales extends Activity implements View.OnClickListener, Vi
                             dialog = new AlertDialog.Builder(ActivityScales.this);
                             dialog.setTitle("Ошибка в настройках");
                             dialog.setCancelable(false);
-                            dialog.setNegativeButton("Закрыть", new DialogInterface.OnClickListener() {
+                            dialog.setNegativeButton(getString(R.string.Close), new DialogInterface.OnClickListener() {
                                 @Override
                                 public void onClick(DialogInterface dialogInterface, int i) {
                                     dialogInterface.dismiss();
@@ -518,7 +518,7 @@ public class ActivityScales extends Activity implements View.OnClickListener, Vi
                             dialog.setMessage("Запросите настройки у администратора. Настройки должен выполнять опытный пользователь");
                             Toast.makeText(getBaseContext(), R.string.preferences_error, Toast.LENGTH_SHORT).show();
                             setTitle(getString(R.string.app_name) + ": админ настройки неправельные");
-                            dialog.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                            dialog.setPositiveButton(getString(R.string.OK), new DialogInterface.OnClickListener() {
                                 @Override
                                 public void onClick(DialogInterface dialogInterface, int i) {
                                     startActivity(new Intent(ActivityScales.this, ActivityTuning.class));
