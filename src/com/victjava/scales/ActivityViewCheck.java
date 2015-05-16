@@ -115,6 +115,7 @@ public class ActivityViewCheck extends Activity implements View.OnClickListener 
             case R.id.imageViewMessage:
                 new TaskMessageDialog(this, contactId, entryID).openListPhoneDialog();
                 break;
+            default:
         }
     }
 

@@ -1,4 +1,4 @@
-//Ищет весы
+//РС‰РµС‚ РІРµСЃС‹
 package com.victjava.scales;
 
 import android.app.*;
@@ -17,15 +17,15 @@ import java.util.ArrayList;
 
 public class ActivitySearch extends Activity implements View.OnClickListener {
 
-    private BroadcastReceiver broadcastReceiver; //приёмник намерений
-    private BluetoothAdapter bluetooth; //блютуз адаптер
-    private ArrayList<BluetoothDevice> foundDevice; //чужие устройства
-    private ArrayAdapter<BluetoothDevice> bluetoothAdapter; //адаптер имён
-    private IntentFilter intentFilter; //фильтр намерений
-    private ListView listView; //список весов
-    private TextView textViewLog; //лог событий
+    private BroadcastReceiver broadcastReceiver; //РїСЂРёС‘РјРЅРёРє РЅР°РјРµСЂРµРЅРёР№
+    private BluetoothAdapter bluetooth; //Р±Р»СЋС‚СѓР· Р°РґР°РїС‚РµСЂ
+    private ArrayList<BluetoothDevice> foundDevice; //С‡СѓР¶РёРµ СѓСЃС‚СЂРѕР№СЃС‚РІР°
+    private ArrayAdapter<BluetoothDevice> bluetoothAdapter; //Р°РґР°РїС‚РµСЂ РёРјС‘РЅ
+    private IntentFilter intentFilter; //С„РёР»СЊС‚СЂ РЅР°РјРµСЂРµРЅРёР№
+    private ListView listView; //СЃРїРёСЃРѕРє РІРµСЃРѕРІ
+    private TextView textViewLog; //Р»РѕРі СЃРѕР±С‹С‚РёР№
 
-    //private LinearLayout linearScreen;//лайаут для экрана показывать когда загрузились настройки
+    //private LinearLayout linearScreen;//Р»Р°Р№Р°СѓС‚ РґР»СЏ СЌРєСЂР°РЅР° РїРѕРєР°Р·С‹РІР°С‚СЊ РєРѕРіРґР° Р·Р°РіСЂСѓР·РёР»РёСЃСЊ РЅР°СЃС‚СЂРѕР№РєРё
 
     //public static int versionNumber;
     //public static String versionName = "";
@@ -51,7 +51,7 @@ public class ActivitySearch extends Activity implements View.OnClickListener {
         requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
         setContentView(R.layout.search);
 
-        setTitle(getString(R.string.Search_scale)); //установить заголовок
+        setTitle(getString(R.string.Search_scale)); //СѓСЃС‚Р°РЅРѕРІРёС‚СЊ Р·Р°РіРѕР»РѕРІРѕРє
 
         WindowManager.LayoutParams lp = getWindow().getAttributes();
         lp.screenBrightness = 1.0f;
@@ -64,19 +64,19 @@ public class ActivitySearch extends Activity implements View.OnClickListener {
         broadcastReceiver = new BroadcastReceiver() {
 
             @Override
-            public void onReceive(Context context, Intent intent) { //обработчик Bluetooth
+            public void onReceive(Context context, Intent intent) { //РѕР±СЂР°Р±РѕС‚С‡РёРє Bluetooth
                 String action = intent.getAction();
                 if (action != null) {
                     switch (action) {
-                        case BluetoothAdapter.ACTION_DISCOVERY_STARTED: //поиск начался
+                        case BluetoothAdapter.ACTION_DISCOVERY_STARTED: //РїРѕРёСЃРє РЅР°С‡Р°Р»СЃСЏ
                             log(R.string.discovery_started);
                             foundDevice.clear();
                             bluetoothAdapter.notifyDataSetChanged();
-                            setTitle(getString(R.string.discovery_started)); //установить заголовок
+                            setTitle(getString(R.string.discovery_started)); //СѓСЃС‚Р°РЅРѕРІРёС‚СЊ Р·Р°РіРѕР»РѕРІРѕРє
 
                             setProgressBarIndeterminateVisibility(true);
                             break;
-                        case BluetoothDevice.ACTION_FOUND:  //найдено устройство
+                        case BluetoothDevice.ACTION_FOUND:  //РЅР°Р№РґРµРЅРѕ СѓСЃС‚СЂРѕР№СЃС‚РІРѕ
                             BluetoothDevice bd = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
                             foundDevice.add(bd);
                             bluetoothAdapter.notifyDataSetChanged();
@@ -89,20 +89,20 @@ public class ActivitySearch extends Activity implements View.OnClickListener {
                                 log(R.string.device_found, name);
                             }
                             break;
-                        case BluetoothAdapter.ACTION_DISCOVERY_FINISHED:  //поиск завершён
-                            log("Поиск завершён");
+                        case BluetoothAdapter.ACTION_DISCOVERY_FINISHED:  //РїРѕРёСЃРє Р·Р°РІРµСЂС€С‘РЅ
+                            log("РџРѕРёСЃРє Р·Р°РІРµСЂС€С‘РЅ");
                             setProgressBarIndeterminateVisibility(false);
                             break;
                         case BluetoothDevice.ACTION_ACL_CONNECTED:
                             setProgressBarIndeterminateVisibility(false);
                             try {
-                                setTitle(" \"" + ScaleModule.getName() + "\", v." + ScaleModule.getNumVersion()); //установить заголовок
+                                setTitle(" \"" + ScaleModule.getName() + "\", v." + ScaleModule.getNumVersion()); //СѓСЃС‚Р°РЅРѕРІРёС‚СЊ Р·Р°РіРѕР»РѕРІРѕРє
                             } catch (Exception e) {
-                                setTitle(" \"" + e.getMessage() + "\", v." + ScaleModule.getNumVersion()); //установить заголовок      }
+                                setTitle(" \"" + e.getMessage() + "\", v." + ScaleModule.getNumVersion()); //СѓСЃС‚Р°РЅРѕРІРёС‚СЊ Р·Р°РіРѕР»РѕРІРѕРє      }
                             }
                             break;
                         case BluetoothDevice.ACTION_ACL_DISCONNECTED:
-                            setTitle(getString(R.string.Search_scale)); //установить заголовок
+                            setTitle(getString(R.string.Search_scale)); //СѓСЃС‚Р°РЅРѕРІРёС‚СЊ Р·Р°РіРѕР»РѕРІРѕРє
                             break;
                     }
                 }
@@ -128,7 +128,7 @@ public class ActivitySearch extends Activity implements View.OnClickListener {
         foundDevice = new ArrayList<>();
 
 
-        for (int i = 0; Preferences.contains(ActivityPreferences.KEY_ADDRESS + i); i++) { //заполнение списка
+        for (int i = 0; Preferences.contains(ActivityPreferences.KEY_ADDRESS + i); i++) { //Р·Р°РїРѕР»РЅРµРЅРёРµ СЃРїРёСЃРєР°
             foundDevice.add(bluetooth.getRemoteDevice(Preferences.read(ActivityPreferences.KEY_ADDRESS + i, "")));
         }
         bluetoothAdapter = new BluetoothListAdapter(this, foundDevice);
@@ -136,7 +136,7 @@ public class ActivitySearch extends Activity implements View.OnClickListener {
         findViewById(R.id.buttonSearchBluetooth).setOnClickListener(this);
         findViewById(R.id.buttonBack).setOnClickListener(this);
 
-        listView = (ListView) findViewById(R.id.listViewDevices);  //список весов
+        listView = (ListView) findViewById(R.id.listViewDevices);  //СЃРїРёСЃРѕРє РІРµСЃРѕРІ
         listView.setAdapter(bluetoothAdapter);
         listView.setOnItemClickListener(onItemClickListener);
 
@@ -160,10 +160,10 @@ public class ActivitySearch extends Activity implements View.OnClickListener {
         }
         unregisterReceiver(broadcastReceiver);
 
-        for (int i = 0; Preferences.contains(ActivityPreferences.KEY_ADDRESS + i); i++) { //стереть прошлый список
+        for (int i = 0; Preferences.contains(ActivityPreferences.KEY_ADDRESS + i); i++) { //СЃС‚РµСЂРµС‚СЊ РїСЂРѕС€Р»С‹Р№ СЃРїРёСЃРѕРє
             Preferences.remove(ActivityPreferences.KEY_ADDRESS + i);
         }
-        for (int i = 0; i < foundDevice.size(); i++) { //сохранить новый список
+        for (int i = 0; i < foundDevice.size(); i++) { //СЃРѕС…СЂР°РЅРёС‚СЊ РЅРѕРІС‹Р№ СЃРїРёСЃРѕРє
             Preferences.write(ActivityPreferences.KEY_ADDRESS + i, ((BluetoothDevice) foundDevice.toArray()[i]).getAddress());
         }
 
@@ -211,17 +211,17 @@ public class ActivitySearch extends Activity implements View.OnClickListener {
     }
 
     //==================================================================================================================
-    void log(int resource) { //для ресурсов
+    void log(int resource) { //РґР»СЏ СЂРµСЃСѓСЂСЃРѕРІ
         textViewLog.setText(getString(resource) + '\n' + textViewLog.getText());
     }
 
     //==================================================================================================================
-    public void log(String string) { //для текста
+    public void log(String string) { //РґР»СЏ С‚РµРєСЃС‚Р°
         textViewLog.setText(string + '\n' + textViewLog.getText());
     }
 
     //==================================================================================================================
-    void log(int resource, boolean toast) { //для текста
+    void log(int resource, boolean toast) { //РґР»СЏ С‚РµРєСЃС‚Р°
         textViewLog.setText(getString(resource) + '\n' + textViewLog.getText());
         if (toast) {
             Toast.makeText(getBaseContext(), resource, Toast.LENGTH_SHORT).show();
@@ -229,7 +229,7 @@ public class ActivitySearch extends Activity implements View.OnClickListener {
     }
 
     //==================================================================================================================
-    void log(int resource, String str) { //для ресурсов с текстовым дополнением
+    void log(int resource, String str) { //РґР»СЏ СЂРµСЃСѓСЂСЃРѕРІ СЃ С‚РµРєСЃС‚РѕРІС‹Рј РґРѕРїРѕР»РЅРµРЅРёРµРј
         textViewLog.setText(getString(resource) + ' ' + str + '\n' + textViewLog.getText());
     }
 
@@ -272,18 +272,18 @@ public class ActivitySearch extends Activity implements View.OnClickListener {
                             break;
                         case STATUS_SETTINGS_UNCORRECTED:
                             dialog = new AlertDialog.Builder(ActivitySearch.this);
-                            dialog.setTitle("Ошибка в настройках");
+                            dialog.setTitle("РћС€РёР±РєР° РІ РЅР°СЃС‚СЂРѕР№РєР°С…");
                             dialog.setCancelable(false);
-                            dialog.setNegativeButton("Закрыть", new DialogInterface.OnClickListener() {
+                            dialog.setNegativeButton("Р—Р°РєСЂС‹С‚СЊ", new DialogInterface.OnClickListener() {
                                 @Override
                                 public void onClick(DialogInterface dialogInterface, int i) {
                                     dialogInterface.dismiss();
                                     onBackPressed();
                                 }
                             });
-                            dialog.setMessage("Запросите настройки у администратора. Настройки должен выполнять опытный пользователь");
+                            dialog.setMessage("Р—Р°РїСЂРѕСЃРёС‚Рµ РЅР°СЃС‚СЂРѕР№РєРё Сѓ Р°РґРјРёРЅРёСЃС‚СЂР°С‚РѕСЂР°. РќР°СЃС‚СЂРѕР№РєРё РґРѕР»Р¶РµРЅ РІС‹РїРѕР»РЅСЏС‚СЊ РѕРїС‹С‚РЅС‹Р№ РїРѕР»СЊР·РѕРІР°С‚РµР»СЊ");
                             Toast.makeText(getBaseContext(), R.string.preferences_error, Toast.LENGTH_SHORT).show();
-                            setTitle(getString(R.string.app_name) + ": админ настройки неправельные");
+                            setTitle(getString(R.string.app_name) + ": Р°РґРјРёРЅ РЅР°СЃС‚СЂРѕР№РєРё РЅРµРїСЂР°РІРµР»СЊРЅС‹Рµ");
                             dialog.setPositiveButton("OK", new DialogInterface.OnClickListener() {
                                 @Override
                                 public void onClick(DialogInterface dialogInterface, int i) {
@@ -304,7 +304,7 @@ public class ActivitySearch extends Activity implements View.OnClickListener {
                             tv1.setText(getString(R.string.Connecting) + '\n' + ScaleModule.getName());
 
                             setProgressBarIndeterminateVisibility(true);
-                            setTitle(getString(R.string.Connecting) + getString(R.string.app_name) + ' ' + ScaleModule.getName()); //установить заголовок
+                            setTitle(getString(R.string.Connecting) + getString(R.string.app_name) + ' ' + ScaleModule.getName()); //СѓСЃС‚Р°РЅРѕРІРёС‚СЊ Р·Р°РіРѕР»РѕРІРѕРє
                             break;
                         case STATUS_ATTACH_FINISH:
                             listView.setEnabled(true);
@@ -351,7 +351,7 @@ public class ActivitySearch extends Activity implements View.OnClickListener {
                             log(error);
                             break;
                         case STATUS_CONNECT_ERROR:
-                            //setTitle(getString(R.string.app_name) + getString(R.string.error_connect)); //установить заголовок
+                            //setTitle(getString(R.string.app_name) + getString(R.string.error_connect)); //СѓСЃС‚Р°РЅРѕРІРёС‚СЊ Р·Р°РіРѕР»РѕРІРѕРє
                             log(getString(R.string.error_connect));
                             break;
                         default:

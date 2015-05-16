@@ -7,16 +7,13 @@ import android.bluetooth.BluetoothAdapter;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.res.AssetManager;
 import android.os.*;
 import android.util.SparseArray;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 import com.konst.bootloader.*;
 import com.konst.module.*;
-import com.konst.module.ScaleModule;
 import com.victjava.scales.*;
 
 import java.io.IOException;
@@ -164,11 +161,11 @@ public class ActivityBootloader extends Activity implements View.OnClickListener
         dialog.show();
 
         if (bluetoothAdapter != null) {
-            if (!bluetoothAdapter.isEnabled()) {
+            if (bluetoothAdapter.isEnabled()) {
+                log(getString(R.string.bluetooth_on));
+            } else {
                 log(getString(R.string.bluetooth_off));
                 bluetoothAdapter.enable();
-            } else {
-                log(getString(R.string.bluetooth_on));
             }
         }
     }
@@ -224,6 +221,7 @@ public class ActivityBootloader extends Activity implements View.OnClickListener
                     intent.putExtra("address", addressDevice);
                     startActivityForResult(intent, REQUEST_CONNECT_BOOT);
                 break;
+                default:
             }
         }
     };
@@ -316,6 +314,7 @@ public class ActivityBootloader extends Activity implements View.OnClickListener
                     log(getString(R.string.Scale_no_defined));
                     log(getString(R.string.Setting_no_loaded));
                     break;
+                default:
             }
         } else {
             log("Not connected...");
