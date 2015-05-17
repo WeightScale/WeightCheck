@@ -49,11 +49,11 @@ public class ActivityScales extends Activity implements View.OnClickListener, Vi
 
     static final int REQUEST_CONNECT = 1;
     static final int REQUEST_SEARCH_SCALE = 2;
-    public static final int STATUS_OK = 3;
-    public static final int STATUS_CONNECT_ERROR = 4;
-    public static final int STATUS_SCALE_ERROR = 5;
-    public static final int STATUS_SCALE_UNKNOWN = 6;
-    public static final int STATUS_TERMINAL_ERROR = 7;
+    //public static final int STATUS_OK = 3;
+    //public static final int STATUS_CONNECT_ERROR = 4;
+    //public static final int STATUS_SCALE_ERROR = 5;
+    //public static final int STATUS_SCALE_UNKNOWN = 6;
+    //public static final int STATUS_TERMINAL_ERROR = 7;
 
     private boolean doubleBackToExitPressedOnce;
     public static boolean isScaleConnect;

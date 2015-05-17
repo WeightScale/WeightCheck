@@ -18,7 +18,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.*;
 
-/**
+/*
  * Created by Kostya on 02.03.14.
  */
 public class GoogleSpreadsheets {
