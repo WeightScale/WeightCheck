@@ -43,7 +43,7 @@ public class TemperatureProgressBar extends ProgressBar {
     }
 
     private void setText(String text) {
-        this.text = text + '°' + 'C';
+        this.text = text + 'Â°' + 'C';
         postInvalidate();
     }
 
