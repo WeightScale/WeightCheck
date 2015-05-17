@@ -39,7 +39,7 @@ public class ActivityAbout extends Activity {
         textSettings.append("\n");
         textSettings.append(getString(R.string.Battery) + ScaleModule.battery + " %" + '\n');
         if (ScaleModule.Version != null) {
-            textSettings.append(getString(R.string.Temperature) + ScaleModule.getModuleTemperature() + '°' + 'C' + '\n');
+            textSettings.append(getString(R.string.Temperature) + ScaleModule.getModuleTemperature() + 'Â°' + 'C' + '\n');
         }
         textSettings.append(getString(R.string.Coefficient) + Versions.coefficientA + '\n');
         textSettings.append(getString(R.string.MLW) + Versions.weightMax + ' ' + getString(R.string.scales_kg) + '\n');

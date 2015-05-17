@@ -38,7 +38,7 @@ public class ActivityCheck extends FragmentActivity implements View.OnClickListe
         private final ProgressDialog dialog;
 
         ZeroThread(Context context) {
-            // Создаём новый поток
+            // РЎРѕР·РґР°С‘Рј РЅРѕРІС‹Р№ РїРѕС‚РѕРє
             super(getString(R.string.Zeroing));
             dialog = new ProgressDialog(context);
             dialog.setCancelable(false);
@@ -47,7 +47,7 @@ public class ActivityCheck extends FragmentActivity implements View.OnClickListe
             dialog.setContentView(R.layout.custom_progress_dialog);
             TextView tv1 = (TextView) dialog.findViewById(R.id.textView1);
             tv1.setText(R.string.Zeroing);
-            //start(); // Запускаем поток
+            //start(); // Р—Р°РїСѓСЃРєР°РµРј РїРѕС‚РѕРє
         }
 
         @Override
@@ -83,14 +83,14 @@ public class ActivityCheck extends FragmentActivity implements View.OnClickListe
                 weightViewIsSwipe = false;
                 numStable = 0;
 
-                while (!cancelled && !isCapture() && !weightViewIsSwipe) {                                              //ждём начала нагружения
+                while (!cancelled && !isCapture() && !weightViewIsSwipe) {                                              //Р¶РґС‘Рј РЅР°С‡Р°Р»Р° РЅР°РіСЂСѓР¶РµРЅРёСЏ
                     try {Thread.sleep(50); } catch (InterruptedException ignored) { }
                 }
                 handler.sendMessage(handler.obtainMessage(ACTION_START_WEIGHTING));
                 isStable = false;
-                while (!cancelled && !(isStable || weightViewIsSwipe)) {                                                //ждем стабилизации веса или нажатием выбора веса
+                while (!cancelled && !(isStable || weightViewIsSwipe)) {                                                //Р¶РґРµРј СЃС‚Р°Р±РёР»РёР·Р°С†РёРё РІРµСЃР° РёР»Рё РЅР°Р¶Р°С‚РёРµРј РІС‹Р±РѕСЂР° РІРµСЃР°
                     try { Thread.sleep(50); } catch (InterruptedException ignored) {}
-                    if (!touchWeightView) {                                                                              //если не прикасаемся к индикатору тогда стабилизируем вес
+                    if (!touchWeightView) {                                                                              //РµСЃР»Рё РЅРµ РїСЂРёРєР°СЃР°РµРјСЃСЏ Рє РёРЅРґРёРєР°С‚РѕСЂСѓ С‚РѕРіРґР° СЃС‚Р°Р±РёР»РёР·РёСЂСѓРµРј РІРµСЃ
                         isStable = processStable(getWeightToStepMeasuring(moduleWeight));
                         handler.sendMessage(handler.obtainMessage(ACTION_UPDATE_PROGRESS, numStable, 0));
                     }
@@ -100,23 +100,23 @@ public class ActivityCheck extends FragmentActivity implements View.OnClickListe
                     break;
                 }
                 if (isStable) {
-                    handler.sendMessage(handler.obtainMessage(ACTION_STORE_WEIGHTING, moduleWeight, 0));                 //сохраняем стабильный вес
+                    handler.sendMessage(handler.obtainMessage(ACTION_STORE_WEIGHTING, moduleWeight, 0));                 //СЃРѕС…СЂР°РЅСЏРµРј СЃС‚Р°Р±РёР»СЊРЅС‹Р№ РІРµСЃ
                 }
 
                 weightViewIsSwipe = false;
 
                 while (!cancelled && getWeightToStepMeasuring(moduleWeight) >= Main.default_min_auto_capture) {
-                    try { Thread.sleep(50); } catch (InterruptedException ignored) {}                                   // ждем разгрузки весов
+                    try { Thread.sleep(50); } catch (InterruptedException ignored) {}                                   // Р¶РґРµРј СЂР°Р·РіСЂСѓР·РєРё РІРµСЃРѕРІ
                 }
                 vibrator.vibrate(100);
                 handler.sendMessage(handler.obtainMessage(ACTION_UPDATE_PROGRESS, 0, 0));
                 if (cancelled) {
-                    if (isStable && weightType == WeightType.SECOND) {                                                  //Если тара зафоксирована и выход через кнопку назад
+                    if (isStable && weightType == WeightType.SECOND) {                                                  //Р•СЃР»Рё С‚Р°СЂР° Р·Р°С„РѕРєСЃРёСЂРѕРІР°РЅР° Рё РІС‹С…РѕРґ С‡РµСЂРµР· РєРЅРѕРїРєСѓ РЅР°Р·Р°Рґ
                         weightType = WeightType.NETTO;
                     }
                     break;
                 }
-                try { TimeUnit.SECONDS.sleep(2);  } catch (InterruptedException ignored) { }                            //задержка
+                try { TimeUnit.SECONDS.sleep(2);  } catch (InterruptedException ignored) { }                            //Р·Р°РґРµСЂР¶РєР°
 
                 if (weightType == WeightType.SECOND) {
                     cancelled = true;
@@ -166,7 +166,7 @@ public class ActivityCheck extends FragmentActivity implements View.OnClickListe
 
     private final AutoWeightThread autoWeightThread = new AutoWeightThread();
     CheckDBAdapter checkTable;
-    private Vibrator vibrator; //вибратор
+    private Vibrator vibrator; //РІРёР±СЂР°С‚РѕСЂ
     private ProgressBar progressBarWeight;
     private WeightTextView weightTextView;
     private TabHost mTabHost;
@@ -183,7 +183,7 @@ public class ActivityCheck extends FragmentActivity implements View.OnClickListe
 
     public WeightType weightType;
 
-    public static final int COUNT_STABLE = 64;                                                                          //колличество раз стабильно был вес
+    public static final int COUNT_STABLE = 64;                                                                          //РєРѕР»Р»РёС‡РµСЃС‚РІРѕ СЂР°Р· СЃС‚Р°Р±РёР»СЊРЅРѕ Р±С‹Р» РІРµСЃ
 
     ContentValues values = new ContentValues();
     public int entryID;
@@ -216,7 +216,7 @@ public class ActivityCheck extends FragmentActivity implements View.OnClickListe
             exit();
         }
 
-        setTitle(getString(R.string.input_check) + " № " + entryID + ' ' + ": " + values.getAsString(CheckDBAdapter.KEY_VENDOR)); //установить заголовок
+        setTitle(getString(R.string.input_check) + " в„– " + entryID + ' ' + ": " + values.getAsString(CheckDBAdapter.KEY_VENDOR)); //СѓСЃС‚Р°РЅРѕРІРёС‚СЊ Р·Р°РіРѕР»РѕРІРѕРє
         setupTabHost(savedInstanceState);
         setupWeightView();
 
@@ -245,8 +245,8 @@ public class ActivityCheck extends FragmentActivity implements View.OnClickListe
         mTabHost.setup();
         ViewPager mViewPager = (ViewPager) findViewById(R.id.pager);
         mTabsAdapter = new TabsAdapter(this, mTabHost, mViewPager);
-        mTabsAdapter.addTab(mTabHost.newTabSpec("input").setIndicator(createTabView(this, "приход")), InputFragment.class);
-        mTabsAdapter.addTab(mTabHost.newTabSpec("output").setIndicator(createTabView(this, "расход")), OutputFragment.class);
+        mTabsAdapter.addTab(mTabHost.newTabSpec("input").setIndicator(createTabView(this, "РїСЂРёС…РѕРґ")), InputFragment.class);
+        mTabsAdapter.addTab(mTabHost.newTabSpec("output").setIndicator(createTabView(this, "СЂР°СЃС…РѕРґ")), OutputFragment.class);
         switch (values.getAsInteger(CheckDBAdapter.KEY_DIRECT)) {
             case CheckDBAdapter.DIRECT_DOWN:
                 mTabHost.setCurrentTab(0);
@@ -422,7 +422,7 @@ public class ActivityCheck extends FragmentActivity implements View.OnClickListe
             case FIRST:
                 if (weight > 0) {
                     values.put(CheckDBAdapter.KEY_WEIGHT_FIRST, weight);
-                    vibrator.vibrate(100); //вибрация
+                    vibrator.vibrate(100); //РІРёР±СЂР°С†РёСЏ
                     flag = true;
                 }
                 break;
@@ -430,7 +430,7 @@ public class ActivityCheck extends FragmentActivity implements View.OnClickListe
                 values.put(CheckDBAdapter.KEY_WEIGHT_SECOND, weight);
                 int total = sumNetto();
                 values.put(CheckDBAdapter.KEY_PRICE_SUM, total);
-                vibrator.vibrate(100); //вибрация
+                vibrator.vibrate(100); //РІРёР±СЂР°С†РёСЏ
                 flag = true;
                 break;
             case NETTO:
@@ -636,7 +636,7 @@ public class ActivityCheck extends FragmentActivity implements View.OnClickListe
 
                 }
             });
-            return 20; // Обновляем через милисикунды
+            return 20; // РћР±РЅРѕРІР»СЏРµРј С‡РµСЂРµР· РјРёР»РёСЃРёРєСѓРЅРґС‹
         }
     };
 }

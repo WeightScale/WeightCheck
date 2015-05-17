@@ -1,4 +1,4 @@
-//Ищет весы
+//РС‰РµС‚ РІРµСЃС‹
 package com.victjava.scales.bootloader;
 
 import android.app.Activity;
@@ -23,13 +23,13 @@ public class ActivityConnect extends Activity implements View.OnClickListener {
 
     //==================================================================================================================
 
-    private Vibrator vibrator; //вибратор
+    private Vibrator vibrator; //РІРёР±СЂР°С‚РѕСЂ
 
-    private BroadcastReceiver broadcastReceiver; //приёмник намерений
-    private final BluetoothAdapter bluetoothAdapter = BluetoothAdapter.getDefaultAdapter(); //блютуз адаптер
+    private BroadcastReceiver broadcastReceiver; //РїСЂРёС‘РјРЅРёРє РЅР°РјРµСЂРµРЅРёР№
+    private final BluetoothAdapter bluetoothAdapter = BluetoothAdapter.getDefaultAdapter(); //Р±Р»СЋС‚СѓР· Р°РґР°РїС‚РµСЂ
     private BluetoothDevice bluetoothDevice;
-    private TextView textViewLog; //лог событий
-    private LinearLayout linearScreen;//лайаут для экрана показывать когда загрузились настройки
+    private TextView textViewLog; //Р»РѕРі СЃРѕР±С‹С‚РёР№
+    private LinearLayout linearScreen;//Р»Р°Р№Р°СѓС‚ РґР»СЏ СЌРєСЂР°РЅР° РїРѕРєР°Р·С‹РІР°С‚СЊ РєРѕРіРґР° Р·Р°РіСЂСѓР·РёР»РёСЃСЊ РЅР°СЃС‚СЂРѕР№РєРё
 
     public static int versionNumber;
     public static String versionName;
@@ -82,17 +82,17 @@ public class ActivityConnect extends Activity implements View.OnClickListener {
     }
 
     //==================================================================================================================
-    void log(int resource) { //для ресурсов
+    void log(int resource) { //РґР»СЏ СЂРµСЃСѓСЂСЃРѕРІ
         textViewLog.setText(getString(resource) + '\n' + textViewLog.getText());
     }
 
     //==================================================================================================================
-    public void log(String string) { //для текста
+    public void log(String string) { //РґР»СЏ С‚РµРєСЃС‚Р°
         textViewLog.setText(string + '\n' + textViewLog.getText());
     }
 
     //==================================================================================================================
-    void log(int resource, boolean toast) { //для текста
+    void log(int resource, boolean toast) { //РґР»СЏ С‚РµРєСЃС‚Р°
         textViewLog.setText(getString(resource) + '\n' + textViewLog.getText());
         if (toast) {
             Toast.makeText(getBaseContext(), resource, Toast.LENGTH_SHORT).show();
@@ -100,7 +100,7 @@ public class ActivityConnect extends Activity implements View.OnClickListener {
     }
 
     //==================================================================================================================
-    void log(int resource, String str) { //для ресурсов с текстовым дополнением
+    void log(int resource, String str) { //РґР»СЏ СЂРµСЃСѓСЂСЃРѕРІ СЃ С‚РµРєСЃС‚РѕРІС‹Рј РґРѕРїРѕР»РЅРµРЅРёРµРј
         textViewLog.setText(getString(resource) + ' ' + str + '\n' + textViewLog.getText());
     }
 
@@ -126,15 +126,15 @@ public class ActivityConnect extends Activity implements View.OnClickListener {
         ConnectivityManager cm = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo networkInfo = cm.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
         if (networkInfo != null) {
-            if (networkInfo.isAvailable()) //Если используется
+            if (networkInfo.isAvailable()) //Р•СЃР»Рё РёСЃРїРѕР»СЊР·СѓРµС‚СЃСЏ
             {
-                new Internet(this).turnOnWiFiConnection(false); // для телефонов у которых один модуль wifi и bluetooth
+                new Internet(this).turnOnWiFiConnection(false); // РґР»СЏ С‚РµР»РµС„РѕРЅРѕРІ Сѓ РєРѕС‚РѕСЂС‹С… РѕРґРёРЅ РјРѕРґСѓР»СЊ wifi Рё bluetooth
             }
         }
 
         broadcastReceiver = new BroadcastReceiver() {
             @Override
-            public void onReceive(Context context, Intent intent) { //обработчик Bluetooth
+            public void onReceive(Context context, Intent intent) { //РѕР±СЂР°Р±РѕС‚С‡РёРє Bluetooth
                 String action = intent.getAction();
                 if (action != null) {
                     switch (action) {
@@ -148,16 +148,16 @@ public class ActivityConnect extends Activity implements View.OnClickListener {
                                 log(R.string.bluetooth_on, true);
                             }
                             break;
-                        case BluetoothDevice.ACTION_ACL_DISCONNECTED:  //устройство отсоеденено
+                        case BluetoothDevice.ACTION_ACL_DISCONNECTED:  //СѓСЃС‚СЂРѕР№СЃС‚РІРѕ РѕС‚СЃРѕРµРґРµРЅРµРЅРѕ
                             vibrator.vibrate(200);
                             log(R.string.bluetooth_disconnected);
                             break;
-                        case BluetoothDevice.ACTION_ACL_CONNECTED:  //найдено соеденено
+                        case BluetoothDevice.ACTION_ACL_CONNECTED:  //РЅР°Р№РґРµРЅРѕ СЃРѕРµРґРµРЅРµРЅРѕ
                             vibrator.vibrate(200);
                             log(R.string.bluetooth_connected);
                             break;
-                        case BluetoothAdapter.ACTION_DISCOVERY_FINISHED:  //поиск завершён
-                            setTitle(getString(R.string.app_name) + " \"" + versionName + "\", v." + versionNumber); //установить заголовок
+                        case BluetoothAdapter.ACTION_DISCOVERY_FINISHED:  //РїРѕРёСЃРє Р·Р°РІРµСЂС€С‘РЅ
+                            setTitle(getString(R.string.app_name) + " \"" + versionName + "\", v." + versionNumber); //СѓСЃС‚Р°РЅРѕРІРёС‚СЊ Р·Р°РіРѕР»РѕРІРѕРє
 
                             setProgressBarIndeterminateVisibility(false);
                             break;
@@ -199,7 +199,7 @@ public class ActivityConnect extends Activity implements View.OnClickListener {
             versionName = packageInfo.versionName;
         }
 
-        setTitle(getString(R.string.app_name) + " \"" + versionName + "\", v." + versionNumber);                        //установить заголовок
+        setTitle(getString(R.string.app_name) + " \"" + versionName + "\", v." + versionNumber);                        //СѓСЃС‚Р°РЅРѕРІРёС‚СЊ Р·Р°РіРѕР»РѕРІРѕРє
         vibrator = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
 
         findViewById(R.id.buttonSearchBluetooth).setOnClickListener(this);
