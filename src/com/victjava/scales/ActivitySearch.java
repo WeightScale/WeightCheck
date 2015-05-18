@@ -8,7 +8,6 @@ import android.content.*;
 import android.os.*;
 import android.view.*;
 import android.widget.*;
-import com.konst.module.HandlerScaleConnect;
 import com.konst.module.InterfaceScaleModule;
 import com.konst.module.ScaleModule;
 
@@ -257,11 +256,11 @@ public class ActivitySearch extends Activity implements View.OnClickListener {
         private ProgressDialog dialogSearch;
 
         @Override
-        public void handleModuleConnect(final Result what) {
+        public void handleResultConnect(final ResultConnect result) {
             runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    switch (what) {
+                    switch (result) {
                         case STATUS_LOAD_OK:
                             setResult(RESULT_OK, new Intent());
                             finish();
@@ -270,7 +269,7 @@ public class ActivitySearch extends Activity implements View.OnClickListener {
                             String device = ScaleModule.getName();
                             log(device + ' ' + getString(R.string.not_scale));
                             break;
-                        case STATUS_SETTINGS_UNCORRECTED:
+                        /*case STATUS_SETTINGS_UNCORRECTED:
                             dialog = new AlertDialog.Builder(ActivitySearch.this);
                             dialog.setTitle("Ошибка в настройках");
                             dialog.setCancelable(false);
@@ -292,7 +291,7 @@ public class ActivitySearch extends Activity implements View.OnClickListener {
                                 }
                             });
                             dialog.show();
-                            break;
+                            break;*/
                         case STATUS_ATTACH_START:
                             listView.setEnabled(false);
                             dialogSearch = new ProgressDialog(ActivitySearch.this);
@@ -320,12 +319,12 @@ public class ActivitySearch extends Activity implements View.OnClickListener {
         }
 
         @Override
-        public void handleModuleConnectError(final Result what, final String error) {
+        public void handleConnectError(final Error error, final String s) {
             runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    switch (what) {
-                        case STATUS_TERMINAL_ERROR:
+                    switch (error) {
+                        case TERMINAL_ERROR:
                             dialog = new AlertDialog.Builder(ActivitySearch.this);
                             dialog.setTitle(getString(R.string.preferences_error));
                             dialog.setCancelable(false);
@@ -337,7 +336,7 @@ public class ActivitySearch extends Activity implements View.OnClickListener {
                                     onBackPressed();
                                 }
                             });
-                            dialog.setMessage(error);
+                            dialog.setMessage(s);
                             Toast.makeText(getBaseContext(), R.string.preferences_error, Toast.LENGTH_SHORT).show();
                             setTitle(getString(R.string.app_name) + ": " + getString(R.string.preferences_error));
                             dialog.setPositiveButton(getString(R.string.OK), new DialogInterface.OnClickListener() {
@@ -348,9 +347,32 @@ public class ActivitySearch extends Activity implements View.OnClickListener {
                                 }
                             });
                             dialog.show();
-                            log(error);
+                            log(s);
                             break;
-                        case STATUS_CONNECT_ERROR:
+                        case MODULE_ERROR:
+                            dialog = new AlertDialog.Builder(ActivitySearch.this);
+                            dialog.setTitle("Ошибка в настройках");
+                            dialog.setCancelable(false);
+                            dialog.setNegativeButton("Закрыть", new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialogInterface, int i) {
+                                    dialogInterface.dismiss();
+                                    onBackPressed();
+                                }
+                            });
+                            dialog.setMessage("Запросите настройки у администратора. Настройки должен выполнять опытный пользователь. Ошибка("+s+")");
+                            Toast.makeText(getBaseContext(), R.string.preferences_error, Toast.LENGTH_SHORT).show();
+                            setTitle(getString(R.string.app_name) + ": админ настройки неправельные");
+                            dialog.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialogInterface, int i) {
+                                    startActivity(new Intent(ActivitySearch.this, ActivityTuning.class));
+                                    dialogInterface.dismiss();
+                                }
+                            });
+                            dialog.show();
+                            break;
+                        case CONNECT_ERROR:
                             //setTitle(getString(R.string.app_name) + getString(R.string.error_connect)); //установить заголовок
                             log(getString(R.string.error_connect));
                             break;
@@ -359,6 +381,7 @@ public class ActivitySearch extends Activity implements View.OnClickListener {
                 }
             });
         }
+
     };
 
 }

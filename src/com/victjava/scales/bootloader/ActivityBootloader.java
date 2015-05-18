@@ -16,7 +16,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 import com.konst.bootloader.*;
 import com.konst.module.*;
-import com.konst.module.ScaleModule;
+import com.konst.module.ScaleModule.*;
 import com.victjava.scales.*;
 
 import java.io.IOException;
@@ -147,8 +147,12 @@ public class ActivityBootloader extends Activity implements View.OnClickListener
             public void onClick(DialogInterface dialogInterface, int i) {
                 switch (i) {
                     case DialogInterface.BUTTON_POSITIVE:
-                        scaleModule.initBoot("bootloader", addressDevice);
-                    break;
+                        try {
+                            bootModule.init("bootloader", addressDevice);
+                        } catch (Exception e) {
+                            bootModule.handleConnectError(ScaleModule.Error.CONNECT_ERROR, e.getMessage());
+                        }
+                        break;
                     default:
                 }
             }
@@ -173,14 +177,14 @@ public class ActivityBootloader extends Activity implements View.OnClickListener
         }
     }
 
-    final ScaleModule scaleModule = new ScaleModule() {
+    final BootModule bootModule = new BootModule() {
 
         @Override
-        public void handleModuleConnect(final Result what) {
+        public void handleResultConnect(final ResultConnect result) {
             runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    switch (what) {
+                    switch (result) {
                         case STATUS_LOAD_OK:
                             startBoot.setEnabled(true);
                             startBoot.setAlpha(255);
@@ -217,13 +221,13 @@ public class ActivityBootloader extends Activity implements View.OnClickListener
         }
 
         @Override
-        public void handleModuleConnectError(Result what, String error) {
-            switch (what){
-                case STATUS_CONNECT_ERROR:
+        public void handleConnectError(Error error, String s) {
+            switch (error){
+                case CONNECT_ERROR:
                     Intent intent = new Intent(getBaseContext(), ActivityConnect.class);
                     intent.putExtra("address", addressDevice);
                     startActivityForResult(intent, REQUEST_CONNECT_BOOT);
-                break;
+                    break;
             }
         }
     };
@@ -285,7 +289,7 @@ public class ActivityBootloader extends Activity implements View.OnClickListener
         if (flagProgramsFinish) {
             //Preferences.load(getSharedPreferences(Preferences.PREFERENCES, Context.MODE_PRIVATE));
             Preferences.write(ActivityPreferences.KEY_FLAG_UPDATE, true);
-            scaleModule.dettach();
+            bootModule.dettach();
             BluetoothAdapter.getDefaultAdapter().disable();
             while (BluetoothAdapter.getDefaultAdapter().isEnabled());
             finish();
@@ -304,7 +308,7 @@ public class ActivityBootloader extends Activity implements View.OnClickListener
             switch (requestCode) {
                 case REQUEST_CONNECT_BOOT:
                     //scaleModule.obtainMessage(HandlerScaleConnect.Result.STATUS_LOAD_OK.ordinal()).sendToTarget();
-                    scaleModule.handleModuleConnect(HandlerScaleConnect.Result.STATUS_LOAD_OK);
+                    bootModule.handleResultConnect(ResultConnect.STATUS_LOAD_OK);
                     break;
                 case REQUEST_CONNECT_SCALE:
                     log(getString(R.string.Loading_settings));
@@ -326,12 +330,12 @@ public class ActivityBootloader extends Activity implements View.OnClickListener
         programmer = new AVRProgrammer(handlerProgrammed) {
             @Override
             public void sendByte(byte b) {
-                ScaleModule.sendByte(b);
+                bootModule.sendByte(b);
             }
 
             @Override
             public int getByte() {
-                return ScaleModule.getByte();
+                return bootModule.getByte();
             }
         };
         if (!programmer.isProgrammerId()) {
@@ -413,18 +417,27 @@ public class ActivityBootloader extends Activity implements View.OnClickListener
 
     public boolean restorePreferences() {
         if (ScaleModule.isScales()) {
+            log("Соединились");
             Preferences.load(getSharedPreferences(Preferences.PREF_UPDATE, Context.MODE_PRIVATE));
             ScaleModule.setModuleFilterADC(Preferences.read(InterfaceScaleModule.CMD_FILTER, Main.default_adc_filter));
+            log("Фмльтер "+ BootModule.getFilterADC());
             ScaleModule.setModuleTimeOff(Preferences.read(InterfaceScaleModule.CMD_TIMER, Main.default_max_time_off));
+            log("Время отключения "+ BootModule.getTimeOff());
             ScaleModule.setModuleBatteryCharge(Preferences.read(InterfaceScaleModule.CMD_BATTERY, Main.default_max_battery));
+            log("Заряд батареи "+ BootModule.getBattery());
             //command(InterfaceScaleModule.CMD_CALL_TEMP + Main.preferencesUpdate.read(InterfaceScaleModule.CMD_CALL_TEMP, "0"));
             ScaleModule.setSpreadsheet(Preferences.read(InterfaceVersions.CMD_SPREADSHEET, "weightscale"));
-            ScaleModule.setUsername(Preferences.read(InterfaceVersions.CMD_G_USER, "kreogen.lg@gmail.com"));
+            log("Имя таблици "+ BootModule.getSpreadSheet());
+            ScaleModule.setUsername(Preferences.read(InterfaceVersions.CMD_G_USER, ""));
+            log("Имя пользователя "+ BootModule.getUserName());
             ScaleModule.setPassword(Preferences.read(InterfaceVersions.CMD_G_PASS, ""));
-
+            log("Пароль");
             Versions.coefficientA = Preferences.read(InterfaceVersions.CMD_DATA_CFA, 0.0f);
+            log("Коэффициент А "+ Versions.coefficientA);
             Versions.weightMax = Preferences.read(InterfaceVersions.CMD_DATA_WGM, Main.default_max_weight);
+            log("Максимальный вес "+ Versions.weightMax);
             Versions.limitTenzo = (int) (Versions.weightMax / Versions.coefficientA);
+            log("Лимит датчика "+ Versions.limitTenzo);
             ScaleModule.writeData();
         }
         return true;

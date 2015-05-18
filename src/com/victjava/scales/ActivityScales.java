@@ -17,9 +17,8 @@ import android.provider.Settings;
 import android.telephony.TelephonyManager;
 import android.view.*;
 import android.widget.*;
-import com.konst.module.HandlerBatteryTemperature;
-import com.konst.module.HandlerScaleConnect;
 import com.konst.module.ScaleModule;
+import com.konst.module.ScaleModule.*;
 import com.victjava.scales.provider.CheckDBAdapter;
 import com.victjava.scales.provider.ErrorDBAdapter;
 import com.victjava.scales.service.ServiceProcessTask;
@@ -135,14 +134,14 @@ public class ActivityScales extends Activity implements View.OnClickListener, Vi
     @Override
     protected void onResume() {
         super.onResume();
-        ScaleModule.processBattery(true, handlerBatteryTemperature);
+        handlerBatteryTemperature.process(true);
         namesAdapter.changeCursor(checkTable.getAllNoReadyCheck());
     }
 
     @Override
     protected void onPause() {
         super.onPause();
-        ScaleModule.processBattery(false, handlerBatteryTemperature);
+        handlerBatteryTemperature.process(false);
     }
 
     @Override
@@ -365,7 +364,11 @@ public class ActivityScales extends Activity implements View.OnClickListener, Vi
     void connectBluetooth() {
 
         String define_device = Preferences.read(ActivityPreferences.KEY_LAST, "");
-        scaleModule.init(Main.versionName, define_device/*, msgHandler*/);
+        try {
+            scaleModule.init(Main.versionName, define_device/*, msgHandler*/);
+        } catch (Exception e) {
+            scaleModule.handleConnectError(ScaleModule.Error.CONNECT_ERROR, e.getMessage());
+        }
 
     }
 
@@ -388,7 +391,7 @@ public class ActivityScales extends Activity implements View.OnClickListener, Vi
         switch (resultCode) {
             case RESULT_OK:
                 //scaleModule.obtainMessage(HandlerScaleConnect.Result.STATUS_LOAD_OK.ordinal()).sendToTarget();
-                scaleModule.handleModuleConnect(HandlerScaleConnect.Result.STATUS_LOAD_OK);
+                scaleModule.handleResultConnect(ResultConnect.STATUS_LOAD_OK);
                 break;
             case RESULT_CANCELED:
                 scaleModule.obtainMessage(RESULT_CANCELED, "Connect error").sendToTarget();
@@ -479,21 +482,11 @@ public class ActivityScales extends Activity implements View.OnClickListener, Vi
         ProgressDialog dialogSearch;
 
         @Override
-        public void handleMessage(Message msg) {
-            switch (msg.what){
-                case RESULT_CANCELED:
-                    listView.setEnabled(false);
-                    break;
-                default:
-            }
-        }
-
-        @Override
-        public void handleModuleConnect(final Result what) {
+        public void handleResultConnect(final ResultConnect result) {
             runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    switch (what) {
+                    switch (result) {
                         case STATUS_LOAD_OK:
                             try {
                                 setTitle(getString(R.string.app_name) + " \"" + ScaleModule.getName() + "\", v." + ScaleModule.getNumVersion()); //установить заголовок
@@ -502,9 +495,9 @@ public class ActivityScales extends Activity implements View.OnClickListener, Vi
                             }
                             Preferences.write(ActivityPreferences.KEY_LAST, ScaleModule.getAddress());
                             listView.setEnabled(true);
-                            processBattery(true, handlerBatteryTemperature);
+                            handlerBatteryTemperature.process(true);
                             break;
-                        case STATUS_SETTINGS_UNCORRECTED:
+                        /*case STATUS_SETTINGS_UNCORRECTED:
                             dialog = new AlertDialog.Builder(ActivityScales.this);
                             dialog.setTitle("Ошибка в настройках");
                             dialog.setCancelable(false);
@@ -526,7 +519,7 @@ public class ActivityScales extends Activity implements View.OnClickListener, Vi
                                 }
                             });
                             dialog.show();
-                            break;
+                            break;*/
                         case STATUS_SCALE_UNKNOWN:
 
                             break;
@@ -543,7 +536,7 @@ public class ActivityScales extends Activity implements View.OnClickListener, Vi
                             if (dialogSearch.isShowing()) {
                                 dialogSearch.dismiss();
                             }
-                        break;
+                            break;
                         default:
                     }
                 }
@@ -551,12 +544,12 @@ public class ActivityScales extends Activity implements View.OnClickListener, Vi
         }
 
         @Override
-        public void handleModuleConnectError(final Result what, final String error) {
+        public void handleConnectError(final Error error, final String s) {
             runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    switch (what) {
-                        case STATUS_TERMINAL_ERROR:
+                    switch (error) {
+                        case TERMINAL_ERROR:
                             dialog = new AlertDialog.Builder(ActivityScales.this);
                             dialog.setTitle(getString(R.string.preferences_error));
                             dialog.setCancelable(false);
@@ -568,7 +561,7 @@ public class ActivityScales extends Activity implements View.OnClickListener, Vi
                                     onBackPressed();
                                 }
                             });
-                            dialog.setMessage(error);
+                            dialog.setMessage(s);
                             Toast.makeText(getBaseContext(), R.string.preferences_error, Toast.LENGTH_SHORT).show();
                             setTitle(getString(R.string.app_name) + ": " + getString(R.string.preferences_error));
                             dialog.setPositiveButton(getString(R.string.OK), new DialogInterface.OnClickListener() {
@@ -580,7 +573,30 @@ public class ActivityScales extends Activity implements View.OnClickListener, Vi
                             });
                             dialog.show();
                             break;
-                        case STATUS_CONNECT_ERROR:
+                        case MODULE_ERROR:
+                            dialog = new AlertDialog.Builder(ActivityScales.this);
+                            dialog.setTitle("Ошибка в настройках");
+                            dialog.setCancelable(false);
+                            dialog.setNegativeButton(getString(R.string.Close), new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialogInterface, int i) {
+                                    dialogInterface.dismiss();
+                                    onBackPressed();
+                                }
+                            });
+                            dialog.setMessage("Запросите настройки у администратора. Настройки должен выполнять опытный пользователь. Ошибка("+s+")");
+                            Toast.makeText(getBaseContext(), R.string.preferences_error, Toast.LENGTH_SHORT).show();
+                            setTitle(getString(R.string.app_name) + ": админ настройки неправельные");
+                            dialog.setPositiveButton(getString(R.string.OK), new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialogInterface, int i) {
+                                    startActivity(new Intent(ActivityScales.this, ActivityTuning.class));
+                                    dialogInterface.dismiss();
+                                }
+                            });
+                            dialog.show();
+                            break;
+                        case CONNECT_ERROR:
                             setTitle(getString(R.string.app_name) + getString(R.string.NO_CONNECT)); //установить заголовок
                             listView.setEnabled(false);
                             imageNewCheck.setEnabled(false);
@@ -592,11 +608,21 @@ public class ActivityScales extends Activity implements View.OnClickListener, Vi
                     }
                 }
             });
-
         }
+
+        @Override
+        public void handleMessage(Message msg) {
+            switch (msg.what){
+                case RESULT_CANCELED:
+                    listView.setEnabled(false);
+                    break;
+                default:
+            }
+        }
+
     };
 
-    final HandlerBatteryTemperature handlerBatteryTemperature = new HandlerBatteryTemperature() {
+    HandlerBatteryTemperature handlerBatteryTemperature = new HandlerBatteryTemperature() {
         @Override
         public int handlerBatteryTemperature(final int battery, final int temperature) {
             runOnUiThread(new Runnable() {
@@ -609,4 +635,18 @@ public class ActivityScales extends Activity implements View.OnClickListener, Vi
             return 5; //Обновляется через секунд
         }
     };
+
+    /*final HandlerBatteryTemperature handlerBatteryTemperature = new HandlerBatteryTemperature() {
+        @Override
+        public int handlerBatteryTemperature(final int battery, final int temperature) {
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    progressBarBattery.updateProgress(battery);
+                    temperatureProgressBar.updateProgress(temperature);
+                }
+            });
+            return 5; //Обновляется через секунд
+        }
+    };*/
 }

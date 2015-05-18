@@ -15,7 +15,7 @@ import android.net.NetworkInfo;
 import android.os.*;
 import android.view.*;
 import android.widget.*;
-import com.konst.module.HandlerScaleConnect;
+import com.konst.module.BootModule;
 import com.konst.module.ScaleModule;
 import com.victjava.scales.*;
 
@@ -215,32 +215,29 @@ public class ActivityConnect extends Activity implements View.OnClickListener {
                 onBackPressed();
                 break;
             case R.id.buttonSearchBluetooth:
-                scaleModule.initBoot("bootloader", bluetoothDevice.getAddress());
-            break;
+                try {
+                    bootModule.init("bootloader", bluetoothDevice.getAddress());
+                } catch (Exception e) {
+                    bootModule.handleConnectError(ScaleModule.Error.CONNECT_ERROR, e.getMessage());
+                }
+                break;
             default:
         }
     }
 
-    final ScaleModule scaleModule = new ScaleModule() {
-
-        /*@Override
-        public void handleMessage(Message msg) {
-            setResult(RESULT_OK, new Intent());
-            finish();
-        }*/
-
+    final BootModule bootModule = new BootModule() {
         @Override
-        public void handleModuleConnect(Result what) {
-            switch (what){
+        public void handleResultConnect(ResultConnect result) {
+            switch (result){
                 case STATUS_LOAD_OK:
                     setResult(RESULT_OK, new Intent());
                     finish();
-                break;
+                    break;
             }
         }
 
         @Override
-        public void handleModuleConnectError(Result result, String s) {}
+        public void handleConnectError(Error error, String s) {}
 
     };
 

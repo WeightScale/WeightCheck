@@ -82,6 +82,29 @@ public class ActivityTuning extends PreferenceActivity {
                 }
             });
         }
+        /*if (name != null) {
+            name = findPreference("speed");
+            name.setSummary(String.valueOf(ScaleModule.getModuleSpeedPort()));
+            name.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
+                @Override
+                public boolean onPreferenceChange(Preference preference, Object o) {
+                    if (o.toString().equals("") || Integer.valueOf(o.toString()) > 5 || Integer.valueOf(o.toString()) < 1) {
+                        Toast.makeText(getApplicationContext(), R.string.preferences_no, Toast.LENGTH_SHORT).show();
+                        return false;
+                    }
+
+                    if (Scales.command(ScaleInterface.CMD_SPEED + o.toString()).equals(ScaleInterface.CMD_SPEED)) {
+                        Scales.speed = Integer.valueOf(o.toString());
+                        preference.setSummary(o.toString());
+                        Toast.makeText(getApplicationContext(), R.string.preferences_yes, Toast.LENGTH_SHORT).show();
+                        return true;
+                    }
+
+                    Toast.makeText(getApplicationContext(), R.string.preferences_no, Toast.LENGTH_SHORT).show();
+                    return false;
+                }
+            });
+        }*/
         if (name != null) {
             String KEY_COEFFICIENT_A = "coefficientA";
             name = findPreference(KEY_COEFFICIENT_A);

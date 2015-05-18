@@ -19,8 +19,8 @@ import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.view.*;
 import android.widget.*;
-import com.konst.module.HandlerWeightUpdate;
 import com.konst.module.ScaleModule;
+import com.konst.module.ScaleModule.HandlerWeight;
 import com.victjava.scales.provider.CheckDBAdapter;
 
 
@@ -236,7 +236,7 @@ public class ActivityCheck extends FragmentActivity implements View.OnClickListe
         }
 
         if (values.getAsInteger(CheckDBAdapter.KEY_WEIGHT_FIRST) == 0 || values.getAsInteger(CheckDBAdapter.KEY_WEIGHT_SECOND) == 0) {
-            ScaleModule.processUpdate(true, handlerWeight);
+            handlerWeight.process(true);
         }
     }
 
@@ -292,7 +292,7 @@ public class ActivityCheck extends FragmentActivity implements View.OnClickListe
     }
 
     protected void exit() {
-        ScaleModule.processUpdate(false, null);
+        handlerWeight.process(false);
         autoWeightThread.cancel();
         while (autoWeightThread.isStart()) ;
         if (weightType == WeightType.NETTO) {
@@ -434,7 +434,8 @@ public class ActivityCheck extends FragmentActivity implements View.OnClickListe
                 flag = true;
                 break;
             case NETTO:
-                ScaleModule.processUpdate(false, handlerWeight);
+                handlerWeight.process(false);
+                //ScaleModule.processWeight(false, handlerWeight);
                 exit();
                 break;
         }
@@ -593,17 +594,15 @@ public class ActivityCheck extends FragmentActivity implements View.OnClickListe
 
     }
 
-    final HandlerWeightUpdate handlerWeight = new HandlerWeightUpdate() {
-
+    HandlerWeight handlerWeight = new HandlerWeight() {
         @Override
-        public int handlerWeight(final HandlerWeightUpdate.Result what, final int weight, final int sensor) {
-
+        public int handlerWeight(final ScaleModule.ResultWeight what, final int weight, final int sensor) {
             runOnUiThread(new Runnable() {
                 Rect bounds;
                 @Override
                 public void run() {
                     switch (what) {
-                        case RESULT_WEIGHT_NORMAL:
+                        case WEIGHT_NORMAL:
                             moduleWeight = weight;
                             moduleSensorValue = sensor;
                             progressBarWeight.setProgress(sensor);
@@ -612,7 +611,7 @@ public class ActivityCheck extends FragmentActivity implements View.OnClickListe
                             progressBarWeight.setProgressDrawable(dProgressWeight);
                             progressBarWeight.getProgressDrawable().setBounds(bounds);
                             break;
-                        case RESULT_WEIGHT_LIMIT:
+                        case WEIGHT_LIMIT:
                             moduleWeight = weight;
                             moduleSensorValue = sensor;
                             progressBarWeight.setProgress(sensor);
@@ -621,14 +620,14 @@ public class ActivityCheck extends FragmentActivity implements View.OnClickListe
                             progressBarWeight.setProgressDrawable(dWeightDanger);
                             progressBarWeight.getProgressDrawable().setBounds(bounds);
                             break;
-                        case RESULT_WEIGHT_MARGIN:
+                        case WEIGHT_MARGIN:
                             moduleWeight = weight;
                             moduleSensorValue = sensor;
                             progressBarWeight.setProgress(sensor);
                             weightTextView.updateProgress(getString(R.string.OVER_LOAD), Color.RED, getResources().getDimension(R.dimen.text_large_xx));
                             vibrator.vibrate(100);
                             break;
-                        case RESULT_WEIGHT_ERROR:
+                        case WEIGHT_ERROR:
                             weightTextView.updateProgress(getString(R.string.NO_CONNECT), Color.BLACK, getResources().getDimension(R.dimen.text_large_xx));
                             progressBarWeight.setProgress(0);
                             break;

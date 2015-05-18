@@ -10,7 +10,7 @@ import android.view.WindowManager;
 import android.widget.*;
 import com.victjava.scales.provider.TypeDBAdapter;
 
-/**
+/*
  * Created with IntelliJ IDEA.
  * User: Kostya
  * Date: 02.10.13
