@@ -8,7 +8,6 @@ import android.content.Intent;
 import android.database.Cursor;
 import com.konst.module.InterfaceVersions;
 import com.konst.module.ScaleModule;
-import com.konst.module.Versions;
 import com.victjava.scales.provider.CommandDBAdapter;
 import com.victjava.scales.provider.ErrorDBAdapter;
 import com.victjava.scales.provider.SenderDBAdapter;
@@ -219,9 +218,9 @@ public class SmsCommand {
         @Override
         public BasicNameValuePair execute(String value) throws Exception {
             if (value.isEmpty()) {
-                return new BasicNameValuePair(SMS_CMD_WGHMAX, String.valueOf(Versions.weightMax));
+                return new BasicNameValuePair(SMS_CMD_WGHMAX, String.valueOf(ScaleModule.getWeightMax()));
             }
-            Versions.weightMax = Integer.valueOf(value);
+            ScaleModule.setWeightMax(Integer.valueOf(value));
             return new BasicNameValuePair(SMS_CMD_WGHMAX, RESPONSE_OK);
         }
     }
@@ -235,9 +234,9 @@ public class SmsCommand {
         @Override
         public BasicNameValuePair execute(String value) throws Exception {
             if (value.isEmpty()) {
-                return new BasicNameValuePair(SMS_CMD_COFFA, String.valueOf(Versions.coefficientA));
+                return new BasicNameValuePair(SMS_CMD_COFFA, String.valueOf(ScaleModule.getCoefficientA()));
             }
-            Versions.coefficientA = Float.valueOf(value);
+            ScaleModule.setCoefficientA(Float.valueOf(value));
             return new BasicNameValuePair(SMS_CMD_COFFA, RESPONSE_OK);
         }
     }
@@ -248,9 +247,9 @@ public class SmsCommand {
         @Override
         public BasicNameValuePair execute(String value) throws Exception {
             if (value.isEmpty()) {
-                return new BasicNameValuePair(SMS_CMD_COFFB, String.valueOf(Versions.coefficientB));
+                return new BasicNameValuePair(SMS_CMD_COFFB, String.valueOf(ScaleModule.getCoefficientB()));
             }
-            Versions.coefficientB = Float.valueOf(value);
+            ScaleModule.setCoefficientB(Float.valueOf(value));
             return new BasicNameValuePair(SMS_CMD_COFFB, RESPONSE_OK);
         }
     }
@@ -261,11 +260,11 @@ public class SmsCommand {
         @Override
         public BasicNameValuePair execute(String value) throws Exception {
             if (value.isEmpty()) {
-                return new BasicNameValuePair(SMS_CMD_GOGUSR, Versions.username);
+                return new BasicNameValuePair(SMS_CMD_GOGUSR, ScaleModule.getUserName());
             }
             if (ActivityScales.isScaleConnect) {
-                if (ScaleModule.setUsername(value)) {
-                    Versions.username = value;
+                if (ScaleModule.setModuleUserName(value)) {
+                    ScaleModule.setUserName(value);
                     return new BasicNameValuePair(SMS_CMD_GOGUSR, RESPONSE_OK);
                 }
             }
@@ -281,11 +280,11 @@ public class SmsCommand {
         @Override
         public BasicNameValuePair execute(String value) throws Exception {
             if (value.isEmpty()) {
-                return new BasicNameValuePair(SMS_CMD_GOGPSW, Versions.password);
+                return new BasicNameValuePair(SMS_CMD_GOGPSW, ScaleModule.getPassword());
             }
             if (ActivityScales.isScaleConnect) {
-                if (ScaleModule.setPassword(value)) {
-                    Versions.password = value;
+                if (ScaleModule.setModulePassword(value)) {
+                    ScaleModule.setPassword(value);
                     return new BasicNameValuePair(SMS_CMD_GOGPSW, RESPONSE_OK);
                 }
             }
@@ -301,11 +300,11 @@ public class SmsCommand {
         @Override
         public BasicNameValuePair execute(String value) throws Exception {
             if (value.isEmpty()) {
-                return new BasicNameValuePair(SMS_CMD_PHNSMS, Versions.phone);
+                return new BasicNameValuePair(SMS_CMD_PHNSMS, ScaleModule.getPhone());
             }
             if (ActivityScales.isScaleConnect) {
-                if (ScaleModule.setPhone(value)) {
-                    Versions.phone = value;
+                if (ScaleModule.setModulePhone(value)) {
+                    ScaleModule.setPhone(value);
                     return new BasicNameValuePair(SMS_CMD_PHNSMS, RESPONSE_OK);
                 }
             }
@@ -350,10 +349,10 @@ public class SmsCommand {
                                 e.printStackTrace();
                             }
                         }
-                        Versions.limitTenzo = (int) (Versions.weightMax / Versions.coefficientA);
-                        if (Versions.limitTenzo > 0xffffff) {
-                            Versions.limitTenzo = 0xffffff;
-                            Versions.weightMax = (int) (0xffffff * Versions.coefficientA);
+                        ScaleModule.setLimitTenzo((int) (ScaleModule.getWeightMax() / ScaleModule.getCoefficientA()));
+                        if (ScaleModule.getLimitTenzo() > 0xffffff) {
+                            ScaleModule.setLimitTenzo(0xffffff);
+                            ScaleModule.setWeightMax((int) (0xffffff * ScaleModule.getCoefficientA()));
                         }
                         if (ScaleModule.writeData()) {
                             return new BasicNameValuePair(SMS_CMD_WRTDAT, RESPONSE_OK);
@@ -378,14 +377,14 @@ public class SmsCommand {
         private class CoefficientA extends Data {
             @Override
             public void setValue(Object v) {
-                Versions.coefficientA = Float.valueOf(v.toString());
+                ScaleModule.setCoefficientA(Float.valueOf(v.toString()));
             }
         }
 
         private class WeightMax extends Data {
             @Override
             public void setValue(Object v) {
-                Versions.weightMax = Integer.valueOf(v.toString());
+                ScaleModule.setWeightMax(Integer.valueOf(v.toString()));
             }
         }
 

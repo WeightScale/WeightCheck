@@ -401,15 +401,15 @@ public class ActivityBootloader extends Activity implements View.OnClickListener
     public boolean backupPreference() {
         Preferences.load(getSharedPreferences(Preferences.PREF_UPDATE, Context.MODE_PRIVATE));
 
-        Preferences.write(InterfaceScaleModule.CMD_FILTER, Versions.filterADC);
-        Preferences.write(InterfaceScaleModule.CMD_TIMER, Versions.timeOff);
-        Preferences.write(InterfaceScaleModule.CMD_BATTERY, ScaleModule.battery);
+        Preferences.write(InterfaceScaleModule.CMD_FILTER, ScaleModule.getFilterADC());
+        Preferences.write(InterfaceScaleModule.CMD_TIMER, ScaleModule.getTimeOff());
+        Preferences.write(InterfaceScaleModule.CMD_BATTERY, ScaleModule.getBattery());
         //Main.preferencesUpdate.write(InterfaceVersions.CMD_CALL_TEMP, String.valueOf(coefficientTemp));
-        Preferences.write(InterfaceVersions.CMD_SPREADSHEET, Versions.spreadsheet);
-        Preferences.write(InterfaceVersions.CMD_G_USER, Versions.username);
-        Preferences.write(InterfaceVersions.CMD_G_PASS, Versions.password);
-        Preferences.write(InterfaceVersions.CMD_DATA_CFA, Versions.coefficientA);
-        Preferences.write(InterfaceVersions.CMD_DATA_WGM, Versions.weightMax);
+        Preferences.write(InterfaceVersions.CMD_SPREADSHEET, ScaleModule.getSpreadSheet());
+        Preferences.write(InterfaceVersions.CMD_G_USER, ScaleModule.getUserName());
+        Preferences.write(InterfaceVersions.CMD_G_PASS, ScaleModule.getPassword());
+        Preferences.write(InterfaceVersions.CMD_DATA_CFA, ScaleModule.getCoefficientA());
+        Preferences.write(InterfaceVersions.CMD_DATA_WGM, ScaleModule.getWeightMax());
 
         //editor.apply();
         return true;
@@ -426,18 +426,18 @@ public class ActivityBootloader extends Activity implements View.OnClickListener
             ScaleModule.setModuleBatteryCharge(Preferences.read(InterfaceScaleModule.CMD_BATTERY, Main.default_max_battery));
             log("Заряд батареи "+ BootModule.getBattery());
             //command(InterfaceScaleModule.CMD_CALL_TEMP + Main.preferencesUpdate.read(InterfaceScaleModule.CMD_CALL_TEMP, "0"));
-            ScaleModule.setSpreadsheet(Preferences.read(InterfaceVersions.CMD_SPREADSHEET, "weightscale"));
+            ScaleModule.setModuleSpreadsheet(Preferences.read(InterfaceVersions.CMD_SPREADSHEET, "weightscale"));
             log("Имя таблици "+ BootModule.getSpreadSheet());
-            ScaleModule.setUsername(Preferences.read(InterfaceVersions.CMD_G_USER, ""));
+            ScaleModule.setModuleUserName(Preferences.read(InterfaceVersions.CMD_G_USER, ""));
             log("Имя пользователя "+ BootModule.getUserName());
-            ScaleModule.setPassword(Preferences.read(InterfaceVersions.CMD_G_PASS, ""));
+            ScaleModule.setModulePassword(Preferences.read(InterfaceVersions.CMD_G_PASS, ""));
             log("Пароль");
-            Versions.coefficientA = Preferences.read(InterfaceVersions.CMD_DATA_CFA, 0.0f);
-            log("Коэффициент А "+ Versions.coefficientA);
-            Versions.weightMax = Preferences.read(InterfaceVersions.CMD_DATA_WGM, Main.default_max_weight);
-            log("Максимальный вес "+ Versions.weightMax);
-            Versions.limitTenzo = (int) (Versions.weightMax / Versions.coefficientA);
-            log("Лимит датчика "+ Versions.limitTenzo);
+            ScaleModule.setCoefficientA(Preferences.read(InterfaceVersions.CMD_DATA_CFA, 0.0f));
+            log("Коэффициент А "+ ScaleModule.getCoefficientA());
+            ScaleModule.setWeightMax(Preferences.read(InterfaceVersions.CMD_DATA_WGM, Main.default_max_weight));
+            log("Максимальный вес "+ ScaleModule.getWeightMax());
+            ScaleModule.setLimitTenzo((int) (ScaleModule.getWeightMax() / ScaleModule.getCoefficientA()));
+            log("Лимит датчика "+ ScaleModule.getLimitTenzo());
             ScaleModule.writeData();
         }
         return true;

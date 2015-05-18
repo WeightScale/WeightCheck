@@ -5,7 +5,6 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.provider.BaseColumns;
 import com.konst.module.ScaleModule;
-import com.konst.module.Versions;
 import com.victjava.scales.R;
 import com.victjava.scales.TaskCommand;
 
@@ -281,10 +280,10 @@ public class CheckDBAdapter {
                                 taskTable.insertNewTask(TaskCommand.TaskType.TYPE_CHECK_SEND_SHEET_DISK, _rowIndex, senderId, "");
                                 break;
                             case TYPE_EMAIL:
-                                taskTable.insertNewTask(TaskCommand.TaskType.TYPE_CHECK_SEND_MAIL_ADMIN, _rowIndex, senderId, Versions.username);
+                                taskTable.insertNewTask(TaskCommand.TaskType.TYPE_CHECK_SEND_MAIL_ADMIN, _rowIndex, senderId, ScaleModule.getUserName());
                                 break;
                             case TYPE_SMS:
-                                taskTable.insertNewTask(TaskCommand.TaskType.TYPE_CHECK_SEND_SMS_ADMIN, _rowIndex, senderId, Versions.phone);
+                                taskTable.insertNewTask(TaskCommand.TaskType.TYPE_CHECK_SEND_SMS_ADMIN, _rowIndex, senderId, ScaleModule.getPhone());
                                 break;
                             default:
                         }

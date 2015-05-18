@@ -58,8 +58,8 @@ public class Main extends Application {
         autoCapture = Preferences.read(ActivityPreferences.KEY_AUTO_CAPTURE, default_max_auto_capture);
         day_delete = Preferences.read(ActivityPreferences.KEY_DAY_CHECK_DELETE, default_day_delete_check);
         day_closed = Preferences.read(ActivityPreferences.KEY_DAY_CLOSED_CHECK, default_day_close_check);
-        ScaleModule.timerNull = Preferences.read(ActivityPreferences.KEY_TIMER_NULL, default_max_time_auto_null);
-        ScaleModule.weightError = Preferences.read(ActivityPreferences.KEY_MAX_NULL, default_limit_auto_null);
+        ScaleModule.setTimerNull(Preferences.read(ActivityPreferences.KEY_TIMER_NULL, default_max_time_auto_null));
+        ScaleModule.setWeightError(Preferences.read(ActivityPreferences.KEY_MAX_NULL, default_limit_auto_null));
         timeDelayDetectCapture = Preferences.read(ActivityPreferences.KEY_TIME_DELAY_DETECT_CAPTURE, 1);
 
         getApplicationContext().startService(new Intent(getApplicationContext(), ServiceSmsCommand.class));// Запускаем сервис для приемеа смс команд

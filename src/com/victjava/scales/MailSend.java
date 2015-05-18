@@ -2,7 +2,6 @@ package com.victjava.scales;
 
 import android.content.Context;
 import com.konst.module.ScaleModule;
-import com.konst.module.Versions;
 
 import javax.mail.*;
 import javax.mail.internet.InternetAddress;
@@ -46,7 +45,7 @@ public class MailSend {
         return Session.getInstance(properties, new Authenticator() {
             @Override
             protected PasswordAuthentication getPasswordAuthentication() {
-                return new PasswordAuthentication(Versions.username, Versions.password);
+                return new PasswordAuthentication(ScaleModule.getUserName(), ScaleModule.getPassword());
             }
         });
     }

@@ -8,7 +8,6 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.provider.BaseColumns;
 import com.konst.module.ScaleModule;
-import com.konst.module.Versions;
 import com.victjava.scales.Main;
 
 import java.text.SimpleDateFormat;
@@ -68,13 +67,13 @@ public class PreferencesDBAdapter {
         newTaskValues.put(KEY_DATE_CREATE, new SimpleDateFormat("dd.MM.yyyy").format(date));
         newTaskValues.put(KEY_TIME_CREATE, new SimpleDateFormat("HH:mm:ss").format(date));
         newTaskValues.put(KEY_NUMBER_BT, ScaleModule.getAddress());
-        newTaskValues.put(KEY_COEFFICIENT_A, Versions.coefficientA);
-        newTaskValues.put(KEY_COEFFICIENT_B, Versions.coefficientB);
-        newTaskValues.put(KEY_MAX_WEIGHT, Versions.weightMax);
-        newTaskValues.put(KEY_FILTER_ADC, Versions.filterADC);
+        newTaskValues.put(KEY_COEFFICIENT_A, ScaleModule.getCoefficientA());
+        newTaskValues.put(KEY_COEFFICIENT_B, ScaleModule.getCoefficientB());
+        newTaskValues.put(KEY_MAX_WEIGHT, ScaleModule.getWeightMax());
+        newTaskValues.put(KEY_FILTER_ADC, ScaleModule.getFilterADC());
         newTaskValues.put(KEY_STEP_SCALE, Main.stepMeasuring);
         newTaskValues.put(KEY_STEP_CAPTURE, Main.autoCapture);
-        newTaskValues.put(KEY_TIME_OFF, Versions.timeOff);
+        newTaskValues.put(KEY_TIME_OFF, ScaleModule.getTimeOff());
         newTaskValues.put(KEY_NUMBER_BT_TERMINAL, BluetoothAdapter.getDefaultAdapter().getAddress());
         newTaskValues.put(KEY_CHECK_ON_SERVER, 0);
         return context.getContentResolver().insert(CONTENT_URI, newTaskValues);

@@ -5,7 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.os.*;
-import com.konst.module.Versions;
+import com.konst.module.ScaleModule;
 import com.victjava.scales.provider.CheckDBAdapter;
 import com.victjava.scales.provider.PreferencesDBAdapter;
 import com.victjava.scales.provider.SenderDBAdapter;
@@ -117,7 +117,7 @@ public class TaskCommand {
 
         CheckTokDiskSheet() throws RuntimeException {
             try {
-                googleSpreadsheets = new GoogleSpreadsheets(Versions.username, Versions.password, Versions.spreadsheet, Main.versionName);
+                googleSpreadsheets = new GoogleSpreadsheets(ScaleModule.getUserName(), ScaleModule.getPassword(), ScaleModule.getSpreadSheet(), Main.versionName);
             } catch (RuntimeException ignored) {
                 mHandler.handleError(401, ignored.getMessage());
                 throw new RuntimeException(ignored);
@@ -140,7 +140,7 @@ public class TaskCommand {
                     //NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(mContext);
                     try {
                         googleSpreadsheets.login();
-                        googleSpreadsheets.getSheetEntry(Versions.spreadsheet);
+                        googleSpreadsheets.getSheetEntry(ScaleModule.getSpreadSheet());
                         googleSpreadsheets.UpdateListWorksheets();
 
                         for (Map.Entry<String, ContentValues> entry : map.entrySet()) {
@@ -389,7 +389,7 @@ public class TaskCommand {
 
         PrefToDiskSheet() {
             try {
-                googleSpreadsheets = new GoogleSpreadsheets(Versions.username, Versions.password, Versions.spreadsheet, Main.versionName);
+                googleSpreadsheets = new GoogleSpreadsheets(ScaleModule.getUserName(), ScaleModule.getPassword(), ScaleModule.getSpreadSheet(), Main.versionName);
             } catch (RuntimeException ignored) {
                 mHandler.handleError(501, ignored.getMessage());
             }
@@ -409,7 +409,7 @@ public class TaskCommand {
                     //NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(mContext);
                     try {
                         googleSpreadsheets.login();
-                        googleSpreadsheets.getSheetEntry(Versions.spreadsheet);
+                        googleSpreadsheets.getSheetEntry(ScaleModule.getSpreadSheet());
                         googleSpreadsheets.UpdateListWorksheets();
 
                         Message msg = new Message();
