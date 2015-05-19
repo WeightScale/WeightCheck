@@ -10,7 +10,6 @@ import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
 import android.provider.BaseColumns;
 import com.victjava.scales.R;
-//import android.database.sqlite.SQLiteOpenHelper;
 
 /**
  * Created with IntelliJ IDEA.

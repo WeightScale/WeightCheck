@@ -15,6 +15,6 @@
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="library" exported="" name="activation" level="project" />
     <orderEntry type="library" exported="" name="bootloader_avr" level="project" />
-    <orderEntry type="library" exported="" name="scale_module" level="project" />
+    <orderEntry type="library" exported="" name="ScaleModule" level="project" />
   </component>
 </module>

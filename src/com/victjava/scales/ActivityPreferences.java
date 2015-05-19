@@ -9,7 +9,7 @@ import android.preference.Preference;
 import android.preference.PreferenceActivity;
 import android.preference.PreferenceManager;
 import android.widget.Toast;
-import com.konst.module.InterfaceScaleModule;
+import com.konst.module.InterfaceVersions;
 import com.konst.module.ScaleModule;
 import com.victjava.scales.bootloader.ActivityBootloader;
 import com.victjava.scales.provider.CheckDBAdapter;
@@ -316,8 +316,8 @@ public class ActivityPreferences extends PreferenceActivity implements SharedPre
                             intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
                         //intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                         intent.putExtra(KEY_ADDRESS, ScaleModule.getAddress());
-                        intent.putExtra(InterfaceScaleModule.CMD_HARDWARE, hardware);
-                        intent.putExtra(InterfaceScaleModule.CMD_VERSION, ScaleModule.getNumVersion());
+                        intent.putExtra(InterfaceVersions.CMD_HARDWARE, hardware);
+                        intent.putExtra(InterfaceVersions.CMD_VERSION, ScaleModule.getNumVersion());
                         startActivity(intent);
                         return false;
                     }

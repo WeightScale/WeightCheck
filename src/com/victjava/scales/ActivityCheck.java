@@ -435,7 +435,6 @@ public class ActivityCheck extends FragmentActivity implements View.OnClickListe
                 break;
             case NETTO:
                 handlerWeight.process(false);
-                //ScaleModule.processWeight(false, handlerWeight);
                 exit();
                 break;
         }

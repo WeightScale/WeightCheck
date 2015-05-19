@@ -8,7 +8,6 @@ import android.content.*;
 import android.os.*;
 import android.view.*;
 import android.widget.*;
-import com.konst.module.InterfaceScaleModule;
 import com.konst.module.ScaleModule;
 
 import java.io.IOException;

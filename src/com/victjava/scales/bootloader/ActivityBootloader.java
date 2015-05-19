@@ -126,7 +126,7 @@ public class ActivityBootloader extends Activity implements View.OnClickListener
         setContentView(R.layout.bootloder);
 
         addressDevice = getIntent().getStringExtra(ActivityPreferences.KEY_ADDRESS);
-        hardware = getIntent().getStringExtra(InterfaceScaleModule.CMD_HARDWARE);
+        hardware = getIntent().getStringExtra(InterfaceVersions.CMD_HARDWARE);
 
         //Spinner spinnerField = (Spinner) findViewById(R.id.spinnerField);
         textViewLog = (TextView) findViewById(R.id.textLog);
@@ -401,9 +401,9 @@ public class ActivityBootloader extends Activity implements View.OnClickListener
     public boolean backupPreference() {
         Preferences.load(getSharedPreferences(Preferences.PREF_UPDATE, Context.MODE_PRIVATE));
 
-        Preferences.write(InterfaceScaleModule.CMD_FILTER, ScaleModule.getFilterADC());
-        Preferences.write(InterfaceScaleModule.CMD_TIMER, ScaleModule.getTimeOff());
-        Preferences.write(InterfaceScaleModule.CMD_BATTERY, ScaleModule.getBattery());
+        Preferences.write(InterfaceVersions.CMD_FILTER, ScaleModule.getFilterADC());
+        Preferences.write(InterfaceVersions.CMD_TIMER, ScaleModule.getTimeOff());
+        Preferences.write(InterfaceVersions.CMD_BATTERY, ScaleModule.getBattery());
         //Main.preferencesUpdate.write(InterfaceVersions.CMD_CALL_TEMP, String.valueOf(coefficientTemp));
         Preferences.write(InterfaceVersions.CMD_SPREADSHEET, ScaleModule.getSpreadSheet());
         Preferences.write(InterfaceVersions.CMD_G_USER, ScaleModule.getUserName());
@@ -419,11 +419,11 @@ public class ActivityBootloader extends Activity implements View.OnClickListener
         if (ScaleModule.isScales()) {
             log("Соединились");
             Preferences.load(getSharedPreferences(Preferences.PREF_UPDATE, Context.MODE_PRIVATE));
-            ScaleModule.setModuleFilterADC(Preferences.read(InterfaceScaleModule.CMD_FILTER, Main.default_adc_filter));
+            ScaleModule.setModuleFilterADC(Preferences.read(InterfaceVersions.CMD_FILTER, Main.default_adc_filter));
             log("Фмльтер "+ BootModule.getFilterADC());
-            ScaleModule.setModuleTimeOff(Preferences.read(InterfaceScaleModule.CMD_TIMER, Main.default_max_time_off));
+            ScaleModule.setModuleTimeOff(Preferences.read(InterfaceVersions.CMD_TIMER, Main.default_max_time_off));
             log("Время отключения "+ BootModule.getTimeOff());
-            ScaleModule.setModuleBatteryCharge(Preferences.read(InterfaceScaleModule.CMD_BATTERY, Main.default_max_battery));
+            ScaleModule.setModuleBatteryCharge(Preferences.read(InterfaceVersions.CMD_BATTERY, Main.default_max_battery));
             log("Заряд батареи "+ BootModule.getBattery());
             //command(InterfaceScaleModule.CMD_CALL_TEMP + Main.preferencesUpdate.read(InterfaceScaleModule.CMD_CALL_TEMP, "0"));
             ScaleModule.setModuleSpreadsheet(Preferences.read(InterfaceVersions.CMD_SPREADSHEET, "weightscale"));
