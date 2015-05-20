@@ -15,7 +15,7 @@ import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.*;
-import com.victjava.scales.provider.CheckDBAdapter;
+import com.victjava.scales.provider.CheckTable;
 
 import java.util.*;
 
@@ -27,18 +27,18 @@ public class ActivityViewCheck extends Activity implements View.OnClickListener 
     private int entryID;
     //private LinearLayout layoutImageView;
     private final String[] mColumns = {
-            CheckDBAdapter.KEY_ID,
-            CheckDBAdapter.KEY_DATE_CREATE,
-            CheckDBAdapter.KEY_TIME_CREATE,
-            CheckDBAdapter.KEY_VENDOR,
-            CheckDBAdapter.KEY_WEIGHT_FIRST,
-            CheckDBAdapter.KEY_WEIGHT_SECOND,
-            CheckDBAdapter.KEY_WEIGHT_NETTO,
-            CheckDBAdapter.KEY_TYPE,
-            CheckDBAdapter.KEY_PRICE,
-            CheckDBAdapter.KEY_PRICE_SUM,
-            CheckDBAdapter.KEY_NUMBER_BT,
-            CheckDBAdapter.KEY_DIRECT, CheckDBAdapter.KEY_DIRECT, CheckDBAdapter.KEY_DIRECT};
+            CheckTable.KEY_ID,
+            CheckTable.KEY_DATE_CREATE,
+            CheckTable.KEY_TIME_CREATE,
+            CheckTable.KEY_VENDOR,
+            CheckTable.KEY_WEIGHT_FIRST,
+            CheckTable.KEY_WEIGHT_SECOND,
+            CheckTable.KEY_WEIGHT_NETTO,
+            CheckTable.KEY_TYPE,
+            CheckTable.KEY_PRICE,
+            CheckTable.KEY_PRICE_SUM,
+            CheckTable.KEY_NUMBER_BT,
+            CheckTable.KEY_DIRECT, CheckTable.KEY_DIRECT, CheckTable.KEY_DIRECT};
     private final int[] mTo = {
             R.id.check_id,
             R.id.date,
@@ -66,7 +66,7 @@ public class ActivityViewCheck extends Activity implements View.OnClickListener 
         lp.screenBrightness = 1.0f;
         getWindow().setAttributes(lp);
 
-        Cursor cursor = new CheckDBAdapter(getApplicationContext()).getEntryItem(entryID);
+        Cursor cursor = new CheckTable(getApplicationContext()).getEntryItem(entryID);
         if (cursor == null) {
             return;
         }
@@ -95,7 +95,7 @@ public class ActivityViewCheck extends Activity implements View.OnClickListener 
         Map<String, ContentValues> map = mQueryMap.getRows();
         ContentValues values = map.get(String.valueOf(entryID));
 
-        contactId = values.getAsInteger(CheckDBAdapter.KEY_VENDOR_ID);
+        contactId = values.getAsInteger(CheckTable.KEY_VENDOR_ID);
     }
 
     /*@Override
@@ -123,7 +123,7 @@ public class ActivityViewCheck extends Activity implements View.OnClickListener 
         final int count = mTo.length;
         final int[] from = mFrom;
         final int[] to = mTo;
-        int direct = cursor.getInt(cursor.getColumnIndex(CheckDBAdapter.KEY_DIRECT));
+        int direct = cursor.getInt(cursor.getColumnIndex(CheckTable.KEY_DIRECT));
 
         for (int i = 0; i < count; i++) {
             final View v = view.findViewById(to[i]);
@@ -131,14 +131,14 @@ public class ActivityViewCheck extends Activity implements View.OnClickListener 
 
                 switch (v.getId()) {
                     case R.id.gross:
-                        if (direct == CheckDBAdapter.DIRECT_UP) {
+                        if (direct == CheckTable.DIRECT_UP) {
                             setViewText((TextView) v, getString(R.string.Tape));
                         } else {
                             setViewText((TextView) v, getString(R.string.Gross));
                         }
                         break;
                     case R.id.tare:
-                        if (direct == CheckDBAdapter.DIRECT_DOWN) {
+                        if (direct == CheckTable.DIRECT_DOWN) {
                             setViewText((TextView) v, getString(R.string.Tape));
                         } else {
                             setViewText((TextView) v, getString(R.string.Gross));

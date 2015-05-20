@@ -13,14 +13,14 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Map;
 
-public class CheckDBAdapter {
-    final TaskDBAdapter taskTable;
+public class CheckTable {
+    final TaskTable taskTable;
     private final Context mContext;
     final ContentResolver contentResolver;
     public static int day;
     public static int day_closed;
 
-    public static final String TABLE_CHECKS = "inputCheckTable";
+    public static final String TABLE = "inputCheckTable";
 
     public static final String KEY_ID = BaseColumns._ID;
     public static final String KEY_DATE_CREATE = "dateCreate";
@@ -47,7 +47,7 @@ public class CheckDBAdapter {
     public static final int DIRECT_DOWN = R.drawable.ic_action_down;
     public static final int DIRECT_UP = R.drawable.ic_action_up;
 
-    private static final String[] All_COLUMN_CHECKS_TABLE = {
+    private static final String[] All_COLUMN_TABLE = {
             KEY_ID,
             KEY_DATE_CREATE,
             KEY_TIME_CREATE,
@@ -66,8 +66,8 @@ public class CheckDBAdapter {
             KEY_VISIBILITY,
             KEY_DIRECT};
 
-    public static final String TABLE_CREATE_CHECKS = "create table "
-            + TABLE_CHECKS + " ("
+    public static final String TABLE_CREATE = "create table "
+            + TABLE + " ("
             + KEY_ID + " integer primary key autoincrement, "
             + KEY_DATE_CREATE + " text,"
             + KEY_TIME_CREATE + " text,"
@@ -87,19 +87,19 @@ public class CheckDBAdapter {
             + KEY_DIRECT + " integer );";
 
     //static final String TABLE_CHECKS_PATH = TABLE_CHECKS;
-    private static final Uri CONTENT_URI = Uri.parse("content://" + WeightCheckBaseProvider.AUTHORITY + '/' + TABLE_CHECKS);
+    private static final Uri CONTENT_URI = Uri.parse("content://" + WeightCheckBaseProvider.AUTHORITY + '/' + TABLE);
 
-    public CheckDBAdapter(Context context) {
+    public CheckTable(Context context) {
         mContext = context;
         contentResolver = mContext.getContentResolver();
-        taskTable = new TaskDBAdapter(context);
+        taskTable = new TaskTable(context);
     }
 
-    public CheckDBAdapter(Context context, int d) {
+    public CheckTable(Context context, int d) {
         mContext = context;
         contentResolver = mContext.getContentResolver();
         day = d;
-        taskTable = new TaskDBAdapter(context);
+        taskTable = new TaskTable(context);
     }
 
     public Uri insertNewEntry(String vendor, int vendorId, int direct) {
@@ -191,21 +191,21 @@ public class CheckDBAdapter {
     }
 
     public Cursor getAllEntries(int view) {
-        return contentResolver.query(CONTENT_URI, All_COLUMN_CHECKS_TABLE, KEY_IS_READY + "= 1" + " and " + KEY_VISIBILITY + "= " + view, null, null);
+        return contentResolver.query(CONTENT_URI, All_COLUMN_TABLE, KEY_IS_READY + "= 1" + " and " + KEY_VISIBILITY + "= " + view, null, null);
     }
 
     public Cursor getAllNoReadyCheck() {
-        return contentResolver.query(CONTENT_URI, All_COLUMN_CHECKS_TABLE, KEY_CHECK_ON_SERVER + "= 0" + " and " + KEY_IS_READY + "= 0", null, null);
+        return contentResolver.query(CONTENT_URI, All_COLUMN_TABLE, KEY_CHECK_ON_SERVER + "= 0" + " and " + KEY_IS_READY + "= 0", null, null);
     }
 
     public Cursor getNotReady() {
-        return contentResolver.query(CONTENT_URI, All_COLUMN_CHECKS_TABLE, KEY_IS_READY + "= 0", null, null);
+        return contentResolver.query(CONTENT_URI, All_COLUMN_TABLE, KEY_IS_READY + "= 0", null, null);
     }
 
     public Cursor getEntryItem(int _rowIndex) {
         Uri uri = ContentUris.withAppendedId(CONTENT_URI, _rowIndex);
         try {
-            Cursor result = contentResolver.query(uri, All_COLUMN_CHECKS_TABLE, null, null, null);
+            Cursor result = contentResolver.query(uri, All_COLUMN_TABLE, null, null, null);
             result.moveToFirst();
             return result;
         }catch (Exception e){
@@ -216,7 +216,7 @@ public class CheckDBAdapter {
     public ContentValues getValuesItem(int _rowIndex) throws Exception{
         Uri uri = ContentUris.withAppendedId(CONTENT_URI, _rowIndex);
         try {
-            Cursor result = contentResolver.query(uri, All_COLUMN_CHECKS_TABLE, null, null, null);
+            Cursor result = contentResolver.query(uri, All_COLUMN_TABLE, null, null, null);
             result.moveToFirst();
             ContentQueryMap mQueryMap = new ContentQueryMap(result, BaseColumns._ID, true, null);
             Map<String, ContentValues> map = mQueryMap.getRows();
@@ -265,13 +265,13 @@ public class CheckDBAdapter {
 
     public void setCheckReady(int _rowIndex) {
         //if (updateEntry(_rowIndex, KEY_IS_READY, 1) ) {
-            Cursor cursor = new SenderDBAdapter(mContext).geSystemItem();
+            Cursor cursor = new SenderTable(mContext).geSystemItem();
             try {
                 cursor.moveToFirst();
                 if (!cursor.isAfterLast()) {
                     do {
-                        int senderId = cursor.getInt(cursor.getColumnIndex(SenderDBAdapter.KEY_ID));
-                        SenderDBAdapter.TypeSender type_sender = SenderDBAdapter.TypeSender.values()[cursor.getInt(cursor.getColumnIndex(SenderDBAdapter.KEY_TYPE))];
+                        int senderId = cursor.getInt(cursor.getColumnIndex(SenderTable.KEY_ID));
+                        SenderTable.TypeSender type_sender = SenderTable.TypeSender.values()[cursor.getInt(cursor.getColumnIndex(SenderTable.KEY_TYPE))];
                         switch (type_sender) {
                             case TYPE_HTTP_POST:
                                 taskTable.insertNewTask(TaskCommand.TaskType.TYPE_CHECK_SEND_HTTP_POST, _rowIndex, senderId, "");

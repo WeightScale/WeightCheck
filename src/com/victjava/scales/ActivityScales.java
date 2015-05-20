@@ -19,8 +19,8 @@ import android.view.*;
 import android.widget.*;
 import com.konst.module.ScaleModule;
 import com.konst.module.ScaleModule.*;
-import com.victjava.scales.provider.CheckDBAdapter;
-import com.victjava.scales.provider.ErrorDBAdapter;
+import com.victjava.scales.provider.CheckTable;
+import com.victjava.scales.provider.ErrorTable;
 import com.victjava.scales.service.ServiceProcessTask;
 
 import java.text.ParseException;
@@ -30,7 +30,7 @@ import java.util.*;
 public class ActivityScales extends Activity implements View.OnClickListener, View.OnLongClickListener {
 
     private SimpleCursorAdapter namesAdapter;
-    CheckDBAdapter checkTable;
+    CheckTable checkTable;
     private BroadcastReceiver broadcastReceiver; //приёмник намерений
     private BluetoothAdapter bluetooth; //блютуз адаптер
     private final ArrayList<BluetoothDevice> foundDevice = new ArrayList<>(); //чужие устройства
@@ -65,7 +65,7 @@ public class ActivityScales extends Activity implements View.OnClickListener, Vi
         /*Configuration  config = new Configuration(getResources().getConfiguration());
         config.locale = Locale.ENGLISH ;
         getResources().updateConfiguration(config,getResources().getDisplayMetrics());*/
-        checkTable = new CheckDBAdapter(this);
+        checkTable = new CheckTable(this);
         TelephonyManager telephonyManager = (TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE);
         Main.telephoneNumber = telephonyManager.getLine1Number();
         Main.simNumber = telephonyManager.getSimSerialNumber();
@@ -240,7 +240,7 @@ public class ActivityScales extends Activity implements View.OnClickListener, Vi
                 Main.versionName = packageInfo.versionName;
             }
         } catch (PackageManager.NameNotFoundException e) {
-            new ErrorDBAdapter(this).insertNewEntry("100", e.getMessage());
+            new ErrorTable(this).insertNewEntry("100", e.getMessage());
         }
 
         broadcastReceiver = new BroadcastReceiver() {
@@ -345,14 +345,14 @@ public class ActivityScales extends Activity implements View.OnClickListener, Vi
         if (cursor == null) {
             return;
         }
-        String[] columns = {CheckDBAdapter.KEY_ID,
-                CheckDBAdapter.KEY_DATE_CREATE,
-                CheckDBAdapter.KEY_TIME_CREATE,
-                CheckDBAdapter.KEY_VENDOR,
-                CheckDBAdapter.KEY_WEIGHT_FIRST,
-                CheckDBAdapter.KEY_WEIGHT_SECOND,
-                CheckDBAdapter.KEY_WEIGHT_NETTO,
-                CheckDBAdapter.KEY_PRICE_SUM, CheckDBAdapter.KEY_DIRECT, CheckDBAdapter.KEY_DIRECT, CheckDBAdapter.KEY_DIRECT};
+        String[] columns = {CheckTable.KEY_ID,
+                CheckTable.KEY_DATE_CREATE,
+                CheckTable.KEY_TIME_CREATE,
+                CheckTable.KEY_VENDOR,
+                CheckTable.KEY_WEIGHT_FIRST,
+                CheckTable.KEY_WEIGHT_SECOND,
+                CheckTable.KEY_WEIGHT_NETTO,
+                CheckTable.KEY_PRICE_SUM, CheckTable.KEY_DIRECT, CheckTable.KEY_DIRECT, CheckTable.KEY_DIRECT};
         int[] to = {R.id.check_id, R.id.date, R.id.time, R.id.vendor, R.id.gross_row, R.id.tare_row, R.id.netto_row, R.id.sum_row, R.id.imageDirect, R.id.gross, R.id.tare};
 
         namesAdapter = new SimpleCursorAdapter(this, R.layout.item_check, cursor, columns, to);
@@ -410,16 +410,16 @@ public class ActivityScales extends Activity implements View.OnClickListener, Vi
 
             switch (view.getId()) {
                 case R.id.gross:
-                    direct = cursor.getInt(cursor.getColumnIndex(CheckDBAdapter.KEY_DIRECT));
-                    if (direct == CheckDBAdapter.DIRECT_UP) {
+                    direct = cursor.getInt(cursor.getColumnIndex(CheckTable.KEY_DIRECT));
+                    if (direct == CheckTable.DIRECT_UP) {
                         setViewText((TextView) view, getString(R.string.Tape));
                     } else {
                         setViewText((TextView) view, getString(R.string.Gross));
                     }
                     break;
                 case R.id.tare:
-                    direct = cursor.getInt(cursor.getColumnIndex(CheckDBAdapter.KEY_DIRECT));
-                    if (direct == CheckDBAdapter.DIRECT_DOWN) {
+                    direct = cursor.getInt(cursor.getColumnIndex(CheckTable.KEY_DIRECT));
+                    if (direct == CheckTable.DIRECT_DOWN) {
                         setViewText((TextView) view, getString(R.string.Tape));
                     } else {
                         setViewText((TextView) view, getString(R.string.Gross));
@@ -453,12 +453,12 @@ public class ActivityScales extends Activity implements View.OnClickListener, Vi
             cursor.moveToFirst();
             if (!cursor.isAfterLast()) {
                 do {
-                    String date = cursor.getString(cursor.getColumnIndex(CheckDBAdapter.KEY_DATE_CREATE));
+                    String date = cursor.getString(cursor.getColumnIndex(CheckTable.KEY_DATE_CREATE));
                     try {
                         long day = dayDiff(new Date(), new SimpleDateFormat("dd.MM.yy").parse(date));
                         if (day > Preferences.read(ActivityPreferences.KEY_DAY_CLOSED_CHECK, 5)) {
-                            int id = cursor.getInt(cursor.getColumnIndex(CheckDBAdapter.KEY_ID));
-                            checkTable.updateEntry(id, CheckDBAdapter.KEY_IS_READY, 1);
+                            int id = cursor.getInt(cursor.getColumnIndex(CheckTable.KEY_ID));
+                            checkTable.updateEntry(id, CheckTable.KEY_IS_READY, 1);
                             checkTable.setCheckReady(id);
                         }
                     } catch (ParseException e) {

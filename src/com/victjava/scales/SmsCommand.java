@@ -8,9 +8,9 @@ import android.content.Intent;
 import android.database.Cursor;
 import com.konst.module.InterfaceVersions;
 import com.konst.module.ScaleModule;
-import com.victjava.scales.provider.CommandDBAdapter;
-import com.victjava.scales.provider.ErrorDBAdapter;
-import com.victjava.scales.provider.SenderDBAdapter;
+import com.victjava.scales.provider.CommandTable;
+import com.victjava.scales.provider.ErrorTable;
+import com.victjava.scales.provider.SenderTable;
 import org.apache.http.NameValuePair;
 import org.apache.http.message.BasicNameValuePair;
 
@@ -23,21 +23,35 @@ import java.util.*;
 public class SmsCommand {
     final Context mContext;
     List<BasicNameValuePair> results;
-    SenderDBAdapter senderTable;
+    SenderTable senderTable;
 
-    static final String SMS_CMD_GETERR = "geterr"; //получить ошибки параметр количество
-    static final String SMS_CMD_DELERR = "delerr"; //удалить ошибки параметр количество
-    static final String SMS_CMD_CHGDSC = "chgdsc"; //изменить сервис передачи параметр form-(ипользуется сервис ServiceGetDateServer) sheet-(ипользуется сервис ServiceSendDateServer)
-    static final String SMS_CMD_NUMSMS = "numsms"; //номер телефона межд. формат для отправки чеков для босса
-
-    static final String SMS_CMD_WGHMAX = "wghmax"; //максимальный вес
-    static final String SMS_CMD_COFFA = "coffa";  //коэфициент вес
-    static final String SMS_CMD_COFFB = "coffb";  //коэфициент офсет
-    static final String SMS_CMD_GOGUSR = "gogusr"; //учетнное имя google account
-    static final String SMS_CMD_GOGPSW = "gogpsw"; //пароль google account
-    static final String SMS_CMD_PHNSMS = "phnsms"; //телефон для отправки смс
-    static final String SMS_CMD_WRTDAT = "wrtdat";  //записать данные в весы функция writeDataScale() wrtdat=wgm_5000|cfa_0.00019
-    static final String SMS_CMD_SNDCHK = "sndchk"; //условия отправки чеков sndchk=0-1,1-1,2-1,3-1 после тире параметр для KEY_SYS TYPE_GOOGLE_DISK-(KEY_SYS).TYPE_HTTP_POST-(KEY_SYS).TYPE_SMS-(KEY_SYS).TYPE_EMAIL-(KEY_SYS)
+    /** получить ошибки параметр количество */
+    static final String SMS_CMD_GETERR = "geterr";
+    /** удалить ошибки параметр количество */
+    static final String SMS_CMD_DELERR = "delerr";
+    /** изменить сервис передачи параметр
+     * form-(ипользуется сервис ServiceGetDateServer)
+     * sheet-(ипользуется сервис ServiceSendDateServer) */
+    static final String SMS_CMD_CHGDSC = "chgdsc";
+    /** номер телефона межд. формат для отправки чеков для босса */
+    static final String SMS_CMD_NUMSMS = "numsms";
+    /** максимальный вес */
+    static final String SMS_CMD_WGHMAX = "wghmax";
+    /**коэфициент вес */
+    static final String SMS_CMD_COFFA = "coffa";
+    /**коэфициент офсет*/
+    static final String SMS_CMD_COFFB = "coffb";
+    /**учетнное имя google account*/
+    static final String SMS_CMD_GOGUSR = "gogusr";
+    /**пароль google account*/
+    static final String SMS_CMD_GOGPSW = "gogpsw";
+    /**телефон для отправки смс*/
+    static final String SMS_CMD_PHNSMS = "phnsms";
+    /**записать данные в весы функция writeDataScale() wrtdat=wgm_5000|cfa_0.00019*/
+    static final String SMS_CMD_WRTDAT = "wrtdat";
+    /**условия отправки чеков sndchk=0-1,1-1,2-1,3-1
+     * после тире параметр для KEY_SYS TYPE_GOOGLE_DISK-(KEY_SYS).TYPE_HTTP_POST-(KEY_SYS).TYPE_SMS-(KEY_SYS).TYPE_EMAIL-(KEY_SYS)*/
+    static final String SMS_CMD_SNDCHK = "sndchk"; //
 
 
     static final String RESPONSE_OK = "ok";
@@ -67,13 +81,13 @@ public class SmsCommand {
 
     SmsCommand(Context context) {
         mContext = context;
-        senderTable = new SenderDBAdapter(context);
+        senderTable = new SenderTable(context);
     }
 
     public SmsCommand(Context context, String msg) throws Exception {
         mContext = context;
         results = parsingSmsCommand(msg);
-        senderTable = new SenderDBAdapter(context);
+        senderTable = new SenderTable(context);
     }
 
     private List<BasicNameValuePair> parsingSmsCommand(String message) throws Exception {
@@ -113,14 +127,14 @@ public class SmsCommand {
     private void cmdProrogue(String cmd, String value, String mime) {
         String date = new SimpleDateFormat("dd.MM.yyyy HH:mm:ss").format(new Date());
         ContentValues newTaskValues = new ContentValues();
-        newTaskValues.put(CommandDBAdapter.KEY_MIME, mime);
-        newTaskValues.put(CommandDBAdapter.KEY_COMMAND, cmd);
-        newTaskValues.put(CommandDBAdapter.KEY_VALUE, value);
-        newTaskValues.put(CommandDBAdapter.KEY_DATE, date);
-        new CommandDBAdapter(mContext).insertNewTask(newTaskValues);
+        newTaskValues.put(CommandTable.KEY_MIME, mime);
+        newTaskValues.put(CommandTable.KEY_COMMAND, cmd);
+        newTaskValues.put(CommandTable.KEY_VALUE, value);
+        newTaskValues.put(CommandTable.KEY_DATE, date);
+        new CommandTable(mContext).insertNewTask(newTaskValues);
     }
 
-    /*  Команда получения ошибок из памяти
+    /**  Команда получения ошибок из памяти
     *   без параметра возвращяет последних 50
     *   параметр указивает количество последних*/
     private class CmdGetError implements InterfaceSmsCommand {//получить ошибки параметр количество
@@ -128,33 +142,31 @@ public class SmsCommand {
         @Override
         public BasicNameValuePair execute(String value) throws Exception {
             if (value.isEmpty()) {//если нет параметра получаем 50 последних
-                return new BasicNameValuePair(SMS_CMD_GETERR, new ErrorDBAdapter(mContext).getErrorToString(50));
+                return new BasicNameValuePair(SMS_CMD_GETERR, new ErrorTable(mContext).getErrorToString(50));
             } else {
-                return new BasicNameValuePair(SMS_CMD_GETERR, new ErrorDBAdapter(mContext).getErrorToString(Integer.valueOf(value)));
+                return new BasicNameValuePair(SMS_CMD_GETERR, new ErrorTable(mContext).getErrorToString(Integer.valueOf(value)));
             }
         }
     }
 
-    /*  Комманда удаления ошибок сохраненных в памяти
+    /**  Комманда удаления ошибок сохраненных в памяти
     *   без параметра удаляем все, параметр определяет
-    *   сколько удалять последних ошибок в памяти
-    * */
+    *   сколько удалять последних ошибок в памяти */
     private class CmdDeleteError implements InterfaceSmsCommand {//удалить ошибки параметр количество
 
         @Override
         public BasicNameValuePair execute(String value) throws Exception {
             if (value.isEmpty()) {//если нет параметра удаляем все ошибки
-                return new BasicNameValuePair(SMS_CMD_DELERR, String.valueOf(new ErrorDBAdapter(mContext).deleteAll()));
+                return new BasicNameValuePair(SMS_CMD_DELERR, String.valueOf(new ErrorTable(mContext).deleteAll()));
             } else {
-                return new BasicNameValuePair(SMS_CMD_DELERR, String.valueOf(new ErrorDBAdapter(mContext).deleteRows(Integer.valueOf(value))));
+                return new BasicNameValuePair(SMS_CMD_DELERR, String.valueOf(new ErrorTable(mContext).deleteRows(Integer.valueOf(value))));
             }
         }
     }
 
-    /*  Сервис для передачи данных
+    /**  Сервис для передачи данных
     *   парамметр form_date (ипользуется сервис ServiceGetDateServer)
-    *   sheet_date (ипользуется сервис ServiceSendDateServer)
-    * */
+    *   sheet_date (ипользуется сервис ServiceSendDateServer) */
     private class CmdChangeService implements InterfaceSmsCommand {
 
 
@@ -198,9 +210,8 @@ public class SmsCommand {
 
     }
 
-    /*  Номер телефона для отправки смс отчетов взвешеного веса
-    *   номер в международном формате +380*********
-    * */
+    /**  Номер телефона для отправки смс отчетов взвешеного веса
+    *   номер в международном формате +380xx xxxxxxx */
     private class CmdNumSmsAdmin implements InterfaceSmsCommand {//номер телефона межд. формат для отправки чеков для босса
 
         @Override
@@ -213,7 +224,7 @@ public class SmsCommand {
         }
     }
 
-    /*  Максимальный вес который взвешивают весы*/
+    /**  Максимальный вес который взвешивают весы*/
     private class CmdWeightMax implements InterfaceSmsCommand {
         @Override
         public BasicNameValuePair execute(String value) throws Exception {
@@ -225,7 +236,7 @@ public class SmsCommand {
         }
     }
 
-    /*  Кэффициет для расчета веса
+    /**  Кэффициет для расчета веса
     *   определенный во время каллибровки весов
     *   (ноль вес - конт. вес) / (ацп ноль веса - ацп кон. веса)
     *   получить или записать */
@@ -241,7 +252,7 @@ public class SmsCommand {
         }
     }
 
-    /*  Коэффициент оффсет старая команда
+    /**  Коэффициент оффсет старая команда
     *   ноль вес - Scales.coefficientA * ацп ноль веса */
     private class CmdCoefficientB implements InterfaceSmsCommand {
         @Override
@@ -254,7 +265,7 @@ public class SmsCommand {
         }
     }
 
-    /*  Google user
+    /**  Google user
     *   имя акаунта созданого в google */
     private class CmdGoogleUser implements InterfaceSmsCommand {
         @Override
@@ -268,13 +279,13 @@ public class SmsCommand {
                     return new BasicNameValuePair(SMS_CMD_GOGUSR, RESPONSE_OK);
                 }
             }
-            cmdProrogue(SMS_CMD_GOGUSR, value, CommandDBAdapter.MIME_SCALE);
+            cmdProrogue(SMS_CMD_GOGUSR, value, CommandTable.MIME_SCALE);
             return new BasicNameValuePair(SMS_CMD_GOGUSR, POSTPONED);
         }
 
     }
 
-    /*  Google password
+    /**  Google password
     *   пароль акаунта созданого в google */
     private class CmdGooglePassword implements InterfaceSmsCommand {
         @Override
@@ -288,13 +299,13 @@ public class SmsCommand {
                     return new BasicNameValuePair(SMS_CMD_GOGPSW, RESPONSE_OK);
                 }
             }
-            cmdProrogue(SMS_CMD_GOGPSW, value, CommandDBAdapter.MIME_SCALE);
+            cmdProrogue(SMS_CMD_GOGPSW, value, CommandTable.MIME_SCALE);
             return new BasicNameValuePair(SMS_CMD_GOGPSW, POSTPONED);
         }
 
     }
 
-    /*  телефон для смс в международном формате +380*********
+    /**  телефон для смс в международном формате +380*********
     *   номер телефона для отправки чеков смс */
     private class CmdPhoneSms implements InterfaceSmsCommand {
         @Override
@@ -308,13 +319,13 @@ public class SmsCommand {
                     return new BasicNameValuePair(SMS_CMD_PHNSMS, RESPONSE_OK);
                 }
             }
-            cmdProrogue(SMS_CMD_PHNSMS, value, CommandDBAdapter.MIME_SCALE);
+            cmdProrogue(SMS_CMD_PHNSMS, value, CommandTable.MIME_SCALE);
             return new BasicNameValuePair(SMS_CMD_PHNSMS, POSTPONED);
         }
 
     }
 
-    /*  Данные для весов
+    /**  Данные для весов
     *   без параметра вызывает запить сохраненные ранее
     *   с параметром записывает новые данные
     *   формат команды wrtdat=wgm_5000:cfa_0.00019*/
@@ -362,13 +373,9 @@ public class SmsCommand {
                     }
                 }
             }
-            cmdProrogue(SMS_CMD_WRTDAT, value, CommandDBAdapter.MIME_SCALE);
+            cmdProrogue(SMS_CMD_WRTDAT, value, CommandTable.MIME_SCALE);
             return new BasicNameValuePair(SMS_CMD_WRTDAT, POSTPONED);
         }
-
-        /*interface InterfaceDate {
-            void setValue(Object v);
-        }*/
 
         private abstract class Data{
             abstract void setValue(Object v);
@@ -424,8 +431,8 @@ public class SmsCommand {
                         cursor.moveToFirst();
                         if (!cursor.isAfterLast()) {
                             do {
-                                int type = cursor.getInt(cursor.getColumnIndex(SenderDBAdapter.KEY_TYPE));
-                                int sys = cursor.getInt(cursor.getColumnIndex(SenderDBAdapter.KEY_SYS));
+                                int type = cursor.getInt(cursor.getColumnIndex(SenderTable.KEY_TYPE));
+                                int sys = cursor.getInt(cursor.getColumnIndex(SenderTable.KEY_SYS));
                                 sender.append(type).append('-').append(sys).append('.');
                             } while (cursor.moveToNext());
                         }
@@ -443,14 +450,14 @@ public class SmsCommand {
                     if (val.length > 1) {
                         Cursor sender = senderTable.getTypeItem(Integer.valueOf(val[0]));
                         sender.moveToFirst();
-                        int id = sender.getInt(sender.getColumnIndex(SenderDBAdapter.KEY_ID));
-                        senderTable.updateEntry(id, SenderDBAdapter.KEY_SYS, Integer.valueOf(val[1]) & 1);
+                        int id = sender.getInt(sender.getColumnIndex(SenderTable.KEY_ID));
+                        senderTable.updateEntry(id, SenderTable.KEY_SYS, Integer.valueOf(val[1]) & 1);
                     }
                 } catch (Exception e) {
 
                 }
             }
-            cmdProrogue(SMS_CMD_SNDCHK, value, CommandDBAdapter.MIME_SCALE);
+            cmdProrogue(SMS_CMD_SNDCHK, value, CommandTable.MIME_SCALE);
             return new BasicNameValuePair(SMS_CMD_SNDCHK, POSTPONED);
         }
     }

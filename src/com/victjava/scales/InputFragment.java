@@ -3,15 +3,14 @@ package com.victjava.scales;
 import android.app.Activity;
 import android.content.Context;
 import android.database.Cursor;
-import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.*;
 import android.widget.*;
-import com.victjava.scales.provider.CheckDBAdapter;
-import com.victjava.scales.provider.TypeDBAdapter;
+import com.victjava.scales.provider.CheckTable;
+import com.victjava.scales.provider.TypeTable;
 
 //import static com.victjava.scales.ActivityCheck.WeightType.*;
 
@@ -22,7 +21,7 @@ import com.victjava.scales.provider.TypeDBAdapter;
  */
 public class InputFragment extends Fragment implements ActivityCheck.OnCheckEventListener {
 
-    TypeDBAdapter typeTable;
+    TypeTable typeTable;
     Context mContext;
     ActivityCheck activityCheck;
     private EditText editTextPrice;
@@ -63,7 +62,7 @@ public class InputFragment extends Fragment implements ActivityCheck.OnCheckEven
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        typeTable = new TypeDBAdapter(mContext);
+        typeTable = new TypeTable(mContext);
     }
 
     @Override
@@ -77,7 +76,7 @@ public class InputFragment extends Fragment implements ActivityCheck.OnCheckEven
         editTextPrice = (EditText) v.findViewById(R.id.editTextPrice);
         spinnerType = (Spinner) v.findViewById(R.id.spinnerType);
 
-        editTextPrice.setText(activityCheck.values.getAsString(CheckDBAdapter.KEY_PRICE));
+        editTextPrice.setText(activityCheck.values.getAsString(CheckTable.KEY_PRICE));
         editTextPrice.clearFocus();
         editTextPrice.addTextChangedListener(new TextWatcher() {
             @Override
@@ -89,9 +88,9 @@ public class InputFragment extends Fragment implements ActivityCheck.OnCheckEven
             @Override
             public void afterTextChanged(Editable editable) {
                 if (!editable.toString().isEmpty()) {
-                    activityCheck.values.put(CheckDBAdapter.KEY_PRICE, Integer.valueOf(editable.toString()));
-                    activityCheck.values.put(CheckDBAdapter.KEY_PRICE_SUM, activityCheck.sumTotal(activityCheck.sumNetto()));
-                    typeTable.updateEntry(activityCheck.values.getAsInteger(CheckDBAdapter.KEY_TYPE_ID), TypeDBAdapter.KEY_PRICE, activityCheck.values.getAsInteger(CheckDBAdapter.KEY_PRICE));
+                    activityCheck.values.put(CheckTable.KEY_PRICE, Integer.valueOf(editable.toString()));
+                    activityCheck.values.put(CheckTable.KEY_PRICE_SUM, activityCheck.sumTotal(activityCheck.sumNetto()));
+                    typeTable.updateEntry(activityCheck.values.getAsInteger(CheckTable.KEY_TYPE_ID), TypeTable.KEY_PRICE, activityCheck.values.getAsInteger(CheckTable.KEY_PRICE));
                 }
             }
         });
@@ -102,10 +101,10 @@ public class InputFragment extends Fragment implements ActivityCheck.OnCheckEven
             @Override
             public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
                 //type_item_id = i;
-                activityCheck.values.put(CheckDBAdapter.KEY_TYPE_ID, (int)l);
-                activityCheck.values.put(CheckDBAdapter.KEY_TYPE, ((TextView) view.findViewById(R.id.text1)).getText().toString());
-                activityCheck.values.put(CheckDBAdapter.KEY_PRICE, typeTable.getPriceColumn((int) l));
-                editTextPrice.setText(activityCheck.values.getAsString(CheckDBAdapter.KEY_PRICE));
+                activityCheck.values.put(CheckTable.KEY_TYPE_ID, (int)l);
+                activityCheck.values.put(CheckTable.KEY_TYPE, ((TextView) view.findViewById(R.id.text1)).getText().toString());
+                activityCheck.values.put(CheckTable.KEY_PRICE, typeTable.getPriceColumn((int) l));
+                editTextPrice.setText(activityCheck.values.getAsString(CheckTable.KEY_PRICE));
             }
 
             @Override
@@ -135,7 +134,7 @@ public class InputFragment extends Fragment implements ActivityCheck.OnCheckEven
             return;
         }
         if (cursor.getCount() > 0) {
-            String[] columns = {TypeDBAdapter.KEY_TYPE};
+            String[] columns = {TypeTable.KEY_TYPE};
             int[] to = {R.id.text1};
             SimpleCursorAdapter typeAdapter = new SimpleCursorAdapter(mContext, R.layout.type_spinner, cursor, columns, to);
             typeAdapter.setDropDownViewResource(R.layout.type_spinner_dropdown_item);
@@ -145,8 +144,8 @@ public class InputFragment extends Fragment implements ActivityCheck.OnCheckEven
 
     public void update() {
 
-        int first = activityCheck.values.getAsInteger(CheckDBAdapter.KEY_WEIGHT_FIRST);
-        int second = activityCheck.values.getAsInteger(CheckDBAdapter.KEY_WEIGHT_SECOND);
+        int first = activityCheck.values.getAsInteger(CheckTable.KEY_WEIGHT_FIRST);
+        int second = activityCheck.values.getAsInteger(CheckTable.KEY_WEIGHT_SECOND);
         viewFirst.setText(String.valueOf(first));
         viewSecond.setText(String.valueOf(second));
 
@@ -170,7 +169,7 @@ public class InputFragment extends Fragment implements ActivityCheck.OnCheckEven
 
         for (int i = 0; i < spinnerType.getCount(); i++) {
             long object = spinnerType.getItemIdAtPosition(i);
-            if ((int) object == activityCheck.values.getAsInteger(CheckDBAdapter.KEY_TYPE_ID)) {
+            if ((int) object == activityCheck.values.getAsInteger(CheckTable.KEY_TYPE_ID)) {
                 spinnerType.setSelection(i);
                 break;
             }

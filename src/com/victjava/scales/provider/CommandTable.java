@@ -8,10 +8,10 @@ import android.provider.BaseColumns;
 /*
  * Created by Kostya on 30.03.2015.
  */
-public class CommandDBAdapter {
+public class CommandTable {
     private final Context context;
 
-    public static final String TABLE_COMMAND = "commandTable";
+    public static final String TABLE = "commandTable";
 
     public static final String KEY_ID = BaseColumns._ID;
     public static final String KEY_DATE = "date";
@@ -23,8 +23,8 @@ public class CommandDBAdapter {
     public static final String MIME_SCALE = "scale";
     public final String MIME_TERMINAL = "terminal";
 
-    public static final String TABLE_CREATE_COMMAND = "create table "
-            + TABLE_COMMAND + " ("
+    public static final String TABLE_CREATE = "create table "
+            + TABLE + " ("
             + KEY_ID + " integer primary key autoincrement, "
             + KEY_DATE + " text,"
             + KEY_MIME + " text,"
@@ -32,9 +32,9 @@ public class CommandDBAdapter {
             + KEY_VALUE + " text,"
             + KEY_EXEC + " integer );";
 
-    private static final Uri CONTENT_URI = Uri.parse("content://" + WeightCheckBaseProvider.AUTHORITY + '/' + TABLE_COMMAND);
+    private static final Uri CONTENT_URI = Uri.parse("content://" + WeightCheckBaseProvider.AUTHORITY + '/' + TABLE);
 
-    public CommandDBAdapter(Context cnt) {
+    public CommandTable(Context cnt) {
         context = cnt;
     }
 

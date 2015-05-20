@@ -18,26 +18,26 @@ import com.victjava.scales.R;
  * Time: 12:27
  * To change this template use File | Settings | File Templates.
  */
-public class TypeDBAdapter {
+public class TypeTable {
     private final Context context;
-    public static final String TABLE_TYPE = "typeTable";
+    public static final String TABLE = "typeTable";
 
     public static final String KEY_ID = BaseColumns._ID;
     public static final String KEY_TYPE = "type";
     public static final String KEY_PRICE = "price";
     public static final String KEY_SYS = "system";
 
-    public static final String TABLE_CREATE_TYPE = "create table "
-            + TABLE_TYPE + " ("
+    public static final String TABLE_CREATE = "create table "
+            + TABLE + " ("
             + KEY_ID + " integer primary key autoincrement, "
             + KEY_TYPE + " text, "
             + KEY_PRICE + " integer, "
             + KEY_SYS + " integer );";
 
-    //static final String TABLE_TYPE_PATH = TABLE_TYPE;
-    private static final Uri CONTENT_URI = Uri.parse("content://" + WeightCheckBaseProvider.AUTHORITY + '/' + TABLE_TYPE);
+    //static final String TABLE_TYPE_PATH = TABLE;
+    private static final Uri CONTENT_URI = Uri.parse("content://" + WeightCheckBaseProvider.AUTHORITY + '/' + TABLE);
 
-    public TypeDBAdapter(Context cnt) {
+    public TypeTable(Context cnt) {
         context = cnt;
     }
 
@@ -94,12 +94,12 @@ public class TypeDBAdapter {
         Resources res = context.getResources();
         contentValues.put(KEY_TYPE, "тест");
         contentValues.put(KEY_SYS, 1);
-        db.insert(TABLE_TYPE, null, contentValues);
+        db.insert(TABLE, null, contentValues);
         String[] type_records = res.getStringArray(R.array.type_array);
         for (String type_record : type_records) {
             contentValues.put(KEY_TYPE, type_record);
             contentValues.put(KEY_SYS, 0);
-            db.insert(TABLE_TYPE, null, contentValues);
+            db.insert(TABLE, null, contentValues);
         }
     }
 }

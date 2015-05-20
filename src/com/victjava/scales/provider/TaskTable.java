@@ -18,9 +18,9 @@ import com.victjava.scales.TaskCommand;
  * Time: 12:27
  * To change this template use File | Settings | File Templates.
  */
-public class TaskDBAdapter {
+public class TaskTable {
     private final Context context;
-    public static final String TABLE_TASK = "taskTable";
+    public static final String TABLE = "taskTable";
 
     public static final String KEY_ID = BaseColumns._ID;
     public static final String KEY_MIME_TYPE = "mime_type";
@@ -37,8 +37,8 @@ public class TaskDBAdapter {
     public static final int TYPE_CHECK_SMS_CONTACT  = 4;    //для смс отправки контакту
     public static final int TYPE_CHECK_SMS_SERVER   = 5;    //для смс отправки боссу*/
 
-    public static final String TABLE_CREATE_TASK = "create table "
-            + TABLE_TASK + " ("
+    public static final String TABLE_CREATE = "create table "
+            + TABLE + " ("
             + KEY_ID + " integer primary key autoincrement, "
             + KEY_MIME_TYPE + " integer,"
             + KEY_DOC + " integer,"
@@ -46,9 +46,9 @@ public class TaskDBAdapter {
             + KEY_DATA1 + " text,"
             + KEY_NUM_ERROR + " integer );";
 
-    public static final Uri CONTENT_URI = Uri.parse("content://" + WeightCheckBaseProvider.AUTHORITY + '/' + TABLE_TASK);
+    public static final Uri CONTENT_URI = Uri.parse("content://" + WeightCheckBaseProvider.AUTHORITY + '/' + TABLE);
 
-    public TaskDBAdapter(Context cnt) {
+    public TaskTable(Context cnt) {
         context = cnt;
     }
 

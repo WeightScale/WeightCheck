@@ -9,8 +9,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.*;
-import com.victjava.scales.provider.CheckDBAdapter;
-import com.victjava.scales.provider.TypeDBAdapter;
+import com.victjava.scales.provider.CheckTable;
+import com.victjava.scales.provider.TypeTable;
 
 /*
  * Created by Kostya on 09.03.2015.
@@ -18,7 +18,7 @@ import com.victjava.scales.provider.TypeDBAdapter;
 public class OutputFragment extends Fragment implements ActivityCheck.OnCheckEventListener {
     Context mContext;
     ActivityCheck activityCheck;
-    TypeDBAdapter typeTable;
+    TypeTable typeTable;
     private Spinner spinnerType;
     private TextView viewFirst, viewSecond;
     private LinearLayout layoutSecond, layoutFirst;
@@ -35,7 +35,7 @@ public class OutputFragment extends Fragment implements ActivityCheck.OnCheckEve
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        typeTable = new TypeDBAdapter(mContext);
+        typeTable = new TypeTable(mContext);
     }
 
     @Override
@@ -53,9 +53,9 @@ public class OutputFragment extends Fragment implements ActivityCheck.OnCheckEve
             @Override
             public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
                 //type_item_id = i;
-                activityCheck.values.put(CheckDBAdapter.KEY_TYPE_ID, (int) l);
-                activityCheck.values.put(CheckDBAdapter.KEY_TYPE, ((TextView) view.findViewById(R.id.text1)).getText().toString());
-                activityCheck.values.put(CheckDBAdapter.KEY_PRICE, typeTable.getPriceColumn((int) l));
+                activityCheck.values.put(CheckTable.KEY_TYPE_ID, (int) l);
+                activityCheck.values.put(CheckTable.KEY_TYPE, ((TextView) view.findViewById(R.id.text1)).getText().toString());
+                activityCheck.values.put(CheckTable.KEY_PRICE, typeTable.getPriceColumn((int) l));
             }
 
             @Override
@@ -85,7 +85,7 @@ public class OutputFragment extends Fragment implements ActivityCheck.OnCheckEve
             return;
         }
         if (cursor.getCount() > 0) {
-            String[] columns = {TypeDBAdapter.KEY_TYPE};
+            String[] columns = {TypeTable.KEY_TYPE};
             int[] to = {R.id.text1};
             SimpleCursorAdapter typeAdapter = new SimpleCursorAdapter(getActivity().getApplicationContext(), R.layout.type_spinner, cursor, columns, to);
             typeAdapter.setDropDownViewResource(R.layout.type_spinner_dropdown_item);
@@ -94,8 +94,8 @@ public class OutputFragment extends Fragment implements ActivityCheck.OnCheckEve
     }
 
     public void update() {
-        int first = activityCheck.values.getAsInteger(CheckDBAdapter.KEY_WEIGHT_FIRST);
-        int second = activityCheck.values.getAsInteger(CheckDBAdapter.KEY_WEIGHT_SECOND);
+        int first = activityCheck.values.getAsInteger(CheckTable.KEY_WEIGHT_FIRST);
+        int second = activityCheck.values.getAsInteger(CheckTable.KEY_WEIGHT_SECOND);
         viewFirst.setText(String.valueOf(first));
         viewSecond.setText(String.valueOf(second));
         switch (activityCheck.weightType) {
@@ -117,7 +117,7 @@ public class OutputFragment extends Fragment implements ActivityCheck.OnCheckEve
 
         for (int i = 0; i < spinnerType.getCount(); i++) {
             long object = spinnerType.getItemIdAtPosition(i);
-            if ((int) object == activityCheck.values.getAsInteger(CheckDBAdapter.KEY_TYPE_ID)) {
+            if ((int) object == activityCheck.values.getAsInteger(CheckTable.KEY_TYPE_ID)) {
                 spinnerType.setSelection(i);
                 break;
             }

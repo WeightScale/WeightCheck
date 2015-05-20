@@ -21,7 +21,7 @@ import android.view.*;
 import android.widget.*;
 import com.konst.module.ScaleModule;
 import com.konst.module.ScaleModule.HandlerWeight;
-import com.victjava.scales.provider.CheckDBAdapter;
+import com.victjava.scales.provider.CheckTable;
 
 
 import java.util.ArrayList;
@@ -165,7 +165,7 @@ public class ActivityCheck extends FragmentActivity implements View.OnClickListe
     }
 
     private final AutoWeightThread autoWeightThread = new AutoWeightThread();
-    CheckDBAdapter checkTable;
+    CheckTable checkTable;
     private Vibrator vibrator; //вибратор
     private ProgressBar progressBarWeight;
     private WeightTextView weightTextView;
@@ -203,7 +203,7 @@ public class ActivityCheck extends FragmentActivity implements View.OnClickListe
         setContentView(R.layout.check);
 
         vibrator = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
-        checkTable = new CheckDBAdapter(this);
+        checkTable = new CheckTable(this);
 
         WindowManager.LayoutParams lp = getWindow().getAttributes();
         lp.screenBrightness = 1.0f;
@@ -216,7 +216,7 @@ public class ActivityCheck extends FragmentActivity implements View.OnClickListe
             exit();
         }
 
-        setTitle(getString(R.string.input_check) + " № " + entryID + ' ' + ": " + values.getAsString(CheckDBAdapter.KEY_VENDOR)); //установить заголовок
+        setTitle(getString(R.string.input_check) + " № " + entryID + ' ' + ": " + values.getAsString(CheckTable.KEY_VENDOR)); //установить заголовок
         setupTabHost(savedInstanceState);
         setupWeightView();
 
@@ -229,13 +229,13 @@ public class ActivityCheck extends FragmentActivity implements View.OnClickListe
 
         findViewById(R.id.imageViewPage).setOnClickListener(this);
 
-        if (values.getAsInteger(CheckDBAdapter.KEY_WEIGHT_FIRST) > 0) {
-            weightType = values.getAsInteger(CheckDBAdapter.KEY_WEIGHT_SECOND) == 0 ? WeightType.SECOND : WeightType.NETTO;
+        if (values.getAsInteger(CheckTable.KEY_WEIGHT_FIRST) > 0) {
+            weightType = values.getAsInteger(CheckTable.KEY_WEIGHT_SECOND) == 0 ? WeightType.SECOND : WeightType.NETTO;
         } else {
             weightType = WeightType.FIRST;
         }
 
-        if (values.getAsInteger(CheckDBAdapter.KEY_WEIGHT_FIRST) == 0 || values.getAsInteger(CheckDBAdapter.KEY_WEIGHT_SECOND) == 0) {
+        if (values.getAsInteger(CheckTable.KEY_WEIGHT_FIRST) == 0 || values.getAsInteger(CheckTable.KEY_WEIGHT_SECOND) == 0) {
             handlerWeight.process(true);
         }
     }
@@ -247,11 +247,11 @@ public class ActivityCheck extends FragmentActivity implements View.OnClickListe
         mTabsAdapter = new TabsAdapter(this, mTabHost, mViewPager);
         mTabsAdapter.addTab(mTabHost.newTabSpec("input").setIndicator(createTabView(this, "приход")), InputFragment.class);
         mTabsAdapter.addTab(mTabHost.newTabSpec("output").setIndicator(createTabView(this, "расход")), OutputFragment.class);
-        switch (values.getAsInteger(CheckDBAdapter.KEY_DIRECT)) {
-            case CheckDBAdapter.DIRECT_DOWN:
+        switch (values.getAsInteger(CheckTable.KEY_DIRECT)) {
+            case CheckTable.DIRECT_DOWN:
                 mTabHost.setCurrentTab(0);
                 break;
-            case CheckDBAdapter.DIRECT_UP:
+            case CheckTable.DIRECT_UP:
                 mTabHost.setCurrentTab(1);
                 break;
             default:
@@ -296,7 +296,7 @@ public class ActivityCheck extends FragmentActivity implements View.OnClickListe
         autoWeightThread.cancel();
         while (autoWeightThread.isStart()) ;
         if (weightType == WeightType.NETTO) {
-            values.put(CheckDBAdapter.KEY_IS_READY, 1);
+            values.put(CheckTable.KEY_IS_READY, 1);
             checkTable.setCheckReady(entryID);
             startActivity(new Intent(getBaseContext(), ActivityViewCheck.class).putExtra("id", entryID));
         }
@@ -421,15 +421,15 @@ public class ActivityCheck extends FragmentActivity implements View.OnClickListe
         switch (weightType) {
             case FIRST:
                 if (weight > 0) {
-                    values.put(CheckDBAdapter.KEY_WEIGHT_FIRST, weight);
+                    values.put(CheckTable.KEY_WEIGHT_FIRST, weight);
                     vibrator.vibrate(100); //вибрация
                     flag = true;
                 }
                 break;
             case SECOND:
-                values.put(CheckDBAdapter.KEY_WEIGHT_SECOND, weight);
+                values.put(CheckTable.KEY_WEIGHT_SECOND, weight);
                 int total = sumNetto();
-                values.put(CheckDBAdapter.KEY_PRICE_SUM, total);
+                values.put(CheckTable.KEY_PRICE_SUM, total);
                 vibrator.vibrate(100); //вибрация
                 flag = true;
                 break;
@@ -448,13 +448,13 @@ public class ActivityCheck extends FragmentActivity implements View.OnClickListe
     }
 
     public int sumNetto() {
-        int netto = values.getAsInteger(CheckDBAdapter.KEY_WEIGHT_FIRST) - values.getAsInteger(CheckDBAdapter.KEY_WEIGHT_SECOND);
-        values.put(CheckDBAdapter.KEY_WEIGHT_NETTO, netto);
+        int netto = values.getAsInteger(CheckTable.KEY_WEIGHT_FIRST) - values.getAsInteger(CheckTable.KEY_WEIGHT_SECOND);
+        values.put(CheckTable.KEY_WEIGHT_NETTO, netto);
         return netto;
     }
 
     public float sumTotal(int netto) {
-        return (float) netto * values.getAsInteger(CheckDBAdapter.KEY_PRICE) / 1000;
+        return (float) netto * values.getAsInteger(CheckTable.KEY_PRICE) / 1000;
     }
 
     private void weightTypeUpdate() {
@@ -567,9 +567,9 @@ public class ActivityCheck extends FragmentActivity implements View.OnClickListe
         public void onPageSelected(final int position) {
 
             if (position == 0) {
-                values.put(CheckDBAdapter.KEY_DIRECT, CheckDBAdapter.DIRECT_DOWN);
+                values.put(CheckTable.KEY_DIRECT, CheckTable.DIRECT_DOWN);
             } else if (position == 1) {
-                values.put(CheckDBAdapter.KEY_DIRECT, CheckDBAdapter.DIRECT_UP);
+                values.put(CheckTable.KEY_DIRECT, CheckTable.DIRECT_UP);
             }
             TabWidget widget = mTabHost.getTabWidget();
             int oldFocusability = widget.getDescendantFocusability();

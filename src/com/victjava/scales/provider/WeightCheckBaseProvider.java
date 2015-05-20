@@ -62,20 +62,20 @@ public class WeightCheckBaseProvider extends ContentProvider {
 
     static {
         uriMatcher = new UriMatcher(UriMatcher.NO_MATCH);
-        uriMatcher.addURI(AUTHORITY, CheckDBAdapter.TABLE_CHECKS, TableList.CHECK_LIST.ordinal());
-        uriMatcher.addURI(AUTHORITY, CheckDBAdapter.TABLE_CHECKS + "/#", TableList.CHECK_ID.ordinal());
-        uriMatcher.addURI(AUTHORITY, PreferencesDBAdapter.TABLE_PREFERENCES, TableList.PREFERENCES_LIST.ordinal());
-        uriMatcher.addURI(AUTHORITY, PreferencesDBAdapter.TABLE_PREFERENCES + "/#", TableList.PREFERENCES_ID.ordinal());
-        uriMatcher.addURI(AUTHORITY, TypeDBAdapter.TABLE_TYPE, TableList.TYPE_LIST.ordinal());
-        uriMatcher.addURI(AUTHORITY, TypeDBAdapter.TABLE_TYPE + "/#", TableList.TYPE_ID.ordinal());
-        uriMatcher.addURI(AUTHORITY, TaskDBAdapter.TABLE_TASK, TableList.TASK_LIST.ordinal());
-        uriMatcher.addURI(AUTHORITY, TaskDBAdapter.TABLE_TASK + "/#", TableList.TASK_ID.ordinal());
-        uriMatcher.addURI(AUTHORITY, ErrorDBAdapter.TABLE_ERROR, TableList.ERROR_LIST.ordinal());
-        uriMatcher.addURI(AUTHORITY, ErrorDBAdapter.TABLE_ERROR + "/#", TableList.ERROR_ID.ordinal());
-        uriMatcher.addURI(AUTHORITY, CommandDBAdapter.TABLE_COMMAND, TableList.COMMAND_LIST.ordinal());
-        uriMatcher.addURI(AUTHORITY, CommandDBAdapter.TABLE_COMMAND + "/#", TableList.COMMAND_ID.ordinal());
-        uriMatcher.addURI(AUTHORITY, SenderDBAdapter.TABLE_SENDER, TableList.ADMIN_SENDER_LIST.ordinal());
-        uriMatcher.addURI(AUTHORITY, SenderDBAdapter.TABLE_SENDER + "/#", TableList.ADMIN_SENDER_ID.ordinal());
+        uriMatcher.addURI(AUTHORITY, CheckTable.TABLE, TableList.CHECK_LIST.ordinal());
+        uriMatcher.addURI(AUTHORITY, CheckTable.TABLE + "/#", TableList.CHECK_ID.ordinal());
+        uriMatcher.addURI(AUTHORITY, PreferencesTable.TABLE, TableList.PREFERENCES_LIST.ordinal());
+        uriMatcher.addURI(AUTHORITY, PreferencesTable.TABLE + "/#", TableList.PREFERENCES_ID.ordinal());
+        uriMatcher.addURI(AUTHORITY, TypeTable.TABLE, TableList.TYPE_LIST.ordinal());
+        uriMatcher.addURI(AUTHORITY, TypeTable.TABLE + "/#", TableList.TYPE_ID.ordinal());
+        uriMatcher.addURI(AUTHORITY, TaskTable.TABLE, TableList.TASK_LIST.ordinal());
+        uriMatcher.addURI(AUTHORITY, TaskTable.TABLE + "/#", TableList.TASK_ID.ordinal());
+        uriMatcher.addURI(AUTHORITY, ErrorTable.TABLE, TableList.ERROR_LIST.ordinal());
+        uriMatcher.addURI(AUTHORITY, ErrorTable.TABLE + "/#", TableList.ERROR_ID.ordinal());
+        uriMatcher.addURI(AUTHORITY, CommandTable.TABLE, TableList.COMMAND_LIST.ordinal());
+        uriMatcher.addURI(AUTHORITY, CommandTable.TABLE + "/#", TableList.COMMAND_ID.ordinal());
+        uriMatcher.addURI(AUTHORITY, SenderTable.TABLE, TableList.ADMIN_SENDER_LIST.ordinal());
+        uriMatcher.addURI(AUTHORITY, SenderTable.TABLE + "/#", TableList.ADMIN_SENDER_ID.ordinal());
     }
 
     /*public void vacuum(){
@@ -86,25 +86,25 @@ public class WeightCheckBaseProvider extends ContentProvider {
         switch (TableList.values()[uriMatcher.match(uri)]) {
             case CHECK_LIST:
             case CHECK_ID:
-                return CheckDBAdapter.TABLE_CHECKS; // return
+                return CheckTable.TABLE; // return
             case PREFERENCES_LIST:
             case PREFERENCES_ID:
-                return PreferencesDBAdapter.TABLE_PREFERENCES; // return
+                return PreferencesTable.TABLE; // return
             case TYPE_LIST:
             case TYPE_ID:
-                return TypeDBAdapter.TABLE_TYPE; // return
+                return TypeTable.TABLE; // return
             case TASK_LIST:
             case TASK_ID:
-                return TaskDBAdapter.TABLE_TASK; // return
+                return TaskTable.TABLE; // return
             case ERROR_LIST:
             case ERROR_ID:
-                return ErrorDBAdapter.TABLE_ERROR; // return
+                return ErrorTable.TABLE; // return
             case COMMAND_LIST:
             case COMMAND_ID:
-                return CommandDBAdapter.TABLE_COMMAND; // return
+                return CommandTable.TABLE; // return
             case ADMIN_SENDER_LIST:
             case ADMIN_SENDER_ID:
-                return SenderDBAdapter.TABLE_SENDER; // return
+                return SenderTable.TABLE; // return
             /** PROVIDE A DEFAULT CASE HERE **/
             default:
                 // If the URI doesn't match any of the known patterns, throw an exception.
@@ -129,52 +129,52 @@ public class WeightCheckBaseProvider extends ContentProvider {
 
         switch (TableList.values()[uriMatcher.match(uri)]) {
             case CHECK_LIST: // общий Uri
-                queryBuilder.setTables(CheckDBAdapter.TABLE_CHECKS);
+                queryBuilder.setTables(CheckTable.TABLE);
                 break;
             case CHECK_ID: // Uri с ID
-                queryBuilder.setTables(CheckDBAdapter.TABLE_CHECKS);
+                queryBuilder.setTables(CheckTable.TABLE);
                 queryBuilder.appendWhere(BaseColumns._ID + '=' + uri.getLastPathSegment());
                 break;
             case PREFERENCES_LIST: // общий Uri
-                queryBuilder.setTables(PreferencesDBAdapter.TABLE_PREFERENCES);
+                queryBuilder.setTables(PreferencesTable.TABLE);
                 break;
             case PREFERENCES_ID: // Uri с ID
-                queryBuilder.setTables(PreferencesDBAdapter.TABLE_PREFERENCES);
+                queryBuilder.setTables(PreferencesTable.TABLE);
                 queryBuilder.appendWhere(BaseColumns._ID + '=' + uri.getLastPathSegment());
                 break;
             case TYPE_LIST: // общий Uri
-                queryBuilder.setTables(TypeDBAdapter.TABLE_TYPE);
+                queryBuilder.setTables(TypeTable.TABLE);
                 break;
             case TYPE_ID: // Uri с ID
-                queryBuilder.setTables(TypeDBAdapter.TABLE_TYPE);
+                queryBuilder.setTables(TypeTable.TABLE);
                 queryBuilder.appendWhere(BaseColumns._ID + '=' + uri.getLastPathSegment());
                 break;
             case TASK_LIST: // общий Uri
-                queryBuilder.setTables(TaskDBAdapter.TABLE_TASK);
+                queryBuilder.setTables(TaskTable.TABLE);
                 break;
             case TASK_ID: // Uri с ID
-                queryBuilder.setTables(TaskDBAdapter.TABLE_TASK);
+                queryBuilder.setTables(TaskTable.TABLE);
                 queryBuilder.appendWhere(BaseColumns._ID + '=' + uri.getLastPathSegment());
                 break;
             case ERROR_LIST: // общий Uri
-                queryBuilder.setTables(ErrorDBAdapter.TABLE_ERROR);
+                queryBuilder.setTables(ErrorTable.TABLE);
                 break;
             case ERROR_ID: // Uri с ID
-                queryBuilder.setTables(ErrorDBAdapter.TABLE_ERROR);
+                queryBuilder.setTables(ErrorTable.TABLE);
                 queryBuilder.appendWhere(BaseColumns._ID + '=' + uri.getLastPathSegment());
                 break;
             case COMMAND_LIST: // общий Uri
-                queryBuilder.setTables(CommandDBAdapter.TABLE_COMMAND);
+                queryBuilder.setTables(CommandTable.TABLE);
                 break;
             case COMMAND_ID: // Uri с ID
-                queryBuilder.setTables(CommandDBAdapter.TABLE_COMMAND);
+                queryBuilder.setTables(CommandTable.TABLE);
                 queryBuilder.appendWhere(BaseColumns._ID + '=' + uri.getLastPathSegment());
                 break;
             case ADMIN_SENDER_LIST: // общий Uri
-                queryBuilder.setTables(SenderDBAdapter.TABLE_SENDER);
+                queryBuilder.setTables(SenderTable.TABLE);
                 break;
             case ADMIN_SENDER_ID: // Uri с ID
-                queryBuilder.setTables(SenderDBAdapter.TABLE_SENDER);
+                queryBuilder.setTables(SenderTable.TABLE);
                 queryBuilder.appendWhere(BaseColumns._ID + '=' + uri.getLastPathSegment());
                 break;
             default:
@@ -230,60 +230,60 @@ public class WeightCheckBaseProvider extends ContentProvider {
 
         switch (TableList.values()[uriMatcher.match(uri)]) {
             case CHECK_LIST: // общий Uri
-                delCount = db.delete(CheckDBAdapter.TABLE_CHECKS, where, whereArg);
+                delCount = db.delete(CheckTable.TABLE, where, whereArg);
                 break;
             case CHECK_ID:
                 id = uri.getLastPathSegment();
                 where = TextUtils.isEmpty(where) ? BaseColumns._ID + " = " + id : where + " AND " + BaseColumns._ID + " = " + id;
-                delCount = db.delete(CheckDBAdapter.TABLE_CHECKS, where, whereArg);
+                delCount = db.delete(CheckTable.TABLE, where, whereArg);
                 break;
             case PREFERENCES_LIST: // общий Uri
-                delCount = db.delete(PreferencesDBAdapter.TABLE_PREFERENCES, where, whereArg);
+                delCount = db.delete(PreferencesTable.TABLE, where, whereArg);
                 break;
             case PREFERENCES_ID:
                 id = uri.getLastPathSegment();
                 where = TextUtils.isEmpty(where) ? BaseColumns._ID + " = " + id : where + " AND " + BaseColumns._ID + " = " + id;
-                delCount = db.delete(PreferencesDBAdapter.TABLE_PREFERENCES, where, whereArg);
+                delCount = db.delete(PreferencesTable.TABLE, where, whereArg);
                 break;
             case TYPE_LIST:
-                delCount = db.delete(TypeDBAdapter.TABLE_TYPE, where, whereArg);
+                delCount = db.delete(TypeTable.TABLE, where, whereArg);
                 break;
             case TYPE_ID:
                 id = uri.getLastPathSegment();
                 where = TextUtils.isEmpty(where) ? BaseColumns._ID + " = " + id : where + " AND " + BaseColumns._ID + " = " + id;
-                delCount = db.delete(TypeDBAdapter.TABLE_TYPE, where, whereArg);
+                delCount = db.delete(TypeTable.TABLE, where, whereArg);
                 break;
             case TASK_LIST:
-                delCount = db.delete(TaskDBAdapter.TABLE_TASK, where, whereArg);
+                delCount = db.delete(TaskTable.TABLE, where, whereArg);
                 break;
             case TASK_ID:
                 id = uri.getLastPathSegment();
                 where = TextUtils.isEmpty(where) ? BaseColumns._ID + " = " + id : where + " AND " + BaseColumns._ID + " = " + id;
-                delCount = db.delete(TaskDBAdapter.TABLE_TASK, where, whereArg);
+                delCount = db.delete(TaskTable.TABLE, where, whereArg);
                 break;
             case ERROR_LIST:
-                delCount = db.delete(ErrorDBAdapter.TABLE_ERROR, where, whereArg);
+                delCount = db.delete(ErrorTable.TABLE, where, whereArg);
                 break;
             case ERROR_ID:
                 id = uri.getLastPathSegment();
                 where = TextUtils.isEmpty(where) ? BaseColumns._ID + " = " + id : where + " AND " + BaseColumns._ID + " = " + id;
-                delCount = db.delete(ErrorDBAdapter.TABLE_ERROR, where, whereArg);
+                delCount = db.delete(ErrorTable.TABLE, where, whereArg);
                 break;
             case COMMAND_LIST:
-                delCount = db.delete(CommandDBAdapter.TABLE_COMMAND, where, whereArg);
+                delCount = db.delete(CommandTable.TABLE, where, whereArg);
                 break;
             case COMMAND_ID:
                 id = uri.getLastPathSegment();
                 where = TextUtils.isEmpty(where) ? BaseColumns._ID + " = " + id : where + " AND " + BaseColumns._ID + " = " + id;
-                delCount = db.delete(CommandDBAdapter.TABLE_COMMAND, where, whereArg);
+                delCount = db.delete(CommandTable.TABLE, where, whereArg);
                 break;
             case ADMIN_SENDER_LIST:
-                delCount = db.delete(SenderDBAdapter.TABLE_SENDER, where, whereArg);
+                delCount = db.delete(SenderTable.TABLE, where, whereArg);
                 break;
             case ADMIN_SENDER_ID:
                 id = uri.getLastPathSegment();
                 where = TextUtils.isEmpty(where) ? BaseColumns._ID + " = " + id : where + " AND " + BaseColumns._ID + " = " + id;
-                delCount = db.delete(SenderDBAdapter.TABLE_SENDER, where, whereArg);
+                delCount = db.delete(SenderTable.TABLE, where, whereArg);
                 break;
             default:
                 throw new IllegalArgumentException("Wrong URI: " + uri);
@@ -304,60 +304,60 @@ public class WeightCheckBaseProvider extends ContentProvider {
         String id;
         switch (TableList.values()[uriMatcher.match(uri)]) {
             case CHECK_LIST: // общий Uri
-                updateCount = db.update(CheckDBAdapter.TABLE_CHECKS, contentValues, where, whereArg);
+                updateCount = db.update(CheckTable.TABLE, contentValues, where, whereArg);
                 break;
             case CHECK_ID:
                 id = uri.getLastPathSegment();
                 where = TextUtils.isEmpty(where) ? BaseColumns._ID + " = " + id : where + " AND " + BaseColumns._ID + " = " + id;
-                updateCount = db.update(CheckDBAdapter.TABLE_CHECKS, contentValues, where, whereArg);
+                updateCount = db.update(CheckTable.TABLE, contentValues, where, whereArg);
                 break;
             case PREFERENCES_LIST: // общий Uri
-                updateCount = db.update(PreferencesDBAdapter.TABLE_PREFERENCES, contentValues, where, whereArg);
+                updateCount = db.update(PreferencesTable.TABLE, contentValues, where, whereArg);
                 break;
             case PREFERENCES_ID:
                 id = uri.getLastPathSegment();
                 where = TextUtils.isEmpty(where) ? BaseColumns._ID + " = " + id : where + " AND " + BaseColumns._ID + " = " + id;
-                updateCount = db.update(PreferencesDBAdapter.TABLE_PREFERENCES, contentValues, where, whereArg);
+                updateCount = db.update(PreferencesTable.TABLE, contentValues, where, whereArg);
                 break;
             case TYPE_LIST: // общий Uri
-                updateCount = db.update(TypeDBAdapter.TABLE_TYPE, contentValues, where, whereArg);
+                updateCount = db.update(TypeTable.TABLE, contentValues, where, whereArg);
                 break;
             case TYPE_ID: // Uri с ID
                 id = uri.getLastPathSegment();
                 where = TextUtils.isEmpty(where) ? BaseColumns._ID + " = " + id : where + " AND " + BaseColumns._ID + " = " + id;
-                updateCount = db.update(TypeDBAdapter.TABLE_TYPE, contentValues, where, whereArg);
+                updateCount = db.update(TypeTable.TABLE, contentValues, where, whereArg);
                 break;
             case TASK_LIST: // общий Uri
-                updateCount = db.update(TaskDBAdapter.TABLE_TASK, contentValues, where, whereArg);
+                updateCount = db.update(TaskTable.TABLE, contentValues, where, whereArg);
                 break;
             case TASK_ID: // Uri с ID
                 id = uri.getLastPathSegment();
                 where = TextUtils.isEmpty(where) ? BaseColumns._ID + " = " + id : where + " AND " + BaseColumns._ID + " = " + id;
-                updateCount = db.update(TaskDBAdapter.TABLE_TASK, contentValues, where, whereArg);
+                updateCount = db.update(TaskTable.TABLE, contentValues, where, whereArg);
                 break;
             case ERROR_LIST: // общий Uri
-                updateCount = db.update(ErrorDBAdapter.TABLE_ERROR, contentValues, where, whereArg);
+                updateCount = db.update(ErrorTable.TABLE, contentValues, where, whereArg);
                 break;
             case ERROR_ID: // Uri с ID
                 id = uri.getLastPathSegment();
                 where = TextUtils.isEmpty(where) ? BaseColumns._ID + " = " + id : where + " AND " + BaseColumns._ID + " = " + id;
-                updateCount = db.update(ErrorDBAdapter.TABLE_ERROR, contentValues, where, whereArg);
+                updateCount = db.update(ErrorTable.TABLE, contentValues, where, whereArg);
                 break;
             case COMMAND_LIST: // общий Uri
-                updateCount = db.update(CommandDBAdapter.TABLE_COMMAND, contentValues, where, whereArg);
+                updateCount = db.update(CommandTable.TABLE, contentValues, where, whereArg);
                 break;
             case COMMAND_ID: // Uri с ID
                 id = uri.getLastPathSegment();
                 where = TextUtils.isEmpty(where) ? BaseColumns._ID + " = " + id : where + " AND " + BaseColumns._ID + " = " + id;
-                updateCount = db.update(CommandDBAdapter.TABLE_COMMAND, contentValues, where, whereArg);
+                updateCount = db.update(CommandTable.TABLE, contentValues, where, whereArg);
                 break;
             case ADMIN_SENDER_LIST: // общий Uri
-                updateCount = db.update(SenderDBAdapter.TABLE_SENDER, contentValues, where, whereArg);
+                updateCount = db.update(SenderTable.TABLE, contentValues, where, whereArg);
                 break;
             case ADMIN_SENDER_ID: // Uri с ID
                 id = uri.getLastPathSegment();
                 where = TextUtils.isEmpty(where) ? BaseColumns._ID + " = " + id : where + " AND " + BaseColumns._ID + " = " + id;
-                updateCount = db.update(SenderDBAdapter.TABLE_SENDER, contentValues, where, whereArg);
+                updateCount = db.update(SenderTable.TABLE, contentValues, where, whereArg);
                 break;
             default:
                 throw new IllegalArgumentException("Wrong URI: " + uri);
@@ -372,24 +372,24 @@ public class WeightCheckBaseProvider extends ContentProvider {
     }
 
     private class DBHelper extends SQLiteOpenHelper {
-        final SenderDBAdapter senderTable;
+        final SenderTable senderTable;
         DBHelper(Context context) {
             super(context, DATABASE_NAME, null, DATABASE_VERSION);
-            senderTable = new SenderDBAdapter(context);
+            senderTable = new SenderTable(context);
         }
 
         @Override
         public void onCreate(SQLiteDatabase db) {
-            db.execSQL(CheckDBAdapter.TABLE_CREATE_CHECKS);
-            db.execSQL(TypeDBAdapter.TABLE_CREATE_TYPE);
-            db.execSQL(PreferencesDBAdapter.TABLE_CREATE_PREFERENCES);
-            db.execSQL(TaskDBAdapter.TABLE_CREATE_TASK);
-            db.execSQL(ErrorDBAdapter.TABLE_CREATE_ERROR);
-            db.execSQL(CommandDBAdapter.TABLE_CREATE_COMMAND);
-            db.execSQL(SenderDBAdapter.TABLE_CREATE_TYPE);
+            db.execSQL(CheckTable.TABLE_CREATE);
+            db.execSQL(TypeTable.TABLE_CREATE);
+            db.execSQL(PreferencesTable.TABLE_CREATE);
+            db.execSQL(TaskTable.TABLE_CREATE);
+            db.execSQL(ErrorTable.TABLE_CREATE);
+            db.execSQL(CommandTable.TABLE_CREATE);
+            db.execSQL(SenderTable.TABLE_CREATE);
 
             //Add default record to my table
-            new TypeDBAdapter(getContext()).addSystemRow(db);
+            new TypeTable(getContext()).addSystemRow(db);
             /*-----------------------------------------------*/
             senderTable.addSystemSheet(db);
             senderTable.addSystemHTTP(db);
@@ -400,13 +400,13 @@ public class WeightCheckBaseProvider extends ContentProvider {
         @Override
         public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
 
-            db.execSQL(DROP_TABLE_IF_EXISTS + CheckDBAdapter.TABLE_CHECKS);
-            db.execSQL(DROP_TABLE_IF_EXISTS + TypeDBAdapter.TABLE_TYPE);
-            db.execSQL(DROP_TABLE_IF_EXISTS + PreferencesDBAdapter.TABLE_PREFERENCES);
-            db.execSQL(DROP_TABLE_IF_EXISTS + TaskDBAdapter.TABLE_TASK);
-            db.execSQL(DROP_TABLE_IF_EXISTS + ErrorDBAdapter.TABLE_ERROR);
-            db.execSQL(DROP_TABLE_IF_EXISTS + CommandDBAdapter.TABLE_COMMAND);
-            db.execSQL(DROP_TABLE_IF_EXISTS + SenderDBAdapter.TABLE_SENDER);
+            db.execSQL(DROP_TABLE_IF_EXISTS + CheckTable.TABLE);
+            db.execSQL(DROP_TABLE_IF_EXISTS + TypeTable.TABLE);
+            db.execSQL(DROP_TABLE_IF_EXISTS + PreferencesTable.TABLE);
+            db.execSQL(DROP_TABLE_IF_EXISTS + TaskTable.TABLE);
+            db.execSQL(DROP_TABLE_IF_EXISTS + ErrorTable.TABLE);
+            db.execSQL(DROP_TABLE_IF_EXISTS + CommandTable.TABLE);
+            db.execSQL(DROP_TABLE_IF_EXISTS + SenderTable.TABLE);
             onCreate(db);
         }
     }

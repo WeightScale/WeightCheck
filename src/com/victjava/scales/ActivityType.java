@@ -8,7 +8,7 @@ import android.os.Bundle;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.*;
-import com.victjava.scales.provider.TypeDBAdapter;
+import com.victjava.scales.provider.TypeTable;
 
 /*
  * Created with IntelliJ IDEA.
@@ -21,7 +21,7 @@ public class ActivityType extends ListActivity implements View.OnClickListener {
     //private ListView listView;
     private EditText input;
     private AlertDialog.Builder dialog;
-    private TypeDBAdapter typeDBAdapter;
+    private TypeTable typeTable;
 
     //private long entryID;
     @Override
@@ -33,7 +33,7 @@ public class ActivityType extends ListActivity implements View.OnClickListener {
         WindowManager.LayoutParams lp = getWindow().getAttributes();
         lp.screenBrightness = 1.0f;
         getWindow().setAttributes(lp);
-        typeDBAdapter = new TypeDBAdapter(this);
+        typeTable = new TypeTable(this);
         dialog = new AlertDialog.Builder(this);
         dialog.setMessage(getString(R.string.Enter_type));
         input = new EditText(this);
@@ -42,7 +42,7 @@ public class ActivityType extends ListActivity implements View.OnClickListener {
             @Override
             public void onClick(DialogInterface dialog, int whichButton) {
                 if (input.getText() != null) {
-                    typeDBAdapter.insertEntryType(input.getText().toString());
+                    typeTable.insertEntryType(input.getText().toString());
                     updateList();
                 }
             }
@@ -77,8 +77,8 @@ public class ActivityType extends ListActivity implements View.OnClickListener {
 
     void updateList() {
         try {
-            Cursor cursor = typeDBAdapter.getNotSystemEntries();
-            String[] from = {TypeDBAdapter.KEY_TYPE};
+            Cursor cursor = typeTable.getNotSystemEntries();
+            String[] from = {TypeTable.KEY_TYPE};
             int[] to = {R.id.topText};
             ListAdapter adapter = new SimpleCursorAdapter(this, R.layout.list_item_type, cursor, from, to);
             setListAdapter(adapter);
@@ -93,8 +93,8 @@ public class ActivityType extends ListActivity implements View.OnClickListener {
         try {
             Cursor cursor = ((CursorAdapter) list.getAdapter()).getCursor();
             cursor.moveToPosition(position);
-            int id = cursor.getInt(cursor.getColumnIndex(TypeDBAdapter.KEY_ID));
-            typeDBAdapter.removeEntry(id);
+            int id = cursor.getInt(cursor.getColumnIndex(TypeTable.KEY_ID));
+            typeTable.removeEntry(id);
         }catch (Exception e){
             return;
         }

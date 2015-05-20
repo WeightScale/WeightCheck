@@ -12,19 +12,19 @@ import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.view.*;
 import android.widget.*;
-import com.victjava.scales.provider.CheckDBAdapter;
+import com.victjava.scales.provider.CheckTable;
 
 import java.util.Map;
 
 public class ActivityPageChecks extends Activity {
 
-    CheckDBAdapter checkTable;
+    CheckTable checkTable;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        checkTable = new CheckDBAdapter(this);
+        checkTable = new CheckTable(this);
         int pos = getIntent().getIntExtra("position", 0);
         //long checkId = getIntent().getIntExtra("id", 1);
         setTitle(getString(R.string.app_name) + ' ' + getString(R.string.Check)); //установить заголовок*/
@@ -33,20 +33,20 @@ public class ActivityPageChecks extends Activity {
         lp.screenBrightness = 1.0f;
         getWindow().setAttributes(lp);
 
-        String[] columns = {CheckDBAdapter.KEY_ID,
-                CheckDBAdapter.KEY_DATE_CREATE,
-                CheckDBAdapter.KEY_TIME_CREATE,
-                CheckDBAdapter.KEY_VENDOR,
-                CheckDBAdapter.KEY_WEIGHT_FIRST,
-                CheckDBAdapter.KEY_WEIGHT_SECOND,
-                CheckDBAdapter.KEY_WEIGHT_NETTO,
-                CheckDBAdapter.KEY_TYPE,
-                CheckDBAdapter.KEY_PRICE,
-                CheckDBAdapter.KEY_PRICE_SUM,
-                CheckDBAdapter.KEY_NUMBER_BT,
-                CheckDBAdapter.KEY_DIRECT,
-                CheckDBAdapter.KEY_DIRECT,
-                CheckDBAdapter.KEY_DIRECT};
+        String[] columns = {CheckTable.KEY_ID,
+                CheckTable.KEY_DATE_CREATE,
+                CheckTable.KEY_TIME_CREATE,
+                CheckTable.KEY_VENDOR,
+                CheckTable.KEY_WEIGHT_FIRST,
+                CheckTable.KEY_WEIGHT_SECOND,
+                CheckTable.KEY_WEIGHT_NETTO,
+                CheckTable.KEY_TYPE,
+                CheckTable.KEY_PRICE,
+                CheckTable.KEY_PRICE_SUM,
+                CheckTable.KEY_NUMBER_BT,
+                CheckTable.KEY_DIRECT,
+                CheckTable.KEY_DIRECT,
+                CheckTable.KEY_DIRECT};
 
         int[] to = {
                 R.id.check_id,
@@ -61,7 +61,7 @@ public class ActivityPageChecks extends Activity {
                 R.id.sum_row,
                 R.id.textNumScale,
                 R.id.imageDirect, R.id.gross, R.id.tare};
-        Cursor cursor = checkTable.getAllEntries(CheckDBAdapter.VISIBLE);
+        Cursor cursor = checkTable.getAllEntries(CheckTable.VISIBLE);
         if (cursor == null) {
             return;
         }
@@ -202,7 +202,7 @@ public class ActivityPageChecks extends Activity {
             TextView textView = (TextView) mCurrentView.findViewById(R.id.check_id);
             String checkId = textView.getText().toString();
             ContentValues values = map.get(checkId);
-            String contactId = values.getAsString(CheckDBAdapter.KEY_VENDOR_ID);
+            String contactId = values.getAsString(CheckTable.KEY_VENDOR_ID);
             switch (v.getId()) {
                 case R.id.imageViewBack:
                     onBackPressed();
@@ -229,16 +229,16 @@ public class ActivityPageChecks extends Activity {
 
             switch (view.getId()) {
                 case R.id.gross:
-                    direct = cursor.getInt(cursor.getColumnIndex(CheckDBAdapter.KEY_DIRECT));
-                    if (direct == CheckDBAdapter.DIRECT_UP) {
+                    direct = cursor.getInt(cursor.getColumnIndex(CheckTable.KEY_DIRECT));
+                    if (direct == CheckTable.DIRECT_UP) {
                         setViewText((TextView) view, getString(R.string.Tape));
                     } else {
                         setViewText((TextView) view, getString(R.string.Gross));
                     }
                     break;
                 case R.id.tare:
-                    direct = cursor.getInt(cursor.getColumnIndex(CheckDBAdapter.KEY_DIRECT));
-                    if (direct == CheckDBAdapter.DIRECT_DOWN) {
+                    direct = cursor.getInt(cursor.getColumnIndex(CheckTable.KEY_DIRECT));
+                    if (direct == CheckTable.DIRECT_DOWN) {
                         setViewText((TextView) view, getString(R.string.Tape));
                     } else {
                         setViewText((TextView) view, getString(R.string.Gross));

@@ -14,7 +14,7 @@ import android.text.TextWatcher;
 import android.view.*;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.*;
-import com.victjava.scales.provider.CheckDBAdapter;
+import com.victjava.scales.provider.CheckTable;
 
 /*
  * Created with IntelliJ IDEA.
@@ -25,7 +25,7 @@ import com.victjava.scales.provider.CheckDBAdapter;
  */
 public class ActivityContact extends ListActivity implements View.OnClickListener {
 
-    private CheckDBAdapter checkDBAdapter;
+    private CheckTable checkTable;
     private Vibrator vibrator; //вибратор
     private EditText textSearch;
     private LinearLayout layoutSearch;
@@ -51,7 +51,7 @@ public class ActivityContact extends ListActivity implements View.OnClickListene
         lp.screenBrightness = 1.0f;
         getWindow().setAttributes(lp);
 
-        checkDBAdapter = new CheckDBAdapter(this);
+        checkTable = new CheckTable(this);
 
         ListView listView = getListView();
         listView.setLongClickable(true);
@@ -213,7 +213,7 @@ public class ActivityContact extends ListActivity implements View.OnClickListene
             switch (action) {
                 case "check":
                     String name = retrieveContactName(contactUri);
-                    String entryID = checkDBAdapter.insertNewEntry(name, id, CheckDBAdapter.DIRECT_DOWN).getLastPathSegment();
+                    String entryID = checkTable.insertNewEntry(name, id, CheckTable.DIRECT_DOWN).getLastPathSegment();
                     startActivity(new Intent().setClass(getApplicationContext(), ActivityCheck.class).putExtra("id", entryID));
                     finish();
                     break;

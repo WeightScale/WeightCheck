@@ -6,10 +6,10 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.os.*;
 import com.konst.module.ScaleModule;
-import com.victjava.scales.provider.CheckDBAdapter;
-import com.victjava.scales.provider.PreferencesDBAdapter;
-import com.victjava.scales.provider.SenderDBAdapter;
-import com.victjava.scales.provider.TaskDBAdapter;
+import com.victjava.scales.provider.CheckTable;
+import com.victjava.scales.provider.PreferencesTable;
+import com.victjava.scales.provider.SenderTable;
+import com.victjava.scales.provider.TaskTable;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
@@ -30,7 +30,7 @@ import java.util.*;
  */
 public class TaskCommand {
 
-    final CheckDBAdapter checkTable;
+    final CheckTable checkTable;
     final Context mContext;
     //String mMimeType;
     final HandlerTaskNotification mHandler;
@@ -82,7 +82,7 @@ public class TaskCommand {
         mContext = context;
         mHandler = handler;
         cancel = false;
-        checkTable = new CheckDBAdapter(mContext);
+        checkTable = new CheckTable(mContext);
     }
 
     public void execTask(TaskType type, Map<String, ContentValues> map) throws Exception {
@@ -145,7 +145,7 @@ public class TaskCommand {
 
                         for (Map.Entry<String, ContentValues> entry : map.entrySet()) {
                             int taskId = Integer.valueOf(entry.getKey());
-                            int checkId = Integer.valueOf(entry.getValue().get(TaskDBAdapter.KEY_DOC).toString());
+                            int checkId = Integer.valueOf(entry.getValue().get(TaskTable.KEY_DOC).toString());
                             Message msg;
                             try {
                                 sendCheckToDisk(checkId);
@@ -173,8 +173,8 @@ public class TaskCommand {
                 throw new Exception(mContext.getString(R.string.Check_N) + id + " null");
 
             if (cursor.moveToFirst()) {
-                googleSpreadsheets.addRow(cursor, CheckDBAdapter.TABLE_CHECKS);
-                checkTable.updateEntry(id, CheckDBAdapter.KEY_CHECK_ON_SERVER, 1);
+                googleSpreadsheets.addRow(cursor, CheckTable.TABLE);
+                checkTable.updateEntry(id, CheckTable.KEY_CHECK_ON_SERVER, 1);
             }
             cursor.close();
         }
@@ -204,11 +204,11 @@ public class TaskCommand {
                     }
                     for (Map.Entry<String, ContentValues> entry : map.entrySet()) {
                         int taskId = Integer.valueOf(entry.getKey());
-                        int checkId = Integer.valueOf(entry.getValue().get(TaskDBAdapter.KEY_DOC).toString());
-                        int senderId = Integer.valueOf(entry.getValue().get(TaskDBAdapter.KEY_ID_DATA).toString());
-                        Cursor sender = new SenderDBAdapter(mContext).getEntryItem(senderId);
-                        String http = sender.getString(sender.getColumnIndex(SenderDBAdapter.KEY_DATA1));
-                        String[] values = sender.getString(sender.getColumnIndex(SenderDBAdapter.KEY_DATA2)).split(" ");
+                        int checkId = Integer.valueOf(entry.getValue().get(TaskTable.KEY_DOC).toString());
+                        int senderId = Integer.valueOf(entry.getValue().get(TaskTable.KEY_ID_DATA).toString());
+                        Cursor sender = new SenderTable(mContext).getEntryItem(senderId);
+                        String http = sender.getString(sender.getColumnIndex(SenderTable.KEY_DATA1));
+                        String[] values = sender.getString(sender.getColumnIndex(SenderTable.KEY_DATA2)).split(" ");
                         Cursor check = checkTable.getEntryItem(checkId);
                         List<BasicNameValuePair> results = new ArrayList<>();
                         for (String postName : values) {
@@ -273,22 +273,22 @@ public class TaskCommand {
                     }
                     for (Map.Entry<String, ContentValues> entry : map.entrySet()) {
                         int taskId = Integer.valueOf(entry.getKey());
-                        int checkId = Integer.valueOf(entry.getValue().get(TaskDBAdapter.KEY_DOC).toString());
-                        String address = entry.getValue().get(TaskDBAdapter.KEY_DATA1).toString();
+                        int checkId = Integer.valueOf(entry.getValue().get(TaskTable.KEY_DOC).toString());
+                        String address = entry.getValue().get(TaskTable.KEY_DATA1).toString();
                         StringBuilder body = new StringBuilder(mContext.getString(R.string.WEIGHT_CHECK_N) + checkId + '\n' + '\n');
                         Cursor check = checkTable.getEntryItem(checkId);
                         if (check == null) {
                             body.append(mContext.getString(R.string.No_data_check)).append(checkId).append(mContext.getString(R.string.delete));
                         } else {
                             if (check.moveToFirst()) {
-                                body.append(mContext.getString(R.string.Date)).append('_').append(check.getString(check.getColumnIndex(CheckDBAdapter.KEY_DATE_CREATE))).append("__").append(check.getString(check.getColumnIndex(CheckDBAdapter.KEY_TIME_CREATE))).append('\n');
-                                body.append(mContext.getString(R.string.Contact)).append("__").append(check.getString(check.getColumnIndex(CheckDBAdapter.KEY_VENDOR))).append('\n');
-                                body.append(mContext.getString(R.string.GROSS)).append("___").append(check.getString(check.getColumnIndex(CheckDBAdapter.KEY_WEIGHT_FIRST))).append('\n');
-                                body.append(mContext.getString(R.string.TAPE)).append("_____").append(check.getString(check.getColumnIndex(CheckDBAdapter.KEY_WEIGHT_SECOND))).append('\n');
-                                body.append(mContext.getString(R.string.Netto)).append(":____").append(check.getString(check.getColumnIndex(CheckDBAdapter.KEY_WEIGHT_NETTO))).append('\n');
-                                body.append(mContext.getString(R.string.Goods)).append("____").append(check.getString(check.getColumnIndex(CheckDBAdapter.KEY_TYPE))).append('\n');
-                                body.append(mContext.getString(R.string.Price)).append("_____").append(check.getString(check.getColumnIndex(CheckDBAdapter.KEY_PRICE))).append('\n');
-                                body.append(mContext.getString(R.string.Sum)).append(":____").append(check.getString(check.getColumnIndex(CheckDBAdapter.KEY_PRICE_SUM))).append('\n');
+                                body.append(mContext.getString(R.string.Date)).append('_').append(check.getString(check.getColumnIndex(CheckTable.KEY_DATE_CREATE))).append("__").append(check.getString(check.getColumnIndex(CheckTable.KEY_TIME_CREATE))).append('\n');
+                                body.append(mContext.getString(R.string.Contact)).append("__").append(check.getString(check.getColumnIndex(CheckTable.KEY_VENDOR))).append('\n');
+                                body.append(mContext.getString(R.string.GROSS)).append("___").append(check.getString(check.getColumnIndex(CheckTable.KEY_WEIGHT_FIRST))).append('\n');
+                                body.append(mContext.getString(R.string.TAPE)).append("_____").append(check.getString(check.getColumnIndex(CheckTable.KEY_WEIGHT_SECOND))).append('\n');
+                                body.append(mContext.getString(R.string.Netto)).append(":____").append(check.getString(check.getColumnIndex(CheckTable.KEY_WEIGHT_NETTO))).append('\n');
+                                body.append(mContext.getString(R.string.Goods)).append("____").append(check.getString(check.getColumnIndex(CheckTable.KEY_TYPE))).append('\n');
+                                body.append(mContext.getString(R.string.Price)).append("_____").append(check.getString(check.getColumnIndex(CheckTable.KEY_PRICE))).append('\n');
+                                body.append(mContext.getString(R.string.Sum)).append(":____").append(check.getString(check.getColumnIndex(CheckTable.KEY_PRICE_SUM))).append('\n');
                             } else {
                                 body.append(mContext.getString(R.string.No_data_check)).append(checkId).append(mContext.getString(R.string.delete));
                             }
@@ -336,22 +336,22 @@ public class TaskCommand {
                 public void run() {
                     for (Map.Entry<String, ContentValues> entry : map.entrySet()) {
                         int taskId = Integer.valueOf(entry.getKey());
-                        int checkId = Integer.valueOf(entry.getValue().get(TaskDBAdapter.KEY_DOC).toString());
-                        String address = entry.getValue().get(TaskDBAdapter.KEY_DATA1).toString();
+                        int checkId = Integer.valueOf(entry.getValue().get(TaskTable.KEY_DOC).toString());
+                        String address = entry.getValue().get(TaskTable.KEY_DATA1).toString();
                         StringBuilder body = new StringBuilder(mContext.getString(R.string.WEIGHT_CHECK_N) + checkId + '\n' + '\n');
                         Cursor check = checkTable.getEntryItem(checkId);
                         if (check == null) {
                             body.append(mContext.getString(R.string.No_data_check)).append(checkId).append(mContext.getString(R.string.delete));
                         } else {
                             if (check.moveToFirst()) {
-                                body.append(mContext.getString(R.string.Date)).append('=').append(check.getString(check.getColumnIndex(CheckDBAdapter.KEY_DATE_CREATE))).append('_').append(check.getString(check.getColumnIndex(CheckDBAdapter.KEY_TIME_CREATE))).append('\n');
-                                body.append(mContext.getString(R.string.Contact)).append('=').append(check.getString(check.getColumnIndex(CheckDBAdapter.KEY_VENDOR))).append('\n');
-                                body.append(mContext.getString(R.string.GROSS)).append('=').append(check.getString(check.getColumnIndex(CheckDBAdapter.KEY_WEIGHT_FIRST))).append('\n');
-                                body.append(mContext.getString(R.string.TAPE)).append('=').append(check.getString(check.getColumnIndex(CheckDBAdapter.KEY_WEIGHT_SECOND))).append('\n');
-                                body.append(mContext.getString(R.string.Netto)).append(":=").append(check.getString(check.getColumnIndex(CheckDBAdapter.KEY_WEIGHT_NETTO))).append('\n');
-                                body.append(mContext.getString(R.string.Goods)).append('=').append(check.getString(check.getColumnIndex(CheckDBAdapter.KEY_TYPE))).append('\n');
-                                body.append(mContext.getString(R.string.Price)).append('=').append(check.getString(check.getColumnIndex(CheckDBAdapter.KEY_PRICE))).append('\n');
-                                body.append(mContext.getString(R.string.Sum)).append(":=").append(check.getString(check.getColumnIndex(CheckDBAdapter.KEY_PRICE_SUM))).append('\n');
+                                body.append(mContext.getString(R.string.Date)).append('=').append(check.getString(check.getColumnIndex(CheckTable.KEY_DATE_CREATE))).append('_').append(check.getString(check.getColumnIndex(CheckTable.KEY_TIME_CREATE))).append('\n');
+                                body.append(mContext.getString(R.string.Contact)).append('=').append(check.getString(check.getColumnIndex(CheckTable.KEY_VENDOR))).append('\n');
+                                body.append(mContext.getString(R.string.GROSS)).append('=').append(check.getString(check.getColumnIndex(CheckTable.KEY_WEIGHT_FIRST))).append('\n');
+                                body.append(mContext.getString(R.string.TAPE)).append('=').append(check.getString(check.getColumnIndex(CheckTable.KEY_WEIGHT_SECOND))).append('\n');
+                                body.append(mContext.getString(R.string.Netto)).append(":=").append(check.getString(check.getColumnIndex(CheckTable.KEY_WEIGHT_NETTO))).append('\n');
+                                body.append(mContext.getString(R.string.Goods)).append('=').append(check.getString(check.getColumnIndex(CheckTable.KEY_TYPE))).append('\n');
+                                body.append(mContext.getString(R.string.Price)).append('=').append(check.getString(check.getColumnIndex(CheckTable.KEY_PRICE))).append('\n');
+                                body.append(mContext.getString(R.string.Sum)).append(":=").append(check.getString(check.getColumnIndex(CheckTable.KEY_PRICE_SUM))).append('\n');
                             } else {
                                 body.append(mContext.getString(R.string.No_data_check)).append(checkId).append(mContext.getString(R.string.delete));
                             }
@@ -415,7 +415,7 @@ public class TaskCommand {
                         Message msg = new Message();
                         for (Map.Entry<String, ContentValues> entry : map.entrySet()) {
                             int taskId = Integer.valueOf(entry.getKey());
-                            int prefId = Integer.valueOf(entry.getValue().get(TaskDBAdapter.KEY_DOC).toString());
+                            int prefId = Integer.valueOf(entry.getValue().get(TaskTable.KEY_DOC).toString());
                             ObjParcel objParcel = new ObjParcel(prefId, mContext.getString(R.string.sent_to_the_server));
                             try {
                                 sendPreferenceToDisk(prefId);
@@ -435,13 +435,13 @@ public class TaskCommand {
         }
 
         private void sendPreferenceToDisk(int id) throws Exception {
-            Cursor cursor = new PreferencesDBAdapter(mContext).getEntryItem(id);
+            Cursor cursor = new PreferencesTable(mContext).getEntryItem(id);
             if (cursor == null) {
                 throw new Exception(mContext.getString(R.string.Check_N) + id + " null");
             }
             if (cursor.moveToFirst()) {
-                googleSpreadsheets.addRow(cursor, PreferencesDBAdapter.TABLE_PREFERENCES);
-                new PreferencesDBAdapter(mContext).removeEntry(id);
+                googleSpreadsheets.addRow(cursor, PreferencesTable.TABLE);
+                new PreferencesTable(mContext).removeEntry(id);
             }
             cursor.close();
         }

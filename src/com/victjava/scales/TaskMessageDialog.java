@@ -15,13 +15,13 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.Window;
 import android.widget.*;
-import com.victjava.scales.provider.TaskDBAdapter;
+import com.victjava.scales.provider.TaskTable;
 
 /*
  * Created by Kostya on 09.01.2015.
  */
 public class TaskMessageDialog {
-    final TaskDBAdapter taskTable;
+    final TaskTable taskTable;
     protected final Context mContext;
     protected final int mContactId;
     protected final int mCheckId;
@@ -36,7 +36,7 @@ public class TaskMessageDialog {
         dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
         dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
         contentResolver = mContext.getContentResolver();
-        taskTable = new TaskDBAdapter(context);
+        taskTable = new TaskTable(context);
     }
 
     //@TargetApi(Build.VERSION_CODES.HONEYCOMB)

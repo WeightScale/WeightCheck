@@ -11,8 +11,8 @@ import android.os.Message;
 import android.provider.BaseColumns;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.TaskStackBuilder;
-import com.victjava.scales.provider.ErrorDBAdapter;
-import com.victjava.scales.provider.TaskDBAdapter;
+import com.victjava.scales.provider.ErrorTable;
+import com.victjava.scales.provider.TaskTable;
 import com.victjava.scales.*;
 import com.victjava.scales.TaskCommand.*;
 
@@ -70,7 +70,7 @@ public class ServiceProcessTask extends Service {
 
         msgHandler.sendMessage(msgHandler.obtainMessage(0, TaskType.values().length, 0));
         for (TaskType type : TaskType.values()) {
-            Cursor cursor = new TaskDBAdapter(getApplicationContext()).getTypeEntry(type);
+            Cursor cursor = new TaskTable(getApplicationContext()).getTypeEntry(type);
             ContentQueryMap mQueryMap = new ContentQueryMap(cursor, BaseColumns._ID, true, null);
             Map<String, ContentValues> map = mQueryMap.getRows();
             cursor.close();
@@ -88,10 +88,10 @@ public class ServiceProcessTask extends Service {
         public void handleRemoveEntry(int what, int arg1) {
             switch (what) {
                 case TaskCommand.HANDLER_NOTIFY_CHECK_UNSEND:
-                    new TaskDBAdapter(getApplicationContext()).removeEntryIfErrorOver(arg1);
+                    new TaskTable(getApplicationContext()).removeEntryIfErrorOver(arg1);
                     break;
                 default:
-                    new TaskDBAdapter(getApplicationContext()).removeEntry(arg1);
+                    new TaskTable(getApplicationContext()).removeEntry(arg1);
             }
         }
 
@@ -106,7 +106,7 @@ public class ServiceProcessTask extends Service {
 
         @Override
         public void handleError(int what, String msg) {
-            new ErrorDBAdapter(getApplicationContext()).insertNewEntry(String.valueOf(what), msg);
+            new ErrorTable(getApplicationContext()).insertNewEntry(String.valueOf(what), msg);
         }
 
         int numThread;
