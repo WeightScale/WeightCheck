@@ -8,6 +8,7 @@ import android.content.Intent;
 import android.database.Cursor;
 import com.konst.module.InterfaceVersions;
 import com.konst.module.ScaleModule;
+import com.konst.sms_commander.SmsCommander;
 import com.victjava.scales.provider.CommandTable;
 import com.victjava.scales.provider.ErrorTable;
 import com.victjava.scales.provider.SenderTable;
@@ -23,6 +24,7 @@ import java.util.*;
 public class SmsCommand {
     final Context mContext;
     List<BasicNameValuePair> results;
+    List<SmsCommander.Command> commandList;
     SenderTable senderTable;
 
     /** получить ошибки параметр количество */
@@ -59,6 +61,7 @@ public class SmsCommand {
 
     private final Map<String, InterfaceSmsCommand> cmdMap = new LinkedHashMap<>();
 
+
     {
         cmdMap.put(SMS_CMD_GETERR, new CmdGetError());      //получить ошибки параметр количество
         cmdMap.put(SMS_CMD_DELERR, new CmdDeleteError());   //удалить ошибки параметр количество
@@ -79,37 +82,15 @@ public class SmsCommand {
         BasicNameValuePair execute(String value) throws Exception;
     }
 
-    SmsCommand(Context context) {
+    public SmsCommand(Context context, List<SmsCommander.Command> commandList) {
         mContext = context;
+        this.commandList = commandList;
         senderTable = new SenderTable(context);
-    }
-
-    public SmsCommand(Context context, String msg) throws Exception {
-        mContext = context;
-        results = parsingSmsCommand(msg);
-        senderTable = new SenderTable(context);
-    }
-
-    private List<BasicNameValuePair> parsingSmsCommand(String message) throws Exception {
-        if (message.isEmpty()) {
-            throw new Exception("message is empty");
-        }
-        String[] commands = message.split(" ");
-        List<BasicNameValuePair> results = new ArrayList<>();
-        for (String s : commands) {
-            String[] array = s.split("=");
-            if (array.length == 2) {
-                results.add(new BasicNameValuePair(array[0], array[1]));
-            } else if (array.length == 1) {
-                results.add(new BasicNameValuePair(array[0], ""));
-            }
-        }
-        return results;
     }
 
     public StringBuilder commandsExt() {
         StringBuilder textSent = new StringBuilder();
-        for (NameValuePair result : results) {
+        for (SmsCommander.Command result : commandList) {
             try {
                 textSent.append(cmdMap.get(result.getName()).execute(result.getValue()));
             } catch (Exception e) {
@@ -412,13 +393,11 @@ public class SmsCommand {
         }
     }
 
-    /*
-    * Установка параметров для сендера SenderDBAdapter
-    *   0-1,1-1,2-1,3-1 формат параметры через запятую
-    *
-    *   с лева TYPE_SENDER(TYPE_GOOGLE_DISK TYPE_HTTP_POST TYPE_SMS TYPE_EMAIL) с права KEY_SYS(0 или 1)
-    *
-    */
+    /**
+     * Установка параметров для сендера SenderDBAdapter
+     * Формат параметра [ [[значение 1]-[параметр 2]]_[[значение 2]-[параметр 2]]_[[значение n]-[параметр n]]
+     * Значение TYPE_SENDER - TYPE_GOOGLE_DISK, TYPE_HTTP_POST, TYPE_SMS TYPE_EMAIL.
+     * Параметр KEY_SYS - 0 или 1. */
     private class CmdSenderCheck implements InterfaceSmsCommand {
 
         @Override
@@ -443,7 +422,7 @@ public class SmsCommand {
                 }
             }
 
-            String[] pairs = value.split(",");
+            String[] pairs = value.split("_");
             for (String pair : pairs) {
                 try {
                     String[] val = pair.split("-");

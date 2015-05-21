@@ -6,12 +6,12 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
 import android.os.IBinder;
-import android.telephony.SmsMessage;
+import com.konst.sms_commander.OnSmsCommandListener;
+import com.konst.sms_commander.SMS;
+import com.konst.sms_commander.SmsCommander;
 import com.victjava.scales.BootReceiver;
-import com.victjava.scales.SMS;
 import com.victjava.scales.SmsCommand;
 
-import java.text.SimpleDateFormat;
 import java.util.*;
 
 /*
@@ -38,9 +38,14 @@ public class ServiceSmsCommand extends Service {
         registerReceiver(incomingSMSReceiver, intentFilter);
 
         /*String msg = "0503285426 coffa=0.25687 coffb gogusr=kreogen.lg@gmail.com gogpsw=htcehc25";
-        String str = encodeMessage(msg);
-        decodeMessage(str);
-        byte[] pdu = fromHexString("079183503082456201000C9183503082456200004A33DCCC56DBE16EB5DCC82C4FA7C98059AC86CBED7423B33C9D2E8FD47235DE5E07B8EB68B91A1D8FBDD543359CCC7EC7CC72F8482D57CFED7AC0FA6E46AFCD351C");
+        String str = null;
+        try {
+            str = SMS.encrypt(codeword, msg);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        //decodeMessage(str);
+        byte[] pdu = fromHexString("07914400000000F001000B811000000000F000006D51E7FCC8CC96EDED2C19199D078D6A375D1BAEE3CCF397F2CE44CAD736E1BA6D9EC770D8A0B4166697ADECE079655EAAF341EC1D7E54B76FF86C1EC93CB6CDF4B2F9AE383ADF6EB83A2C5FE1CA3228121B7CE663D6B052796EAE84526515D603");
 
         Intent intent = new Intent(ServiceSmsCommand.IncomingSMSReceiver.SMS_RECEIVED_ACTION);
         intent.putExtra("pdus", new Object[]{pdu});
@@ -48,6 +53,17 @@ public class ServiceSmsCommand extends Service {
 
         //processingSmsThread = new ProcessingSmsThread(this);
     }
+
+    /*public static byte[] fromHexString(String s) {
+        int len = s.length();
+        byte[] data = new byte[len/2];
+
+        for(int i = 0; i < len; i+=2){
+            data[i/2] = (byte) ((Character.digit(s.charAt(i), 16) << 4) + Character.digit(s.charAt(i+1), 16));
+        }
+
+        return data;
+    }*/
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
@@ -82,19 +98,8 @@ public class ServiceSmsCommand extends Service {
                     Bundle bundle = intent.getExtras();
                     if (bundle != null) {
                         Object[] pdus = (Object[]) intent.getExtras().get("pdus");
-                        SmsMessage[] messages = new SmsMessage[pdus.length];
-                        StringBuilder bodyText = new StringBuilder();
-                        String address = "";
-                        int length = pdus.length;
-                        for (int i = 0; i < length; i++) {
-                            messages[i] = SmsMessage.createFromPdu((byte[]) pdus[i]);
-                            address = messages[i].getDisplayOriginatingAddress();
-                            bodyText.append(messages[i].getMessageBody());
-                        }
                         try {
-                            String textSent = SMS.decrypt(codeword, bodyText.toString());
-                            String date = new SimpleDateFormat("dd.MM.yyyy HH:mm:ss").format(new Date());
-                            new Thread(new ParsingSmsCommand(address, textSent, date)).start();
+                            new SmsCommander(codeword, pdus, onSmsCommandListener);
                             abortBroadcast();
                         } catch (Exception e) {
                             e.printStackTrace();
@@ -104,6 +109,23 @@ public class ServiceSmsCommand extends Service {
             }
         }
     }
+
+    OnSmsCommandListener onSmsCommandListener = new OnSmsCommandListener() {
+        StringBuilder textSent = new StringBuilder();
+        @Override
+        public void onEvent(String address, List<SmsCommander.Command> list) {
+            try {
+                SmsCommand command = new SmsCommand(getApplicationContext(), list);
+                textSent = command.commandsExt();
+            } catch (Exception e) {
+                textSent.append(e.getMessage());
+            }
+
+            try {
+                SMS.sendSMS(address, textSent.toString());
+            } catch (Exception e) {}
+        }
+    };
 
     //==================================================================================================================
     public class ProcessingSmsThread extends Thread {
@@ -136,20 +158,31 @@ public class ServiceSmsCommand extends Service {
         @Override
         public void run() {
 
-            for (SMS.SmsObject object : smsInboxList) {
+            for (final SMS.SmsObject object : smsInboxList) {
                 try {
-                    StringBuilder textSent = new StringBuilder(SMS.decrypt(codeword, object.getMsg()));
-                    extractSmsCommand(object.getAddress(), textSent);
-                    sms.delete(Integer.valueOf(object.getId()));
+                    new SmsCommander(codeword, object.getAddress(), object.getMsg(), new OnSmsCommandListener() {
+                        StringBuilder textSent = new StringBuilder();
+                        @Override
+                        public void onEvent(String address, List<SmsCommander.Command> list) {
+                            try {
+                                SmsCommand command = new SmsCommand(getApplicationContext(), list);
+                                textSent = command.commandsExt();
+                            } catch (Exception e) {
+                                textSent.append(e.getMessage());
+                            }
+
+                            try { SMS.sendSMS(address, textSent.toString()); } catch (Exception e) {}
+                        }
+                    });
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
+
             }
             start = false;
         }
     }
-
-    public class ParsingSmsCommand implements Runnable {
+    /*public class ParsingSmsCommand implements Runnable {
         final String mAddress;
         final StringBuilder mText;
         final String date;
@@ -165,14 +198,20 @@ public class ServiceSmsCommand extends Service {
             extractSmsCommand(mAddress, mText);
         }
 
-    }
+    }*/
 
-    void extractSmsCommand(String address, StringBuilder msg) {
+    /** Фармат пакета комманд.
+     * Формат пакета [ [address] space [ [комманда 1] space [комманда 2] space [комманда n] ] ]
+     * Формат комманды [ [имя комманды]=[параметр] ]
+     * Формат параметра [ [[значение 1]-[параметр 2]]_[[значение 2]-[параметр 2]]_[[значение n]-[параметр n]] ]
+     * @param address Отправитель.
+     * @param _package Пакет комманд.  */
+    /*void extractSmsCommand(String address, StringBuilder _package) {
 
         if (address == null)
             return;
-        if (msg.indexOf(" ") != -1) {
-            String body_address = msg.substring(0, msg.indexOf(" "));
+        if (_package.indexOf(" ") != -1) {
+            String body_address = _package.substring(0, _package.indexOf(" "));
             if (!body_address.isEmpty()) {
                 if (body_address.length() > address.length()) {
                     body_address = body_address.substring(body_address.length() - address.length(), body_address.length());
@@ -180,10 +219,10 @@ public class ServiceSmsCommand extends Service {
                     address = address.substring(address.length() - body_address.length(), address.length());
                 }
                 if (body_address.equals(address)) {
-                    msg.delete(0, msg.indexOf(" ") + 1);
+                    _package.delete(0, _package.indexOf(" ") + 1);
                     StringBuilder textSent = new StringBuilder();
                     try {
-                        SmsCommand command = new SmsCommand(getApplicationContext(), msg.toString());
+                        SmsCommand command = new SmsCommand(getApplicationContext(), _package.toString());
                         textSent = command.commandsExt();
                     } catch (Exception e) {
                         textSent.append(e.getMessage());
@@ -196,6 +235,6 @@ public class ServiceSmsCommand extends Service {
                 }
             }
         }
-    }
+    }*/
 
 }

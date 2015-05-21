@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.os.*;
 import com.konst.module.ScaleModule;
+import com.konst.sms_commander.SMS;
 import com.victjava.scales.provider.CheckTable;
 import com.victjava.scales.provider.PreferencesTable;
 import com.victjava.scales.provider.SenderTable;

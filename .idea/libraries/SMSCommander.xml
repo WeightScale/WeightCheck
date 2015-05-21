@@ -1,0 +1,9 @@
+<component name="libraryTable">
+  <library name="SMSCommander">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/../../SMSCommander/out/artifacts/SMSCommander_jar/SMSCommander.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>
