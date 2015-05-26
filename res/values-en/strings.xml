@@ -18,7 +18,7 @@
     <string name="input_check">Check incoming</string>
     <!--<string name="output_check">Check outcoming</string>-->
     <string name="connect">Connect</string>
-    <string name="NO_CONNECT">" NO CONNECT"</string>
+    <string name="NO_CONNECT">" no connect"</string>
     <string name="OVER_LOAD">OVER LOAD!!!</string>
 
     <string name="telephony_sim_no">The SIM card is not installed or is not ready</string>
@@ -112,7 +112,7 @@
     <!--<string name="sum_auto_capture">Авто захват</string>-->
     <string name="sum_delete_check">Remove checks through:</string>
     <string name="day">days</string>
-    <string name="version">Версия:</string>
+    <string name="version">Version:</string>
 
     <!--<string name="file_load">file to download</string>-->
     <string name="start_load">Start download</string>
@@ -124,23 +124,23 @@
     <string name="Date">Date:</string>
     <string name="EXIT">EXIT</string>
     <string name="SEARCH">SEARCH</string>
-    <string name="WEIGHT_CHECK_N">ВЕСОВОЙ ЧЕК №</string>
-    <string name="New">Новый</string>
-    <string name="All">Все</string>
+    <string name="WEIGHT_CHECK_N">WEIGHT CHECK №</string>
+    <string name="New">New</string>
+    <string name="All">All</string>
     <string name="Close">Закрыть</string>
-    <string name="Goods">Товар:</string>
-    <string name="Price">Цена:</string>
-    <string name="Come_back">Вернутся назад</string>
-    <string name="Send_messages">Послать сообщения</string>
-    <string name="Photo">Фото</string>
-    <string name="New_goods">Новый товар</string>
-    <string name="Closed_search">Закрыть окно поиска</string>
-    <string name="Menu_settings">Меню настроек</string>
-    <string name="Open_search">Открыть поиск</string>
-    <string name="Search_scale">Поиск весов</string>
-    <string name="Add_contact">Добавить новый контакт</string>
-    <string name="Mail">Отправить чек на почту</string>
-    <string name="SMS">Отослать чек на СМС</string>
+    <string name="Goods">Goods:</string>
+    <string name="Price">Price:</string>
+    <string name="Come_back">Come back</string>
+    <string name="Send_messages">Send message</string>
+    <string name="Photo">Photo</string>
+    <string name="New_goods">New goods</string>
+    <string name="Closed_search">Closed window search</string>
+    <string name="Menu_settings">Settings menu</string>
+    <string name="Open_search">Open search</string>
+    <string name="Search_scale">Scale search</string>
+    <string name="Add_contact">Add new contact</string>
+    <string name="Mail">Send a check for mail</string>
+    <string name="SMS">Send a check for SMS</string>
     <string name="terminal">Terminal:</string>
     <string name="Scale">Scale:</string>
     <string name="Version_scale">Firmware Version weights: v.</string>
@@ -181,7 +181,7 @@
     <string name="Connecting">"Connecting "</string>
     <string name="OK">OK</string>
     <!--<string name="search">" search…"</string>-->
-    <string name="error_connect">" connection error"</string>
+    <string name="Error_connect">"Connection error"</string>
     <string name="not_scale">" it does not scale"</string>
     <string name="Type">Type</string>
     <string name="Enter_type">Enter the type</string>
@@ -236,5 +236,7 @@
     <!--<string name="Mail_sent">Mail sent</string>-->
     <string name="Message_sent">Message sent</string>
     <string name="Phone_for_sms">Phone for sms</string>
+    <string name="incoming">incoming</string>
+    <string name="outgo">outgo</string>
 
 </resources>

@@ -497,29 +497,6 @@ public class ActivityScales extends Activity implements View.OnClickListener, Vi
                             listView.setEnabled(true);
                             handlerBatteryTemperature.process(true);
                             break;
-                        /*case STATUS_SETTINGS_UNCORRECTED:
-                            dialog = new AlertDialog.Builder(ActivityScales.this);
-                            dialog.setTitle("Ошибка в настройках");
-                            dialog.setCancelable(false);
-                            dialog.setNegativeButton(getString(R.string.Close), new DialogInterface.OnClickListener() {
-                                @Override
-                                public void onClick(DialogInterface dialogInterface, int i) {
-                                    dialogInterface.dismiss();
-                                    onBackPressed();
-                                }
-                            });
-                            dialog.setMessage("Запросите настройки у администратора. Настройки должен выполнять опытный пользователь");
-                            Toast.makeText(getBaseContext(), R.string.preferences_error, Toast.LENGTH_SHORT).show();
-                            setTitle(getString(R.string.app_name) + ": админ настройки неправельные");
-                            dialog.setPositiveButton(getString(R.string.OK), new DialogInterface.OnClickListener() {
-                                @Override
-                                public void onClick(DialogInterface dialogInterface, int i) {
-                                    startActivity(new Intent(ActivityScales.this, ActivityTuning.class));
-                                    dialogInterface.dismiss();
-                                }
-                            });
-                            dialog.show();
-                            break;*/
                         case STATUS_SCALE_UNKNOWN:
 
                             break;
@@ -584,7 +561,7 @@ public class ActivityScales extends Activity implements View.OnClickListener, Vi
                                     onBackPressed();
                                 }
                             });
-                            dialog.setMessage("Запросите настройки у администратора. Настройки должен выполнять опытный пользователь. Ошибка("+s+")");
+                            dialog.setMessage("Запросите настройки у администратора. Настройки должен выполнять опытный пользователь. Ошибка("+s+ ')');
                             Toast.makeText(getBaseContext(), R.string.preferences_error, Toast.LENGTH_SHORT).show();
                             setTitle(getString(R.string.app_name) + ": админ настройки неправельные");
                             dialog.setPositiveButton(getString(R.string.OK), new DialogInterface.OnClickListener() {

@@ -2,16 +2,13 @@ package com.victjava.scales;
 
 
 import android.app.ProgressDialog;
-import android.content.ContentQueryMap;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
-import android.database.Cursor;
 import android.graphics.Color;
 import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
 import android.os.*;
-import android.provider.BaseColumns;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
@@ -25,7 +22,6 @@ import com.victjava.scales.provider.CheckTable;
 
 
 import java.util.ArrayList;
-import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 public class ActivityCheck extends FragmentActivity implements View.OnClickListener/*, View.OnLongClickListener, InputFragment.onSomeEventListener*/ {
@@ -245,8 +241,8 @@ public class ActivityCheck extends FragmentActivity implements View.OnClickListe
         mTabHost.setup();
         ViewPager mViewPager = (ViewPager) findViewById(R.id.pager);
         mTabsAdapter = new TabsAdapter(this, mTabHost, mViewPager);
-        mTabsAdapter.addTab(mTabHost.newTabSpec("input").setIndicator(createTabView(this, "приход")), InputFragment.class);
-        mTabsAdapter.addTab(mTabHost.newTabSpec("output").setIndicator(createTabView(this, "расход")), OutputFragment.class);
+        mTabsAdapter.addTab(mTabHost.newTabSpec("input").setIndicator(createTabView(this, getString(R.string.incoming))), InputFragment.class);
+        mTabsAdapter.addTab(mTabHost.newTabSpec("output").setIndicator(createTabView(this, getString(R.string.outgo))), OutputFragment.class);
         switch (values.getAsInteger(CheckTable.KEY_DIRECT)) {
             case CheckTable.DIRECT_DOWN:
                 mTabHost.setCurrentTab(0);
@@ -630,6 +626,7 @@ public class ActivityCheck extends FragmentActivity implements View.OnClickListe
                             weightTextView.updateProgress(getString(R.string.NO_CONNECT), Color.BLACK, getResources().getDimension(R.dimen.text_large_xx));
                             progressBarWeight.setProgress(0);
                             break;
+                        default:
                     }
 
                 }

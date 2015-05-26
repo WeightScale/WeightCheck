@@ -263,7 +263,7 @@ public class ActivityContact extends ListActivity implements View.OnClickListene
         }
     }
 
-    private class FilterCursorWrapper extends CursorWrapper {
+    private static class FilterCursorWrapper extends CursorWrapper {
 
         private final String filter;
         private final int column;

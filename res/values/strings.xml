@@ -19,7 +19,7 @@
     <string name="input_check">Чек приход</string>
     <!--<string name="output_check">Чек расход</string>-->
     <string name="connect">Соединение</string>
-    <string name="NO_CONNECT">" НЕТ СОЕДИНЕНИЯ"</string>
+    <string name="NO_CONNECT">" нет соединения"</string>
     <string name="OVER_LOAD">ПЕРЕГРУЗ!!!</string>
 
     <string name="telephony_sim_no">SIM карта не установлена или не готова</string>
@@ -182,7 +182,7 @@
     <string name="Connecting">"Соединяемся "</string>
     <string name="OK">OK</string>
     <!--<string name="search">" поиск…"</string>-->
-    <string name="error_connect">" ошибка соединения"</string>
+    <string name="Error_connect">"Ошибка соединения"</string>
     <string name="not_scale">" это не весы"</string>
     <string name="Type">Тип</string>
     <string name="Enter_type">Введите Тип</string>
@@ -238,4 +238,6 @@
     <!--<string name="Mail_sent">Письмо отправлено</string>-->
     <string name="Message_sent">Сообщение отправлено</string>
     <string name="Phone_for_sms">Телефон для СМС</string>
+    <string name="incoming">приход</string>
+    <string name="outgo">расход</string>
 </resources>

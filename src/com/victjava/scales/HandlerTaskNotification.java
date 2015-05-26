@@ -2,7 +2,6 @@ package com.victjava.scales;
 
 
 import android.os.Handler;
-import android.support.v4.app.NotificationCompat;
 
 /*
  * Created by Kostya on 04.05.2015.

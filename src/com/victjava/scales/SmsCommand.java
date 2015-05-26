@@ -12,7 +12,6 @@ import com.konst.sms_commander.SmsCommander;
 import com.victjava.scales.provider.CommandTable;
 import com.victjava.scales.provider.ErrorTable;
 import com.victjava.scales.provider.SenderTable;
-import org.apache.http.NameValuePair;
 import org.apache.http.message.BasicNameValuePair;
 
 import java.text.SimpleDateFormat;
@@ -23,7 +22,7 @@ import java.util.*;
  */
 public class SmsCommand {
     final Context mContext;
-    List<BasicNameValuePair> results;
+    //List<BasicNameValuePair> results;
     List<SmsCommander.Command> commandList;
     SenderTable senderTable;
 
@@ -65,7 +64,7 @@ public class SmsCommand {
     {
         cmdMap.put(SMS_CMD_GETERR, new CmdGetError());      //получить ошибки параметр количество
         cmdMap.put(SMS_CMD_DELERR, new CmdDeleteError());   //удалить ошибки параметр количество
-        cmdMap.put(SMS_CMD_CHGDSC, new CmdChangeService()); //изменить сервис передачи параметр form-(ипользуется сервис ServiceGetDateServer) sheet-(ипользуется сервис ServiceSendDateServer)
+        //cmdMap.put(SMS_CMD_CHGDSC, new CmdChangeService()); //изменить сервис передачи параметр form-(ипользуется сервис ServiceGetDateServer) sheet-(ипользуется сервис ServiceSendDateServer)
         cmdMap.put(SMS_CMD_NUMSMS, new CmdNumSmsAdmin());
         cmdMap.put(SMS_CMD_WGHMAX, new CmdWeightMax());     //максимальный вес
         cmdMap.put(SMS_CMD_COFFA, new CmdCoefficientA());   //коэфициент вес
@@ -101,9 +100,9 @@ public class SmsCommand {
         return textSent;
     }
 
-    public List<BasicNameValuePair> getResults() {
+    /*public List<BasicNameValuePair> getResults() {
         return results;
-    }
+    }*/
 
     private void cmdProrogue(String cmd, String value, String mime) {
         String date = new SimpleDateFormat("dd.MM.yyyy HH:mm:ss").format(new Date());
@@ -148,7 +147,7 @@ public class SmsCommand {
     /**  Сервис для передачи данных
     *   парамметр form_date (ипользуется сервис ServiceGetDateServer)
     *   sheet_date (ипользуется сервис ServiceSendDateServer) */
-    private class CmdChangeService implements InterfaceSmsCommand {
+    /*private class CmdChangeService implements InterfaceSmsCommand {
 
 
         private final Map<String, Service> serviceMap = new LinkedHashMap<>();
@@ -189,11 +188,11 @@ public class SmsCommand {
             return false;
         }
 
-    }
+    }*/
 
     /**  Номер телефона для отправки смс отчетов взвешеного веса
     *   номер в международном формате +380xx xxxxxxx */
-    private class CmdNumSmsAdmin implements InterfaceSmsCommand {//номер телефона межд. формат для отправки чеков для босса
+    private static class CmdNumSmsAdmin implements InterfaceSmsCommand {//номер телефона межд. формат для отправки чеков для босса
 
         @Override
         public BasicNameValuePair execute(String value) throws Exception {
@@ -206,7 +205,7 @@ public class SmsCommand {
     }
 
     /**  Максимальный вес который взвешивают весы*/
-    private class CmdWeightMax implements InterfaceSmsCommand {
+    private static class CmdWeightMax implements InterfaceSmsCommand {
         @Override
         public BasicNameValuePair execute(String value) throws Exception {
             if (value.isEmpty()) {
@@ -221,7 +220,7 @@ public class SmsCommand {
     *   определенный во время каллибровки весов
     *   (ноль вес - конт. вес) / (ацп ноль веса - ацп кон. веса)
     *   получить или записать */
-    private class CmdCoefficientA implements InterfaceSmsCommand {//номер телефона межд. формат для отправки чеков для босса
+    private static class CmdCoefficientA implements InterfaceSmsCommand {//номер телефона межд. формат для отправки чеков для босса
 
         @Override
         public BasicNameValuePair execute(String value) throws Exception {
@@ -235,7 +234,7 @@ public class SmsCommand {
 
     /**  Коэффициент оффсет старая команда
     *   ноль вес - Scales.coefficientA * ацп ноль веса */
-    private class CmdCoefficientB implements InterfaceSmsCommand {
+    private static class CmdCoefficientB implements InterfaceSmsCommand {
         @Override
         public BasicNameValuePair execute(String value) throws Exception {
             if (value.isEmpty()) {

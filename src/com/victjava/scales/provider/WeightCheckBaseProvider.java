@@ -389,12 +389,12 @@ public class WeightCheckBaseProvider extends ContentProvider {
             db.execSQL(SenderTable.TABLE_CREATE);
 
             //Add default record to my table
-            new TypeTable(getContext()).addSystemRow(db);
+            //new TypeTable(getContext()).addSystemRow(db);
             /*-----------------------------------------------*/
-            senderTable.addSystemSheet(db);
-            senderTable.addSystemHTTP(db);
-            senderTable.addSystemMail(db);
-            senderTable.addSystemSms(db);
+            //senderTable.addSystemSheet(db);
+            //senderTable.addSystemHTTP(db);
+            //senderTable.addSystemMail(db);
+            //senderTable.addSystemSms(db);
         }
 
         @Override
