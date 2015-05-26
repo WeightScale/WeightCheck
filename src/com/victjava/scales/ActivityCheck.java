@@ -30,6 +30,9 @@ public class ActivityCheck extends FragmentActivity implements View.OnClickListe
         void someEvent();
     }
 
+    /**
+     * Обработка обнуления весов.
+     */
     private class ZeroThread extends Thread {
         private final ProgressDialog dialog;
 
@@ -55,13 +58,23 @@ public class ActivityCheck extends FragmentActivity implements View.OnClickListe
         }
     }
 
+    /**
+     * Обработка авто сохранения веса.
+     */
     private class AutoWeightThread extends Thread {
         private boolean start;
         private boolean cancelled;
 
+        /** Остановка взвешивания */
         final int ACTION_STOP_WEIGHTING = 1;
+
+        /** Пуск взвешивания */
         final int ACTION_START_WEIGHTING = 2;
+
+        /** Сохранить результат взвешивания */
         final int ACTION_STORE_WEIGHTING = 3;
+
+        /** Обновить данные веса. */
         final int ACTION_UPDATE_PROGRESS = 4;
 
         @Override
@@ -123,7 +136,13 @@ public class ActivityCheck extends FragmentActivity implements View.OnClickListe
             start = false;
         }
 
+        /**
+         * Обработчик сообщений.
+         */
         final Handler handler = new Handler() {
+            /** Сообщение от обработчика авто сохранения.
+             * @param msg Данные сообщения.
+             */
             @Override
             public void handleMessage(Message msg) {
 
@@ -161,7 +180,7 @@ public class ActivityCheck extends FragmentActivity implements View.OnClickListe
     }
 
     private final AutoWeightThread autoWeightThread = new AutoWeightThread();
-    CheckTable checkTable;
+    private CheckTable checkTable;
     private Vibrator vibrator; //вибратор
     private ProgressBar progressBarWeight;
     private WeightTextView weightTextView;
@@ -179,7 +198,8 @@ public class ActivityCheck extends FragmentActivity implements View.OnClickListe
 
     public WeightType weightType;
 
-    public static final int COUNT_STABLE = 64;                                                                          //колличество раз стабильно был вес
+    /** Количество стабильных показаний веса для авто сохранения  */
+    public static final int COUNT_STABLE = 64;
 
     ContentValues values = new ContentValues();
     public int entryID;
@@ -315,6 +335,10 @@ public class ActivityCheck extends FragmentActivity implements View.OnClickListe
         return view;
     }
 
+    /** Захват веса для авто сохранения веса.
+     * Задержка захвата от ложных срабатываний. Устанавливается значения в настройках.
+     * @return true - Условия захвата истины.
+     */
     public boolean isCapture() {
         boolean capture = false;
         while (getWeightToStepMeasuring(moduleWeight) > Main.autoCapture) {
@@ -343,10 +367,18 @@ public class ActivityCheck extends FragmentActivity implements View.OnClickListe
         return false;
     }
 
+    /** Преобразовать вес в шкалу шага веса.
+     * Шаг измерения установливается в настройках.
+     * @param weight Вес для преобразования.
+     * @return Преобразованый вес.
+     */
     private int getWeightToStepMeasuring(int weight) {
         return weight / Main.stepMeasuring * Main.stepMeasuring;
     }
 
+    /**
+     * Устоновка индикатора веса.
+     */
     private void setupWeightView() {
 
         weightTextView = new WeightTextView(this);
@@ -443,12 +475,19 @@ public class ActivityCheck extends FragmentActivity implements View.OnClickListe
         return flag;
     }
 
+    /** Расчет веса нетто.
+     * @return Вес нетто.
+     */
     public int sumNetto() {
         int netto = values.getAsInteger(CheckTable.KEY_WEIGHT_FIRST) - values.getAsInteger(CheckTable.KEY_WEIGHT_SECOND);
         values.put(CheckTable.KEY_WEIGHT_NETTO, netto);
         return netto;
     }
 
+    /** Засчет стоимости
+     * @param netto Вес нетто.
+     * @return Сумма.
+     */
     public float sumTotal(int netto) {
         return (float) netto * values.getAsInteger(CheckTable.KEY_PRICE) / 1000;
     }
@@ -589,7 +628,16 @@ public class ActivityCheck extends FragmentActivity implements View.OnClickListe
 
     }
 
+    /** Обработчик показаний веса
+     * Возвращяем время обновления показаний веса в милисекундах.
+     */
     HandlerWeight handlerWeight = new HandlerWeight() {
+        /** Сообщение показаний веса.
+         * @param what Результат статуса сообщения энумератор ResultWeight.
+         * @param weight Данные веса в килограмах.
+         * @param sensor Данные показания сенсорного датчика.
+         * @return Время обновления показаний в милисекундах.
+         */
         @Override
         public int handlerWeight(final ScaleModule.ResultWeight what, final int weight, final int sensor) {
             runOnUiThread(new Runnable() {

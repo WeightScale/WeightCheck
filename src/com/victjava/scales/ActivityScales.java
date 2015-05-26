@@ -30,7 +30,7 @@ import java.util.*;
 public class ActivityScales extends Activity implements View.OnClickListener, View.OnLongClickListener {
 
     private SimpleCursorAdapter namesAdapter;
-    CheckTable checkTable;
+    private CheckTable checkTable;
     private BroadcastReceiver broadcastReceiver; //приёмник намерений
     private BluetoothAdapter bluetooth; //блютуз адаптер
     private Vibrator vibrator; //вибратор
@@ -424,7 +424,6 @@ public class ActivityScales extends Activity implements View.OnClickListener, Vi
         scaleModule.dettach();
         startActivityForResult(new Intent(getBaseContext(), ActivitySearch.class), REQUEST_SEARCH_SCALE);
     }
-
 
     /** Устанавливаем старые чеки в состояние готовые для отправки.
      *  Условие проверки по дате создания и даты хранения не готовых чеков.
