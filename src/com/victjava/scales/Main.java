@@ -15,10 +15,12 @@ import com.victjava.scales.service.ServiceSmsCommand;
  * To change this template use File | Settings | File Templates.
  */
 public class Main extends Application {
-    static Service cloud;
+    /** Настройки для весов */
     public static Preferences preferencesScale;
+    /** Настройки для обновления весов */
     public static Preferences preferencesUpdate;
 
+    /** Версия пограммы весового модуля */
     public static final int microSoftware = 4;
     protected static String networkOperatorName;
     protected static String simNumber;
@@ -27,25 +29,55 @@ public class Main extends Application {
     protected static int versionNumber;
     public static String versionName = "";
 
-    public static int stepMeasuring;                                // шаг измерения (округление)
-    public static int autoCapture;                                  //шаг захвата (округление)
-    public static int timeDelayDetectCapture;                       //Время задержки для авто захвата после которого начинается захват в секундах
+    /** шаг измерения (округление) */
+    public static int stepMeasuring;
+
+    /** шаг захвата (округление) */
+    public static int autoCapture;
+
+    /** Время задержки для авто захвата после которого начинается захват в секундах  */
+    public static int timeDelayDetectCapture;
     public static int day_closed;
     public static int day_delete;
 
-    public static final int default_max_weight = 1000; //вес максимальный по умолчанию килограммы
-    public static final int default_max_battery = 100;  //максимальный заряд батареи проценты
-    public static final int default_max_time_off = 60;   //максимальное время бездействия весов в минутах
-    protected static final int default_min_time_off = 10;   //минимальное время бездействия весов в минутах
-    protected static final int default_max_time_auto_null = 120;  //максимальное время срабатывания авто ноль секундах
-    protected static final int default_limit_auto_null = 50;   //предел ошибки при котором срабатывает авто ноль килограммы
-    protected static final int default_max_step_scale = 20;   //максимальный шаг измерения весов килограммы
-    protected static final int default_max_auto_capture = 100;  //максимальный значение авто захвата веса килограммы
-    protected static final int default_delta_auto_capture = 10;   //дельта значение авто захвата веса килограммы
-    protected static final int default_min_auto_capture = 20;   //минимальное значение авто захвата веса килограммы
-    protected static final int default_day_close_check = 10;   //максимальное количество дней для закрытия не закрытых чеков дней
-    protected static final int default_day_delete_check = 10;   //максимальное количество дней для удвления чеков дней
-    public static final int default_adc_filter = 15;   //максимальное значение фильтра ацп
+    /**вес максимальный по умолчанию килограммы*/
+    public static final int default_max_weight = 1000;
+
+    /**максимальный заряд батареи проценты */
+    public static final int default_max_battery = 100;
+
+    /**максимальное время бездействия весов в минутах*/
+    public static final int default_max_time_off = 60;
+
+    /**минимальное время бездействия весов в минутах*/
+    protected static final int default_min_time_off = 10;
+
+    /**максимальное время срабатывания авто ноль секундах*/
+    protected static final int default_max_time_auto_null = 120;
+
+    /**предел ошибки при котором срабатывает авто ноль килограммы*/
+    protected static final int default_limit_auto_null = 50;
+
+    /**максимальный шаг измерения весов килограммы*/
+    protected static final int default_max_step_scale = 20;
+
+    /**максимальный значение авто захвата веса килограммы*/
+    protected static final int default_max_auto_capture = 100;
+
+    /**дельта значение авто захвата веса килограммы*/
+    protected static final int default_delta_auto_capture = 10;
+
+    /**минимальное значение авто захвата веса килограммы*/
+    protected static final int default_min_auto_capture = 20;
+
+    /**максимальное количество дней для закрытия не закрытых чеков дней*/
+    protected static final int default_day_close_check = 10;
+
+    /**максимальное количество дней для удвления чеков дней*/
+    protected static final int default_day_delete_check = 10;
+
+    /**максимальное значение фильтра ацп*/
+    public static final int default_adc_filter = 15;
 
     @Override
     public void onCreate() {
@@ -62,7 +94,8 @@ public class Main extends Application {
         ScaleModule.setWeightError(Preferences.read(ActivityPreferences.KEY_MAX_NULL, default_limit_auto_null));
         timeDelayDetectCapture = Preferences.read(ActivityPreferences.KEY_TIME_DELAY_DETECT_CAPTURE, 1);
 
-        getApplicationContext().startService(new Intent(getApplicationContext(), ServiceSmsCommand.class));// Запускаем сервис для приемеа смс команд
+        /** Запускаем сервис для приемеа смс команд */
+        getApplicationContext().startService(new Intent(getApplicationContext(), ServiceSmsCommand.class));
     }
 
 

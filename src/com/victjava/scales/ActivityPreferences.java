@@ -29,7 +29,7 @@ public class ActivityPreferences extends PreferenceActivity implements SharedPre
     private static final String KEY_FILTER = "filter";
     private static final String KEY_ABOUT = "about";
     private static final String KEY_TIMER = "timer";
-    static final String KEY_LAST = "last";
+    static final String KEY_LAST_SCALES = "last";
     static final String KEY_TIMER_NULL = "timer_null";
     static final String KEY_MAX_NULL = "max_null";
     static final String KEY_UPDATE = "update";
