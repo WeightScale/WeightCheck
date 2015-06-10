@@ -636,7 +636,7 @@ public class ActivityCheck extends FragmentActivity implements View.OnClickListe
     /** Обработчик показаний веса
      * Возвращяем время обновления показаний веса в милисекундах.
      */
-    HandlerWeight handlerWeight = new HandlerWeight() {
+    final HandlerWeight handlerWeight = new HandlerWeight() {
         /** Сообщение показаний веса.
          * @param what Результат статуса сообщения энумератор ResultWeight.
          * @param weight Данные веса в килограмах.

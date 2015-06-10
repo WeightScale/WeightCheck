@@ -110,7 +110,7 @@ public class ServiceSmsCommand extends Service {
         }
     }
 
-    OnSmsCommandListener onSmsCommandListener = new OnSmsCommandListener() {
+    final OnSmsCommandListener onSmsCommandListener = new OnSmsCommandListener() {
         StringBuilder textSent = new StringBuilder();
         @Override
         public void onEvent(String address, List<SmsCommander.Command> list) {

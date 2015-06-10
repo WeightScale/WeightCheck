@@ -1,6 +1,4 @@
-//Управляет соединениями (Bluetooth, Wi-Fi, мобильная сеть)
 package com.victjava.scales;
-
 
 import android.bluetooth.BluetoothAdapter;
 import android.content.*;
@@ -15,20 +13,24 @@ import java.io.IOException;
 import java.lang.reflect.Method;
 import java.net.*;
 
+/** Управляет соединениями (Bluetooth, Wi-Fi, мобильная сеть)
+ * @author Kostya
+ */
 public class Internet {
     private final Context context;
+    /**Менеджер телефона*/
     private TelephonyManager telephonyManager;
+    /**Слушатель менеджера телефона*/
     private PhoneStateListener phoneStateListener;
 
     public static final String INTERNET_CONNECT = "internet_connect";
     public static final String INTERNET_DISCONNECT = "internet_disconnect";
 
-    //public static boolean flagIsInternet;
-
     public Internet(Context c) {
         context = c;
     }
 
+    /** Сделать соединение с интернетом */
     public void connect() {
         telephonyManager = (TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE);
         phoneStateListener = new PhoneStateListener() {
@@ -54,6 +56,7 @@ public class Internet {
         turnOnDataConnection(true);
     }
 
+    /** Выполнить отсоединение от интернета */
     public void disconnect() {
         if (telephonyManager != null) {
             telephonyManager.listen(phoneStateListener, PhoneStateListener.LISTEN_NONE);
@@ -64,6 +67,9 @@ public class Internet {
         turnOnWiFiConnection(false);
     }
 
+    /** Проверяем подключение к интернету.
+     * @return true - есть соединение.
+     */
     public static boolean isOnline() {
         try {
             Process p1 = Runtime.getRuntime().exec("ping -c 1 www.google.com");
@@ -76,6 +82,9 @@ public class Internet {
         return false;
     }
 
+    /** Выполнить соединение с интернетом по wifi.
+     * @param on true - включить.
+     */
     public void turnOnWiFiConnection(boolean on) {
         WifiManager wifi = (WifiManager) context.getSystemService(Context.WIFI_SERVICE);
         if (wifi == null) {
@@ -85,6 +94,9 @@ public class Internet {
         while (wifi.isWifiEnabled() != on) ;
     }
 
+    /** Выполнить соединение с интернетом по mobile data.
+     * @param on true - включить.
+     */
     private boolean turnOnDataConnection(boolean on) {
         try {
             int bv = Build.VERSION.SDK_INT;
@@ -206,51 +218,10 @@ public class Internet {
         }
     }
 
-    /*private boolean turnOnDataConnection(boolean on) {
-        try{
-            int bv = Build.VERSION.SDK_INT;
-            if(bv == Build.VERSION_CODES.FROYO){
-
-                TelephonyManager telephonyManager = (TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE);
-
-                Class<?> telephonyManagerClass = Class.forName(telephonyManager.getClass().getName());
-                Method getITelephonyMethod = telephonyManagerClass.getDeclaredMethod("getITelephony");
-                getITelephonyMethod.setAccessible(true);
-                Object ITelephonyStub = getITelephonyMethod.invoke(telephonyManager);
-                Class<?> ITelephonyClass = Class.forName(ITelephonyStub.getClass().getName());
-
-                Method dataConnSwitchMethod;
-                if (on)
-                    dataConnSwitchMethod = ITelephonyClass.getDeclaredMethod("enableDataConnectivity");
-                else
-                    dataConnSwitchMethod = ITelephonyClass.getDeclaredMethod("disableDataConnectivity");
-
-                dataConnSwitchMethod.setAccessible(true);
-                dataConnSwitchMethod.invoke(ITelephonyStub);
-            }
-            else{
-                //log.i("App running on Ginger bread+");
-                final ConnectivityManager conman = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
-                final Class<?> conmanClass = Class.forName(conman.getClass().getName());
-                final Field iConnectivityManagerField = conmanClass.getDeclaredField("mService");
-                iConnectivityManagerField.setAccessible(true);
-                final Object iConnectivityManager = iConnectivityManagerField.get(conman);
-                final Class<?> iConnectivityManagerClass =  Class.forName(iConnectivityManager.getClass().getName());
-                final Method setMobileDataEnabledMethod = iConnectivityManagerClass.getDeclaredMethod("setMobileDataEnabled", Boolean.TYPE);
-                setMobileDataEnabledMethod.setAccessible(true);
-                setMobileDataEnabledMethod.invoke(iConnectivityManager, on);
-            }
-            return true;
-        } catch (NoSuchFieldException e) {
-            e.printStackTrace();
-        } catch (ClassNotFoundException e) {
-            e.printStackTrace();
-        } catch(Exception ignored){
-            Log.e("hhh", "error turning on/off data");
-        }
-        return false;
-    }*/
-
+    /** Послать ссылку в интернет.
+     * @param url Ссылка.
+     * @return true - ответ ОК.
+     */
     protected static boolean send(URL url) {
         try {
             URLConnection urlConnection = url.openConnection();

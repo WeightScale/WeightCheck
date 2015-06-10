@@ -1,10 +1,7 @@
 package com.victjava.scales;
 
-import android.app.ActivityManager;
-import android.app.Service;
 import android.content.ContentValues;
 import android.content.Context;
-import android.content.Intent;
 import android.database.Cursor;
 import com.konst.module.InterfaceVersions;
 import com.konst.module.ScaleModule;
@@ -23,8 +20,8 @@ import java.util.*;
 public class SmsCommand {
     final Context mContext;
     //List<BasicNameValuePair> results;
-    List<SmsCommander.Command> commandList;
-    SenderTable senderTable;
+    final List<SmsCommander.Command> commandList;
+    final SenderTable senderTable;
 
     /** получить ошибки параметр количество */
     static final String SMS_CMD_GETERR = "geterr";

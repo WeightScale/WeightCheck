@@ -1,4 +1,4 @@
-//Создаёт интерфейс управления весами
+//
 package com.victjava.scales;
 
 import android.app.Activity;
@@ -27,6 +27,9 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
+/** Активность управления весами
+ * @author Kostya
+ */
 public class ActivityScales extends Activity implements View.OnClickListener, View.OnLongClickListener {
 
     private SimpleCursorAdapter namesAdapter;
@@ -599,7 +602,7 @@ public class ActivityScales extends Activity implements View.OnClickListener, Vi
     /** Обработчик показаний заряда батареи и температуры.
      *  Возвращяет время обновления в секундах.
      */
-    HandlerBatteryTemperature handlerBatteryTemperature = new HandlerBatteryTemperature() {
+    final HandlerBatteryTemperature handlerBatteryTemperature = new HandlerBatteryTemperature() {
         /** Сообщение
          * @param battery Заряд батареи в процентах.
          * @param temperature Температура в градусах.

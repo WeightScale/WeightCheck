@@ -164,11 +164,11 @@ public class ActivityBootloader extends Activity implements View.OnClickListener
         dialog.show();
 
         if (bluetoothAdapter != null) {
-            if (!bluetoothAdapter.isEnabled()) {
+            if (bluetoothAdapter.isEnabled()) {
+                log(getString(R.string.bluetooth_on));
+            } else {
                 log(getString(R.string.bluetooth_off));
                 bluetoothAdapter.enable();
-            } else {
-                log(getString(R.string.bluetooth_on));
             }
         }
     }

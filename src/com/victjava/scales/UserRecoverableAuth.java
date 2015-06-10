@@ -24,10 +24,5 @@ public class UserRecoverableAuth extends Activity {
         }
     }
 
-    @Override
-    protected void onStart() {
-        super.onStart();
-    }
-
 
 }

@@ -173,11 +173,11 @@ public class ActivityConnect extends Activity implements View.OnClickListener {
         registerReceiver(broadcastReceiver, intentFilter);
 
         if (bluetoothAdapter != null) {
-            if (!bluetoothAdapter.isEnabled()) {
+            if (bluetoothAdapter.isEnabled()) {
+                log(R.string.bluetooth_on, true);
+            } else {
                 log(R.string.bluetooth_off, true);
                 bluetoothAdapter.enable();
-            } else {
-                log(R.string.bluetooth_on, true);
             }
         }
         //}

@@ -1,20 +1,12 @@
 package com.victjava.scales;
 
-import android.app.Activity;
-import android.app.Notification;
-import android.app.NotificationManager;
-import android.app.PendingIntent;
-import android.content.BroadcastReceiver;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.os.*;
-import android.support.v4.app.NotificationCompat;
-import android.util.Log;
 import com.google.android.gms.auth.GoogleAuthException;
 import com.google.android.gms.auth.GoogleAuthUtil;
-import com.google.android.gms.auth.UserRecoverableAuthException;
 import com.google.android.gms.auth.UserRecoverableNotifiedException;
 import com.konst.module.ScaleModule;
 import com.konst.sms_commander.SMS;
@@ -33,7 +25,6 @@ import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.params.HttpParams;
 
 import javax.mail.MessagingException;
-import java.io.File;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
@@ -44,12 +35,18 @@ import java.util.*;
  */
 public class TaskCommand {
 
-    CheckTable checkTable ;
+    final CheckTable checkTable ;
     final Context mContext ;
     //String mMimeType;
-    HandlerTaskNotification mHandler;
+    final HandlerTaskNotification mHandler;
     boolean cancel = true;
 
+    /** Чек отправлен */
+    final static String MAP_CHECKS_SEND = "send";
+    /** Чек не отправлен */
+    final static String MAP_CHECKS_UNSEND = "unsend";
+
+    public static final int HANDLER_TASK_START = 0;
     public static final int HANDLER_FINISH_THREAD = 1;
     public static final int HANDLER_NOTIFY_GENERAL = 2;
     public static final int HANDLER_NOTIFY_SHEET = 3;
@@ -90,9 +87,9 @@ public class TaskCommand {
         void onExecTask(Map<String, ContentValues> map);
     }
 
-    interface UserRecoverableListener<T> {
+    /*interface UserRecoverableListener<T> {
         void onTaskComplete(T result);
-    }
+    }*/
 
     public TaskCommand(Context context, HandlerTaskNotification handler) {
         mContext = context;
@@ -112,9 +109,6 @@ public class TaskCommand {
     public void execute(TaskType type, Map<String, ContentValues> map) throws Exception {
         if (map.isEmpty())
             throw new Exception("map is empty");
-        //if (type == TaskType.TYPE_CHECK_SEND_SHEET_DISK){
-            //mContext.startActivity(new Intent(mContext, CheckToSpreadsheet.class).setFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
-        //}
         cmdMap.get(type).onExecTask(map);
     }
 
@@ -140,10 +134,6 @@ public class TaskCommand {
 
     /** Отправляем весовой чек Google disk spreadsheet таблицу. */
     public class CheckToSpreadsheet extends GoogleSpreadsheets implements TaskCommand.InterfaceTaskCommand {
-        /** Чек отправлен */
-        final static String MAP_CHECKS_SEND = "send";
-        /** Чек не отправлен */
-        final static String MAP_CHECKS_UNSEND = "unsend";
         /** Контейнер для обратных сообщений
          * какие чеки отправлены или не отправлены*/
         final Map<String, ArrayList<TaskCommand.ObjParcel>> mapChecks = new HashMap<>();
@@ -259,10 +249,7 @@ public class TaskCommand {
 
     public class CheckTokHttpPost implements InterfaceTaskCommand {
 
-        final String MAP_CHECKS_SEND = "send";
-        final String MAP_CHECKS_UNSEND = "unsend";
         final Map<String, ArrayList<ObjParcel>> mapChecks = new HashMap<>();
-
         {
             mapChecks.put(MAP_CHECKS_SEND, new ArrayList<ObjParcel>());
             mapChecks.put(MAP_CHECKS_UNSEND, new ArrayList<ObjParcel>());
@@ -329,8 +316,6 @@ public class TaskCommand {
 
     public class CheckToMail implements InterfaceTaskCommand {
 
-        final String MAP_CHECKS_SEND = "send";
-        final String MAP_CHECKS_UNSEND = "unsend";
         final Map<String, ArrayList<ObjParcel>> mapChecks = new HashMap<>();
 
         {
@@ -395,10 +380,7 @@ public class TaskCommand {
 
     public class CheckToSms implements InterfaceTaskCommand {
 
-        final String MAP_CHECKS_SEND = "send";
-        final String MAP_CHECKS_UNSEND = "unsend";
         final Map<String, ArrayList<ObjParcel>> mapChecks = new HashMap<>();
-
         {
             mapChecks.put(MAP_CHECKS_SEND, new ArrayList<ObjParcel>());
             mapChecks.put(MAP_CHECKS_UNSEND, new ArrayList<ObjParcel>());
@@ -454,7 +436,7 @@ public class TaskCommand {
 
     /** Отправляем настройки Google disk spreadsheet таблицу */
     public class PreferenceToSpreadsheet extends GoogleSpreadsheets implements InterfaceTaskCommand {
-        //private GoogleSpreadsheets googleSpreadsheets;
+
         final String MAP_PREF_SEND = "send";
         final String MAP_PREF_UNSEND = "unsend";
         final Map<String, ArrayList<ObjParcel>> mapPrefs = new HashMap<>();
@@ -470,7 +452,6 @@ public class TaskCommand {
         public void onExecTask(final Map<String, ContentValues> map) {
             this.map = map;
             execute();
-            //new GetGoogleToken().execute();
         }
 
         private void sendPreferenceToDisk(int id) throws Exception {
@@ -490,14 +471,11 @@ public class TaskCommand {
             new Thread(new Runnable() {
                 @Override
                 public void run() {
-                    //googleSpreadsheets = new GoogleSpreadsheets(Main.versionName);
                     if (!getConnection(10000, 10)) {
                         mHandler.sendEmptyMessage(HANDLER_FINISH_THREAD);
                         return;
                     }
-                    //NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(mContext);
                     try {
-                        //googleSpreadsheets.login();
                         getSheetEntry(ScaleModule.getSpreadSheet());
                         UpdateListWorksheets();
 
@@ -563,25 +541,15 @@ public class TaskCommand {
             this.message = message;
         }
 
-
         public int getNotifyId() {
             return notifyId;
         }
-        //public int getIcon(){            return icon;        }
-
-        //public String getTitle(){            return title;        }
         public String getMessage() {
             return message;
         }
-
         void setNotifyId(int id) {
             notifyId = id;
         }
-        //void setIntent(Intent intent){        this.intent = intent;       }
-        //public Intent getIntent(){         return intent;       }
-        //public  NotificationCompat.Builder getBundle(){         return mBuilder;        }
-        //public ArrayList<ObjParcel> getListObj(){        return listObj;       }
-        //public int getArg1(){        return arg1;     }
     }
 
     public static class ObjParcel implements Parcelable {

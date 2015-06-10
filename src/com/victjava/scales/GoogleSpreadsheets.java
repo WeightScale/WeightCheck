@@ -3,25 +3,16 @@ package com.victjava.scales;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
-import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.database.CharArrayBuffer;
 import android.database.Cursor;
 import android.os.AsyncTask;
-import android.os.Bundle;
-import android.os.Environment;
 import android.support.v4.app.NotificationCompat;
 import com.google.android.gms.auth.GoogleAuthException;
 import com.google.android.gms.auth.GoogleAuthUtil;
 import com.google.android.gms.auth.UserRecoverableAuthException;
-import com.google.api.client.auth.oauth2.Credential;
-import com.google.api.client.googleapis.auth.oauth2.GoogleAuthorizationCodeRequestUrl;
-import com.google.api.client.googleapis.auth.oauth2.GoogleAuthorizationCodeTokenRequest;
 import com.google.api.client.googleapis.auth.oauth2.GoogleCredential;
-import com.google.api.client.googleapis.auth.oauth2.GoogleTokenResponse;
-import com.google.api.client.googleapis.extensions.android.gms.auth.UserRecoverableAuthIOException;
-import com.google.api.client.http.HttpTransport;
 import com.google.api.client.http.javanet.NetHttpTransport;
 import com.google.api.client.json.jackson.JacksonFactory;
 import com.google.gdata.client.batch.BatchInterruptedException;
@@ -32,10 +23,8 @@ import com.google.gdata.data.PlainTextConstruct;
 import com.google.gdata.data.batch.BatchOperationType;
 import com.google.gdata.data.batch.BatchUtils;
 import com.google.gdata.data.spreadsheet.*;
-import com.google.gdata.util.AuthenticationException;
 import com.google.gdata.util.ServiceException;
 import com.konst.module.ScaleModule;
-import com.victjava.scales.service.ServiceProcessTask;
 
 import java.io.*;
 import java.net.MalformedURLException;
@@ -64,9 +53,12 @@ public abstract class GoogleSpreadsheets extends AsyncTask<Void, Void, String> {
     /** Email address в созданом клиенте на  https://console.developers.google.com/project/*/
     final String CLIENT_EMAIL = "64738785707-t6gad1u92rpbqleq42lphl13pj0i0f6f@developer.gserviceaccount.com";
     final static String[] SCOPE_ARRAY = {"https://spreadsheets.google.com/feeds ", "https://spreadsheets.google.com/feeds/spreadsheets/private/full ", "https://docs.google.com/feeds "};
-    List<String> SCOPES_LIST = Arrays.asList(SCOPE_ARRAY);
+    final List<String> SCOPES_LIST = Arrays.asList(SCOPE_ARRAY);
     protected final static String SCOPE = SCOPE_ARRAY[0]+SCOPE_ARRAY[1];
 
+    /** Конструктор GoogleSpreadsheets.
+     * @param service Имя сервиса GoogleSpreadsheets.
+     */
     public GoogleSpreadsheets(String service){
         spreadsheetService = new SpreadsheetService(service);
         spreadsheetService.setProtocolVersion(SpreadsheetService.Versions.V3);
@@ -129,10 +121,18 @@ public abstract class GoogleSpreadsheets extends AsyncTask<Void, Void, String> {
         }
     }
 
+    /** Вызываем если токен получен. */
     protected abstract void tokenIsReceived();
 
+    /** Получить токен.
+     * @return Взвращяем токен.
+     * @throws IOException
+     * @throws GoogleAuthException
+     * @throws IllegalArgumentException
+     */
     protected abstract String fetchToken() throws IOException, GoogleAuthException, IllegalArgumentException;
 
+    /** Разренеие на доступ получено*/
     protected abstract void permissionIsObtained();
 
     GoogleCredential getCredentials(String account, String token) throws IOException, GoogleAuthException {

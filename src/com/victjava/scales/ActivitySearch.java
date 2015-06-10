@@ -114,11 +114,11 @@ public class ActivitySearch extends Activity implements View.OnClickListener {
         registerReceiver(broadcastReceiver, intentFilter);
 
         if (bluetooth != null) {
-            if (!bluetooth.isEnabled()) {
+            if (bluetooth.isEnabled()) {
+                log(R.string.bluetooth_on, true);
+            } else {
                 log(R.string.bluetooth_off, true);
                 bluetooth.enable();
-            } else {
-                log(R.string.bluetooth_on, true);
             }
         }
 
@@ -267,29 +267,6 @@ public class ActivitySearch extends Activity implements View.OnClickListener {
                             String device = ScaleModule.getName();
                             log(device + ' ' + getString(R.string.not_scale));
                             break;
-                        /*case STATUS_SETTINGS_UNCORRECTED:
-                            dialog = new AlertDialog.Builder(ActivitySearch.this);
-                            dialog.setTitle("Ошибка в настройках");
-                            dialog.setCancelable(false);
-                            dialog.setNegativeButton("Закрыть", new DialogInterface.OnClickListener() {
-                                @Override
-                                public void onClick(DialogInterface dialogInterface, int i) {
-                                    dialogInterface.dismiss();
-                                    onBackPressed();
-                                }
-                            });
-                            dialog.setMessage("Запросите настройки у администратора. Настройки должен выполнять опытный пользователь");
-                            Toast.makeText(getBaseContext(), R.string.preferences_error, Toast.LENGTH_SHORT).show();
-                            setTitle(getString(R.string.app_name) + ": админ настройки неправельные");
-                            dialog.setPositiveButton("OK", new DialogInterface.OnClickListener() {
-                                @Override
-                                public void onClick(DialogInterface dialogInterface, int i) {
-                                    startActivity(new Intent(ActivitySearch.this, ActivityTuning.class));
-                                    dialogInterface.dismiss();
-                                }
-                            });
-                            dialog.show();
-                            break;*/
                         case STATUS_ATTACH_START:
                             listView.setEnabled(false);
                             dialogSearch = new ProgressDialog(ActivitySearch.this);

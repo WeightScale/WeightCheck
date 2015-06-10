@@ -5,7 +5,6 @@ import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
 import android.content.*;
-import android.content.res.AssetManager;
 import android.database.Cursor;
 import android.os.IBinder;
 import android.os.Message;
@@ -17,15 +16,16 @@ import com.victjava.scales.provider.TaskTable;
 import com.victjava.scales.*;
 import com.victjava.scales.TaskCommand.*;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.Map;
 
-/*
- * Created by Kostya on 04.04.2015.
+/** Сервис обработки задач.
+ * Задачи отправки данных.
+ * @author Kostya
  */
 public class ServiceProcessTask extends Service {
-    TaskTable taskTable;
+    /** Таблица задач */
+    private TaskTable taskTable;
     private Internet internet;
     private static BroadcastReceiver broadcastReceiver;
     private NotificationManager notificationManager;
@@ -44,7 +44,9 @@ public class ServiceProcessTask extends Service {
     @Override
     public void onCreate() {
         super.onCreate();
+        /**Экземпляр таблици задач*/
         taskTable = new TaskTable(getApplicationContext());
+        /**Экземпляр интернет класса*/
         internet = new Internet(this);
         broadcastReceiver = new BroadcastReceiver() {
             @Override
@@ -67,10 +69,10 @@ public class ServiceProcessTask extends Service {
 
     /** Процесс выполнения задач */
     void taskProcess() {
-
+        /**Экземпляр команд задач*/
         TaskCommand taskCommand = new TaskCommand(getApplicationContext(), msgHandler);
-
-        msgHandler.obtainMessage(0, TaskType.values().length, 0).sendToTarget();
+        /**Сообщение на обработчик запущен процесс задач*/
+        msgHandler.obtainMessage(TaskCommand.HANDLER_TASK_START, TaskType.values().length, 0).sendToTarget();
         for (TaskType taskType : TaskType.values()) {
             Cursor cursor = taskTable.getTypeEntry(taskType);
             ContentQueryMap mQueryMap = new ContentQueryMap(cursor, BaseColumns._ID, true, null);
@@ -84,6 +86,7 @@ public class ServiceProcessTask extends Service {
         }
     }
 
+    /** Обработчик сообщений */
     public final HandlerTaskNotification msgHandler = new HandlerTaskNotification() {
 
         /** Количество запущеных процессов */
@@ -124,7 +127,7 @@ public class ServiceProcessTask extends Service {
             intent.setAction("notifyChecks");
             NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(ServiceProcessTask.this);
             switch (msg.what) {
-                case 0:
+                case TaskCommand.HANDLER_TASK_START:
                     numThread += msg.arg1;
                     return;
                 case TaskCommand.HANDLER_FINISH_THREAD:
