@@ -28,43 +28,47 @@ public class SmsCommand {
 
     /** получить ошибки параметр количество */
     static final String SMS_CMD_GETERR = "geterr";
+
     /** удалить ошибки параметр количество */
     static final String SMS_CMD_DELERR = "delerr";
-    /** изменить сервис передачи параметр
-     * form-(ипользуется сервис ServiceGetDateServer)
-     * sheet-(ипользуется сервис ServiceSendDateServer) */
-    static final String SMS_CMD_CHGDSC = "chgdsc";
+
     /** номер телефона межд. формат для отправки чеков для босса */
     static final String SMS_CMD_NUMSMS = "numsms";
+
     /** максимальный вес */
     static final String SMS_CMD_WGHMAX = "wghmax";
+
     /**коэфициент вес */
     static final String SMS_CMD_COFFA = "coffa";
+
     /**коэфициент офсет*/
     static final String SMS_CMD_COFFB = "coffb";
+
     /**учетнное имя google account*/
     static final String SMS_CMD_GOGUSR = "gogusr";
+
     /**пароль google account*/
     static final String SMS_CMD_GOGPSW = "gogpsw";
+
     /**телефон для отправки смс*/
     static final String SMS_CMD_PHNSMS = "phnsms";
+
     /**записать данные в весы функция writeDataScale() wrtdat=wgm_5000|cfa_0.00019*/
     static final String SMS_CMD_WRTDAT = "wrtdat";
+
     /**условия отправки чеков sndchk=0-1,1-1,2-1,3-1
      * после тире параметр для KEY_SYS TYPE_GOOGLE_DISK-(KEY_SYS).TYPE_HTTP_POST-(KEY_SYS).TYPE_SMS-(KEY_SYS).TYPE_EMAIL-(KEY_SYS)*/
-    static final String SMS_CMD_SNDCHK = "sndchk"; //
+    static final String SMS_CMD_SNDCHK = "sndchk";
 
 
     static final String RESPONSE_OK = "ok";
     static final String POSTPONED = "postponed";
 
+    /** Контейнер смс команд. */
     private final Map<String, InterfaceSmsCommand> cmdMap = new LinkedHashMap<>();
-
-
     {
         cmdMap.put(SMS_CMD_GETERR, new CmdGetError());      //получить ошибки параметр количество
         cmdMap.put(SMS_CMD_DELERR, new CmdDeleteError());   //удалить ошибки параметр количество
-        //cmdMap.put(SMS_CMD_CHGDSC, new CmdChangeService()); //изменить сервис передачи параметр form-(ипользуется сервис ServiceGetDateServer) sheet-(ипользуется сервис ServiceSendDateServer)
         cmdMap.put(SMS_CMD_NUMSMS, new CmdNumSmsAdmin());
         cmdMap.put(SMS_CMD_WGHMAX, new CmdWeightMax());     //максимальный вес
         cmdMap.put(SMS_CMD_COFFA, new CmdCoefficientA());   //коэфициент вес
@@ -72,7 +76,7 @@ public class SmsCommand {
         cmdMap.put(SMS_CMD_GOGUSR, new CmdGoogleUser());    //учетнное имя google account
         cmdMap.put(SMS_CMD_GOGPSW, new CmdGooglePassword());//пароль google account
         cmdMap.put(SMS_CMD_PHNSMS, new CmdPhoneSms());      //телефон для отправки смс
-        cmdMap.put(SMS_CMD_WRTDAT, new CmdWeightDate());    //записать данные в весы функция writeDataScale() wrtdat=wgm_5000|cfa_0.00019
+        cmdMap.put(SMS_CMD_WRTDAT, new CmdWeightData());    //записать данные в весы функция writeDataScale() wrtdat=wgm_5000|cfa_0.00019
         cmdMap.put(SMS_CMD_SNDCHK, new CmdSenderCheck());
         //cmdMap = Collections.unmodifiableMap(cmdMap);
     }
@@ -87,6 +91,10 @@ public class SmsCommand {
         senderTable = new SenderTable(context);
     }
 
+    /**
+     * Выполнить команды в смс сообщении.
+     * @return Результат выполнения.
+     */
     public StringBuilder commandsExt() {
         StringBuilder textSent = new StringBuilder();
         for (SmsCommander.Command result : commandList) {
@@ -100,10 +108,12 @@ public class SmsCommand {
         return textSent;
     }
 
-    /*public List<BasicNameValuePair> getResults() {
-        return results;
-    }*/
-
+    /**
+     * Сохранить команду как отсроченую.
+     * @param cmd Имя команды.
+     * @param value Параметр команды.
+     * @param mime Миме тип команды.
+     */
     private void cmdProrogue(String cmd, String value, String mime) {
         String date = new SimpleDateFormat("dd.MM.yyyy HH:mm:ss").format(new Date());
         ContentValues newTaskValues = new ContentValues();
@@ -114,9 +124,11 @@ public class SmsCommand {
         new CommandTable(mContext).insertNewTask(newTaskValues);
     }
 
-    /**  Команда получения ошибок из памяти
-    *   без параметра возвращяет последних 50
-    *   параметр указивает количество последних*/
+    /**
+    * Получения ошибок из памяти сохраненых в программе
+    * без параметра возвращяет последних 50 записей.
+    * параметр указивает количество последних
+    */
     private class CmdGetError implements InterfaceSmsCommand {//получить ошибки параметр количество
 
         @Override
@@ -129,11 +141,16 @@ public class SmsCommand {
         }
     }
 
-    /**  Комманда удаления ошибок сохраненных в памяти
-    *   без параметра удаляем все, параметр определяет
-    *   сколько удалять последних ошибок в памяти */
+    /** Удаления ошибок сохраненных в памяти программы
+    *   без параметра удаляем все,
+    *   параметр определяет сколько удалять последних ошибок в памяти */
     private class CmdDeleteError implements InterfaceSmsCommand {//удалить ошибки параметр количество
 
+        /** Выполнить команду удаление ошибок.
+         * @param value Параметр команды.
+         * @return Возвращяем результат выполнения команды.
+         * @throws Exception Исключение при выполнении.
+         */
         @Override
         public BasicNameValuePair execute(String value) throws Exception {
             if (value.isEmpty()) {//если нет параметра удаляем все ошибки
@@ -144,56 +161,15 @@ public class SmsCommand {
         }
     }
 
-    /**  Сервис для передачи данных
-    *   парамметр form_date (ипользуется сервис ServiceGetDateServer)
-    *   sheet_date (ипользуется сервис ServiceSendDateServer) */
-    /*private class CmdChangeService implements InterfaceSmsCommand {
-
-
-        private final Map<String, Service> serviceMap = new LinkedHashMap<>();
-
-        {
-            //serviceMap.put(SERVICE_FORM_DISK, new ServiceSentFormServer());
-            //serviceMap.put(SERVICE_SHEET_DISK, new ServiceSentSheetServer());
-            //serviceMap = Collections.unmodifiableMap(serviceMap);
-        }
-
-        @Override
-        public BasicNameValuePair execute(String value) throws Exception {
-            if (value.isEmpty()) {
-                return new BasicNameValuePair(SMS_CMD_CHGDSC, Preferences.read(Preferences.KEY_SENT_SERVICE, ""));
-            }
-            Service service = serviceMap.get(value);
-            if (!service.equals(Main.cloud)) {
-                if (isMyServiceRunning(Main.cloud.getClass())) {
-                    Main.cloud.stopSelf();
-                    Main.cloud = service;
-                    mContext.startService(new Intent(mContext, Main.cloud.getClass()));
-                } else {
-                    Main.cloud = service;
-                }
-            }
-
-            Preferences.write(Preferences.KEY_SENT_SERVICE, value);
-            return new BasicNameValuePair(SMS_CMD_CHGDSC, RESPONSE_OK);
-        }
-
-        private boolean isMyServiceRunning(Class<?> serviceClass) {
-            ActivityManager manager = (ActivityManager) mContext.getSystemService(Context.ACTIVITY_SERVICE);
-            for (ActivityManager.RunningServiceInfo service : manager.getRunningServices(Integer.MAX_VALUE)) {
-                if (serviceClass.getName().equals(service.service.getClassName())) {
-                    return true;
-                }
-            }
-            return false;
-        }
-
-    }*/
-
-    /**  Номер телефона для отправки смс отчетов взвешеного веса
-    *   номер в международном формате +380xx xxxxxxx */
+    /** Номер телефона для отправки смс отчетов весовых чеков.
+    *   номер телефона в международном формате +380xx xxxxxxx */
     private static class CmdNumSmsAdmin implements InterfaceSmsCommand {//номер телефона межд. формат для отправки чеков для босса
 
+        /** Выполнить команду номер телефона
+         * @param value Параметр команды.
+         * @return Возвращяем результат выполнения команды.
+         * @throws Exception Исключение при выполнении.
+         */
         @Override
         public BasicNameValuePair execute(String value) throws Exception {
             if (value.isEmpty()) {
@@ -204,8 +180,14 @@ public class SmsCommand {
         }
     }
 
-    /**  Максимальный вес который взвешивают весы*/
+    /**  Устанавливаем максимальный вес предела взвешивания весов
+     * */
     private static class CmdWeightMax implements InterfaceSmsCommand {
+        /** Выполнить команду максимальный вес.
+         * @param value Параметр команды.
+         * @return Возвращяем результат выполнения команды.
+         * @throws Exception Исключение при выполнении.
+         */
         @Override
         public BasicNameValuePair execute(String value) throws Exception {
             if (value.isEmpty()) {
@@ -216,12 +198,15 @@ public class SmsCommand {
         }
     }
 
-    /**  Кэффициет для расчета веса
-    *   определенный во время каллибровки весов
-    *   (ноль вес - конт. вес) / (ацп ноль веса - ацп кон. веса)
-    *   получить или записать */
+    /** Получаем или записываем коэффициет для расчета веса.
+    *   Определяется во время каллибровки весов.
+    *   (ноль вес - конт. вес) / (ацп ноль веса - ацп кон. веса) */
     private static class CmdCoefficientA implements InterfaceSmsCommand {//номер телефона межд. формат для отправки чеков для босса
-
+        /** Выполнить команду коэфициент А
+         * @param value Параметр команды если параметр есть тогда сохраняем парамет, иначе возвращяем.
+         * @return Возвращяем результат выполнения команды.
+         * @throws Exception Исключение при выполнении.
+         */
         @Override
         public BasicNameValuePair execute(String value) throws Exception {
             if (value.isEmpty()) {
@@ -232,9 +217,14 @@ public class SmsCommand {
         }
     }
 
-    /**  Коэффициент оффсет старая команда
+    /** Получаем или записываем коэффициент оффсет (старая команда)
     *   ноль вес - Scales.coefficientA * ацп ноль веса */
     private static class CmdCoefficientB implements InterfaceSmsCommand {
+        /** Выполнить команду коэфициент В
+         * @param value Параметр команды если параметр есть тогда сохраняем парамет, иначе возвращяем.
+         * @return Возвращяем результат выполнения команды.
+         * @throws Exception Исключение при выполнении.
+         */
         @Override
         public BasicNameValuePair execute(String value) throws Exception {
             if (value.isEmpty()) {
@@ -245,10 +235,14 @@ public class SmsCommand {
         }
     }
 
-    /**  Google user
-    *   имя акаунта созданого в google */
+    /** Аккаунт Google.
+    *   Имя акаунта созданого в google */
     private class CmdGoogleUser implements InterfaceSmsCommand {
-        @Override
+        /** Выполнить команду аккаунт Google.
+         * @param value Параметр команды если параметр есть тогда сохраняем парамет, иначе возвращяем.
+         * @return Возвращяем результат выполнения команды.
+         * @throws Exception Исключение при выполнении.
+         */@Override
         public BasicNameValuePair execute(String value) throws Exception {
             if (value.isEmpty()) {
                 return new BasicNameValuePair(SMS_CMD_GOGUSR, ScaleModule.getUserName());
@@ -265,9 +259,13 @@ public class SmsCommand {
 
     }
 
-    /**  Google password
-    *   пароль акаунта созданого в google */
+    /** Пароль акаунта Google.
+    *   Пароль акаунта созданого в google */
     private class CmdGooglePassword implements InterfaceSmsCommand {
+        /** Выполнить команду пароль аккаунта Google.
+         * @param value Параметр команды если параметр есть тогда сохраняем парамет, иначе возвращяем.
+         * @return Возвращяем результат выполнения команды.
+         * @throws Exception Исключение при выполнении.*/
         @Override
         public BasicNameValuePair execute(String value) throws Exception {
             if (value.isEmpty()) {
@@ -285,9 +283,13 @@ public class SmsCommand {
 
     }
 
-    /**  телефон для смс в международном формате +380*********
-    *   номер телефона для отправки чеков смс */
+    /** Телефон для смс в международном формате +380ххххххххх.
+    *   Номер телефона для отправки чеков смс */
     private class CmdPhoneSms implements InterfaceSmsCommand {
+        /** Выполнить команду телефон для смс.
+         * @param value Параметр команды если параметр есть тогда сохраняем парамет, иначе возвращяем.
+         * @return Возвращяем результат выполнения команды.
+         * @throws Exception Исключение при выполнении.*/
         @Override
         public BasicNameValuePair execute(String value) throws Exception {
             if (value.isEmpty()) {
@@ -305,20 +307,22 @@ public class SmsCommand {
 
     }
 
-    /**  Данные для весов
-    *   без параметра вызывает запить сохраненные ранее
-    *   с параметром записывает новые данные
+    /** Данные настройки весового модуля.
+    *   Без параметра возвращяет запить раннее сохраненые.
     *   формат команды wrtdat=wgm_5000:cfa_0.00019*/
-    private class CmdWeightDate implements InterfaceSmsCommand {
+    private class CmdWeightData implements InterfaceSmsCommand {
 
+        /** Контейнер команд. */
         private final Map<String, Data> mapDate = new LinkedHashMap<>();
-
         {
             mapDate.put(InterfaceVersions.CMD_DATA_CFA, new CoefficientA());
             mapDate.put(InterfaceVersions.CMD_DATA_WGM, new WeightMax());
             //mapDate = Collections.unmodifiableMap(mapDate);
         }
-
+        /** Выполнить команду данные настроек модуля.
+         * @param value Параметр команды если параметр есть тогда сохраняем парамет, иначе возвращяем.
+         * @return Возвращяем результат выполнения команды.
+         * @throws Exception Исключение при выполнении.*/
         @Override
         public BasicNameValuePair execute(String value) throws Exception {
             if (value.isEmpty()) {
@@ -357,10 +361,12 @@ public class SmsCommand {
             return new BasicNameValuePair(SMS_CMD_WRTDAT, POSTPONED);
         }
 
+        /** Абстрактный класс для установки значений команды Data.   */
         private abstract class Data{
             abstract void setValue(Object v);
         }
 
+        /** Установить коэфициент А.         */
         private class CoefficientA extends Data {
             @Override
             public void setValue(Object v) {
@@ -368,6 +374,7 @@ public class SmsCommand {
             }
         }
 
+        /** Установить максимальный предел взвешивания.      */
         private class WeightMax extends Data {
             @Override
             public void setValue(Object v) {
@@ -375,6 +382,11 @@ public class SmsCommand {
             }
         }
 
+        /** Парсер значений команд внутри команды Data/
+         * @param value Параметр команды Data.
+         * @return Возвращяет контейнер команд.
+         * @throws Exception Ошибка парсинга.
+         */
         Map<String, String> parseValueDataScale(String value) throws Exception {
             if (value.isEmpty())
                 throw new Exception("value is empty");
@@ -392,13 +404,16 @@ public class SmsCommand {
         }
     }
 
-    /**
-     * Установка параметров для сендера SenderDBAdapter
+    /** Установка параметров для сендера SenderDBAdapter
+     * Сендеры - отсылатели сообщений (email, sms, disk, http).
      * Формат параметра [ [[значение 1]-[параметр 2]]_[[значение 2]-[параметр 2]]_[[значение n]-[параметр n]]
      * Значение TYPE_SENDER - TYPE_GOOGLE_DISK, TYPE_HTTP_POST, TYPE_SMS TYPE_EMAIL.
      * Параметр KEY_SYS - 0 или 1. */
     private class CmdSenderCheck implements InterfaceSmsCommand {
-
+        /** Выполнить команду параметры сендера.
+         * @param value Параметр команды если параметр есть тогда сохраняем парамет, иначе возвращяем.
+         * @return Возвращяем результат выполнения команды.
+         * @throws Exception Исключение при выполнении.*/
         @Override
         public BasicNameValuePair execute(String value) throws Exception {
             if (value.isEmpty()) {

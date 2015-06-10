@@ -190,9 +190,14 @@ public class ActivityCheck extends FragmentActivity implements View.OnClickListe
     private SimpleGestureFilter detectorWeightView;
     private Drawable dProgressWeight, dWeightDanger;
 
+    /** Энумератор типа веса.
+     */
     protected enum WeightType {
+        /** Первое взвешивание */
         FIRST,
+        /** Второе взвешивание */
         SECOND,
+        /** Вес нетто */
         NETTO
     }
 

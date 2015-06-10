@@ -225,7 +225,7 @@ public class ActivityConnect extends Activity implements View.OnClickListener {
         }
     }
 
-    final BootModule bootModule = new BootModule() {
+    final BootModule bootModule = new BootModule("BOOT") {
         @Override
         public void handleResultConnect(ResultConnect result) {
             switch (result){

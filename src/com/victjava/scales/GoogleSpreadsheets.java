@@ -1,7 +1,29 @@
 package com.victjava.scales;
 
+import android.app.NotificationManager;
+import android.app.PendingIntent;
+import android.content.BroadcastReceiver;
+import android.content.ContentValues;
+import android.content.Context;
+import android.content.Intent;
 import android.database.CharArrayBuffer;
 import android.database.Cursor;
+import android.os.AsyncTask;
+import android.os.Bundle;
+import android.os.Environment;
+import android.support.v4.app.NotificationCompat;
+import com.google.android.gms.auth.GoogleAuthException;
+import com.google.android.gms.auth.GoogleAuthUtil;
+import com.google.android.gms.auth.UserRecoverableAuthException;
+import com.google.api.client.auth.oauth2.Credential;
+import com.google.api.client.googleapis.auth.oauth2.GoogleAuthorizationCodeRequestUrl;
+import com.google.api.client.googleapis.auth.oauth2.GoogleAuthorizationCodeTokenRequest;
+import com.google.api.client.googleapis.auth.oauth2.GoogleCredential;
+import com.google.api.client.googleapis.auth.oauth2.GoogleTokenResponse;
+import com.google.api.client.googleapis.extensions.android.gms.auth.UserRecoverableAuthIOException;
+import com.google.api.client.http.HttpTransport;
+import com.google.api.client.http.javanet.NetHttpTransport;
+import com.google.api.client.json.jackson.JacksonFactory;
 import com.google.gdata.client.batch.BatchInterruptedException;
 import com.google.gdata.client.spreadsheet.SpreadsheetService;
 import com.google.gdata.data.ILink;
@@ -12,50 +34,144 @@ import com.google.gdata.data.batch.BatchUtils;
 import com.google.gdata.data.spreadsheet.*;
 import com.google.gdata.util.AuthenticationException;
 import com.google.gdata.util.ServiceException;
+import com.konst.module.ScaleModule;
+import com.victjava.scales.service.ServiceProcessTask;
 
-import java.io.IOException;
+import java.io.*;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.security.GeneralSecurityException;
 import java.util.*;
 
 /*
  * Created by Kostya on 02.03.14.
  */
-public class GoogleSpreadsheets {
-    private final String username;
-    private final String password;
+public abstract class GoogleSpreadsheets extends AsyncTask<Void, Void, String> {
+    Context context;
+    //String token = null;
+    /** Экземпляр атестата */
+    GoogleCredential credential;
     private final SpreadsheetService spreadsheetService;
     private List<WorksheetEntry> worksheets;
     private SpreadsheetEntry spreadsheetEntry;
     private String spreadsheetName = "";
+    /** Client ID созданый для application в  https://console.developers.google.com/project/ */
+    final String CLIENT_ID = "104626362323-b410it7dt7gad5e1sp9v8aum9nm00biu.apps.googleusercontent.com";
+    /** Client secret созданый для application в  https://console.developers.google.com/project/ */
+    final String CLIENT_SECRET = "zLeF20E7Dl1GRlCY-Hfpf4lB";
+    /** Redirect URIs созданый для application в  https://console.developers.google.com/project/ */
+    final String REDIRECT_URI = "https://www.example.com/oauth2callback";
+    /** Email address в созданом клиенте на  https://console.developers.google.com/project/*/
+    final String CLIENT_EMAIL = "64738785707-t6gad1u92rpbqleq42lphl13pj0i0f6f@developer.gserviceaccount.com";
+    final static String[] SCOPE_ARRAY = {"https://spreadsheets.google.com/feeds ", "https://spreadsheets.google.com/feeds/spreadsheets/private/full ", "https://docs.google.com/feeds "};
+    List<String> SCOPES_LIST = Arrays.asList(SCOPE_ARRAY);
+    protected final static String SCOPE = SCOPE_ARRAY[0]+SCOPE_ARRAY[1];
 
-    public GoogleSpreadsheets(String user, String pass, String spreadsheetName, String service) {
-        //Context context = cxt;
-        username = user;
-        password = pass;
-        this.spreadsheetName = spreadsheetName;
+    public GoogleSpreadsheets(String service){
+        spreadsheetService = new SpreadsheetService(service);
+        spreadsheetService.setProtocolVersion(SpreadsheetService.Versions.V3);
+    }
+
+    /** Конструктор GoogleSpreadsheets
+     * @param service Имя сервиса GoogleSpreadsheets
+     * @param p12 Ключ сгенерированый для моего приложения https://console.developers.google.com/project/
+     *            в настройках API создать нового клиента Service account Generate new P12 key
+     *            java.io.File p12 = new File(Environment.getExternalStorageDirectory(),"WeightCheck-d76949a134dd.p12")
+     * @throws GeneralSecurityException
+     * @throws IOException
+     */
+    public GoogleSpreadsheets(String service, java.io.File p12) throws GeneralSecurityException, IOException {
+        /** Экземпляр атестата */
+        credential = new GoogleCredential.Builder()
+                .setTransport(new NetHttpTransport())
+                .setJsonFactory(new JacksonFactory())
+                /** Нужно зашарить spreadsheet таблицу этим email */
+                .setServiceAccountId(CLIENT_EMAIL)
+                .setServiceAccountScopes(SCOPES_LIST)
+                .setServiceAccountPrivateKeyFromP12File(p12)
+                .build();
 
         spreadsheetService = new SpreadsheetService(service);
         spreadsheetService.setProtocolVersion(SpreadsheetService.Versions.V3);
-
-        //spreadsheetService.setUserCredentials(username, password);
-        //feed = spreadsheetService.getFeed(new URL(URL_FEED), SpreadsheetFeed.class);
-        //spreadsheets = getSpreadsheets();
-
-        //spreadsheetEntry = getSpreadsheetEntry(spreadsheetName);//Получаем таблицу по имени
-
-        //UpdateListWorksheets(spreadsheetEntry);
-
+        spreadsheetService.setOAuth2Credentials(credential);
     }
 
-    public void login() throws AuthenticationException {
-        // Authenticate
-        spreadsheetService.setUserCredentials(username, password);
+    /** Конструктор GoogleSpreadsheets
+     * @param context Контекст приложения.
+     * @param service   Имя сервиса GoogleSpreadsheets.
+     * @param accountName Имя account в google.
+     * @throws GoogleAuthException
+     * @throws IOException
+     */
+    public GoogleSpreadsheets(Context context, String service, String accountName) throws GoogleAuthException, IOException {
+        this.context = context;
+        spreadsheetService = new SpreadsheetService(service);
+        spreadsheetService.setProtocolVersion(SpreadsheetService.Versions.V3);
+        spreadsheetService.setAuthSubToken(getToken(accountName));
     }
 
-    /*public void setSpreadsheetName(String Name) {
-        spreadsheetName = Name;
-    }*/
+    @Override
+    protected String doInBackground(Void... params) {
+        try {
+            return fetchToken();
+        } catch (IOException e) {
+            return null;
+        } catch (GoogleAuthException e) {
+           return null;
+        }
+    }
+
+    @Override
+    protected void onPostExecute(String s) {
+        if (s != null){
+            spreadsheetService.setAuthSubToken(s);
+            tokenIsReceived();
+        }
+    }
+
+    protected abstract void tokenIsReceived();
+
+    protected abstract String fetchToken() throws IOException, GoogleAuthException, IllegalArgumentException;
+
+    protected abstract void permissionIsObtained();
+
+    GoogleCredential getCredentials(String account, String token) throws IOException, GoogleAuthException {
+
+        //token = GoogleAuthUtil.getToken(context, account, "oauth2:" + SCOPE_ARRAY[0]+SCOPE_ARRAY[1]+SCOPE_ARRAY[2]);
+        //GoogleAuthUtil.invalidateToken(context, token);
+        return new GoogleCredential.Builder()
+                .setClientSecrets(CLIENT_ID, CLIENT_SECRET)
+                .setJsonFactory(new JacksonFactory())
+                .setTransport(new NetHttpTransport()).build()
+                .setAccessToken(token);
+    }
+
+    GoogleCredential getCredentialsWeb(String account, String token) throws IOException, GoogleAuthException {
+
+        //token = GoogleAuthUtil.getToken(context, account, "oauth2:" + SCOPE);
+        //GoogleAuthUtil.invalidateToken(context, token);
+        return new GoogleCredential.Builder()
+                .setClientSecrets(CLIENT_ID, CLIENT_SECRET)
+                .setJsonFactory(new JacksonFactory())
+                .setTransport(new NetHttpTransport()).build()
+                .setAccessToken(token);
+    }
+
+    String getToken(String account) throws IOException, GoogleAuthException, IllegalArgumentException {
+        //return token = GoogleAuthUtil.getToken(mContext, account, "oauth2:" + SCOPE);
+
+        Intent returnIntent = new Intent(context, ActivityScales.class);
+        //PendingIntent pendingIntent = PendingIntent.getService(mContext, 0, returnIntent, 0);
+        return GoogleAuthUtil.getTokenWithNotification(context, account, "oauth2:" + SCOPE, null, makeCallback(account));
+    }
+
+    protected Intent makeCallback(String accountName) {
+        Intent intent = new Intent();
+        intent.setAction("com.victjava.scales.Callback");
+        //intent.putExtra(HelloActivity.EXTRA_ACCOUNTNAME, accountName);
+        //intent.putExtra(HelloActivity.TYPE_KEY, HelloActivity.Type.BACKGROUND.name());
+        return intent;
+    }
 
     public SpreadsheetEntry getSheetEntry(String nameSheet) throws Exception {
 
@@ -72,14 +188,6 @@ public class GoogleSpreadsheets {
         }
         throw new Exception("Нет Таблицы с именем " + nameSheet);
     }
-
-    /*String getSpreadsheetName() {
-        return spreadsheetName;
-    }*/
-
-    /*SpreadsheetService getSpreadsheetService() {
-        return spreadsheetService;
-    }*/
 
     public void UpdateListWorksheets() throws IOException, ServiceException {
         worksheets = spreadsheetEntry.getWorksheets();
@@ -274,6 +382,40 @@ public class GoogleSpreadsheets {
             this.col = col;
             idString = String.format("R%sC%s", row, col);
         }
+    }
+
+    /** Обратный вызов при получении разрешения для токена */
+    public class CallbackReceiver extends BroadcastReceiver {
+        public static final String TAG = "CallbackReceiver";
+
+        public CallbackReceiver() {
+        }
+
+        @Override
+        public void onReceive(Context context, Intent callback) {
+                /*Bundle extras = callback.getExtras();
+                Intent intent = new Intent(context, HelloActivity.class);
+                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                intent.putExtras(extras);
+                Log.i(TAG, "Received broadcast. Resurrecting activity");
+                context.startActivity(intent);*/
+            execute();
+            //new GetGoogleToken().execute();
+        }
+    }
+
+    private void tokenNotify(UserRecoverableAuthException exception){
+        NotificationManager notificationManager = (NotificationManager)context.getSystemService(Context.NOTIFICATION_SERVICE);
+        Intent authorizationIntent = exception.getIntent();
+        authorizationIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK).addFlags(Intent.FLAG_FROM_BACKGROUND);
+        PendingIntent pendingIntent = PendingIntent.getActivity(context, 0, authorizationIntent, 0);
+        NotificationCompat.Builder notification = new NotificationCompat.Builder(context)
+                .setSmallIcon(android.R.drawable.ic_dialog_alert)
+                .setTicker("Permission requested")
+                .setContentTitle("Permission requested")
+                .setContentText("for account " + ScaleModule.getUserName())
+                .setContentIntent(pendingIntent).setAutoCancel(true);
+        notificationManager.notify(0, notification.build());
     }
 
 }

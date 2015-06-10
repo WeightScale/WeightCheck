@@ -98,5 +98,8 @@ public class Main extends Application {
         getApplicationContext().startService(new Intent(getApplicationContext(), ServiceSmsCommand.class));
     }
 
-
+    @Override
+    public void attachBaseContext(Context base) {
+        super.attachBaseContext(base);
+    }
 }

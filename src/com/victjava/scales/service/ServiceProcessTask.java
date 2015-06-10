@@ -5,6 +5,7 @@ import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
 import android.content.*;
+import android.content.res.AssetManager;
 import android.database.Cursor;
 import android.os.IBinder;
 import android.os.Message;
@@ -16,6 +17,7 @@ import com.victjava.scales.provider.TaskTable;
 import com.victjava.scales.*;
 import com.victjava.scales.TaskCommand.*;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Map;
 
@@ -23,7 +25,7 @@ import java.util.Map;
  * Created by Kostya on 04.04.2015.
  */
 public class ServiceProcessTask extends Service {
-
+    TaskTable taskTable;
     private Internet internet;
     private static BroadcastReceiver broadcastReceiver;
     private NotificationManager notificationManager;
@@ -42,6 +44,7 @@ public class ServiceProcessTask extends Service {
     @Override
     public void onCreate() {
         super.onCreate();
+        taskTable = new TaskTable(getApplicationContext());
         internet = new Internet(this);
         broadcastReceiver = new BroadcastReceiver() {
             @Override
@@ -59,23 +62,22 @@ public class ServiceProcessTask extends Service {
         IntentFilter filter = new IntentFilter(Internet.INTERNET_CONNECT);
         filter.addAction(Internet.INTERNET_DISCONNECT);
         registerReceiver(broadcastReceiver, filter);
-        //stackBuilder = TaskStackBuilder.create(this);
-        //stackBuilder.addParentStack(ActivityScales.class);
         notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
     }
 
+    /** Процесс выполнения задач */
     void taskProcess() {
 
         TaskCommand taskCommand = new TaskCommand(getApplicationContext(), msgHandler);
 
-        msgHandler.sendMessage(msgHandler.obtainMessage(0, TaskType.values().length, 0));
-        for (TaskType type : TaskType.values()) {
-            Cursor cursor = new TaskTable(getApplicationContext()).getTypeEntry(type);
+        msgHandler.obtainMessage(0, TaskType.values().length, 0).sendToTarget();
+        for (TaskType taskType : TaskType.values()) {
+            Cursor cursor = taskTable.getTypeEntry(taskType);
             ContentQueryMap mQueryMap = new ContentQueryMap(cursor, BaseColumns._ID, true, null);
             Map<String, ContentValues> map = mQueryMap.getRows();
             cursor.close();
             try {
-                taskCommand.execTask(type, map);
+                taskCommand.execute(taskType, map);
             } catch (Exception e) {
                 msgHandler.sendEmptyMessage(TaskCommand.HANDLER_FINISH_THREAD);
             }
@@ -84,14 +86,21 @@ public class ServiceProcessTask extends Service {
 
     public final HandlerTaskNotification msgHandler = new HandlerTaskNotification() {
 
+        /** Количество запущеных процессов */
+        int numThread;
+
+        /** Сообщение на удаление задачи
+         * @param what
+         * @param arg1
+         */
         @Override
         public void handleRemoveEntry(int what, int arg1) {
             switch (what) {
                 case TaskCommand.HANDLER_NOTIFY_CHECK_UNSEND:
-                    new TaskTable(getApplicationContext()).removeEntryIfErrorOver(arg1);
-                    break;
+                    taskTable.removeEntryIfErrorOver(arg1);
+                break;
                 default:
-                    new TaskTable(getApplicationContext()).removeEntry(arg1);
+                    taskTable.removeEntry(arg1);
             }
         }
 
@@ -108,8 +117,6 @@ public class ServiceProcessTask extends Service {
         public void handleError(int what, String msg) {
             new ErrorTable(getApplicationContext()).insertNewEntry(String.valueOf(what), msg);
         }
-
-        int numThread;
 
         @Override
         public void handleMessage(Message msg) {
@@ -182,4 +189,6 @@ public class ServiceProcessTask extends Service {
 
         return builder.build();
     }
+
+
 }

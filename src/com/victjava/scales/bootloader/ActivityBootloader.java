@@ -34,7 +34,7 @@ public class ActivityBootloader extends Activity implements View.OnClickListener
     private TextView textViewLog;
     private ProgressDialog progressDialog;
     private final BluetoothAdapter bluetoothAdapter = BluetoothAdapter.getDefaultAdapter(); //блютуз адаптер
-    protected AlertDialog.Builder dialog;
+
     private AVRProgrammer programmer;
     private String addressDevice = "";
     private String hardware = "362";
@@ -47,7 +47,6 @@ public class ActivityBootloader extends Activity implements View.OnClickListener
     static final int REQUEST_CONNECT_SCALE = 2;
 
     private static final SparseArray<String> mapCodeDevice = new SparseArray<>();
-
     static {
         mapCodeDevice.put(0x9514, "atmega328.xml");
         mapCodeDevice.put(0x9406, "atmega168.xml");
@@ -55,7 +54,7 @@ public class ActivityBootloader extends Activity implements View.OnClickListener
     }
 
     private class ThreadDoDeviceDependent extends AsyncTask<Void, Void, Boolean> {
-
+        protected AlertDialog.Builder dialog;
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
@@ -136,8 +135,7 @@ public class ActivityBootloader extends Activity implements View.OnClickListener
         buttonBack.setOnClickListener(this);
 
         progressDialog = new ProgressDialog(this);
-
-        dialog = new AlertDialog.Builder(this);
+        AlertDialog.Builder dialog = new AlertDialog.Builder(this);
         dialog.setTitle(getString(R.string.Warning_Connect));
         dialog.setCancelable(false);
         dialog.setPositiveButton(getString(R.string.OK), new DialogInterface.OnClickListener() {
@@ -175,8 +173,8 @@ public class ActivityBootloader extends Activity implements View.OnClickListener
         }
     }
 
-    final BootModule bootModule = new BootModule() {
-
+    final BootModule bootModule = new BootModule("BOOT") {
+        protected AlertDialog.Builder dialog;
         @Override
         public void handleResultConnect(final ResultConnect result) {
             runOnUiThread(new Runnable() {

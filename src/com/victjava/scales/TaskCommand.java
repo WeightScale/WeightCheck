@@ -1,10 +1,21 @@
 package com.victjava.scales;
 
+import android.app.Activity;
+import android.app.Notification;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
+import android.content.BroadcastReceiver;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.os.*;
+import android.support.v4.app.NotificationCompat;
+import android.util.Log;
+import com.google.android.gms.auth.GoogleAuthException;
+import com.google.android.gms.auth.GoogleAuthUtil;
+import com.google.android.gms.auth.UserRecoverableAuthException;
+import com.google.android.gms.auth.UserRecoverableNotifiedException;
 import com.konst.module.ScaleModule;
 import com.konst.sms_commander.SMS;
 import com.victjava.scales.provider.CheckTable;
@@ -22,6 +33,8 @@ import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.params.HttpParams;
 
 import javax.mail.MessagingException;
+import java.io.File;
+import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.util.*;
@@ -31,10 +44,10 @@ import java.util.*;
  */
 public class TaskCommand {
 
-    final CheckTable checkTable;
-    final Context mContext;
+    CheckTable checkTable ;
+    final Context mContext ;
     //String mMimeType;
-    final HandlerTaskNotification mHandler;
+    HandlerTaskNotification mHandler;
     boolean cancel = true;
 
     public static final int HANDLER_FINISH_THREAD = 1;
@@ -50,33 +63,35 @@ public class TaskCommand {
     public static final int HANDLER_NOTIFY_ERROR = 11;
     public static final int ERROR = 12;
 
+    /** Энумератор типа задачи. */
     public enum TaskType {
-
-        TYPE_CHECK_SEND_MAIL_CONTACT,   //для електронной почты
-        TYPE_CHECK_SEND_MAIL_ADMIN,     //для електронной боссу
-        TYPE_CHECK_SEND_HTTP_POST,      //для чек для облака
-        TYPE_PREF_SEND_HTTP_POST,       //для настройки для облака
-        TYPE_CHECK_SEND_SHEET_DISK,     //для google disk
-        TYPE_PREF_SEND_SHEET_DISK,      //для google disk
-        TYPE_CHECK_SEND_SMS_CONTACT,    //для смс отправки контакту
-        TYPE_CHECK_SEND_SMS_ADMIN       //для смс отправки боссу
+        /**чек для електронной почты*/
+        TYPE_CHECK_SEND_MAIL_CONTACT,
+        /**чек для електронной почты боссу*/
+        TYPE_CHECK_SEND_MAIL_ADMIN,
+        /**чек для облака*/
+        TYPE_CHECK_SEND_HTTP_POST,
+        /**настройки для для облака*/
+        TYPE_PREF_SEND_HTTP_POST,
+        /**чек для google disk*/
+        TYPE_CHECK_SEND_SHEET_DISK,
+        /**настройки для google disk*/
+        TYPE_PREF_SEND_SHEET_DISK,
+        /**чек для смс отправки контакту*/
+        TYPE_CHECK_SEND_SMS_CONTACT,
+        /**чек для смс отправки боссу*/
+        TYPE_CHECK_SEND_SMS_ADMIN
     }
 
+    /** Контейнер команд  */
     public final Map<TaskType, InterfaceTaskCommand> cmdMap = new EnumMap<>(TaskType.class);
-
-    {
-        cmdMap.put(TaskType.TYPE_CHECK_SEND_HTTP_POST, new CheckTokHttpPost());
-        cmdMap.put(TaskType.TYPE_CHECK_SEND_SHEET_DISK, new CheckTokDiskSheet());
-        cmdMap.put(TaskType.TYPE_CHECK_SEND_MAIL_CONTACT, new CheckToMail());
-        cmdMap.put(TaskType.TYPE_CHECK_SEND_MAIL_ADMIN, new CheckToMail());
-        cmdMap.put(TaskType.TYPE_CHECK_SEND_SMS_CONTACT, new CheckToSms());
-        cmdMap.put(TaskType.TYPE_CHECK_SEND_SMS_ADMIN, new CheckToSms());
-        cmdMap.put(TaskType.TYPE_PREF_SEND_SHEET_DISK, new PrefToDiskSheet());
-        //cmdMap = Collections.unmodifiableMap(cmdMap);
-    }
 
     public interface InterfaceTaskCommand {
         void onExecTask(Map<String, ContentValues> map);
+    }
+
+    interface UserRecoverableListener<T> {
+        void onTaskComplete(T result);
     }
 
     public TaskCommand(Context context, HandlerTaskNotification handler) {
@@ -84,11 +99,22 @@ public class TaskCommand {
         mHandler = handler;
         cancel = false;
         checkTable = new CheckTable(mContext);
+
+        cmdMap.put(TaskType.TYPE_CHECK_SEND_HTTP_POST, new CheckTokHttpPost());
+        cmdMap.put(TaskType.TYPE_CHECK_SEND_SHEET_DISK, new CheckToSpreadsheet(Main.versionName));
+        cmdMap.put(TaskType.TYPE_CHECK_SEND_MAIL_CONTACT, new CheckToMail());
+        cmdMap.put(TaskType.TYPE_CHECK_SEND_MAIL_ADMIN, new CheckToMail());
+        cmdMap.put(TaskType.TYPE_CHECK_SEND_SMS_CONTACT, new CheckToSms());
+        cmdMap.put(TaskType.TYPE_CHECK_SEND_SMS_ADMIN, new CheckToSms());
+        cmdMap.put(TaskType.TYPE_PREF_SEND_SHEET_DISK, new PreferenceToSpreadsheet(Main.versionName));
     }
 
-    public void execTask(TaskType type, Map<String, ContentValues> map) throws Exception {
+    public void execute(TaskType type, Map<String, ContentValues> map) throws Exception {
         if (map.isEmpty())
             throw new Exception("map is empty");
+        //if (type == TaskType.TYPE_CHECK_SEND_SHEET_DISK){
+            //mContext.startActivity(new Intent(mContext, CheckToSpreadsheet.class).setFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
+        //}
         cmdMap.get(type).onExecTask(map);
     }
 
@@ -96,53 +122,59 @@ public class TaskCommand {
         return cancel;
     }
 
-    private boolean getConnection(int timeout, int countConnect) {
-        //int count = 0;
-        while (!cancel && countConnect != 0) {
-            mContext.sendBroadcast(new Intent(Internet.INTERNET_CONNECT));
-            try { Thread.sleep(timeout); } catch (InterruptedException ignored) { }
-
+    /** Получить интернет соединение.
+     * @param timeout Задержка между попытками.
+     * @param countAttempt Количество попыток.
+     * @return true - интернет соединение установлено.
+     */
+    private boolean getConnection(int timeout, int countAttempt) {
+        while (!cancel && countAttempt != 0) {
             if (Internet.isOnline())
                 return true;
-            countConnect--;
+            mContext.sendBroadcast(new Intent(Internet.INTERNET_CONNECT));
+            try { Thread.sleep(timeout); } catch (InterruptedException ignored) { }
+            countAttempt--;
         }
         return false;
     }
 
-    //==================================================================================================================
-    public class CheckTokDiskSheet implements InterfaceTaskCommand {
-        private final GoogleSpreadsheets googleSpreadsheets;
-        final String MAP_CHECKS_SEND = "send";
-        final String MAP_CHECKS_UNSEND = "unsend";
-        final Map<String, ArrayList<ObjParcel>> mapChecks = new HashMap<>();
+    /** Отправляем весовой чек Google disk spreadsheet таблицу. */
+    public class CheckToSpreadsheet extends GoogleSpreadsheets implements TaskCommand.InterfaceTaskCommand {
+        /** Чек отправлен */
+        final static String MAP_CHECKS_SEND = "send";
+        /** Чек не отправлен */
+        final static String MAP_CHECKS_UNSEND = "unsend";
+        /** Контейнер для обратных сообщений
+         * какие чеки отправлены или не отправлены*/
+        final Map<String, ArrayList<TaskCommand.ObjParcel>> mapChecks = new HashMap<>();
+        {
+            mapChecks.put(MAP_CHECKS_SEND, new ArrayList<TaskCommand.ObjParcel>());     /** Лист чеков отправленых */
+            mapChecks.put(MAP_CHECKS_UNSEND, new ArrayList<TaskCommand.ObjParcel>());   /** Лист чеков не отправленых */
+        }
+        /** Контейнер чеков для отправки */
+        Map<String, ContentValues> map;
 
-        CheckTokDiskSheet() throws RuntimeException {
-            try {
-                googleSpreadsheets = new GoogleSpreadsheets(ScaleModule.getUserName(), ScaleModule.getPassword(), ScaleModule.getSpreadSheet(), Main.versionName);
-            } catch (RuntimeException ignored) {
-                mHandler.handleError(401, ignored.getMessage());
-                throw new RuntimeException(ignored);
-            }
-            mapChecks.put(MAP_CHECKS_SEND, new ArrayList<ObjParcel>());
-            mapChecks.put(MAP_CHECKS_UNSEND, new ArrayList<ObjParcel>());
+
+        /** Конструктор экземпляра класса CheckToSpreadsheet.
+         * @param service Имя сервиса SpreadsheetService.
+         */
+        public CheckToSpreadsheet(String service) {
+            super(service);
         }
 
+        /** Вызывается когда токен получен */
         @Override
-        public void onExecTask(final Map<String, ContentValues> map) {
-
+        protected void tokenIsReceived() {
             new Thread(new Runnable() {
                 @Override
                 public void run() {
-
-                    if (!getConnection(10000, 10)) {
-                        mHandler.sendEmptyMessage(HANDLER_FINISH_THREAD);
-                        return;
-                    }
-                    //NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(mContext);
                     try {
-                        googleSpreadsheets.login();
-                        googleSpreadsheets.getSheetEntry(ScaleModule.getSpreadSheet());
-                        googleSpreadsheets.UpdateListWorksheets();
+                        if (!getConnection(10000, 10)) {
+                            mHandler.sendEmptyMessage(HANDLER_FINISH_THREAD);
+                            return;
+                        }
+                        getSheetEntry(ScaleModule.getSpreadSheet());
+                        UpdateListWorksheets();
 
                         for (Map.Entry<String, ContentValues> entry : map.entrySet()) {
                             int taskId = Integer.valueOf(entry.getKey());
@@ -150,31 +182,74 @@ public class TaskCommand {
                             Message msg;
                             try {
                                 sendCheckToDisk(checkId);
-                                mapChecks.get(MAP_CHECKS_SEND).add(new ObjParcel(checkId, mContext.getString(R.string.sent_to_the_server)));
+                                mapChecks.get(MAP_CHECKS_SEND).add(new TaskCommand.ObjParcel(checkId, mContext.getString(R.string.sent_to_the_server)));
                                 msg = mHandler.obtainMessage(HANDLER_NOTIFY_SHEET, checkId, taskId, mapChecks.get(MAP_CHECKS_SEND));
                             } catch (Exception e) {
-                                mapChecks.get(MAP_CHECKS_UNSEND).add(new ObjParcel(checkId, "Не отправлен " + e.getMessage()));
+                                mapChecks.get(MAP_CHECKS_UNSEND).add(new TaskCommand.ObjParcel(checkId, "Не отправлен " + e.getMessage()));
                                 msg = mHandler.obtainMessage(HANDLER_NOTIFY_CHECK_UNSEND, checkId, taskId, mapChecks.get(MAP_CHECKS_UNSEND));
                                 mHandler.handleError(401, e.getMessage());
                             }
                             mHandler.sendMessage(msg);
                         }
                     } catch (Exception e) {
-                        mHandler.handleNotificationError(HANDLER_NOTIFY_ERROR, 505, new MsgNotify(MsgNotify.ID_NOTIFY_NO_SHEET, e.getMessage()));
+                        mHandler.handleNotificationError(HANDLER_NOTIFY_ERROR, 505, new TaskCommand.MsgNotify(TaskCommand.MsgNotify.ID_NOTIFY_NO_SHEET, e.getMessage()));
                     }
                     mHandler.sendEmptyMessage(HANDLER_FINISH_THREAD);
                 }
             }).start();
-
         }
 
+        /** Вызывается при получении токена.
+         * @return Возвращяет полученый токен.
+         * @throws IOException
+         * @throws GoogleAuthException
+         * @throws IllegalArgumentException
+         */
+        @Override
+        protected String fetchToken() throws IOException, GoogleAuthException, IllegalArgumentException {
+            if (!getConnection(10000, 10)) {
+                mHandler.sendEmptyMessage(HANDLER_FINISH_THREAD);
+                return null;
+            }
+            try {
+                return GoogleAuthUtil.getTokenWithNotification(mContext, ScaleModule.getUserName(), "oauth2:" + SCOPE, null, makeCallback(ScaleModule.getUserName()));
+            } catch (UserRecoverableNotifiedException userRecoverableException) {
+                mHandler.handleError(401, userRecoverableException.getMessage());
+            } catch (GoogleAuthException fatalException) {
+                mHandler.handleError(401, "Unrecoverable error " + fatalException.getMessage());
+            }
+            return null;
+        }
+
+        /** Вызывается если разрешение для получения токена получено */
+        @Override
+        protected void permissionIsObtained() {
+            /** Процесс получения доступа к SpreadsheetService */
+            execute();
+        }
+
+        /** Выполнить задачу отправки чеков.
+         * @param map Контейнер чеков для отправки.
+         */
+        @Override
+        public void onExecTask(final Map<String, ContentValues> map) {
+            /** Сохраняем контейнер локально */
+            this.map = map;
+            /** Процесс получения доступа к SpreadsheetService */
+            execute();
+        }
+
+        /** Отослать данные чека в таблицу
+         * @param id Индекс чека.
+         * @throws Exception
+         */
         private void sendCheckToDisk(int id) throws Exception {
             Cursor cursor = checkTable.getEntryItem(id);
             if (cursor == null)
                 throw new Exception(mContext.getString(R.string.Check_N) + id + " null");
 
             if (cursor.moveToFirst()) {
-                googleSpreadsheets.addRow(cursor, CheckTable.TABLE);
+                addRow(cursor, CheckTable.TABLE);
                 checkTable.updateEntry(id, CheckTable.KEY_CHECK_ON_SERVER, 1);
             }
             cursor.close();
@@ -377,41 +452,54 @@ public class TaskCommand {
         }
     }
 
-    public class PrefToDiskSheet implements InterfaceTaskCommand {
-        private GoogleSpreadsheets googleSpreadsheets;
+    /** Отправляем настройки Google disk spreadsheet таблицу */
+    public class PreferenceToSpreadsheet extends GoogleSpreadsheets implements InterfaceTaskCommand {
+        //private GoogleSpreadsheets googleSpreadsheets;
         final String MAP_PREF_SEND = "send";
         final String MAP_PREF_UNSEND = "unsend";
         final Map<String, ArrayList<ObjParcel>> mapPrefs = new HashMap<>();
+        Map<String, ContentValues> map;
 
-        {
+        PreferenceToSpreadsheet(String service) {
+            super(service);
             mapPrefs.put(MAP_PREF_SEND, new ArrayList<ObjParcel>());
             mapPrefs.put(MAP_PREF_UNSEND, new ArrayList<ObjParcel>());
         }
 
-        PrefToDiskSheet() {
-            try {
-                googleSpreadsheets = new GoogleSpreadsheets(ScaleModule.getUserName(), ScaleModule.getPassword(), ScaleModule.getSpreadSheet(), Main.versionName);
-            } catch (RuntimeException ignored) {
-                mHandler.handleError(501, ignored.getMessage());
+        @Override
+        public void onExecTask(final Map<String, ContentValues> map) {
+            this.map = map;
+            execute();
+            //new GetGoogleToken().execute();
+        }
+
+        private void sendPreferenceToDisk(int id) throws Exception {
+            Cursor cursor = new PreferencesTable(mContext).getEntryItem(id);
+            if (cursor == null) {
+                throw new Exception(mContext.getString(R.string.Check_N) + id + " null");
             }
+            if (cursor.moveToFirst()) {
+                addRow(cursor, PreferencesTable.TABLE);
+                new PreferencesTable(mContext).removeEntry(id);
+            }
+            cursor.close();
         }
 
         @Override
-        public void onExecTask(final Map<String, ContentValues> map) {
-
+        protected void tokenIsReceived() {
             new Thread(new Runnable() {
                 @Override
                 public void run() {
-
+                    //googleSpreadsheets = new GoogleSpreadsheets(Main.versionName);
                     if (!getConnection(10000, 10)) {
                         mHandler.sendEmptyMessage(HANDLER_FINISH_THREAD);
                         return;
                     }
                     //NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(mContext);
                     try {
-                        googleSpreadsheets.login();
-                        googleSpreadsheets.getSheetEntry(ScaleModule.getSpreadSheet());
-                        googleSpreadsheets.UpdateListWorksheets();
+                        //googleSpreadsheets.login();
+                        getSheetEntry(ScaleModule.getSpreadSheet());
+                        UpdateListWorksheets();
 
                         Message msg = new Message();
                         for (Map.Entry<String, ContentValues> entry : map.entrySet()) {
@@ -435,17 +523,28 @@ public class TaskCommand {
             }).start();
         }
 
-        private void sendPreferenceToDisk(int id) throws Exception {
-            Cursor cursor = new PreferencesTable(mContext).getEntryItem(id);
-            if (cursor == null) {
-                throw new Exception(mContext.getString(R.string.Check_N) + id + " null");
+        @Override
+        protected String fetchToken() throws IOException, GoogleAuthException, IllegalArgumentException {
+            if (!getConnection(10000, 10)) {
+                mHandler.sendEmptyMessage(HANDLER_FINISH_THREAD);
+                return null;
             }
-            if (cursor.moveToFirst()) {
-                googleSpreadsheets.addRow(cursor, PreferencesTable.TABLE);
-                new PreferencesTable(mContext).removeEntry(id);
+            try {
+                return GoogleAuthUtil.getTokenWithNotification(mContext, ScaleModule.getUserName(), "oauth2:" + SCOPE, null, makeCallback(ScaleModule.getUserName()));
+            } catch (UserRecoverableNotifiedException userRecoverableException) {
+                mHandler.handleError(401, userRecoverableException.getMessage());
+            } catch (GoogleAuthException fatalException) {
+                mHandler.handleError(401, "Unrecoverable error " + fatalException.getMessage());
             }
-            cursor.close();
+            return null;
         }
+
+        @Override
+        protected void permissionIsObtained() {
+            execute();
+        }
+
+
     }
 
     public static class MsgNotify {
@@ -547,6 +646,5 @@ public class TaskCommand {
         };
 
     }
-
 
 }
