@@ -53,7 +53,7 @@ public class MailSend {
     private Message createMessage(String subject, String messageBody, Session session) throws MessagingException, UnsupportedEncodingException {
         Message message = new MimeMessage(session);
         try {
-            message.setFrom(new InternetAddress("scale", mContext.getString(R.string.app_name) + " \"" + ScaleModule.getName()));
+            message.setFrom(new InternetAddress("scale", mContext.getString(R.string.app_name) + " \"" + ScaleModule.getNameBluetoothDevice()));
         } catch (Exception e) {
             message.setFrom(new InternetAddress("scale", mContext.getString(R.string.app_name) + " \""));
         }

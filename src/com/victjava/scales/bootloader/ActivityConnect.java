@@ -16,6 +16,7 @@ import android.os.*;
 import android.view.*;
 import android.widget.*;
 import com.konst.module.BootModule;
+import com.konst.module.Module;
 import com.konst.module.ScaleModule;
 import com.victjava.scales.*;
 
@@ -218,7 +219,7 @@ public class ActivityConnect extends Activity implements View.OnClickListener {
                 try {
                     bootModule.init("bootloader", bluetoothDevice.getAddress());
                 } catch (Exception e) {
-                    bootModule.handleConnectError(ScaleModule.Error.CONNECT_ERROR, e.getMessage());
+                    bootModule.handleConnectError(Module.ResultError.CONNECT_ERROR, e.getMessage());
                 }
                 break;
             default:
@@ -237,7 +238,7 @@ public class ActivityConnect extends Activity implements View.OnClickListener {
         }
 
         @Override
-        public void handleConnectError(Error error, String s) {}
+        public void handleConnectError(ResultError error, String s) {}
 
     };
 

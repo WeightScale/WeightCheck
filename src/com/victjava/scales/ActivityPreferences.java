@@ -47,7 +47,7 @@ public class ActivityPreferences extends PreferenceActivity implements SharedPre
         Preference name = findPreference(KEY_NAME);
         if (name != null) {
             try {
-                name.setSummary(ScaleModule.getName());
+                name.setSummary(ScaleModule.getNameBluetoothDevice());
                 name.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
                     @Override
                     public boolean onPreferenceChange(Preference preference, Object o) {
@@ -71,7 +71,7 @@ public class ActivityPreferences extends PreferenceActivity implements SharedPre
 
         name = findPreference(KEY_ADDRESS);
         if (name != null) {
-            name.setSummary(ScaleModule.getAddress());
+            name.setSummary(ScaleModule.getAddressBluetoothDevice());
         }
 
         name = findPreference(KEY_TIMER);
@@ -315,7 +315,7 @@ public class ActivityPreferences extends PreferenceActivity implements SharedPre
                         else
                             intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
                         //intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                        intent.putExtra(KEY_ADDRESS, ScaleModule.getAddress());
+                        intent.putExtra(KEY_ADDRESS, ScaleModule.getAddressBluetoothDevice());
                         intent.putExtra(InterfaceVersions.CMD_HARDWARE, hardware);
                         intent.putExtra(InterfaceVersions.CMD_VERSION, ScaleModule.getNumVersion());
                         startActivity(intent);

@@ -93,7 +93,7 @@ public class ActivitySearch extends Activity implements View.OnClickListener {
                         case BluetoothDevice.ACTION_ACL_CONNECTED:
                             setProgressBarIndeterminateVisibility(false);
                             try {
-                                setTitle(" \"" + ScaleModule.getName() + "\", v." + ScaleModule.getNumVersion()); //установить заголовок
+                                setTitle(" \"" + ScaleModule.getNameBluetoothDevice() + "\", v." + ScaleModule.getNumVersion()); //установить заголовок
                             } catch (Exception e) {
                                 setTitle(" \"" + e.getMessage() + "\", v." + ScaleModule.getNumVersion()); //установить заголовок      }
                             }
@@ -123,7 +123,6 @@ public class ActivitySearch extends Activity implements View.OnClickListener {
         }
 
         foundDevice = new ArrayList<>();
-
 
         for (int i = 0; Preferences.contains(ActivityPreferences.KEY_ADDRESS + i); i++) { //заполнение списка
             foundDevice.add(bluetooth.getRemoteDevice(Preferences.read(ActivityPreferences.KEY_ADDRESS + i, "")));
@@ -248,7 +247,6 @@ public class ActivitySearch extends Activity implements View.OnClickListener {
         }
     }
 
-
     public final ScaleModule scaleModule = new ScaleModule() {
         AlertDialog.Builder dialog;
         private ProgressDialog dialogSearch;
@@ -264,8 +262,7 @@ public class ActivitySearch extends Activity implements View.OnClickListener {
                             finish();
                             break;
                         case STATUS_SCALE_UNKNOWN:
-                            String device = ScaleModule.getName();
-                            log(device + ' ' + getString(R.string.not_scale));
+                            log(ScaleModule.getNameBluetoothDevice() + ' ' + getString(R.string.not_scale));
                             break;
                         case STATUS_ATTACH_START:
                             listView.setEnabled(false);
@@ -275,10 +272,10 @@ public class ActivitySearch extends Activity implements View.OnClickListener {
                             dialogSearch.show();
                             dialogSearch.setContentView(R.layout.custom_progress_dialog);
                             TextView tv1 = (TextView) dialogSearch.findViewById(R.id.textView1);
-                            tv1.setText(getString(R.string.Connecting) + '\n' + ScaleModule.getName());
+                            tv1.setText(getString(R.string.Connecting) + '\n' + ScaleModule.getNameBluetoothDevice());
 
                             setProgressBarIndeterminateVisibility(true);
-                            setTitle(getString(R.string.Connecting) + getString(R.string.app_name) + ' ' + ScaleModule.getName()); //установить заголовок
+                            setTitle(getString(R.string.Connecting) + getString(R.string.app_name) + ' ' + ScaleModule.getNameBluetoothDevice()); //установить заголовок
                             break;
                         case STATUS_ATTACH_FINISH:
                             listView.setEnabled(true);
@@ -294,7 +291,7 @@ public class ActivitySearch extends Activity implements View.OnClickListener {
         }
 
         @Override
-        public void handleConnectError(final Error error, final String s) {
+        public void handleConnectError(final ResultError error, final String s) {
             runOnUiThread(new Runnable() {
                 @Override
                 public void run() {

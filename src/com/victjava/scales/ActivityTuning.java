@@ -28,7 +28,7 @@ public class ActivityTuning extends PreferenceActivity {
             name.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
                 @Override
                 public boolean onPreferenceClick(Preference preference) {
-                    String str = ScaleModule.getModuleSensor();
+                    String str = ScaleModule.feelWeightSensor();
                     if (str.isEmpty()) {
                         Toast.makeText(getApplicationContext(), R.string.preferences_no, Toast.LENGTH_SHORT).show();
                         return false;
@@ -49,7 +49,7 @@ public class ActivityTuning extends PreferenceActivity {
             name.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
                 @Override
                 public boolean onPreferenceChange(Preference preference, Object o) {
-                    String str = ScaleModule.getModuleSensor();
+                    String str = ScaleModule.feelWeightSensor();
                     if (str.isEmpty()) {
                         Toast.makeText(getApplicationContext(), R.string.preferences_no, Toast.LENGTH_SHORT).show();
                         return false;

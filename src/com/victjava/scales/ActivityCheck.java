@@ -632,19 +632,16 @@ public class ActivityCheck extends FragmentActivity implements View.OnClickListe
         }
 
     }
-
     /** Обработчик показаний веса
-     * Возвращяем время обновления показаний веса в милисекундах.
-     */
+     * Возвращяем время обновления показаний веса в милисекундах. */
     final HandlerWeight handlerWeight = new HandlerWeight() {
         /** Сообщение показаний веса.
          * @param what Результат статуса сообщения энумератор ResultWeight.
          * @param weight Данные веса в килограмах.
          * @param sensor Данные показания сенсорного датчика.
-         * @return Время обновления показаний в милисекундах.
-         */
+         * @return Время обновления показаний в милисекундах.*/
         @Override
-        public int handlerWeight(final ScaleModule.ResultWeight what, final int weight, final int sensor) {
+        public int onEvent(final ScaleModule.ResultWeight what, final int weight, final int sensor) {
             runOnUiThread(new Runnable() {
                 Rect bounds;
                 @Override

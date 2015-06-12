@@ -17,6 +17,7 @@ import android.provider.Settings;
 import android.telephony.TelephonyManager;
 import android.view.*;
 import android.widget.*;
+import com.konst.module.Module;
 import com.konst.module.ScaleModule;
 import com.konst.module.ScaleModule.*;
 import com.victjava.scales.provider.CheckTable;
@@ -353,7 +354,7 @@ public class ActivityScales extends Activity implements View.OnClickListener, Vi
         try {
             scaleModule.init(Main.versionName, device);
         } catch (Exception e) {
-            scaleModule.handleConnectError(ScaleModule.Error.CONNECT_ERROR, e.getMessage());
+            scaleModule.handleConnectError(Module.ResultError.CONNECT_ERROR, e.getMessage());
         }
     }
 
@@ -374,7 +375,7 @@ public class ActivityScales extends Activity implements View.OnClickListener, Vi
         setProgressBarIndeterminateVisibility(false);
         switch (resultCode) {
             case RESULT_OK:
-                scaleModule.handleResultConnect(ResultConnect.STATUS_LOAD_OK);
+                scaleModule.handleResultConnect(Module.ResultConnect.STATUS_LOAD_OK);
                 break;
             case RESULT_CANCELED:
                 scaleModule.obtainMessage(RESULT_CANCELED, "Connect error").sendToTarget();
@@ -475,8 +476,7 @@ public class ActivityScales extends Activity implements View.OnClickListener, Vi
         ProgressDialog dialogSearch;
 
         /** Сообщение о результате соединения
-         * @param result Результат соединения энкмератор ResultConnect.
-         */
+         * @param result Результат соединения энкмератор ResultConnect.  */
         @Override
         public void handleResultConnect(final ResultConnect result) {
             runOnUiThread(new Runnable() {
@@ -485,11 +485,11 @@ public class ActivityScales extends Activity implements View.OnClickListener, Vi
                     switch (result) {
                         case STATUS_LOAD_OK:
                             try {
-                                setTitle(getString(R.string.app_name) + " \"" + ScaleModule.getName() + "\", v." + ScaleModule.getNumVersion()); //установить заголовок
+                                setTitle(getString(R.string.app_name) + " \"" + ScaleModule.getNameBluetoothDevice() + "\", v." + ScaleModule.getNumVersion()); //установить заголовок
                             } catch (Exception e) {
                                 setTitle(getString(R.string.app_name) + " , v." + ScaleModule.getNumVersion()); //установить заголовок
                             }
-                            Preferences.write(ActivityPreferences.KEY_LAST_SCALES, ScaleModule.getAddress());
+                            Preferences.write(ActivityPreferences.KEY_LAST_SCALES, ScaleModule.getAddressBluetoothDevice());
                             listView.setEnabled(true);
                             handlerBatteryTemperature.process(true);
                             break;
@@ -503,7 +503,7 @@ public class ActivityScales extends Activity implements View.OnClickListener, Vi
                             dialogSearch.show();
                             dialogSearch.setContentView(R.layout.custom_progress_dialog);
                             TextView tv1 = (TextView) dialogSearch.findViewById(R.id.textView1);
-                            tv1.setText(getString(R.string.Connecting) + '\n' + ScaleModule.getName());
+                            tv1.setText(getString(R.string.Connecting) + '\n' + ScaleModule.getNameBluetoothDevice());
                             break;
                         case STATUS_ATTACH_FINISH:
                             if (dialogSearch.isShowing()) {
@@ -518,10 +518,9 @@ public class ActivityScales extends Activity implements View.OnClickListener, Vi
 
         /** Сообщение о ошибки соединения
          * @param error Тип ошибки энумератор Error.
-         * @param s Описание ошибки.
-         */
+         * @param s Описание ошибки. */
         @Override
-        public void handleConnectError(final Error error, final String s) {
+        public void handleConnectError(final ResultError error, final String s) {
             runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
@@ -606,10 +605,9 @@ public class ActivityScales extends Activity implements View.OnClickListener, Vi
         /** Сообщение
          * @param battery Заряд батареи в процентах.
          * @param temperature Температура в градусах.
-         * @return Время обновления показаний заряда батареи и температуры в секундах.
-         */
+         * @return Время обновления показаний заряда батареи и температуры в секундах.*/
         @Override
-        public int handlerBatteryTemperature(final int battery, final int temperature) {
+        public int onEvent(final int battery, final int temperature) {
             runOnUiThread(new Runnable() {
                 @Override
                 public void run() {

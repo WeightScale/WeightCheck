@@ -15,7 +15,7 @@
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="library" exported="" name="activation" level="project" />
     <orderEntry type="library" exported="" name="bootloader_avr" level="project" />
-    <orderEntry type="library" exported="" name="ScaleModule" level="project" />
     <orderEntry type="library" exported="" name="SMSCommander" level="project" />
+    <orderEntry type="library" name="ScaleModule" level="project" />
   </component>
 </module>

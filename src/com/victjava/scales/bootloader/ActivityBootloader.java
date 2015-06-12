@@ -146,7 +146,7 @@ public class ActivityBootloader extends Activity implements View.OnClickListener
                         try {
                             bootModule.init("bootloader", addressDevice);
                         } catch (Exception e) {
-                            bootModule.handleConnectError(ScaleModule.Error.CONNECT_ERROR, e.getMessage());
+                            bootModule.handleConnectError(Module.ResultError.CONNECT_ERROR, e.getMessage());
                         }
                         break;
                     default:
@@ -217,7 +217,7 @@ public class ActivityBootloader extends Activity implements View.OnClickListener
         }
 
         @Override
-        public void handleConnectError(Error error, String s) {
+        public void handleConnectError(ResultError error, String s) {
             switch (error){
                 case CONNECT_ERROR:
                     Intent intent = new Intent(getBaseContext(), ActivityConnect.class);
@@ -293,7 +293,7 @@ public class ActivityBootloader extends Activity implements View.OnClickListener
     }
 
     static boolean isBootloader() { //Является ли весами и какой версии
-        String vrs = ScaleModule.getModuleVersion(); //Получаем версию весов
+        String vrs = BootModule.getModuleVersion(); //Получаем версию весов
         return vrs.startsWith("BOOT");
     }
 
@@ -304,12 +304,12 @@ public class ActivityBootloader extends Activity implements View.OnClickListener
             switch (requestCode) {
                 case REQUEST_CONNECT_BOOT:
                     //scaleModule.obtainMessage(HandlerScaleConnect.Result.STATUS_LOAD_OK.ordinal()).sendToTarget();
-                    bootModule.handleResultConnect(ResultConnect.STATUS_LOAD_OK);
+                    bootModule.handleResultConnect(Module.ResultConnect.STATUS_LOAD_OK);
                     break;
                 case REQUEST_CONNECT_SCALE:
                     log(getString(R.string.Loading_settings));
                     if (ScaleModule.isScales()) {
-                        restorePreferences();
+                        //restorePreferences(); //todo сделать загрузку настроек которые сохранены пере перепрограммированием.
                         log(getString(R.string.Settings_loaded));
                         break;
                     }
@@ -411,7 +411,7 @@ public class ActivityBootloader extends Activity implements View.OnClickListener
         return true;
     }
 
-    public boolean restorePreferences() {
+    /*public boolean restorePreferences() {
         if (ScaleModule.isScales()) {
             log("Соединились");
             Preferences.load(getSharedPreferences(Preferences.PREF_UPDATE, Context.MODE_PRIVATE));
@@ -437,7 +437,7 @@ public class ActivityBootloader extends Activity implements View.OnClickListener
             ScaleModule.writeData();
         }
         return true;
-    }
+    }*/
 
 
 }
