@@ -7,7 +7,6 @@ import android.database.Cursor;
 import android.os.*;
 import com.google.android.gms.auth.GoogleAuthException;
 import com.google.android.gms.auth.GoogleAuthUtil;
-import com.google.android.gms.auth.UserRecoverableNotifiedException;
 import com.konst.module.ScaleModule;
 import com.konst.sms_commander.SMS;
 import com.victjava.scales.provider.CheckTable;
@@ -30,8 +29,8 @@ import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.util.*;
 
-/*
- * Created by Kostya on 04.04.2015.
+/** Класс задач.
+ * @author Kostya
  */
 public class TaskCommand {
 
@@ -42,9 +41,9 @@ public class TaskCommand {
     boolean cancel = true;
 
     /** Чек отправлен */
-    final static String MAP_CHECKS_SEND = "send";
+    static final String MAP_CHECKS_SEND = "send";
     /** Чек не отправлен */
-    final static String MAP_CHECKS_UNSEND = "unsend";
+    static final String MAP_CHECKS_UNSEND = "unsend";
 
     public static final int HANDLER_TASK_START = 0;
     public static final int HANDLER_FINISH_THREAD = 1;
@@ -86,10 +85,6 @@ public class TaskCommand {
     public interface InterfaceTaskCommand {
         void onExecuteTask(Map<String, ContentValues> map);
     }
-
-    /*interface UserRecoverableListener<T> {
-        void onTaskComplete(T result);
-    }*/
 
     public TaskCommand(Context context, HandlerTaskNotification handler) {
         mContext = context;
@@ -137,10 +132,6 @@ public class TaskCommand {
         /** Контейнер для обратных сообщений
          * какие чеки отправлены или не отправлены*/
         final Map<String, ArrayList<ObjectParcel>> mapChecks = new HashMap<>();
-        {
-            mapChecks.put(MAP_CHECKS_SEND, new ArrayList<ObjectParcel>());     /** Лист чеков отправленых */
-            mapChecks.put(MAP_CHECKS_UNSEND, new ArrayList<ObjectParcel>());   /** Лист чеков не отправленых */
-        }
         /** Контейнер чеков для отправки */
         Map<String, ContentValues> map;
 
@@ -150,7 +141,8 @@ public class TaskCommand {
          */
         public CheckToSpreadsheet(String service) {
             super(service);
-        }
+            mapChecks.put(MAP_CHECKS_SEND, new ArrayList<ObjectParcel>());     /** Лист чеков отправленых */
+            mapChecks.put(MAP_CHECKS_UNSEND, new ArrayList<ObjectParcel>());   /** Лист чеков не отправленых */}
 
         /** Вызывается когда токен получен */
         @Override
@@ -215,7 +207,7 @@ public class TaskCommand {
         @Override
         protected void permissionIsObtained() {
             /** Процесс получения доступа к SpreadsheetService */
-            execute();
+            super.execute();
         }
 
         /** Выполнить задачу отправки чеков.
@@ -226,7 +218,7 @@ public class TaskCommand {
             /** Сохраняем контейнер локально */
             this.map = map;
             /** Процесс получения доступа к SpreadsheetService */
-            execute();
+            super.execute();
         }
 
         /** Отослать данные чека в таблицу
@@ -250,7 +242,8 @@ public class TaskCommand {
     public class CheckTokHttpPost implements InterfaceTaskCommand {
 
         final Map<String, ArrayList<ObjectParcel>> mapChecks = new HashMap<>();
-        {
+
+        public CheckTokHttpPost() {
             mapChecks.put(MAP_CHECKS_SEND, new ArrayList<ObjectParcel>());
             mapChecks.put(MAP_CHECKS_UNSEND, new ArrayList<ObjectParcel>());
         }
@@ -318,7 +311,7 @@ public class TaskCommand {
 
         final Map<String, ArrayList<ObjectParcel>> mapChecks = new HashMap<>();
 
-        {
+        public CheckToMail() {
             mapChecks.put(MAP_CHECKS_SEND, new ArrayList<ObjectParcel>());
             mapChecks.put(MAP_CHECKS_UNSEND, new ArrayList<ObjectParcel>());
         }
@@ -381,7 +374,8 @@ public class TaskCommand {
     public class CheckToSms implements InterfaceTaskCommand {
 
         final Map<String, ArrayList<ObjectParcel>> mapChecks = new HashMap<>();
-        {
+
+        public CheckToSms() {
             mapChecks.put(MAP_CHECKS_SEND, new ArrayList<ObjectParcel>());
             mapChecks.put(MAP_CHECKS_UNSEND, new ArrayList<ObjectParcel>());
         }
@@ -451,7 +445,7 @@ public class TaskCommand {
         @Override
         public void onExecuteTask(final Map<String, ContentValues> map) {
             this.map = map;
-            execute();
+            super.execute();
         }
 
         private void sendPreferenceToDisk(int id) throws Exception {
@@ -518,7 +512,7 @@ public class TaskCommand {
 
         @Override
         protected void permissionIsObtained() {
-            execute();
+            super.execute();
         }
 
 
