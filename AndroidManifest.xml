@@ -36,7 +36,7 @@
     <uses-feature android:name="android.hardware.bluetooth"/>
     <application     android:label="@string/app_name"
                  android:name=".Main"
-                 android:icon="@drawable/scale_launcher"
+                 android:icon="@mipmap/scale_launcher2"
                  android:theme="@style/MyTheme"
                  android:allowClearUserData="true"
                  android:manageSpaceActivity=".ActivityScales"

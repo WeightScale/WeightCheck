@@ -108,7 +108,7 @@ public class ServiceProcessTask extends Service {
         }
 
         @Override
-        public void handleNotificationError(int what, int arg1, MsgNotify msg) {
+        public void handleNotificationError(int what, int arg1, MessageNotify msg) {
             NotificationCompat.Builder builder = new NotificationCompat.Builder(ServiceProcessTask.this);
             builder.setSmallIcon(R.drawable.ic_stat_information);
             builder.setTicker("Ошибка").setContentText(msg.getMessage());

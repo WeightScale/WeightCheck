@@ -12,6 +12,7 @@ import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.*;
 import com.victjava.scales.provider.CheckTable;
+import com.victjava.scales.TaskCommand.ObjectParcel;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -47,7 +48,7 @@ public class ActivityListChecks extends ListActivity implements View.OnClickList
 
         if ("notifyChecks".equals(getIntent().getAction())) {
             Bundle b = getIntent().getExtras();
-            ArrayList<TaskCommand.ObjParcel> items = b.getParcelableArrayList("listCheckNotify");
+            ArrayList<ObjectParcel> items = b.getParcelableArrayList("listCheckNotify");
             if (items != null) {
                 listNotifySetup(items);
                 listView.setOnItemClickListener(onItemClickListenerNotify);
@@ -125,7 +126,7 @@ public class ActivityListChecks extends ListActivity implements View.OnClickList
 
     }
 
-    private void listNotifySetup(ArrayList<TaskCommand.ObjParcel> items) {
+    private void listNotifySetup(ArrayList<ObjectParcel> items) {
         ListAdapter itemsAdapter = new ListNotifyAdapter(this, R.layout.list_item_bluetooth, items);
         setListAdapter(itemsAdapter);
         setTitle(getString(R.string.Checks_closed) + getString(R.string.qty) + listView.getCount()); //установить заголовок
@@ -165,10 +166,10 @@ public class ActivityListChecks extends ListActivity implements View.OnClickList
         }
     }
 
-    public class ListNotifyAdapter extends ArrayAdapter<TaskCommand.ObjParcel> {
+    public class ListNotifyAdapter extends ArrayAdapter<ObjectParcel> {
         final int mLayout;
 
-        public ListNotifyAdapter(Context ctx, int layout, List<TaskCommand.ObjParcel> items) {
+        public ListNotifyAdapter(Context ctx, int layout, List<ObjectParcel> items) {
             super(ctx, layout, items);
             mLayout = layout;
         }

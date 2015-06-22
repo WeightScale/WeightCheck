@@ -28,18 +28,18 @@ public class ActivityTuning extends PreferenceActivity {
             name.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
                 @Override
                 public boolean onPreferenceClick(Preference preference) {
-                    String str = ScaleModule.feelWeightSensor();
-                    if (str.isEmpty()) {
-                        Toast.makeText(getApplicationContext(), R.string.preferences_no, Toast.LENGTH_SHORT).show();
+                    try{
+                        String str = ScaleModule.feelWeightSensor();
+                        ScaleModule.setSensorTenzo(Integer.valueOf(str));
+                        point1.x = Integer.valueOf(str);
+                        point1.y = 0;
+                        Toast.makeText(getApplicationContext(), R.string.preferences_yes, Toast.LENGTH_SHORT).show();
+                        flag_restore = true;
+                        return true;
+                    }catch (Exception e){
+                        Toast.makeText(getApplicationContext(), R.string.preferences_no + e.getMessage(), Toast.LENGTH_SHORT).show();
                         return false;
                     }
-                    //Scales.sensor=Integer.valueOf(str);
-                    ScaleModule.setSensorTenzo(Integer.valueOf(str));
-                    point1.x = Integer.valueOf(str);
-                    point1.y = 0;
-                    Toast.makeText(getApplicationContext(), R.string.preferences_yes, Toast.LENGTH_SHORT).show();
-                    flag_restore = true;
-                    return true;
                 }
             });
         }
@@ -49,17 +49,18 @@ public class ActivityTuning extends PreferenceActivity {
             name.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
                 @Override
                 public boolean onPreferenceChange(Preference preference, Object o) {
-                    String str = ScaleModule.feelWeightSensor();
-                    if (str.isEmpty()) {
-                        Toast.makeText(getApplicationContext(), R.string.preferences_no, Toast.LENGTH_SHORT).show();
+                    try {
+                        String str = ScaleModule.feelWeightSensor();
+                        ScaleModule.setSensorTenzo(Integer.valueOf(str));
+                        point2.x = Integer.valueOf(str);
+                        point2.y = Integer.valueOf(o.toString());
+                        Toast.makeText(getApplicationContext(), R.string.preferences_yes, Toast.LENGTH_SHORT).show();
+                        flag_restore = true;
+                        return true;
+                    }catch (Exception e){
+                        Toast.makeText(getApplicationContext(), R.string.preferences_no + e.getMessage(), Toast.LENGTH_SHORT).show();
                         return false;
                     }
-                    ScaleModule.setSensorTenzo(Integer.valueOf(str));
-                    point2.x = Integer.valueOf(str);
-                    point2.y = Integer.valueOf(o.toString());
-                    Toast.makeText(getApplicationContext(), R.string.preferences_yes, Toast.LENGTH_SHORT).show();
-                    flag_restore = true;
-                    return true;
                 }
             });
         }

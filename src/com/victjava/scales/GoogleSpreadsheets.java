@@ -35,7 +35,7 @@ import java.util.*;
 /*
  * Created by Kostya on 02.03.14.
  */
-public abstract class GoogleSpreadsheets extends AsyncTask<Void, Void, String> {
+public abstract class GoogleSpreadsheets extends AsyncTask<Void, Void, String[]> {
     Context context;
     //String token = null;
     /** Экземпляр атестата */
@@ -95,7 +95,7 @@ public abstract class GoogleSpreadsheets extends AsyncTask<Void, Void, String> {
      * @throws GoogleAuthException
      * @throws IOException
      */
-    public GoogleSpreadsheets(Context context, String service, String accountName) throws GoogleAuthException, IOException {
+    public GoogleSpreadsheets(Context context, String service, String accountName) throws GoogleAuthException, IOException, IllegalArgumentException {
         this.context = context;
         spreadsheetService = new SpreadsheetService(service);
         spreadsheetService.setProtocolVersion(SpreadsheetService.Versions.V3);
@@ -103,26 +103,32 @@ public abstract class GoogleSpreadsheets extends AsyncTask<Void, Void, String> {
     }
 
     @Override
-    protected String doInBackground(Void... params) {
+    protected String[] doInBackground(Void... params) {
         try {
-            return fetchToken();
+            return new String[]{fetchToken(),""};
         } catch (IOException e) {
-            return null;
+            return new String[]{null,e.getMessage()};
         } catch (GoogleAuthException e) {
-           return null;
+            return new String[]{null,e.getMessage()};
+        }catch (IllegalArgumentException e){
+            return new String[]{null,e.getMessage()};
         }
     }
 
     @Override
-    protected void onPostExecute(String s) {
-        if (s != null){
-            spreadsheetService.setAuthSubToken(s);
+    protected void onPostExecute(String... s) {
+        if (s[0] != null){
+            spreadsheetService.setAuthSubToken(s[0]);
             tokenIsReceived();
-        }
+        }else
+            tokenIsFalse(s[1]);
     }
 
     /** Вызываем если токен получен. */
     protected abstract void tokenIsReceived();
+    /** Вызываем если ошибка получения токена
+     * @param error Причина ошибки получения токена*/
+    protected abstract void tokenIsFalse(String error);
 
     /** Получить токен.
      * @return Взвращяем токен.

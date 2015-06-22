@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:orientation="vertical"
+              android:layout_width="fill_parent"
+              android:layout_height="fill_parent" android:background="@android:color/white">
+
+    <Button
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/NEW_AGENT"
+            android:id="@+id/buttonNew" android:textSize="@dimen/text_medium"
+            android:layout_margin="@dimen/padding" android:gravity="center"/>
+    <ListView
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:id="@android:id/list" android:layout_gravity="left|center_vertical" android:clickable="true"
+            android:layout_margin="@dimen/padding"/>
+</LinearLayout>
