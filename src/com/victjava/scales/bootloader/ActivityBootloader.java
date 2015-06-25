@@ -14,7 +14,6 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import com.konst.bootloader.*;
 import com.konst.module.*;
-import com.konst.module.ScaleModule.*;
 import com.victjava.scales.*;
 
 import java.io.IOException;
@@ -174,7 +173,7 @@ public class ActivityBootloader extends Activity implements View.OnClickListener
     }
 
     final BootModule bootModule = new BootModule("BOOT") {
-        protected AlertDialog.Builder dialog;
+        private AlertDialog.Builder dialog;
         @Override
         public void handleResultConnect(final ResultConnect result) {
             runOnUiThread(new Runnable() {
@@ -223,7 +222,8 @@ public class ActivityBootloader extends Activity implements View.OnClickListener
                     Intent intent = new Intent(getBaseContext(), ActivityConnect.class);
                     intent.putExtra("address", addressDevice);
                     startActivityForResult(intent, REQUEST_CONNECT_BOOT);
-                    break;
+                break;
+                default:
             }
         }
     };
@@ -293,7 +293,7 @@ public class ActivityBootloader extends Activity implements View.OnClickListener
     }
 
     static boolean isBootloader() { //Является ли весами и какой версии
-        String vrs = BootModule.getModuleVersion(); //Получаем версию весов
+        String vrs = Module.getModuleVersion(); //Получаем версию весов
         return vrs.startsWith("BOOT");
     }
 
@@ -305,7 +305,7 @@ public class ActivityBootloader extends Activity implements View.OnClickListener
                 case REQUEST_CONNECT_BOOT:
                     //scaleModule.obtainMessage(HandlerScaleConnect.Result.STATUS_LOAD_OK.ordinal()).sendToTarget();
                     bootModule.handleResultConnect(Module.ResultConnect.STATUS_LOAD_OK);
-                    break;
+                break;
                 case REQUEST_CONNECT_SCALE:
                     log(getString(R.string.Loading_settings));
                     if (ScaleModule.isScales()) {
@@ -315,7 +315,8 @@ public class ActivityBootloader extends Activity implements View.OnClickListener
                     }
                     log(getString(R.string.Scale_no_defined));
                     log(getString(R.string.Setting_no_loaded));
-                    break;
+                break;
+                default:
             }
         } else {
             log("Not connected...");

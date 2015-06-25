@@ -67,8 +67,15 @@ public class ServiceProcessTask extends Service {
         notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
     }
 
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        if (broadcastReceiver != null)
+            unregisterReceiver(broadcastReceiver);
+    }
+
     /** Процесс выполнения задач */
-    void taskProcess() {
+    private void taskProcess() {
         /**Экземпляр команд задач*/
         TaskCommand taskCommand = new TaskCommand(getApplicationContext(), msgHandler);
         /**Сообщение на обработчик запущен процесс задач*/
@@ -84,6 +91,8 @@ public class ServiceProcessTask extends Service {
                 msgHandler.sendEmptyMessage(TaskCommand.HANDLER_FINISH_THREAD);
             }
         }
+        /** Останавливаем сервис */
+        stopSelf();
     }
 
     /** Обработчик сообщений */
@@ -93,8 +102,8 @@ public class ServiceProcessTask extends Service {
         int numThread;
 
         /** Сообщение на удаление задачи
-         * @param what
-         * @param arg1
+         * @param what Тип сообщения
+         * @param arg1 Номер записи
          */
         @Override
         public void handleRemoveEntry(int what, int arg1) {

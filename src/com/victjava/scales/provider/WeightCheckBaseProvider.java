@@ -27,19 +27,6 @@ public class WeightCheckBaseProvider extends ContentProvider {
     private static final int ALL_ROWS = 1;
     private static final int SINGLE_ROWS = 2;
 
-    /*private static final int CHECK_LIST         = 1;
-    private static final int CHECK_ID           = 2;
-    private static final int PREFERENCES_LIST   = 3;
-    private static final int PREFERENCES_ID     = 4;
-    private static final int TYPE_LIST          = 5;
-    private static final int TYPE_ID            = 6;
-    private static final int TASK_LIST          = 7;
-    private static final int TASK_ID            = 8;
-    private static final int ERROR_LIST         = 9;
-    private static final int ERROR_ID           = 10;
-    private static final int COMMAND_LIST       = 11;
-    private static final int COMMAND_ID         = 12;*/
-
     private enum TableList {
         CHECK_LIST,
         CHECK_ID,
@@ -371,7 +358,7 @@ public class WeightCheckBaseProvider extends ContentProvider {
         return updateCount;
     }
 
-    private class DBHelper extends SQLiteOpenHelper {
+    private static class DBHelper extends SQLiteOpenHelper {
         final SenderTable senderTable;
         DBHelper(Context context) {
             super(context, DATABASE_NAME, null, DATABASE_VERSION);

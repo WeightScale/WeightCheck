@@ -76,10 +76,8 @@ public class Internet {
             int returnVal = p1.waitFor();
             return returnVal == 0;
         } catch (Exception e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+            return false;
         }
-        return false;
     }
 
     /** Выполнить соединение с интернетом по wifi.

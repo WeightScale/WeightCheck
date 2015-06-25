@@ -177,8 +177,9 @@ public class SmsCommand {
         }
     }
 
-    /**  Устанавливаем максимальный вес предела взвешивания весов
-     * */
+    /**
+     * Устанавливаем максимальный вес предела взвешивания весов
+     */
     private static class CmdWeightMax implements InterfaceSmsCommand {
         /** Выполнить команду максимальный вес.
          * @param value Параметр команды.
@@ -195,9 +196,11 @@ public class SmsCommand {
         }
     }
 
-    /** Получаем или записываем коэффициет для расчета веса.
-    *   Определяется во время каллибровки весов.
-    *   (ноль вес - конт. вес) / (ацп ноль веса - ацп кон. веса) */
+    /**
+     * Получаем или записываем коэффициет для расчета веса.
+     *   Определяется во время каллибровки весов.
+     *   (ноль вес - конт. вес) / (ацп ноль веса - ацп кон. веса)
+     */
     private static class CmdCoefficientA implements InterfaceSmsCommand {//номер телефона межд. формат для отправки чеков для босса
         /** Выполнить команду коэфициент А
          * @param value Параметр команды если параметр есть тогда сохраняем парамет, иначе возвращяем.
@@ -215,7 +218,8 @@ public class SmsCommand {
     }
 
     /** Получаем или записываем коэффициент оффсет (старая команда)
-    *   ноль вес - Scales.coefficientA * ацп ноль веса */
+     * ноль вес - Scales.coefficientA * ацп ноль веса
+     */
     private static class CmdCoefficientB implements InterfaceSmsCommand {
         /** Выполнить команду коэфициент В
          * @param value Параметр команды если параметр есть тогда сохраняем парамет, иначе возвращяем.
@@ -233,7 +237,8 @@ public class SmsCommand {
     }
 
     /** Аккаунт Google.
-    *   Имя акаунта созданого в google */
+     * Имя акаунта созданого в google
+     */
     private class CmdGoogleUser implements InterfaceSmsCommand {
         /** Выполнить команду аккаунт Google.
          * @param value Параметр команды если параметр есть тогда сохраняем парамет, иначе возвращяем.
@@ -257,7 +262,8 @@ public class SmsCommand {
     }
 
     /** Пароль акаунта Google.
-    *   Пароль акаунта созданого в google */
+     * Пароль акаунта созданого в google
+     */
     private class CmdGooglePassword implements InterfaceSmsCommand {
         /** Выполнить команду пароль аккаунта Google.
          * @param value Параметр команды если параметр есть тогда сохраняем парамет, иначе возвращяем.
@@ -281,7 +287,8 @@ public class SmsCommand {
     }
 
     /** Телефон для смс в международном формате +380ххххххххх.
-    *   Номер телефона для отправки чеков смс */
+     * Номер телефона для отправки чеков смс
+     */
     private class CmdPhoneSms implements InterfaceSmsCommand {
         /** Выполнить команду телефон для смс.
          * @param value Параметр команды если параметр есть тогда сохраняем парамет, иначе возвращяем.
@@ -305,21 +312,25 @@ public class SmsCommand {
     }
 
     /** Данные настройки весового модуля.
-    *   Без параметра возвращяет запить раннее сохраненые.
-    *   формат команды wrtdat=wgm_5000:cfa_0.00019*/
+     * Без параметра возвращяет запить раннее сохраненые.
+     * формат команды wrtdat=wgm_5000:cfa_0.00019
+     */
     private class CmdWeightData implements InterfaceSmsCommand {
 
         /** Контейнер команд. */
         private final Map<String, Data> mapDate = new LinkedHashMap<>();
-        {
+
+        private CmdWeightData() {
             mapDate.put(InterfaceVersions.CMD_DATA_CFA, new CoefficientA());
             mapDate.put(InterfaceVersions.CMD_DATA_WGM, new WeightMax());
             //mapDate = Collections.unmodifiableMap(mapDate);
         }
+
         /** Выполнить команду данные настроек модуля.
          * @param value Параметр команды если параметр есть тогда сохраняем парамет, иначе возвращяем.
          * @return Возвращяем результат выполнения команды.
-         * @throws Exception Исключение при выполнении.*/
+         * @throws Exception Исключение при выполнении.
+         */
         @Override
         public BasicNameValuePair execute(String value) throws Exception {
             if (value.isEmpty()) {
@@ -358,7 +369,7 @@ public class SmsCommand {
             return new BasicNameValuePair(SMS_CMD_WRTDAT, POSTPONED);
         }
 
-        /** Абстрактный класс для установки значений команды Data.   */
+        /** Абстрактный класс для установки значений команды Data. */
         private abstract class Data{
             abstract void setValue(Object v);
         }

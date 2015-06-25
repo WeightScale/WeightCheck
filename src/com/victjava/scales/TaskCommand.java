@@ -131,9 +131,9 @@ public class TaskCommand {
     public class CheckToSpreadsheet extends GoogleSpreadsheets implements TaskCommand.InterfaceTaskCommand {
         /** Контейнер для обратных сообщений
          * какие чеки отправлены или не отправлены*/
-        final Map<String, ArrayList<ObjectParcel>> mapChecks = new HashMap<>();
+        final Map<String, ArrayList<ObjectParcel>> mapChecksProcessed = new HashMap<>();
         /** Контейнер чеков для отправки */
-        Map<String, ContentValues> map;
+        Map<String, ContentValues> mapChecks;
 
 
         /** Конструктор экземпляра класса CheckToSpreadsheet.
@@ -141,8 +141,8 @@ public class TaskCommand {
          */
         public CheckToSpreadsheet(String service) {
             super(service);
-            mapChecks.put(MAP_CHECKS_SEND, new ArrayList<ObjectParcel>());     /** Лист чеков отправленых */
-            mapChecks.put(MAP_CHECKS_UNSEND, new ArrayList<ObjectParcel>());   /** Лист чеков не отправленых */}
+            mapChecksProcessed.put(MAP_CHECKS_SEND, new ArrayList<ObjectParcel>());     /** Лист чеков отправленых */
+            mapChecksProcessed.put(MAP_CHECKS_UNSEND, new ArrayList<ObjectParcel>());   /** Лист чеков не отправленых */}
 
         /** Вызывается когда токен получен */
         @Override
@@ -158,17 +158,17 @@ public class TaskCommand {
                         getSheetEntry(ScaleModule.getSpreadSheet());
                         UpdateListWorksheets();
 
-                        for (Map.Entry<String, ContentValues> entry : map.entrySet()) {
+                        for (Map.Entry<String, ContentValues> entry : mapChecks.entrySet()) {
                             int taskId = Integer.valueOf(entry.getKey());
                             int checkId = Integer.valueOf(entry.getValue().get(TaskTable.KEY_DOC).toString());
                             Message msg;
                             try {
                                 sendCheckToDisk(checkId);
-                                mapChecks.get(MAP_CHECKS_SEND).add(new ObjectParcel(checkId, mContext.getString(R.string.sent_to_the_server)));
-                                msg = mHandler.obtainMessage(HANDLER_NOTIFY_SHEET, checkId, taskId, mapChecks.get(MAP_CHECKS_SEND));
+                                mapChecksProcessed.get(MAP_CHECKS_SEND).add(new ObjectParcel(checkId, mContext.getString(R.string.sent_to_the_server)));
+                                msg = mHandler.obtainMessage(HANDLER_NOTIFY_SHEET, checkId, taskId, mapChecksProcessed.get(MAP_CHECKS_SEND));
                             } catch (Exception e) {
-                                mapChecks.get(MAP_CHECKS_UNSEND).add(new ObjectParcel(checkId, "Не отправлен " + e.getMessage()));
-                                msg = mHandler.obtainMessage(HANDLER_NOTIFY_CHECK_UNSEND, checkId, taskId, mapChecks.get(MAP_CHECKS_UNSEND));
+                                mapChecksProcessed.get(MAP_CHECKS_UNSEND).add(new ObjectParcel(checkId, "Не отправлен " + e.getMessage()));
+                                msg = mHandler.obtainMessage(HANDLER_NOTIFY_CHECK_UNSEND, checkId, taskId, mapChecksProcessed.get(MAP_CHECKS_UNSEND));
                                 mHandler.handleError(401, e.getMessage());
                             }
                             mHandler.sendMessage(msg);
@@ -181,7 +181,7 @@ public class TaskCommand {
             }).start();
         }
 
-        /** Вызываем если ошибка получения токена*/
+        /** Вызываем если ошибка получения токена */
         @Override
         protected void tokenIsFalse(String error) {
             mHandler.sendEmptyMessage(HANDLER_FINISH_THREAD);
@@ -192,10 +192,9 @@ public class TaskCommand {
          * @return Возвращяет полученый токен.
          * @throws IOException
          * @throws GoogleAuthException
-         * @throws IllegalArgumentException
          */
         @Override
-        protected String fetchToken() throws IOException, GoogleAuthException, IllegalArgumentException {
+        protected String fetchToken() throws IOException, GoogleAuthException {
             if (!getConnection(10000, 10)) {
                 mHandler.sendEmptyMessage(HANDLER_FINISH_THREAD);
                 return null;
@@ -216,7 +215,7 @@ public class TaskCommand {
         @Override
         public void onExecuteTask(final Map<String, ContentValues> map) {
             /** Сохраняем контейнер локально */
-            this.map = map;
+            mapChecks = map;
             /** Процесс получения доступа к SpreadsheetService */
             super.execute();
         }
@@ -239,13 +238,14 @@ public class TaskCommand {
 
     }
 
+    /** Класс для отправки чека http post */
     public class CheckTokHttpPost implements InterfaceTaskCommand {
 
-        final Map<String, ArrayList<ObjectParcel>> mapChecks = new HashMap<>();
+        final Map<String, ArrayList<ObjectParcel>> mapChecksProcessed = new HashMap<>();
 
         public CheckTokHttpPost() {
-            mapChecks.put(MAP_CHECKS_SEND, new ArrayList<ObjectParcel>());
-            mapChecks.put(MAP_CHECKS_UNSEND, new ArrayList<ObjectParcel>());
+            mapChecksProcessed.put(MAP_CHECKS_SEND, new ArrayList<ObjectParcel>());
+            mapChecksProcessed.put(MAP_CHECKS_UNSEND, new ArrayList<ObjectParcel>());
         }
 
         @Override
@@ -276,11 +276,11 @@ public class TaskCommand {
                         Message msg;
                         try {
                             submitData(http, results);
-                            mapChecks.get(MAP_CHECKS_SEND).add(new ObjectParcel(checkId, mContext.getString(R.string.sent_to_the_server)));
-                            msg = mHandler.obtainMessage(HANDLER_NOTIFY_HTTP, checkId, taskId, mapChecks.get(MAP_CHECKS_SEND));
+                            mapChecksProcessed.get(MAP_CHECKS_SEND).add(new ObjectParcel(checkId, mContext.getString(R.string.sent_to_the_server)));
+                            msg = mHandler.obtainMessage(HANDLER_NOTIFY_HTTP, checkId, taskId, mapChecksProcessed.get(MAP_CHECKS_SEND));
                         } catch (Exception e) {
-                            mapChecks.get(MAP_CHECKS_UNSEND).add(new ObjectParcel(checkId, "Не отправлен " + e.getMessage()));
-                            msg = mHandler.obtainMessage(HANDLER_NOTIFY_CHECK_UNSEND, checkId, taskId, mapChecks.get(MAP_CHECKS_UNSEND));
+                            mapChecksProcessed.get(MAP_CHECKS_UNSEND).add(new ObjectParcel(checkId, "Не отправлен " + e.getMessage()));
+                            msg = mHandler.obtainMessage(HANDLER_NOTIFY_CHECK_UNSEND, checkId, taskId, mapChecksProcessed.get(MAP_CHECKS_UNSEND));
                             mHandler.handleError(401, e.getMessage());
                         }
                         mHandler.sendMessage(msg);
@@ -307,13 +307,14 @@ public class TaskCommand {
         }
     }
 
+    /** Класс для отправки чека email почтой */
     public class CheckToMail implements InterfaceTaskCommand {
 
-        final Map<String, ArrayList<ObjectParcel>> mapChecks = new HashMap<>();
+        final Map<String, ArrayList<ObjectParcel>> mapChecksProcessed = new HashMap<>();
 
         public CheckToMail() {
-            mapChecks.put(MAP_CHECKS_SEND, new ArrayList<ObjectParcel>());
-            mapChecks.put(MAP_CHECKS_UNSEND, new ArrayList<ObjectParcel>());
+            mapChecksProcessed.put(MAP_CHECKS_SEND, new ArrayList<ObjectParcel>());
+            mapChecksProcessed.put(MAP_CHECKS_UNSEND, new ArrayList<ObjectParcel>());
         }
 
         @Override
@@ -353,11 +354,11 @@ public class TaskCommand {
                         try {
                             MailSend mail = new MailSend(mContext.getApplicationContext(), address, mContext.getString(R.string.Check_N) + checkId, body.toString());
                             mail.sendMail();
-                            mapChecks.get(MAP_CHECKS_SEND).add(new ObjectParcel(checkId, mContext.getString(R.string.Send_to_mail) + ": " + address));
-                            msg = mHandler.obtainMessage(HANDLER_NOTIFY_MAIL, checkId, taskId, mapChecks.get(MAP_CHECKS_SEND));
+                            mapChecksProcessed.get(MAP_CHECKS_SEND).add(new ObjectParcel(checkId, mContext.getString(R.string.Send_to_mail) + ": " + address));
+                            msg = mHandler.obtainMessage(HANDLER_NOTIFY_MAIL, checkId, taskId, mapChecksProcessed.get(MAP_CHECKS_SEND));
                         } catch (MessagingException e) {
-                            mapChecks.get(MAP_CHECKS_UNSEND).add(new ObjectParcel(checkId, "Не отправлен " + e.getMessage() + ' ' + address));
-                            msg = mHandler.obtainMessage(HANDLER_NOTIFY_CHECK_UNSEND, checkId, taskId, mapChecks.get(MAP_CHECKS_UNSEND));
+                            mapChecksProcessed.get(MAP_CHECKS_UNSEND).add(new ObjectParcel(checkId, "Не отправлен " + e.getMessage() + ' ' + address));
+                            msg = mHandler.obtainMessage(HANDLER_NOTIFY_CHECK_UNSEND, checkId, taskId, mapChecksProcessed.get(MAP_CHECKS_UNSEND));
                             mHandler.handleError(401, e.getMessage());
                         } catch (UnsupportedEncodingException e) {
                             continue;
@@ -371,13 +372,14 @@ public class TaskCommand {
         }
     }
 
+    /** Класс для отправки чека смс сообщением */
     public class CheckToSms implements InterfaceTaskCommand {
 
-        final Map<String, ArrayList<ObjectParcel>> mapChecks = new HashMap<>();
+        final Map<String, ArrayList<ObjectParcel>> mapChecksProcessed = new HashMap<>();
 
         public CheckToSms() {
-            mapChecks.put(MAP_CHECKS_SEND, new ArrayList<ObjectParcel>());
-            mapChecks.put(MAP_CHECKS_UNSEND, new ArrayList<ObjectParcel>());
+            mapChecksProcessed.put(MAP_CHECKS_SEND, new ArrayList<ObjectParcel>());
+            mapChecksProcessed.put(MAP_CHECKS_UNSEND, new ArrayList<ObjectParcel>());
         }
 
         @Override
@@ -413,11 +415,11 @@ public class TaskCommand {
                         Message msg;
                         try {
                             SMS.sendSMS(address, body.toString());
-                            mapChecks.get(MAP_CHECKS_SEND).add(new ObjectParcel(checkId, mContext.getString(R.string.Send_to_phone) + ": " + address));
-                            msg = mHandler.obtainMessage(HANDLER_NOTIFY_MESSAGE, checkId, taskId, mapChecks.get(MAP_CHECKS_SEND));
+                            mapChecksProcessed.get(MAP_CHECKS_SEND).add(new ObjectParcel(checkId, mContext.getString(R.string.Send_to_phone) + ": " + address));
+                            msg = mHandler.obtainMessage(HANDLER_NOTIFY_MESSAGE, checkId, taskId, mapChecksProcessed.get(MAP_CHECKS_SEND));
                         } catch (Exception e) {
-                            mapChecks.get(MAP_CHECKS_UNSEND).add(new ObjectParcel(checkId, "Не отправлен " + e.getMessage() + ' ' + address));
-                            msg = mHandler.obtainMessage(HANDLER_NOTIFY_CHECK_UNSEND, checkId, taskId, mapChecks.get(MAP_CHECKS_UNSEND));
+                            mapChecksProcessed.get(MAP_CHECKS_UNSEND).add(new ObjectParcel(checkId, "Не отправлен " + e.getMessage() + ' ' + address));
+                            msg = mHandler.obtainMessage(HANDLER_NOTIFY_CHECK_UNSEND, checkId, taskId, mapChecksProcessed.get(MAP_CHECKS_UNSEND));
                             mHandler.handleError(401, e.getMessage());
                         }
                         mHandler.sendMessage(msg);
@@ -433,13 +435,13 @@ public class TaskCommand {
 
         final String MAP_PREF_SEND = "send";
         final String MAP_PREF_UNSEND = "unsend";
-        final Map<String, ArrayList<ObjectParcel>> mapPrefs = new HashMap<>();
+        final Map<String, ArrayList<ObjectParcel>> mapPrefsProcessed = new HashMap<>();
         Map<String, ContentValues> map;
 
         PreferenceToSpreadsheet(String service) {
             super(service);
-            mapPrefs.put(MAP_PREF_SEND, new ArrayList<ObjectParcel>());
-            mapPrefs.put(MAP_PREF_UNSEND, new ArrayList<ObjectParcel>());
+            mapPrefsProcessed.put(MAP_PREF_SEND, new ArrayList<ObjectParcel>());
+            mapPrefsProcessed.put(MAP_PREF_UNSEND, new ArrayList<ObjectParcel>());
         }
 
         @Override
@@ -480,8 +482,8 @@ public class TaskCommand {
                             ObjectParcel objParcel = new ObjectParcel(prefId, mContext.getString(R.string.sent_to_the_server));
                             try {
                                 sendPreferenceToDisk(prefId);
-                                mapPrefs.get(MAP_PREF_SEND).add(objParcel);
-                                msg = mHandler.obtainMessage(HANDLER_NOTIFY_PREF, prefId, taskId, mapPrefs.get(MAP_PREF_SEND));
+                                mapPrefsProcessed.get(MAP_PREF_SEND).add(objParcel);
+                                msg = mHandler.obtainMessage(HANDLER_NOTIFY_PREF, prefId, taskId, mapPrefsProcessed.get(MAP_PREF_SEND));
                             } catch (Exception e) {
                                 mHandler.handleNotificationError(HANDLER_NOTIFY_ERROR, 401, new MessageNotify(MessageNotify.ID_NOTIFY_NO_SHEET, "Настройки не отправлены " + e.getMessage()));
                             }
@@ -502,7 +504,7 @@ public class TaskCommand {
         }
 
         @Override
-        protected String fetchToken() throws IOException, GoogleAuthException, IllegalArgumentException {
+        protected String fetchToken() throws IOException, GoogleAuthException {
             if (!getConnection(10000, 10)) {
                 mHandler.sendEmptyMessage(HANDLER_FINISH_THREAD);
                 return null;

@@ -1,0 +1,9 @@
+<component name="libraryTable">
+  <library name="ScaleModule">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/../../ScaleModule/out/artifacts/ScaleModule_jar/ScaleModule.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>

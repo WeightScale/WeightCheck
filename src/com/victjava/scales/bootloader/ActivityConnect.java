@@ -17,7 +17,6 @@ import android.view.*;
 import android.widget.*;
 import com.konst.module.BootModule;
 import com.konst.module.Module;
-import com.konst.module.ScaleModule;
 import com.victjava.scales.*;
 
 public class ActivityConnect extends Activity implements View.OnClickListener {
@@ -161,7 +160,8 @@ public class ActivityConnect extends Activity implements View.OnClickListener {
                             setTitle(getString(R.string.app_name) + " \"" + versionName + "\", v." + versionNumber); //установить заголовок
 
                             setProgressBarIndeterminateVisibility(false);
-                            break;
+                        break;
+                        default:
                     }
                 }
             }
@@ -233,7 +233,8 @@ public class ActivityConnect extends Activity implements View.OnClickListener {
                 case STATUS_LOAD_OK:
                     setResult(RESULT_OK, new Intent());
                     finish();
-                    break;
+                break;
+                default:
             }
         }
 
