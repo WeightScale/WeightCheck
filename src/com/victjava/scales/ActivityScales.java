@@ -166,25 +166,48 @@ public class ActivityScales extends Activity implements View.OnClickListener, Vi
         switch (item.getItemId()) {
             case R.id.preferences:
                 startActivity(new Intent(this, ActivityPreferences.class));
-                break;
+            break;
             /*case R.id.tuning:
                 startActivity(new Intent(this, ActivityTuning.class));
             break;*/
             case R.id.search:
                 openSearch();
-                break;
+            break;
             case R.id.exit:
                 closeOptionsMenu();
-                break;
+            break;
             case R.id.type:
                 startActivity(new Intent(getBaseContext(), ActivityType.class));
-                break;
+            break;
             case R.id.checks:
                 startActivity(new Intent(getBaseContext(), ActivityListChecks.class));
-                break;
+            break;
             case R.id.contact:
                 startActivity(new Intent(getBaseContext(), ActivityContact.class).setAction("contact"));
-                break;
+            break;
+            case R.id.power_off:
+                AlertDialog.Builder dialog = new AlertDialog.Builder(this);
+                dialog.setTitle(getString(R.string.Scale_off));
+                dialog.setCancelable(false);
+                dialog.setPositiveButton(getString(R.string.OK), new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        if (i == DialogInterface.BUTTON_POSITIVE) {
+                            ScaleModule.setModulePowerOff();
+                        }
+                    }
+                });
+                dialog.setNegativeButton(getString(R.string.Close), new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.dismiss();
+                        finish();
+                    }
+                });
+                dialog.setMessage(getString(R.string.TEXT_MESSAGE15));
+                dialog.show();
+            break;
+
         }
         return true;
     }
@@ -476,7 +499,8 @@ public class ActivityScales extends Activity implements View.OnClickListener, Vi
         ProgressDialog dialogSearch;
 
         /** Сообщение о результате соединения
-         * @param result Результат соединения энкмератор ResultConnect.  */
+         * @param result Результат соединения энкмератор ResultConnect.
+         */
         @Override
         public void handleResultConnect(final ResultConnect result) {
             runOnUiThread(new Runnable() {
@@ -518,7 +542,8 @@ public class ActivityScales extends Activity implements View.OnClickListener, Vi
 
         /** Сообщение о ошибки соединения
          * @param error Тип ошибки энумератор Error.
-         * @param s Описание ошибки. */
+         * @param s Описание ошибки.
+         */
         @Override
         public void handleConnectError(final ResultError error, final String s) {
             runOnUiThread(new Runnable() {

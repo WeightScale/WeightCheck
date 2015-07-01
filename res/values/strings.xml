@@ -240,4 +240,6 @@
     <string name="Phone_for_sms">Телефон для СМС</string>
     <string name="incoming">приход</string>
     <string name="outgo">расход</string>
+    <string name="Scale_off">Выключение весов</string>
+    <string name="TEXT_MESSAGE15">Вы действительно хотите выключить питание весов</string>
 </resources>

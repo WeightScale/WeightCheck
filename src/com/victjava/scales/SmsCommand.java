@@ -14,8 +14,8 @@ import org.apache.http.message.BasicNameValuePair;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
-/*
- * Created by Kostya on 03.04.2015.
+/**
+ * @author Kostya
  */
 public class SmsCommand {
     final Context mContext;
@@ -23,59 +23,61 @@ public class SmsCommand {
     final List<SmsCommander.Command> commandList;
     final SenderTable senderTable;
 
-    /** получить ошибки параметр количество */
+    /** Получить ошибки параметр количество. */
     static final String SMS_CMD_GETERR = "geterr";
 
-    /** удалить ошибки параметр количество */
+    /** Удалить ошибки параметр количество. */
     static final String SMS_CMD_DELERR = "delerr";
 
-    /** номер телефона межд. формат для отправки чеков для босса */
+    /** Номер телефона межд. формат для отправки чеков для босса. */
     static final String SMS_CMD_NUMSMS = "numsms";
 
-    /** максимальный вес */
+    /** Максимальный вес. */
     static final String SMS_CMD_WGHMAX = "wghmax";
 
-    /**коэфициент вес */
+    /** Коэфициент вес. */
     static final String SMS_CMD_COFFA = "coffa";
 
-    /**коэфициент офсет*/
+    /** Коэфициент офсет. */
     static final String SMS_CMD_COFFB = "coffb";
 
-    /**учетнное имя google account*/
+    /** Учетнное имя google account. */
     static final String SMS_CMD_GOGUSR = "gogusr";
 
-    /**пароль google account*/
+    /** Пароль google account. */
     static final String SMS_CMD_GOGPSW = "gogpsw";
 
-    /**телефон для отправки смс*/
+    /** Телефон для отправки смс. */
     static final String SMS_CMD_PHNSMS = "phnsms";
 
-    /**записать данные в весы функция writeDataScale() wrtdat=wgm_5000|cfa_0.00019*/
+    /** Записать данные в весы функция writeDataScale() wrtdat=wgm_5000|cfa_0.00019. */
     static final String SMS_CMD_WRTDAT = "wrtdat";
 
-    /**условия отправки чеков sndchk=0-1,1-1,2-1,3-1
-     * после тире параметр для KEY_SYS TYPE_GOOGLE_DISK-(KEY_SYS).TYPE_HTTP_POST-(KEY_SYS).TYPE_SMS-(KEY_SYS).TYPE_EMAIL-(KEY_SYS)*/
+    /** Условия отправки чеков sndchk=0-1,1-1,2-1,3-1.
+     * После тире параметр для KEY_SYS TYPE_GOOGLE_DISK-(KEY_SYS).TYPE_HTTP_POST-(KEY_SYS).TYPE_SMS-(KEY_SYS).TYPE_EMAIL-(KEY_SYS).
+     */
     static final String SMS_CMD_SNDCHK = "sndchk";
 
 
     static final String RESPONSE_OK = "ok";
+    /** Отложено. */
     static final String POSTPONED = "postponed";
 
     /** Контейнер смс команд. */
-    private final Map<String, InterfaceSmsCommand> cmdMap = new LinkedHashMap<>();
+    private Map<String, InterfaceSmsCommand> cmdMap = new LinkedHashMap<>();
     {
         cmdMap.put(SMS_CMD_GETERR, new CmdGetError());      //получить ошибки параметр количество
         cmdMap.put(SMS_CMD_DELERR, new CmdDeleteError());   //удалить ошибки параметр количество
-        cmdMap.put(SMS_CMD_NUMSMS, new CmdNumSmsAdmin());
+        cmdMap.put(SMS_CMD_NUMSMS, new CmdNumSmsAdmin());   //
         cmdMap.put(SMS_CMD_WGHMAX, new CmdWeightMax());     //максимальный вес
         cmdMap.put(SMS_CMD_COFFA, new CmdCoefficientA());   //коэфициент вес
-        cmdMap.put(SMS_CMD_COFFB, new CmdCoefficientB());
+        cmdMap.put(SMS_CMD_COFFB, new CmdCoefficientB());   //
         cmdMap.put(SMS_CMD_GOGUSR, new CmdGoogleUser());    //учетнное имя google account
         cmdMap.put(SMS_CMD_GOGPSW, new CmdGooglePassword());//пароль google account
         cmdMap.put(SMS_CMD_PHNSMS, new CmdPhoneSms());      //телефон для отправки смс
         cmdMap.put(SMS_CMD_WRTDAT, new CmdWeightData());    //записать данные в весы функция writeDataScale() wrtdat=wgm_5000|cfa_0.00019
-        cmdMap.put(SMS_CMD_SNDCHK, new CmdSenderCheck());
-        //cmdMap = Collections.unmodifiableMap(cmdMap);
+        cmdMap.put(SMS_CMD_SNDCHK, new CmdSenderCheck());   //
+        cmdMap = Collections.unmodifiableMap(cmdMap);
     }
 
     interface InterfaceSmsCommand {
@@ -88,11 +90,10 @@ public class SmsCommand {
         senderTable = new SenderTable(context);
     }
 
-    /**
-     * Выполнить команды в смс сообщении.
+    /** Выполнить команды в смс сообщении.
      * @return Результат выполнения.
      */
-    public StringBuilder commandsExt() {
+    public StringBuilder process() {
         StringBuilder textSent = new StringBuilder();
         for (SmsCommander.Command result : commandList) {
             try {
@@ -105,8 +106,7 @@ public class SmsCommand {
         return textSent;
     }
 
-    /**
-     * Сохранить команду как отсроченую.
+    /** Сохранить команду как отсроченую.
      * @param cmd Имя команды.
      * @param value Параметр команды.
      * @param mime Миме тип команды.
@@ -121,8 +121,7 @@ public class SmsCommand {
         new CommandTable(mContext).insertNewTask(newTaskValues);
     }
 
-    /**
-    * Получения ошибок из памяти сохраненых в программе
+    /** Получения ошибок из памяти сохраненых в программе
     * без параметра возвращяет последних 50 записей.
     * параметр указивает количество последних
     */
@@ -138,9 +137,10 @@ public class SmsCommand {
         }
     }
 
-    /** Удаления ошибок сохраненных в памяти программы
-    *   без параметра удаляем все,
-    *   параметр определяет сколько удалять последних ошибок в памяти */
+    /** Удаления ошибок сохраненных в памяти программы.
+     * Без параметра удаляем все,
+     * параметр определяет сколько удалять последних ошибок в памяти
+     */
     private class CmdDeleteError implements InterfaceSmsCommand {//удалить ошибки параметр количество
 
         /** Выполнить команду удаление ошибок.
@@ -159,7 +159,8 @@ public class SmsCommand {
     }
 
     /** Номер телефона для отправки смс отчетов весовых чеков.
-    *   номер телефона в международном формате +380xx xxxxxxx */
+     * номер телефона в международном формате +380xx xxxxxxx
+     */
     private static class CmdNumSmsAdmin implements InterfaceSmsCommand {//номер телефона межд. формат для отправки чеков для босса
 
         /** Выполнить команду номер телефона
@@ -177,8 +178,7 @@ public class SmsCommand {
         }
     }
 
-    /**
-     * Устанавливаем максимальный вес предела взвешивания весов
+    /** Устанавливаем максимальный вес предела взвешивания весов
      */
     private static class CmdWeightMax implements InterfaceSmsCommand {
         /** Выполнить команду максимальный вес.
@@ -196,10 +196,9 @@ public class SmsCommand {
         }
     }
 
-    /**
-     * Получаем или записываем коэффициет для расчета веса.
-     *   Определяется во время каллибровки весов.
-     *   (ноль вес - конт. вес) / (ацп ноль веса - ацп кон. веса)
+    /** Получаем или записываем коэффициет для расчета веса.
+     *  Определяется во время каллибровки весов.
+     *  (ноль вес - конт. вес) / (ацп ноль веса - ацп кон. веса)
      */
     private static class CmdCoefficientA implements InterfaceSmsCommand {//номер телефона межд. формат для отправки чеков для босса
         /** Выполнить команду коэфициент А
@@ -416,7 +415,8 @@ public class SmsCommand {
      * Сендеры - отсылатели сообщений (email, sms, disk, http).
      * Формат параметра [ [[значение 1]-[параметр 2]]_[[значение 2]-[параметр 2]]_[[значение n]-[параметр n]]
      * Значение TYPE_SENDER - TYPE_GOOGLE_DISK, TYPE_HTTP_POST, TYPE_SMS TYPE_EMAIL.
-     * Параметр KEY_SYS - 0 или 1. */
+     * Параметр KEY_SYS - 0 или 1.
+     */
     private class CmdSenderCheck implements InterfaceSmsCommand {
         /** Выполнить команду параметры сендера.
          * @param value Параметр команды если параметр есть тогда сохраняем парамет, иначе возвращяем.

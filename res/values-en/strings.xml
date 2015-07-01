@@ -238,5 +238,7 @@
     <string name="Phone_for_sms">Phone for sms</string>
     <string name="incoming">incoming</string>
     <string name="outgo">outgo</string>
+    <string name="Scale_off">Power off</string>
+    <string name="TEXT_MESSAGE15">Do you really want to turn off the power scales</string>
 
 </resources>

@@ -2,6 +2,7 @@
 <project version="4">
   <component name="Encoding" useUTFGuessing="true" native2AsciiForPropertiesFiles="false" defaultCharsetForPropertiesFiles="UTF-8">
     <file url="file://$PROJECT_DIR$/assets/WeightCheck-d76949a134dd.p12" charset="windows-1251" />
+    <file url="file://$PROJECT_DIR$/assets/bootfiles/37894_mbc04.36.2_4.hex" charset="windows-1251" />
     <file url="file://$PROJECT_DIR$/libs/google-api-client-1.20.0.jar" charset="windows-1251" />
     <file url="file://$PROJECT_DIR$/libs/google-api-client-android-1.20.0.jar" charset="windows-1251" />
     <file url="file://$PROJECT_DIR$/libs/google-http-client-1.20.0.jar" charset="windows-1251" />
