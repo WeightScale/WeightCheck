@@ -193,7 +193,8 @@ public class ActivityScales extends Activity implements View.OnClickListener, Vi
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
                         if (i == DialogInterface.BUTTON_POSITIVE) {
-                            ScaleModule.setModulePowerOff();
+                            if(ScaleModule.isAttach())
+                                ScaleModule.setModulePowerOff();
                         }
                     }
                 });
@@ -212,7 +213,7 @@ public class ActivityScales extends Activity implements View.OnClickListener, Vi
         return true;
     }
 
-    void setupScale() {
+    private void setupScale() {
         requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
         //requestWindowFeature(Window.FEATURE_CUSTOM_TITLE);
         setContentView(R.layout.scales);
@@ -337,7 +338,7 @@ public class ActivityScales extends Activity implements View.OnClickListener, Vi
     /** Слушатель нажания чека в листе.
      * Запускаем Активность работы с чеком.
      */
-    final AdapterView.OnItemClickListener onItemClickListener = new AdapterView.OnItemClickListener() {
+    private final AdapterView.OnItemClickListener onItemClickListener = new AdapterView.OnItemClickListener() {
         @Override
         public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
             startActivity(new Intent().setClass(getApplicationContext(), ActivityCheck.class).putExtra("id", String.valueOf(id)));
@@ -347,7 +348,7 @@ public class ActivityScales extends Activity implements View.OnClickListener, Vi
     /** Обновляем данные листа непроведенных чеков.
      *
      */
-    void updateList() {
+    private void updateList() {
         Cursor cursor = checkTable.getAllNoReadyCheck();
         if (cursor == null) {
             return;
@@ -372,7 +373,7 @@ public class ActivityScales extends Activity implements View.OnClickListener, Vi
      *  Инициализируем созданый экземпляр модуля.
      *  @param device Адресс bluetooth модуля.
      */
-    void connectScaleModule(String device) {
+    private void connectScaleModule(String device) {
 
         try {
             scaleModule.init(Main.versionName, device);
@@ -446,7 +447,7 @@ public class ActivityScales extends Activity implements View.OnClickListener, Vi
     /**
      * Открыть активность поиска весов.
      */
-    void openSearch() {
+    private void openSearch() {
         listView.setEnabled(false);
         scaleModule.dettach();
         startActivityForResult(new Intent(getBaseContext(), ActivitySearch.class), REQUEST_SEARCH_SCALE);
@@ -484,7 +485,7 @@ public class ActivityScales extends Activity implements View.OnClickListener, Vi
      * @param d2 Дата сравнения
      * @return Разница между d1 и d2 в днях.
      */
-    long dayDiff(Date d1, Date d2) {
+    private long dayDiff(Date d1, Date d2) {
         final long DAY_MILLIS = 1000 * 60 * 60 * 24;//86400000
         long day1 = d1.getTime() / DAY_MILLIS;
         long day2 = d2.getTime() / DAY_MILLIS;
@@ -626,7 +627,7 @@ public class ActivityScales extends Activity implements View.OnClickListener, Vi
     /** Обработчик показаний заряда батареи и температуры.
      *  Возвращяет время обновления в секундах.
      */
-    final HandlerBatteryTemperature handlerBatteryTemperature = new HandlerBatteryTemperature() {
+    private final HandlerBatteryTemperature handlerBatteryTemperature = new HandlerBatteryTemperature() {
         /** Сообщение
          * @param battery Заряд батареи в процентах.
          * @param temperature Температура в градусах.
