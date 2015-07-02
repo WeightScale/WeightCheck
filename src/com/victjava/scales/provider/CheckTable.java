@@ -20,7 +20,7 @@ public class CheckTable {
     public static int day;
     public static int day_closed;
 
-    public static final String TABLE = "inputCheckTable";
+    public static final String TABLE = "checkTable";
 
     public static final String KEY_ID = BaseColumns._ID;
     public static final String KEY_DATE_CREATE = "dateCreate";
