@@ -27,7 +27,7 @@ public class ServiceProcessTask extends Service {
     /** Таблица задач */
     private TaskTable taskTable;
     private Internet internet;
-    private static BroadcastReceiver broadcastReceiver;
+    private BroadcastReceiver broadcastReceiver;
     private NotificationManager notificationManager;
 
     @Override
@@ -57,6 +57,8 @@ public class ServiceProcessTask extends Service {
                         internet.connect();
                     } else if (action.equals(Internet.INTERNET_DISCONNECT)) {
                         internet.disconnect();
+                        /** Останавливаем сервис */
+                        stopSelf();
                     }
                 }
             }
@@ -77,7 +79,7 @@ public class ServiceProcessTask extends Service {
     /** Процесс выполнения задач */
     private void taskProcess() {
         /**Экземпляр команд задач*/
-        TaskCommand taskCommand = new TaskCommand(getApplicationContext(), msgHandler);
+        TaskCommand taskCommand = new TaskCommand(this, msgHandler);
         /**Сообщение на обработчик запущен процесс задач*/
         msgHandler.obtainMessage(TaskCommand.HANDLER_TASK_START, TaskType.values().length, 0).sendToTarget();
         for (TaskType taskType : TaskType.values()) {
@@ -91,8 +93,6 @@ public class ServiceProcessTask extends Service {
                 msgHandler.sendEmptyMessage(TaskCommand.HANDLER_FINISH_THREAD);
             }
         }
-        /** Останавливаем сервис */
-        stopSelf();
     }
 
     /** Обработчик сообщений */
@@ -140,8 +140,9 @@ public class ServiceProcessTask extends Service {
                     numThread += msg.arg1;
                     return;
                 case TaskCommand.HANDLER_FINISH_THREAD:
-                    if (--numThread <= 0)
+                    if (--numThread <= 0) {
                         sendBroadcast(new Intent(Internet.INTERNET_DISCONNECT));
+                    }
                     return;
                 case TaskCommand.HANDLER_NOTIFY_SHEET: //отправлено на диск sheet
                     mBuilder.setSmallIcon(R.drawable.ic_stat_drive)
