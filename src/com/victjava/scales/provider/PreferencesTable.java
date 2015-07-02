@@ -61,7 +61,7 @@ public class PreferencesTable {
         context = cnt;
     }
 
-    public Uri insertAllEntry() {
+    public Uri insertAllEntry()throws Exception{
         ContentValues newTaskValues = new ContentValues();
         Date date = new Date();
         newTaskValues.put(KEY_DATE_CREATE, new SimpleDateFormat("dd.MM.yyyy").format(date));
