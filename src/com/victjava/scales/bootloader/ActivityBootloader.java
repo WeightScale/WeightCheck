@@ -327,12 +327,12 @@ public class ActivityBootloader extends Activity implements View.OnClickListener
         programmer = new AVRProgrammer(handlerProgrammed) {
             @Override
             public void sendByte(byte b) {
-                bootModule.sendByte(b);
+                Module.sendByte(b);
             }
 
             @Override
             public int getByte() {
-                return bootModule.getByte();
+                return Module.getByte();
             }
         };
         if (!programmer.isProgrammerId()) {

@@ -33,6 +33,7 @@ public class ActivityPreferences extends PreferenceActivity implements SharedPre
     private static final String KEY_ABOUT = "about";
     private static final String KEY_TIMER = "timer";
     static final String KEY_LAST_SCALES = "last";
+    static final String KEY_LAST_USER = "last_user";
     static final String KEY_TIMER_NULL = "timer_null";
     static final String KEY_MAX_NULL = "max_null";
     static final String KEY_UPDATE = "update";
@@ -41,12 +42,7 @@ public class ActivityPreferences extends PreferenceActivity implements SharedPre
     //static final String KEY_DATA                = "data";
     private boolean flagChange;
 
-    interface InterfacePreference{
-        void setup(Preference name) throws Exception;
-    }
-
-    Map<String,InterfacePreference> mapPreferences = new HashMap<>();
-    {
+    public ActivityPreferences() {
         mapPreferences.put(KEY_NAME, new PreferenceName());
         mapPreferences.put(KEY_ADDRESS, new PreferenceAddress());
         mapPreferences.put(KEY_NULL, new PreferenceNull());
@@ -62,6 +58,12 @@ public class ActivityPreferences extends PreferenceActivity implements SharedPre
         mapPreferences.put(KEY_ABOUT, new PreferenceAbout());
     }
 
+    interface InterfacePreference{
+        void setup(Preference name) throws Exception;
+    }
+
+    final Map<String,InterfacePreference> mapPreferences = new HashMap<>();
+
     void process(){
         for (Map.Entry<String,InterfacePreference> preferenceEntry: mapPreferences.entrySet()){
             Preference name = findPreference(preferenceEntry.getKey());
@@ -74,8 +76,6 @@ public class ActivityPreferences extends PreferenceActivity implements SharedPre
             }
         }
     }
-
-
 
     class PreferenceName implements InterfacePreference{
 
@@ -694,9 +694,8 @@ public class ActivityPreferences extends PreferenceActivity implements SharedPre
     protected void onDestroy() {
         super.onDestroy();
         if (flagChange) {
-            long entryID = 0;
             try {
-                entryID = Long.parseLong(new PreferencesTable(this).insertAllEntry().getLastPathSegment());
+                long entryID = Long.parseLong(new PreferencesTable(this).insertAllEntry().getLastPathSegment());
                 new TaskTable(getApplicationContext()).insertNewTask(TaskCommand.TaskType.TYPE_PREF_SEND_SHEET_DISK, entryID, 0, "preferences");
             } catch (Exception e) {
             }

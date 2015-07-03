@@ -14,7 +14,7 @@ import org.apache.http.message.BasicNameValuePair;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
-/**
+/** Класс смс команд.
  * @author Kostya
  */
 public class SmsCommand {
@@ -58,14 +58,21 @@ public class SmsCommand {
      */
     static final String SMS_CMD_SNDCHK = "sndchk";
 
-
     static final String RESPONSE_OK = "ok";
     /** Отложено. */
     static final String POSTPONED = "postponed";
 
     /** Контейнер смс команд. */
-    private Map<String, InterfaceSmsCommand> cmdMap = new LinkedHashMap<>();
-    {
+    private final Map<String, InterfaceSmsCommand> cmdMap = new LinkedHashMap<>();
+
+    interface InterfaceSmsCommand {
+        BasicNameValuePair execute(String value) throws Exception;
+    }
+
+    public SmsCommand(Context context, List<SmsCommander.Command> commandList) {
+        mContext = context;
+        this.commandList = commandList;
+        senderTable = new SenderTable(context);
         cmdMap.put(SMS_CMD_GETERR, new CmdGetError());      //получить ошибки параметр количество
         cmdMap.put(SMS_CMD_DELERR, new CmdDeleteError());   //удалить ошибки параметр количество
         cmdMap.put(SMS_CMD_NUMSMS, new CmdNumSmsAdmin());   //
@@ -77,17 +84,7 @@ public class SmsCommand {
         cmdMap.put(SMS_CMD_PHNSMS, new CmdPhoneSms());      //телефон для отправки смс
         cmdMap.put(SMS_CMD_WRTDAT, new CmdWeightData());    //записать данные в весы функция writeDataScale() wrtdat=wgm_5000|cfa_0.00019
         cmdMap.put(SMS_CMD_SNDCHK, new CmdSenderCheck());   //
-        cmdMap = Collections.unmodifiableMap(cmdMap);
-    }
-
-    interface InterfaceSmsCommand {
-        BasicNameValuePair execute(String value) throws Exception;
-    }
-
-    public SmsCommand(Context context, List<SmsCommander.Command> commandList) {
-        mContext = context;
-        this.commandList = commandList;
-        senderTable = new SenderTable(context);
+        //cmdMap = Collections.unmodifiableMap(cmdMap);
     }
 
     /** Выполнить команды в смс сообщении.
@@ -121,7 +118,7 @@ public class SmsCommand {
         new CommandTable(mContext).insertNewTask(newTaskValues);
     }
 
-    /** Получения ошибок из памяти сохраненых в программе
+    /** Получения ошибок из памяти сохраненых в программе.
     * без параметра возвращяет последних 50 записей.
     * параметр указивает количество последних
     */
@@ -178,7 +175,7 @@ public class SmsCommand {
         }
     }
 
-    /** Устанавливаем максимальный вес предела взвешивания весов
+    /** Устанавливаем максимальный вес предела взвешивания весов.
      */
     private static class CmdWeightMax implements InterfaceSmsCommand {
         /** Выполнить команду максимальный вес.
@@ -217,7 +214,7 @@ public class SmsCommand {
     }
 
     /** Получаем или записываем коэффициент оффсет (старая команда)
-     * ноль вес - Scales.coefficientA * ацп ноль веса
+     * ноль вес - Scales.coefficientA * ацп ноль веса.
      */
     private static class CmdCoefficientB implements InterfaceSmsCommand {
         /** Выполнить команду коэфициент В
@@ -314,7 +311,7 @@ public class SmsCommand {
      * Без параметра возвращяет запить раннее сохраненые.
      * формат команды wrtdat=wgm_5000:cfa_0.00019
      */
-    private class CmdWeightData implements InterfaceSmsCommand {
+    private final class CmdWeightData implements InterfaceSmsCommand {
 
         /** Контейнер команд. */
         private final Map<String, Data> mapDate = new LinkedHashMap<>();
@@ -411,7 +408,7 @@ public class SmsCommand {
         }
     }
 
-    /** Установка параметров для сендера SenderDBAdapter
+    /** Установка параметров для сендера SenderDBAdapter.
      * Сендеры - отсылатели сообщений (email, sms, disk, http).
      * Формат параметра [ [[значение 1]-[параметр 2]]_[[значение 2]-[параметр 2]]_[[значение n]-[параметр n]]
      * Значение TYPE_SENDER - TYPE_GOOGLE_DISK, TYPE_HTTP_POST, TYPE_SMS TYPE_EMAIL.

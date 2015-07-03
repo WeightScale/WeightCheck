@@ -217,6 +217,7 @@ public class ActivityPageChecks extends Activity {
                         new TaskMessageDialog(ActivityPageChecks.this, Integer.valueOf(contactId), Integer.valueOf(checkId)).openListPhoneDialog();
                     }
                     break;
+                default:
             }
         }
     }

@@ -39,7 +39,6 @@ public class TaskCommand {
     //String mMimeType;
     final HandlerTaskNotification mHandler;
     boolean cancel = true;
-
     /** Чек отправлен */
     static final String MAP_CHECKS_SEND = "send";
     /** Чек не отправлен */
@@ -194,12 +193,13 @@ public class TaskCommand {
          * @throws GoogleAuthException
          */
         @Override
-        protected String fetchToken() throws IOException, GoogleAuthException {
+        protected String fetchToken() throws IOException, GoogleAuthException, IllegalArgumentException {
             if (!getConnection(10000, 10)) {
                 mHandler.sendEmptyMessage(HANDLER_FINISH_THREAD);
                 return null;
             }
-            return GoogleAuthUtil.getTokenWithNotification(mContext, ScaleModule.getUserName(), "oauth2:" + SCOPE, null, makeCallback(ScaleModule.getUserName()));
+            String user = Preferences.read(ActivityPreferences.KEY_LAST_USER, "");
+            return GoogleAuthUtil.getTokenWithNotification(mContext, user /*ScaleModule.getUserName()*/, "oauth2:" + SCOPE, null, makeCallback());
         }
 
         /** Вызывается если разрешение для получения токена получено */
@@ -509,7 +509,8 @@ public class TaskCommand {
                 mHandler.sendEmptyMessage(HANDLER_FINISH_THREAD);
                 return null;
             }
-            return GoogleAuthUtil.getTokenWithNotification(mContext, ScaleModule.getUserName(), "oauth2:" + SCOPE, null, makeCallback(ScaleModule.getUserName()));
+            String user = Preferences.read(ActivityPreferences.KEY_LAST_USER, "");
+            return GoogleAuthUtil.getTokenWithNotification(mContext, user /*ScaleModule.getUserName()*/, "oauth2:" + SCOPE, null, makeCallback());
         }
 
         @Override

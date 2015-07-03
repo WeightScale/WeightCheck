@@ -72,6 +72,7 @@ public class ActivityType extends ListActivity implements View.OnClickListener {
                 dialog.setView(input);
                 dialog.show();
                 break;
+            default:
         }
     }
 

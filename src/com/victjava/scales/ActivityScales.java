@@ -95,6 +95,7 @@ public class ActivityScales extends Activity implements View.OnClickListener, Vi
             case R.id.imageViewRemote:
                 vibrator.vibrate(200);
                 break;
+            default:
         }
     }
 
@@ -111,6 +112,7 @@ public class ActivityScales extends Activity implements View.OnClickListener, Vi
                 vibrator.vibrate(100);
                 openSearch();
                 break;
+            default:
         }
         return false;
     }
@@ -208,6 +210,7 @@ public class ActivityScales extends Activity implements View.OnClickListener, Vi
                 dialog.setMessage(getString(R.string.TEXT_MESSAGE15));
                 dialog.show();
             break;
+            default:
 
         }
         return true;
@@ -515,12 +518,13 @@ public class ActivityScales extends Activity implements View.OnClickListener, Vi
                                 setTitle(getString(R.string.app_name) + " , v." + ScaleModule.getNumVersion()); //установить заголовок
                             }
                             Preferences.write(ActivityPreferences.KEY_LAST_SCALES, ScaleModule.getAddressBluetoothDevice());
+                            Preferences.write(ActivityPreferences.KEY_LAST_USER, ScaleModule.getUserName());
                             listView.setEnabled(true);
                             handlerBatteryTemperature.process(true);
-                            break;
+                        break;
                         case STATUS_SCALE_UNKNOWN:
 
-                            break;
+                        break;
                         case STATUS_ATTACH_START:
                             dialogSearch = new ProgressDialog(ActivityScales.this);
                             dialogSearch.setCancelable(false);
@@ -529,12 +533,12 @@ public class ActivityScales extends Activity implements View.OnClickListener, Vi
                             dialogSearch.setContentView(R.layout.custom_progress_dialog);
                             TextView tv1 = (TextView) dialogSearch.findViewById(R.id.textView1);
                             tv1.setText(getString(R.string.Connecting) + '\n' + ScaleModule.getNameBluetoothDevice());
-                            break;
+                        break;
                         case STATUS_ATTACH_FINISH:
                             if (dialogSearch.isShowing()) {
                                 dialogSearch.dismiss();
                             }
-                            break;
+                        break;
                         default:
                     }
                 }

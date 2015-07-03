@@ -81,6 +81,7 @@ public class ActivityListChecks extends ListActivity implements View.OnClickList
             case R.id.buttonBack:
                 onBackPressed();
                 break;
+            default:
         }
     }
 

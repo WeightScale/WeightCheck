@@ -101,6 +101,7 @@ public class ActivitySearch extends Activity implements View.OnClickListener {
                         case BluetoothDevice.ACTION_ACL_DISCONNECTED:
                             setTitle(getString(R.string.Search_scale)); //установить заголовок
                             break;
+                        default:
                     }
                 }
             }
@@ -202,6 +203,7 @@ public class ActivitySearch extends Activity implements View.OnClickListener {
                 //onDestroy();
                 finish();
                 break;
+            default:
         }
         return true;
     }
@@ -244,6 +246,7 @@ public class ActivitySearch extends Activity implements View.OnClickListener {
                 registerReceiver(broadcastReceiver, intentFilter);
                 bluetooth.startDiscovery();
                 break;
+            default:
         }
     }
 

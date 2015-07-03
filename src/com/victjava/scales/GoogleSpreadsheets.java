@@ -43,7 +43,7 @@ public abstract class GoogleSpreadsheets extends AsyncTask<Void, Void, String[]>
     private final SpreadsheetService spreadsheetService;
     private List<WorksheetEntry> worksheets;
     private SpreadsheetEntry spreadsheetEntry;
-    private String spreadsheetName = "";
+    private final String spreadsheetName = "";
     /** Client ID созданый для application в  https://console.developers.google.com/project/ */
     final String CLIENT_ID = "104626362323-b410it7dt7gad5e1sp9v8aum9nm00biu.apps.googleusercontent.com";
     /** Client secret созданый для application в  https://console.developers.google.com/project/ */
@@ -52,14 +52,14 @@ public abstract class GoogleSpreadsheets extends AsyncTask<Void, Void, String[]>
     final String REDIRECT_URI = "https://www.example.com/oauth2callback";
     /** Email address в созданом клиенте на  https://console.developers.google.com/project/*/
     final String CLIENT_EMAIL = "64738785707-t6gad1u92rpbqleq42lphl13pj0i0f6f@developer.gserviceaccount.com";
-    final static String[] SCOPE_ARRAY = {"https://spreadsheets.google.com/feeds ", "https://spreadsheets.google.com/feeds/spreadsheets/private/full ", "https://docs.google.com/feeds "};
+    static final String[] SCOPE_ARRAY = {"https://spreadsheets.google.com/feeds ", "https://spreadsheets.google.com/feeds/spreadsheets/private/full ", "https://docs.google.com/feeds "};
     final List<String> SCOPES_LIST = Arrays.asList(SCOPE_ARRAY);
-    protected final static String SCOPE = SCOPE_ARRAY[0]+SCOPE_ARRAY[1];
+    protected static final String SCOPE = SCOPE_ARRAY[0]+SCOPE_ARRAY[1];
 
     /** Конструктор GoogleSpreadsheets.
      * @param service Имя сервиса GoogleSpreadsheets.
      */
-    public GoogleSpreadsheets(String service){
+    protected GoogleSpreadsheets(String service){
         spreadsheetService = new SpreadsheetService(service);
         spreadsheetService.setProtocolVersion(SpreadsheetService.Versions.V3);
     }
@@ -72,7 +72,7 @@ public abstract class GoogleSpreadsheets extends AsyncTask<Void, Void, String[]>
      * @throws GeneralSecurityException
      * @throws IOException
      */
-    public GoogleSpreadsheets(String service, java.io.File p12) throws GeneralSecurityException, IOException {
+    protected GoogleSpreadsheets(String service, java.io.File p12) throws GeneralSecurityException, IOException {
         /** Экземпляр атестата */
         credential = new GoogleCredential.Builder()
                 .setTransport(new NetHttpTransport())
@@ -95,7 +95,7 @@ public abstract class GoogleSpreadsheets extends AsyncTask<Void, Void, String[]>
      * @throws GoogleAuthException
      * @throws IOException
      */
-    public GoogleSpreadsheets(Context context, String service, String accountName) throws GoogleAuthException, IOException, IllegalArgumentException {
+    protected GoogleSpreadsheets(Context context, String service, String accountName) throws GoogleAuthException, IOException, IllegalArgumentException {
         this.context = context;
         spreadsheetService = new SpreadsheetService(service);
         spreadsheetService.setProtocolVersion(SpreadsheetService.Versions.V3);
@@ -141,7 +141,7 @@ public abstract class GoogleSpreadsheets extends AsyncTask<Void, Void, String[]>
     /** Разренеие на доступ получено*/
     protected abstract void permissionIsObtained();
 
-    GoogleCredential getCredentials(String account, String token) throws IOException, GoogleAuthException {
+    GoogleCredential getCredentials(String token) throws IOException, GoogleAuthException {
 
         //token = GoogleAuthUtil.getToken(context, account, "oauth2:" + SCOPE_ARRAY[0]+SCOPE_ARRAY[1]+SCOPE_ARRAY[2]);
         //GoogleAuthUtil.invalidateToken(context, token);
@@ -152,7 +152,7 @@ public abstract class GoogleSpreadsheets extends AsyncTask<Void, Void, String[]>
                 .setAccessToken(token);
     }
 
-    GoogleCredential getCredentialsWeb(String account, String token) throws IOException, GoogleAuthException {
+    GoogleCredential getCredentialsWeb(String token) throws IOException, GoogleAuthException {
 
         //token = GoogleAuthUtil.getToken(context, account, "oauth2:" + SCOPE);
         //GoogleAuthUtil.invalidateToken(context, token);
@@ -163,15 +163,15 @@ public abstract class GoogleSpreadsheets extends AsyncTask<Void, Void, String[]>
                 .setAccessToken(token);
     }
 
-    String getToken(String account) throws IOException, GoogleAuthException, IllegalArgumentException {
+    final String getToken(String account) throws IOException, GoogleAuthException, IllegalArgumentException {
         //return token = GoogleAuthUtil.getToken(mContext, account, "oauth2:" + SCOPE);
 
-        Intent returnIntent = new Intent(context, ActivityScales.class);
+        //Intent returnIntent = new Intent(context, ActivityScales.class);
         //PendingIntent pendingIntent = PendingIntent.getService(mContext, 0, returnIntent, 0);
-        return GoogleAuthUtil.getTokenWithNotification(context, account, "oauth2:" + SCOPE, null, makeCallback(account));
+        return GoogleAuthUtil.getTokenWithNotification(context, account, "oauth2:" + SCOPE, null, makeCallback());
     }
 
-    protected Intent makeCallback(String accountName) {
+    protected Intent makeCallback() {
         Intent intent = new Intent();
         intent.setAction("com.victjava.scales.Callback");
         //intent.putExtra(HelloActivity.EXTRA_ACCOUNTNAME, accountName);
@@ -393,9 +393,6 @@ public abstract class GoogleSpreadsheets extends AsyncTask<Void, Void, String[]>
     /** Обратный вызов при получении разрешения для токена */
     public class CallbackReceiver extends BroadcastReceiver {
         public static final String TAG = "CallbackReceiver";
-
-        public CallbackReceiver() {
-        }
 
         @Override
         public void onReceive(Context context, Intent callback) {
