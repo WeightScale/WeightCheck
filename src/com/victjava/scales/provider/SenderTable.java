@@ -71,7 +71,9 @@ public class SenderTable {
             Cursor result = contentResolver.query(uri, null, null, null, null);
             result.moveToFirst();
             return result;
-        }catch (Exception e){return null;}
+        } catch (Exception e) {
+            return null;
+        }
     }
 
     public Cursor geSystemItem() {
@@ -93,7 +95,9 @@ public class SenderTable {
             ContentValues newValues = new ContentValues();
             newValues.put(key, in);
             return contentResolver.update(uri, newValues, null, null) > 0;
-        }catch (Exception e){return false;}
+        } catch (Exception e) {
+            return false;
+        }
     }
 
     public void addSystemHTTP(SQLiteDatabase db) {

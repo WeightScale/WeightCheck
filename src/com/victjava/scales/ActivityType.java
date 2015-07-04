@@ -83,7 +83,8 @@ public class ActivityType extends ListActivity implements View.OnClickListener {
             int[] to = {R.id.topText};
             ListAdapter adapter = new SimpleCursorAdapter(this, R.layout.list_item_type, cursor, from, to);
             setListAdapter(adapter);
-        }catch (Exception e){}
+        } catch (Exception e) {
+        }
 
     }
 
@@ -96,7 +97,7 @@ public class ActivityType extends ListActivity implements View.OnClickListener {
             cursor.moveToPosition(position);
             int id = cursor.getInt(cursor.getColumnIndex(TypeTable.KEY_ID));
             typeTable.removeEntry(id);
-        }catch (Exception e){
+        } catch (Exception e) {
             return;
         }
         updateList();

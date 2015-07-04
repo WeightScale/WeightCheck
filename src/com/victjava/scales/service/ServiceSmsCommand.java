@@ -19,9 +19,13 @@ import java.util.*;
  */
 public class ServiceSmsCommand extends Service {
 
-    /** Экземпляр приемника смс сообщений. */
+    /**
+     * Экземпляр приемника смс сообщений.
+     */
     final IncomingSMSReceiver incomingSMSReceiver = new IncomingSMSReceiver();
-    /** Кодовое слово для дешифрации сообщения */
+    /**
+     * Кодовое слово для дешифрации сообщения
+     */
     final String codeword = "weightcheck";
 
     @Override
@@ -69,15 +73,22 @@ public class ServiceSmsCommand extends Service {
         unregisterReceiver(incomingSMSReceiver);
     }
 
-    /** Приемник смс сообщений.
+    /**
+     * Приемник смс сообщений.
      */
     public class IncomingSMSReceiver extends BootReceiver {
 
-        /** Входящее сообщение. */
+        /**
+         * Входящее сообщение.
+         */
         public static final String SMS_RECEIVED_ACTION = "android.provider.Telephony.SMS_RECEIVED";
-        /** Принятые непрочитаные сообщения. */
+        /**
+         * Принятые непрочитаные сообщения.
+         */
         public static final String SMS_DELIVER_ACTION = "android.provider.Telephony.SMS_DELIVER";
-        /** Транзакция завершена. */
+        /**
+         * Транзакция завершена.
+         */
         public static final String SMS_COMPLETED_ACTION = "android.intent.action.TRANSACTION_COMPLETED_ACTION";
 
         @Override
@@ -91,15 +102,17 @@ public class ServiceSmsCommand extends Service {
                         try {
                             new SmsCommander(codeword, pdus, onSmsCommandListener);
                             abortBroadcast();
-                        } catch (Exception e) { }
+                        } catch (Exception e) {
+                        }
                     }
                 }
             }
         }
     }
 
-    /** Слушатель обработчика смс команд.
-     *  Возвращяем событие если смс это команда.
+    /**
+     * Слушатель обработчика смс команд.
+     * Возвращяем событие если смс это команда.
      */
     final OnSmsCommandListener onSmsCommandListener = new OnSmsCommandListener() {
         StringBuilder result = new StringBuilder();
@@ -120,12 +133,14 @@ public class ServiceSmsCommand extends Service {
             try {
                 /** Отправляем результат выполнения команд адресату */
                 SMS.sendSMS(address, result.toString());
-            } catch (Exception e) {}
+            } catch (Exception e) {
+            }
         }
     };
 
-    /** Процесс обработки смс команд.
-     *  Обрабатывам команды которые приняты и не обработаные.
+    /**
+     * Процесс обработки смс команд.
+     * Обрабатывам команды которые приняты и не обработаные.
      */
     public class ProcessingSmsThread extends Thread {
         private boolean start;
@@ -160,7 +175,8 @@ public class ServiceSmsCommand extends Service {
             for (final SMS.SmsObject smsObject : smsInboxList) {
                 try {
                     new SmsCommander(codeword, smsObject.getAddress(), smsObject.getMsg(), onSmsCommandListener);
-                } catch (Exception e) { }
+                } catch (Exception e) {
+                }
             }
             start = false;
         }

@@ -61,7 +61,7 @@ public class PreferencesTable {
         context = cnt;
     }
 
-    public Uri insertAllEntry()throws Exception{
+    public Uri insertAllEntry() throws Exception {
         ContentValues newTaskValues = new ContentValues();
         Date date = new Date();
         newTaskValues.put(KEY_DATE_CREATE, new SimpleDateFormat("dd.MM.yyyy").format(date));
@@ -83,7 +83,8 @@ public class PreferencesTable {
         Uri uri = ContentUris.withAppendedId(CONTENT_URI, _rowIndex);
         try {
             context.getContentResolver().delete(uri, null, null);
-        } catch (Exception e) {}
+        } catch (Exception e) {
+        }
     }
 
     public Cursor getEntryItem(int _rowIndex) {
@@ -92,7 +93,9 @@ public class PreferencesTable {
             Cursor result = context.getContentResolver().query(uri, null, null, null, null);
             result.moveToFirst();
             return result;
-        }catch (Exception e){return null;}
+        } catch (Exception e) {
+            return null;
+        }
 
     }
 

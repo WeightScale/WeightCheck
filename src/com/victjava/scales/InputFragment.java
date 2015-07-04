@@ -50,7 +50,7 @@ public class InputFragment extends Fragment implements ActivityCheck.OnCheckEven
     @Override
     public void onAttach(Activity activity) {
         super.onAttach(activity);
-        activityCheck = (ActivityCheck)activity;
+        activityCheck = (ActivityCheck) activity;
         mContext = activityCheck.getApplicationContext();
     }
 
@@ -80,10 +80,12 @@ public class InputFragment extends Fragment implements ActivityCheck.OnCheckEven
         editTextPrice.clearFocus();
         editTextPrice.addTextChangedListener(new TextWatcher() {
             @Override
-            public void beforeTextChanged(CharSequence charSequence, int i, int i2, int i3) {}
+            public void beforeTextChanged(CharSequence charSequence, int i, int i2, int i3) {
+            }
 
             @Override
-            public void onTextChanged(CharSequence charSequence, int i, int i2, int i3) {}
+            public void onTextChanged(CharSequence charSequence, int i, int i2, int i3) {
+            }
 
             @Override
             public void afterTextChanged(Editable editable) {
@@ -101,7 +103,7 @@ public class InputFragment extends Fragment implements ActivityCheck.OnCheckEven
             @Override
             public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
                 //type_item_id = i;
-                activityCheck.values.put(CheckTable.KEY_TYPE_ID, (int)l);
+                activityCheck.values.put(CheckTable.KEY_TYPE_ID, (int) l);
                 activityCheck.values.put(CheckTable.KEY_TYPE, ((TextView) view.findViewById(R.id.text1)).getText().toString());
                 activityCheck.values.put(CheckTable.KEY_PRICE, typeTable.getPriceColumn((int) l));
                 editTextPrice.setText(activityCheck.values.getAsString(CheckTable.KEY_PRICE));

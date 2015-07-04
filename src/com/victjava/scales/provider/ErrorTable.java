@@ -78,7 +78,9 @@ public class ErrorTable {
             }
             cursor.close();
             return flag;
-        }catch (Exception e){ return false;}
+        } catch (Exception e) {
+            return false;
+        }
     }
 
     public int deleteAll() {
@@ -107,7 +109,9 @@ public class ErrorTable {
             }
             cursor.close();
             return stringBuilder.toString();
-        }catch (Exception e){return "";}
+        } catch (Exception e) {
+            return "";
+        }
     }
 
     public boolean updateEntry(long _rowIndex, String key, int in) {

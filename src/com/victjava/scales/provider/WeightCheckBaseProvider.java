@@ -360,6 +360,7 @@ public class WeightCheckBaseProvider extends ContentProvider {
 
     private static class DBHelper extends SQLiteOpenHelper {
         final SenderTable senderTable;
+
         DBHelper(Context context) {
             super(context, DATABASE_NAME, null, DATABASE_VERSION);
             senderTable = new SenderTable(context);

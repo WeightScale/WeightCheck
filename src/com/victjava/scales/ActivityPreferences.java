@@ -58,16 +58,16 @@ public class ActivityPreferences extends PreferenceActivity implements SharedPre
         mapPreferences.put(KEY_ABOUT, new PreferenceAbout());
     }
 
-    interface InterfacePreference{
+    interface InterfacePreference {
         void setup(Preference name) throws Exception;
     }
 
-    final Map<String,InterfacePreference> mapPreferences = new HashMap<>();
+    final Map<String, InterfacePreference> mapPreferences = new HashMap<>();
 
-    void process(){
-        for (Map.Entry<String,InterfacePreference> preferenceEntry: mapPreferences.entrySet()){
+    void process() {
+        for (Map.Entry<String, InterfacePreference> preferenceEntry : mapPreferences.entrySet()) {
             Preference name = findPreference(preferenceEntry.getKey());
-            if (name != null){
+            if (name != null) {
                 try {
                     preferenceEntry.getValue().setup(name);
                 } catch (Exception e) {
@@ -77,7 +77,7 @@ public class ActivityPreferences extends PreferenceActivity implements SharedPre
         }
     }
 
-    class PreferenceName implements InterfacePreference{
+    class PreferenceName implements InterfacePreference {
 
         @Override
         public void setup(Preference name) throws Exception {
@@ -105,7 +105,7 @@ public class ActivityPreferences extends PreferenceActivity implements SharedPre
         }
     }
 
-    class PreferenceAddress implements InterfacePreference{
+    class PreferenceAddress implements InterfacePreference {
 
         @Override
         public void setup(Preference name) throws Exception {
@@ -113,7 +113,7 @@ public class ActivityPreferences extends PreferenceActivity implements SharedPre
         }
     }
 
-    class PreferenceNull implements InterfacePreference{
+    class PreferenceNull implements InterfacePreference {
 
         @Override
         public void setup(Preference name) throws Exception {
@@ -136,7 +136,7 @@ public class ActivityPreferences extends PreferenceActivity implements SharedPre
         }
     }
 
-    class PreferenceFilter implements InterfacePreference{
+    class PreferenceFilter implements InterfacePreference {
 
         @Override
         public void setup(Preference name) throws Exception {
@@ -156,7 +156,7 @@ public class ActivityPreferences extends PreferenceActivity implements SharedPre
                             Toast.makeText(getBaseContext(), R.string.preferences_yes, Toast.LENGTH_SHORT).show();
                             return true;
                         }
-                    }catch (Exception e){
+                    } catch (Exception e) {
                         Toast.makeText(getBaseContext(), R.string.preferences_no, Toast.LENGTH_SHORT).show();
                     }
                     return false;
@@ -165,7 +165,7 @@ public class ActivityPreferences extends PreferenceActivity implements SharedPre
         }
     }
 
-    class PreferenceUpdate implements InterfacePreference{
+    class PreferenceUpdate implements InterfacePreference {
 
         @Override
         public void setup(Preference name) throws Exception {
@@ -204,7 +204,7 @@ public class ActivityPreferences extends PreferenceActivity implements SharedPre
         }
     }
 
-    class PreferenceTimer implements InterfacePreference{
+    class PreferenceTimer implements InterfacePreference {
 
         @Override
         public void setup(Preference name) throws Exception {
@@ -226,7 +226,7 @@ public class ActivityPreferences extends PreferenceActivity implements SharedPre
                             Toast.makeText(getBaseContext(), getString(R.string.preferences_yes) + ' ' + ScaleModule.getTimeOff() + ' ' + getString(R.string.minute), Toast.LENGTH_SHORT).show();
                             return true;
                         }
-                    }catch (Exception e){
+                    } catch (Exception e) {
                         Toast.makeText(getBaseContext(), R.string.preferences_no, Toast.LENGTH_SHORT).show();
                     }
                     return false;
@@ -235,7 +235,7 @@ public class ActivityPreferences extends PreferenceActivity implements SharedPre
         }
     }
 
-    class PreferenceTimerNull implements InterfacePreference{
+    class PreferenceTimerNull implements InterfacePreference {
 
         @Override
         public void setup(Preference name) throws Exception {
@@ -259,7 +259,7 @@ public class ActivityPreferences extends PreferenceActivity implements SharedPre
         }
     }
 
-    class PreferenceMaxNull implements InterfacePreference{
+    class PreferenceMaxNull implements InterfacePreference {
 
         @Override
         public void setup(Preference name) throws Exception {
@@ -283,7 +283,7 @@ public class ActivityPreferences extends PreferenceActivity implements SharedPre
         }
     }
 
-    class PreferenceStep implements InterfacePreference{
+    class PreferenceStep implements InterfacePreference {
 
         @Override
         public void setup(Preference name) throws Exception {
@@ -307,7 +307,7 @@ public class ActivityPreferences extends PreferenceActivity implements SharedPre
         }
     }
 
-    class PreferenceAutoCapture implements InterfacePreference{
+    class PreferenceAutoCapture implements InterfacePreference {
 
         @Override
         public void setup(Preference name) throws Exception {
@@ -335,7 +335,7 @@ public class ActivityPreferences extends PreferenceActivity implements SharedPre
         }
     }
 
-    class PreferenceDayClosedCheck implements InterfacePreference{
+    class PreferenceDayClosedCheck implements InterfacePreference {
 
         @Override
         public void setup(Preference name) throws Exception {
@@ -359,7 +359,7 @@ public class ActivityPreferences extends PreferenceActivity implements SharedPre
         }
     }
 
-    class PreferenceDayCheckDelete implements InterfacePreference{
+    class PreferenceDayCheckDelete implements InterfacePreference {
 
         @Override
         public void setup(Preference name) throws Exception {
@@ -382,7 +382,7 @@ public class ActivityPreferences extends PreferenceActivity implements SharedPre
         }
     }
 
-    class PreferenceAbout implements InterfacePreference{
+    class PreferenceAbout implements InterfacePreference {
 
         @Override
         public void setup(Preference name) throws Exception {

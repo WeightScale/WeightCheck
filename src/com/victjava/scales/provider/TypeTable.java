@@ -52,7 +52,9 @@ public class TypeTable {
             }
             result.close();
             return in;
-        }catch (Exception e){return -1;}
+        } catch (Exception e) {
+            return -1;
+        }
     }
 
     public int getPriceColumn(int _rowIndex) {
@@ -85,7 +87,9 @@ public class TypeTable {
             ContentValues newValues = new ContentValues();
             newValues.put(key, in);
             return context.getContentResolver().update(uri, newValues, null, null) > 0;
-        }catch (Exception e){return false;}
+        } catch (Exception e) {
+            return false;
+        }
 
     }
 

@@ -29,19 +29,25 @@ import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.util.*;
 
-/** Класс задач.
+/**
+ * Класс задач.
+ *
  * @author Kostya
  */
 public class TaskCommand {
 
-    final CheckTable checkTable ;
-    final Context mContext ;
+    final CheckTable checkTable;
+    final Context mContext;
     //String mMimeType;
     final HandlerTaskNotification mHandler;
     boolean cancel = true;
-    /** Чек отправлен */
+    /**
+     * Чек отправлен
+     */
     static final String MAP_CHECKS_SEND = "send";
-    /** Чек не отправлен */
+    /**
+     * Чек не отправлен
+     */
     static final String MAP_CHECKS_UNSEND = "unsend";
 
     public static final int HANDLER_TASK_START = 0;
@@ -58,27 +64,47 @@ public class TaskCommand {
     public static final int HANDLER_NOTIFY_ERROR = 11;
     public static final int ERROR = 12;
 
-    /** Энумератор типа задачи. */
+    /**
+     * Энумератор типа задачи.
+     */
     public enum TaskType {
-        /**чек для електронной почты*/
+        /**
+         * чек для електронной почты
+         */
         TYPE_CHECK_SEND_MAIL_CONTACT,
-        /**чек для електронной почты боссу*/
+        /**
+         * чек для електронной почты боссу
+         */
         TYPE_CHECK_SEND_MAIL_ADMIN,
-        /**чек для облака*/
+        /**
+         * чек для облака
+         */
         TYPE_CHECK_SEND_HTTP_POST,
-        /**настройки для для облака*/
+        /**
+         * настройки для для облака
+         */
         TYPE_PREF_SEND_HTTP_POST,
-        /**чек для google disk*/
+        /**
+         * чек для google disk
+         */
         TYPE_CHECK_SEND_SHEET_DISK,
-        /**настройки для google disk*/
+        /**
+         * настройки для google disk
+         */
         TYPE_PREF_SEND_SHEET_DISK,
-        /**чек для смс отправки контакту*/
+        /**
+         * чек для смс отправки контакту
+         */
         TYPE_CHECK_SEND_SMS_CONTACT,
-        /**чек для смс отправки боссу*/
+        /**
+         * чек для смс отправки боссу
+         */
         TYPE_CHECK_SEND_SMS_ADMIN
     }
 
-    /** Контейнер команд  */
+    /**
+     * Контейнер команд
+     */
     public final Map<TaskType, InterfaceTaskCommand> mapTasks = new EnumMap<>(TaskType.class);
 
     public interface InterfaceTaskCommand {
@@ -110,8 +136,10 @@ public class TaskCommand {
         return cancel;
     }
 
-    /** Получить интернет соединение.
-     * @param timeout Задержка между попытками.
+    /**
+     * Получить интернет соединение.
+     *
+     * @param timeout      Задержка между попытками.
      * @param countAttempt Количество попыток.
      * @return true - интернет соединение установлено.
      */
@@ -120,22 +148,33 @@ public class TaskCommand {
             if (Internet.isOnline())
                 return true;
             mContext.sendBroadcast(new Intent(Internet.INTERNET_CONNECT));
-            try { Thread.sleep(timeout); } catch (InterruptedException ignored) { }
+            try {
+                Thread.sleep(timeout);
+            } catch (InterruptedException ignored) {
+            }
             countAttempt--;
         }
         return false;
     }
 
-    /** Отправляем весовой чек Google disk spreadsheet таблицу. */
+    /**
+     * Отправляем весовой чек Google disk spreadsheet таблицу.
+     */
     public class CheckToSpreadsheet extends GoogleSpreadsheets implements TaskCommand.InterfaceTaskCommand {
-        /** Контейнер для обратных сообщений
-         * какие чеки отправлены или не отправлены*/
+        /**
+         * Контейнер для обратных сообщений
+         * какие чеки отправлены или не отправлены
+         */
         final Map<String, ArrayList<ObjectParcel>> mapChecksProcessed = new HashMap<>();
-        /** Контейнер чеков для отправки */
+        /**
+         * Контейнер чеков для отправки
+         */
         Map<String, ContentValues> mapChecks;
 
 
-        /** Конструктор экземпляра класса CheckToSpreadsheet.
+        /**
+         * Конструктор экземпляра класса CheckToSpreadsheet.
+         *
          * @param service Имя сервиса SpreadsheetService.
          */
         public CheckToSpreadsheet(String service) {
@@ -143,7 +182,9 @@ public class TaskCommand {
             mapChecksProcessed.put(MAP_CHECKS_SEND, new ArrayList<ObjectParcel>());     /** Лист чеков отправленых */
             mapChecksProcessed.put(MAP_CHECKS_UNSEND, new ArrayList<ObjectParcel>());   /** Лист чеков не отправленых */}
 
-        /** Вызывается когда токен получен */
+        /**
+         * Вызывается когда токен получен
+         */
         @Override
         protected void tokenIsReceived() {
             new Thread(new Runnable() {
@@ -180,14 +221,18 @@ public class TaskCommand {
             }).start();
         }
 
-        /** Вызываем если ошибка получения токена */
+        /**
+         * Вызываем если ошибка получения токена
+         */
         @Override
         protected void tokenIsFalse(String error) {
             mHandler.sendEmptyMessage(HANDLER_FINISH_THREAD);
             mHandler.handleNotificationError(HANDLER_NOTIFY_ERROR, 505, new MessageNotify(MessageNotify.ID_NOTIFY_NO_SHEET, "Ошибка получения токена " + error));
         }
 
-        /** Вызывается при получении токена.
+        /**
+         * Вызывается при получении токена.
+         *
          * @return Возвращяет полученый токен.
          * @throws IOException
          * @throws GoogleAuthException
@@ -202,14 +247,18 @@ public class TaskCommand {
             return GoogleAuthUtil.getTokenWithNotification(mContext, user /*ScaleModule.getUserName()*/, "oauth2:" + SCOPE, null, makeCallback());
         }
 
-        /** Вызывается если разрешение для получения токена получено */
+        /**
+         * Вызывается если разрешение для получения токена получено
+         */
         @Override
         protected void permissionIsObtained() {
             /** Процесс получения доступа к SpreadsheetService */
             super.execute();
         }
 
-        /** Выполнить задачу отправки чеков.
+        /**
+         * Выполнить задачу отправки чеков.
+         *
          * @param map Контейнер чеков для отправки.
          */
         @Override
@@ -220,7 +269,9 @@ public class TaskCommand {
             super.execute();
         }
 
-        /** Отослать данные чека в таблицу
+        /**
+         * Отослать данные чека в таблицу
+         *
          * @param id Индекс чека.
          * @throws Exception
          */
@@ -238,7 +289,9 @@ public class TaskCommand {
 
     }
 
-    /** Класс для отправки чека http post */
+    /**
+     * Класс для отправки чека http post
+     */
     public class CheckTokHttpPost implements InterfaceTaskCommand {
 
         final Map<String, ArrayList<ObjectParcel>> mapChecksProcessed = new HashMap<>();
@@ -271,7 +324,8 @@ public class TaskCommand {
                             String[] pair = postName.split("=");
                             try {
                                 results.add(new BasicNameValuePair(pair[0], check.getString(check.getColumnIndex(pair[1]))));
-                            } catch (Exception e) { }
+                            } catch (Exception e) {
+                            }
                         }
                         Message msg;
                         try {
@@ -307,7 +361,9 @@ public class TaskCommand {
         }
     }
 
-    /** Класс для отправки чека email почтой */
+    /**
+     * Класс для отправки чека email почтой
+     */
     public class CheckToMail implements InterfaceTaskCommand {
 
         final Map<String, ArrayList<ObjectParcel>> mapChecksProcessed = new HashMap<>();
@@ -372,7 +428,9 @@ public class TaskCommand {
         }
     }
 
-    /** Класс для отправки чека смс сообщением */
+    /**
+     * Класс для отправки чека смс сообщением
+     */
     public class CheckToSms implements InterfaceTaskCommand {
 
         final Map<String, ArrayList<ObjectParcel>> mapChecksProcessed = new HashMap<>();
@@ -430,7 +488,9 @@ public class TaskCommand {
         }
     }
 
-    /** Отправляем настройки Google disk spreadsheet таблицу */
+    /**
+     * Отправляем настройки Google disk spreadsheet таблицу
+     */
     public class PreferenceToSpreadsheet extends GoogleSpreadsheets implements InterfaceTaskCommand {
 
         final String MAP_PREF_SEND = "send";
@@ -540,9 +600,11 @@ public class TaskCommand {
         public int getNotifyId() {
             return notifyId;
         }
+
         public String getMessage() {
             return message;
         }
+
         void setNotifyId(int id) {
             notifyId = id;
         }

@@ -39,7 +39,7 @@ public class AVRProgrammer {
     void readSignature(Integer... sig) {
         /* Send command 's' */
         ScaleModule.sendByte((byte) 's');
-	    /* Get actual signature */
+        /* Get actual signature */
         sig[2] = ScaleModule.getByte();
         sig[1] = ScaleModule.getByte();
         sig[0] = ScaleModule.getByte();

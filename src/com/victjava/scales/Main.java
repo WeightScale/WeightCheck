@@ -10,12 +10,18 @@ import com.victjava.scales.service.ServiceSmsCommand;
  * @author Kostya
  */
 public class Main extends Application {
-    /** Настройки для весов. */
+    /**
+     * Настройки для весов.
+     */
     public static Preferences preferencesScale;
-    /** Настройки для обновления весов. */
+    /**
+     * Настройки для обновления весов.
+     */
     public static Preferences preferencesUpdate;
 
-    /** Версия пограммы весового модуля. */
+    /**
+     * Версия пограммы весового модуля.
+     */
     public static final int microSoftware = 4;
     protected static String networkOperatorName;
     protected static String simNumber;
@@ -24,54 +30,86 @@ public class Main extends Application {
     protected static int versionNumber;
     public static String versionName = "";
 
-    /** Шаг измерения (округление). */
+    /**
+     * Шаг измерения (округление).
+     */
     public static int stepMeasuring;
 
-    /** Шаг захвата (округление). */
+    /**
+     * Шаг захвата (округление).
+     */
     public static int autoCapture;
 
-    /** Время задержки для авто захвата после которого начинается захват в секундах. */
+    /**
+     * Время задержки для авто захвата после которого начинается захват в секундах.
+     */
     public static int timeDelayDetectCapture;
     public static int day_closed;
     public static int day_delete;
 
-    /** Вес максимальный по умолчанию килограммы. */
+    /**
+     * Вес максимальный по умолчанию килограммы.
+     */
     public static final int default_max_weight = 1000;
 
-    /** Максимальный заряд батареи проценты. */
+    /**
+     * Максимальный заряд батареи проценты.
+     */
     public static final int default_max_battery = 100;
 
-    /** Максимальное время бездействия весов в минутах. */
+    /**
+     * Максимальное время бездействия весов в минутах.
+     */
     public static final int default_max_time_off = 60;
 
-    /** Минимальное время бездействия весов в минутах. */
+    /**
+     * Минимальное время бездействия весов в минутах.
+     */
     protected static final int default_min_time_off = 10;
 
-    /** Максимальное время срабатывания авто ноль секундах. */
+    /**
+     * Максимальное время срабатывания авто ноль секундах.
+     */
     protected static final int default_max_time_auto_null = 120;
 
-    /** Предел ошибки при котором срабатывает авто ноль килограммы. */
+    /**
+     * Предел ошибки при котором срабатывает авто ноль килограммы.
+     */
     protected static final int default_limit_auto_null = 50;
 
-    /** Максимальный шаг измерения весов килограммы. */
+    /**
+     * Максимальный шаг измерения весов килограммы.
+     */
     protected static final int default_max_step_scale = 20;
 
-    /** Максимальный значение авто захвата веса килограммы. */
+    /**
+     * Максимальный значение авто захвата веса килограммы.
+     */
     protected static final int default_max_auto_capture = 100;
 
-    /** Дельта значение авто захвата веса килограммы. */
+    /**
+     * Дельта значение авто захвата веса килограммы.
+     */
     protected static final int default_delta_auto_capture = 10;
 
-    /** Минимальное значение авто захвата веса килограммы. */
+    /**
+     * Минимальное значение авто захвата веса килограммы.
+     */
     protected static final int default_min_auto_capture = 20;
 
-    /** Максимальное количество дней для закрытия не закрытых чеков дней.*/
+    /**
+     * Максимальное количество дней для закрытия не закрытых чеков дней.
+     */
     protected static final int default_day_close_check = 10;
 
-    /** Максимальное количество дней для удвления чеков дней. */
+    /**
+     * Максимальное количество дней для удвления чеков дней.
+     */
     protected static final int default_day_delete_check = 10;
 
-    /** Максимальное значение фильтра ацп. */
+    /**
+     * Максимальное значение фильтра ацп.
+     */
     public static final int default_adc_filter = 15;
 
     @Override

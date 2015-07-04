@@ -28,7 +28,7 @@ public class OutputFragment extends Fragment implements ActivityCheck.OnCheckEve
     @Override
     public void onAttach(Activity activity) {
         super.onAttach(activity);
-        activityCheck = (ActivityCheck)activity;
+        activityCheck = (ActivityCheck) activity;
         mContext = activityCheck.getApplicationContext();
     }
 

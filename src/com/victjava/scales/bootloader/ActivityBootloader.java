@@ -46,6 +46,7 @@ public class ActivityBootloader extends Activity implements View.OnClickListener
     static final int REQUEST_CONNECT_SCALE = 2;
 
     private static final SparseArray<String> mapCodeDevice = new SparseArray<>();
+
     static {
         mapCodeDevice.put(0x9514, "atmega328.xml");
         mapCodeDevice.put(0x9406, "atmega168.xml");
@@ -54,6 +55,7 @@ public class ActivityBootloader extends Activity implements View.OnClickListener
 
     private class ThreadDoDeviceDependent extends AsyncTask<Void, Void, Boolean> {
         protected AlertDialog.Builder dialog;
+
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
@@ -174,6 +176,7 @@ public class ActivityBootloader extends Activity implements View.OnClickListener
 
     final BootModule bootModule = new BootModule("BOOT") {
         private AlertDialog.Builder dialog;
+
         @Override
         public void handleResultConnect(final ResultConnect result) {
             runOnUiThread(new Runnable() {
@@ -217,12 +220,12 @@ public class ActivityBootloader extends Activity implements View.OnClickListener
 
         @Override
         public void handleConnectError(ResultError error, String s) {
-            switch (error){
+            switch (error) {
                 case CONNECT_ERROR:
                     Intent intent = new Intent(getBaseContext(), ActivityConnect.class);
                     intent.putExtra("address", addressDevice);
                     startActivityForResult(intent, REQUEST_CONNECT_BOOT);
-                break;
+                    break;
                 default:
             }
         }
@@ -287,7 +290,7 @@ public class ActivityBootloader extends Activity implements View.OnClickListener
             Preferences.write(ActivityPreferences.KEY_FLAG_UPDATE, true);
             bootModule.dettach();
             BluetoothAdapter.getDefaultAdapter().disable();
-            while (BluetoothAdapter.getDefaultAdapter().isEnabled());
+            while (BluetoothAdapter.getDefaultAdapter().isEnabled()) ;
             finish();
         }
     }
@@ -305,7 +308,7 @@ public class ActivityBootloader extends Activity implements View.OnClickListener
                 case REQUEST_CONNECT_BOOT:
                     //scaleModule.obtainMessage(HandlerScaleConnect.Result.STATUS_LOAD_OK.ordinal()).sendToTarget();
                     bootModule.handleResultConnect(Module.ResultConnect.STATUS_LOAD_OK);
-                break;
+                    break;
                 case REQUEST_CONNECT_SCALE:
                     log(getString(R.string.Loading_settings));
                     if (ScaleModule.isScales()) {
@@ -315,7 +318,7 @@ public class ActivityBootloader extends Activity implements View.OnClickListener
                     }
                     log(getString(R.string.Scale_no_defined));
                     log(getString(R.string.Setting_no_loaded));
-                break;
+                    break;
                 default:
             }
         } else {

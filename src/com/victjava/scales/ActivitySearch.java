@@ -335,7 +335,7 @@ public class ActivitySearch extends Activity implements View.OnClickListener {
                                     onBackPressed();
                                 }
                             });
-                            dialog.setMessage("Запросите настройки у администратора. Настройки должен выполнять опытный пользователь. Ошибка("+s+ ')');
+                            dialog.setMessage("Запросите настройки у администратора. Настройки должен выполнять опытный пользователь. Ошибка(" + s + ')');
                             Toast.makeText(getBaseContext(), R.string.preferences_error, Toast.LENGTH_SHORT).show();
                             setTitle(getString(R.string.app_name) + ": админ настройки неправельные");
                             dialog.setPositiveButton("OK", new DialogInterface.OnClickListener() {
@@ -349,7 +349,7 @@ public class ActivitySearch extends Activity implements View.OnClickListener {
                             break;
                         case CONNECT_ERROR:
                             //setTitle(getString(R.string.app_name) + getString(R.string.error_connect)); //установить заголовок
-                            log(getString(R.string.Error_connect)+s);
+                            log(getString(R.string.Error_connect) + s);
                             break;
                         default:
                     }

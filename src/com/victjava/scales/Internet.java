@@ -13,14 +13,20 @@ import java.io.IOException;
 import java.lang.reflect.Method;
 import java.net.*;
 
-/** Управляет соединениями (Bluetooth, Wi-Fi, мобильная сеть)
+/**
+ * Управляет соединениями (Bluetooth, Wi-Fi, мобильная сеть)
+ *
  * @author Kostya
  */
 public class Internet {
     private final Context context;
-    /**Менеджер телефона*/
+    /**
+     * Менеджер телефона
+     */
     private TelephonyManager telephonyManager;
-    /**Слушатель менеджера телефона*/
+    /**
+     * Слушатель менеджера телефона
+     */
     private PhoneStateListener phoneStateListener;
 
     public static final String INTERNET_CONNECT = "internet_connect";
@@ -30,7 +36,9 @@ public class Internet {
         context = c;
     }
 
-    /** Сделать соединение с интернетом */
+    /**
+     * Сделать соединение с интернетом
+     */
     public void connect() {
         telephonyManager = (TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE);
         phoneStateListener = new PhoneStateListener() {
@@ -56,7 +64,9 @@ public class Internet {
         turnOnDataConnection(true);
     }
 
-    /** Выполнить отсоединение от интернета */
+    /**
+     * Выполнить отсоединение от интернета
+     */
     public void disconnect() {
         if (telephonyManager != null) {
             telephonyManager.listen(phoneStateListener, PhoneStateListener.LISTEN_NONE);
@@ -67,7 +77,9 @@ public class Internet {
         turnOnWiFiConnection(false);
     }
 
-    /** Проверяем подключение к интернету.
+    /**
+     * Проверяем подключение к интернету.
+     *
      * @return true - есть соединение.
      */
     public static boolean isOnline() {
@@ -80,7 +92,9 @@ public class Internet {
         }
     }
 
-    /** Выполнить соединение с интернетом по wifi.
+    /**
+     * Выполнить соединение с интернетом по wifi.
+     *
      * @param on true - включить.
      */
     public void turnOnWiFiConnection(boolean on) {
@@ -92,7 +106,9 @@ public class Internet {
         while (wifi.isWifiEnabled() != on) ;
     }
 
-    /** Выполнить соединение с интернетом по mobile data.
+    /**
+     * Выполнить соединение с интернетом по mobile data.
+     *
      * @param on true - включить.
      */
     private boolean turnOnDataConnection(boolean on) {
@@ -216,7 +232,9 @@ public class Internet {
         }
     }
 
-    /** Послать ссылку в интернет.
+    /**
+     * Послать ссылку в интернет.
+     *
      * @param url Ссылка.
      * @return true - ответ ОК.
      */

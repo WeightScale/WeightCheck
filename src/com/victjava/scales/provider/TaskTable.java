@@ -71,7 +71,9 @@ public class TaskTable {
             }
             result.close();
             return flag;
-        }catch (Exception e){return  false;}
+        } catch (Exception e) {
+            return false;
+        }
     }
 
     public Cursor getAllEntries() {
@@ -100,7 +102,9 @@ public class TaskTable {
             ContentValues newValues = new ContentValues();
             newValues.put(key, in);
             return context.getContentResolver().update(uri, newValues, null, null) > 0;
-        }catch (Exception e){return false;}
+        } catch (Exception e) {
+            return false;
+        }
     }
 
     public boolean removeEntryIfErrorOver(int _rowIndex) {

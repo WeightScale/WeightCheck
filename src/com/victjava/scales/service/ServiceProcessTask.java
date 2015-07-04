@@ -19,12 +19,16 @@ import com.victjava.scales.TaskCommand.*;
 import java.util.ArrayList;
 import java.util.Map;
 
-/** Сервис обработки задач.
+/**
+ * Сервис обработки задач.
  * Задачи отправки данных.
+ *
  * @author Kostya
  */
 public class ServiceProcessTask extends Service {
-    /** Таблица задач */
+    /**
+     * Таблица задач
+     */
     private TaskTable taskTable;
     private Internet internet;
     private BroadcastReceiver broadcastReceiver;
@@ -76,7 +80,9 @@ public class ServiceProcessTask extends Service {
             unregisterReceiver(broadcastReceiver);
     }
 
-    /** Процесс выполнения задач */
+    /**
+     * Процесс выполнения задач
+     */
     private void taskProcess() {
         /**Экземпляр команд задач*/
         TaskCommand taskCommand = new TaskCommand(this, msgHandler);
@@ -95,7 +101,9 @@ public class ServiceProcessTask extends Service {
         }
     }
 
-    /** Обработчик сообщений */
+    /**
+     * Обработчик сообщений
+     */
     public final HandlerTaskNotification msgHandler = new HandlerTaskNotification() {
 
         /** Количество запущеных процессов */
@@ -110,7 +118,7 @@ public class ServiceProcessTask extends Service {
             switch (what) {
                 case TaskCommand.HANDLER_NOTIFY_CHECK_UNSEND:
                     taskTable.removeEntryIfErrorOver(arg1);
-                break;
+                    break;
                 default:
                     taskTable.removeEntry(arg1);
             }

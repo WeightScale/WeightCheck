@@ -65,16 +65,24 @@ public class ActivityCheck extends FragmentActivity implements View.OnClickListe
         private boolean start;
         private boolean cancelled;
 
-        /** Остановка взвешивания */
+        /**
+         * Остановка взвешивания
+         */
         final int ACTION_STOP_WEIGHTING = 1;
 
-        /** Пуск взвешивания */
+        /**
+         * Пуск взвешивания
+         */
         final int ACTION_START_WEIGHTING = 2;
 
-        /** Сохранить результат взвешивания */
+        /**
+         * Сохранить результат взвешивания
+         */
         final int ACTION_STORE_WEIGHTING = 3;
 
-        /** Обновить данные веса. */
+        /**
+         * Обновить данные веса.
+         */
         final int ACTION_UPDATE_PROGRESS = 4;
 
         @Override
@@ -86,19 +94,28 @@ public class ActivityCheck extends FragmentActivity implements View.OnClickListe
 
         @Override
         public void run() {
-            try {Thread.sleep(50); } catch (InterruptedException ignored) { }
+            try {
+                Thread.sleep(50);
+            } catch (InterruptedException ignored) {
+            }
             while (!cancelled) {
 
                 weightViewIsSwipe = false;
                 numStable = 0;
 
                 while (!cancelled && !isCapture() && !weightViewIsSwipe) {                                              //ждём начала нагружения
-                    try {Thread.sleep(50); } catch (InterruptedException ignored) { }
+                    try {
+                        Thread.sleep(50);
+                    } catch (InterruptedException ignored) {
+                    }
                 }
                 handler.sendMessage(handler.obtainMessage(ACTION_START_WEIGHTING));
                 isStable = false;
                 while (!cancelled && !(isStable || weightViewIsSwipe)) {                                                //ждем стабилизации веса или нажатием выбора веса
-                    try { Thread.sleep(50); } catch (InterruptedException ignored) {}
+                    try {
+                        Thread.sleep(50);
+                    } catch (InterruptedException ignored) {
+                    }
                     if (!touchWeightView) {                                                                              //если не прикасаемся к индикатору тогда стабилизируем вес
                         isStable = processStable(getWeightToStepMeasuring(moduleWeight));
                         handler.sendMessage(handler.obtainMessage(ACTION_UPDATE_PROGRESS, numStable, 0));
@@ -115,7 +132,10 @@ public class ActivityCheck extends FragmentActivity implements View.OnClickListe
                 weightViewIsSwipe = false;
 
                 while (!cancelled && getWeightToStepMeasuring(moduleWeight) >= Main.default_min_auto_capture) {
-                    try { Thread.sleep(50); } catch (InterruptedException ignored) {}                                   // ждем разгрузки весов
+                    try {
+                        Thread.sleep(50);
+                    } catch (InterruptedException ignored) {
+                    }                                   // ждем разгрузки весов
                 }
                 vibrator.vibrate(100);
                 handler.sendMessage(handler.obtainMessage(ACTION_UPDATE_PROGRESS, 0, 0));
@@ -125,7 +145,10 @@ public class ActivityCheck extends FragmentActivity implements View.OnClickListe
                     }
                     break;
                 }
-                try { TimeUnit.SECONDS.sleep(2);  } catch (InterruptedException ignored) { }                            //задержка
+                try {
+                    TimeUnit.SECONDS.sleep(2);
+                } catch (InterruptedException ignored) {
+                }                            //задержка
 
                 if (weightType == WeightType.SECOND) {
                     cancelled = true;
@@ -190,20 +213,29 @@ public class ActivityCheck extends FragmentActivity implements View.OnClickListe
     private SimpleGestureFilter detectorWeightView;
     private Drawable dProgressWeight, dWeightDanger;
 
-    /** Энумератор типа веса.
+    /**
+     * Энумератор типа веса.
      */
     protected enum WeightType {
-        /** Первое взвешивание */
+        /**
+         * Первое взвешивание
+         */
         FIRST,
-        /** Второе взвешивание */
+        /**
+         * Второе взвешивание
+         */
         SECOND,
-        /** Вес нетто */
+        /**
+         * Вес нетто
+         */
         NETTO
     }
 
     public WeightType weightType;
 
-    /** Количество стабильных показаний веса для авто сохранения  */
+    /**
+     * Количество стабильных показаний веса для авто сохранения
+     */
     public static final int COUNT_STABLE = 64;
 
     ContentValues values = new ContentValues();
@@ -233,7 +265,7 @@ public class ActivityCheck extends FragmentActivity implements View.OnClickListe
         entryID = Integer.valueOf(getIntent().getStringExtra("id"));
         try {
             values = checkTable.getValuesItem(entryID);
-        }catch (Exception e){
+        } catch (Exception e) {
             exit();
         }
 
@@ -257,7 +289,7 @@ public class ActivityCheck extends FragmentActivity implements View.OnClickListe
         }
 
         if (values.getAsInteger(CheckTable.KEY_WEIGHT_FIRST) == 0 || values.getAsInteger(CheckTable.KEY_WEIGHT_SECOND) == 0) {
-            handlerWeight.process(true);
+            handlerWeight.start();
         }
     }
 
@@ -313,7 +345,7 @@ public class ActivityCheck extends FragmentActivity implements View.OnClickListe
     }
 
     protected void exit() {
-        handlerWeight.process(false);
+        handlerWeight.stop(false);
         autoWeightThread.cancel();
         while (autoWeightThread.isStart()) ;
         if (weightType == WeightType.NETTO) {
@@ -340,8 +372,10 @@ public class ActivityCheck extends FragmentActivity implements View.OnClickListe
         return view;
     }
 
-    /** Захват веса для авто сохранения веса.
+    /**
+     * Захват веса для авто сохранения веса.
      * Задержка захвата от ложных срабатываний. Устанавливается значения в настройках.
+     *
      * @return true - Условия захвата истины.
      */
     public boolean isCapture() {
@@ -372,8 +406,10 @@ public class ActivityCheck extends FragmentActivity implements View.OnClickListe
         return false;
     }
 
-    /** Преобразовать вес в шкалу шага веса.
+    /**
+     * Преобразовать вес в шкалу шага веса.
      * Шаг измерения установливается в настройках.
+     *
      * @param weight Вес для преобразования.
      * @return Преобразованый вес.
      */
@@ -467,7 +503,7 @@ public class ActivityCheck extends FragmentActivity implements View.OnClickListe
                 flag = true;
                 break;
             case NETTO:
-                handlerWeight.process(false);
+                handlerWeight.stop(false);
                 exit();
                 break;
         }
@@ -480,7 +516,9 @@ public class ActivityCheck extends FragmentActivity implements View.OnClickListe
         return flag;
     }
 
-    /** Расчет веса нетто.
+    /**
+     * Расчет веса нетто.
+     *
      * @return Вес нетто.
      */
     public int sumNetto() {
@@ -489,7 +527,9 @@ public class ActivityCheck extends FragmentActivity implements View.OnClickListe
         return netto;
     }
 
-    /** Засчет стоимости
+    /**
+     * Засчет стоимости
+     *
      * @param netto Вес нетто.
      * @return Сумма.
      */
@@ -619,9 +659,12 @@ public class ActivityCheck extends FragmentActivity implements View.OnClickListe
         }
 
         @Override
-        public void onPageScrollStateChanged(final int state) {}
+        public void onPageScrollStateChanged(final int state) {
+        }
 
-        public Fragment getCurrentFragment() { return mCurrentFragment; }
+        public Fragment getCurrentFragment() {
+            return mCurrentFragment;
+        }
 
         @Override
         public void setPrimaryItem(ViewGroup container, int position, Object object) {
@@ -632,8 +675,11 @@ public class ActivityCheck extends FragmentActivity implements View.OnClickListe
         }
 
     }
-    /** Обработчик показаний веса
-     * Возвращяем время обновления показаний веса в милисекундах. */
+
+    /**
+     * Обработчик показаний веса
+     * Возвращяем время обновления показаний веса в милисекундах.
+     */
     final HandlerWeight handlerWeight = new HandlerWeight() {
         /** Сообщение показаний веса.
          * @param what Результат статуса сообщения энумератор ResultWeight.
@@ -644,6 +690,7 @@ public class ActivityCheck extends FragmentActivity implements View.OnClickListe
         public int onEvent(final ScaleModule.ResultWeight what, final int weight, final int sensor) {
             runOnUiThread(new Runnable() {
                 Rect bounds;
+
                 @Override
                 public void run() {
                     switch (what) {

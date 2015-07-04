@@ -28,7 +28,9 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
-/** Активность управления весами
+/**
+ * Активность управления весами
+ *
  * @author Kostya
  */
 public class ActivityScales extends Activity implements View.OnClickListener, View.OnLongClickListener {
@@ -44,7 +46,9 @@ public class ActivityScales extends Activity implements View.OnClickListener, Vi
     private ImageView imageNewCheck;
     private ListView listView;
 
-    /** лайаут для батарея температура*/
+    /**
+     * лайаут для батарея температура
+     */
     private LinearLayout linearBatteryTemp;
     public static final String PARAM_PENDING_INTENT = "pendingIntent";
     static final int REQUEST_SEARCH_SCALE = 2;
@@ -120,14 +124,14 @@ public class ActivityScales extends Activity implements View.OnClickListener, Vi
     @Override
     protected void onResume() {
         super.onResume();
-        handlerBatteryTemperature.process(true);
+        handlerBatteryTemperature.start();
         namesAdapter.changeCursor(checkTable.getAllNoReadyCheck());
     }
 
     @Override
     protected void onPause() {
         super.onPause();
-        handlerBatteryTemperature.process(false);
+        handlerBatteryTemperature.stop(false);
     }
 
     @Override
@@ -168,25 +172,25 @@ public class ActivityScales extends Activity implements View.OnClickListener, Vi
         switch (item.getItemId()) {
             case R.id.preferences:
                 startActivity(new Intent(this, ActivityPreferences.class));
-            break;
+                break;
             /*case R.id.tuning:
                 startActivity(new Intent(this, ActivityTuning.class));
             break;*/
             case R.id.search:
                 openSearch();
-            break;
+                break;
             case R.id.exit:
                 closeOptionsMenu();
-            break;
+                break;
             case R.id.type:
                 startActivity(new Intent(getBaseContext(), ActivityType.class));
-            break;
+                break;
             case R.id.checks:
                 startActivity(new Intent(getBaseContext(), ActivityListChecks.class));
-            break;
+                break;
             case R.id.contact:
                 startActivity(new Intent(getBaseContext(), ActivityContact.class).setAction("contact"));
-            break;
+                break;
             case R.id.power_off:
                 AlertDialog.Builder dialog = new AlertDialog.Builder(this);
                 dialog.setTitle(getString(R.string.Scale_off));
@@ -195,7 +199,7 @@ public class ActivityScales extends Activity implements View.OnClickListener, Vi
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
                         if (i == DialogInterface.BUTTON_POSITIVE) {
-                            if(ScaleModule.isAttach())
+                            if (ScaleModule.isAttach())
                                 ScaleModule.setModulePowerOff();
                         }
                     }
@@ -209,7 +213,7 @@ public class ActivityScales extends Activity implements View.OnClickListener, Vi
                 });
                 dialog.setMessage(getString(R.string.TEXT_MESSAGE15));
                 dialog.show();
-            break;
+                break;
             default:
 
         }
@@ -338,7 +342,8 @@ public class ActivityScales extends Activity implements View.OnClickListener, Vi
         updateList();
     }
 
-    /** Слушатель нажания чека в листе.
+    /**
+     * Слушатель нажания чека в листе.
      * Запускаем Активность работы с чеком.
      */
     private final AdapterView.OnItemClickListener onItemClickListener = new AdapterView.OnItemClickListener() {
@@ -348,8 +353,8 @@ public class ActivityScales extends Activity implements View.OnClickListener, Vi
         }
     };
 
-    /** Обновляем данные листа непроведенных чеков.
-     *
+    /**
+     * Обновляем данные листа непроведенных чеков.
      */
     private void updateList() {
         Cursor cursor = checkTable.getAllNoReadyCheck();
@@ -372,9 +377,11 @@ public class ActivityScales extends Activity implements View.OnClickListener, Vi
         listView.setAdapter(namesAdapter);
     }
 
-    /** Соеденяемся с Весовым модулем.
-     *  Инициализируем созданый экземпляр модуля.
-     *  @param device Адресс bluetooth модуля.
+    /**
+     * Соеденяемся с Весовым модулем.
+     * Инициализируем созданый экземпляр модуля.
+     *
+     * @param device Адресс bluetooth модуля.
      */
     private void connectScaleModule(String device) {
 
@@ -456,8 +463,10 @@ public class ActivityScales extends Activity implements View.OnClickListener, Vi
         startActivityForResult(new Intent(getBaseContext(), ActivitySearch.class), REQUEST_SEARCH_SCALE);
     }
 
-    /** Устанавливаем старые чеки в состояние готовые для отправки.
-     *  Условие проверки по дате создания и даты хранения не готовых чеков.
+    /**
+     * Устанавливаем старые чеки в состояние готовые для отправки.
+     * Условие проверки по дате создания и даты хранения не готовых чеков.
+     *
      * @throws Exception
      */
     private void setReadyOldChecks() throws Exception {
@@ -483,7 +492,9 @@ public class ActivityScales extends Activity implements View.OnClickListener, Vi
         cursor.close();
     }
 
-    /** Вычисляем разницу между датами
+    /**
+     * Вычисляем разницу между датами
+     *
      * @param d1 Дата которуя проверяем
      * @param d2 Дата сравнения
      * @return Разница между d1 и d2 в днях.
@@ -495,8 +506,9 @@ public class ActivityScales extends Activity implements View.OnClickListener, Vi
         return day1 - day2;
     }
 
-    /** Экземпляр Весового модуля.
-     *  Обработсик сообщений.
+    /**
+     * Экземпляр Весового модуля.
+     * Обработсик сообщений.
      */
     public final ScaleModule scaleModule = new ScaleModule() {
         AlertDialog.Builder dialog;
@@ -520,11 +532,11 @@ public class ActivityScales extends Activity implements View.OnClickListener, Vi
                             Preferences.write(ActivityPreferences.KEY_LAST_SCALES, ScaleModule.getAddressBluetoothDevice());
                             Preferences.write(ActivityPreferences.KEY_LAST_USER, ScaleModule.getUserName());
                             listView.setEnabled(true);
-                            handlerBatteryTemperature.process(true);
+                            handlerBatteryTemperature.start();
                         break;
                         case STATUS_SCALE_UNKNOWN:
 
-                        break;
+                            break;
                         case STATUS_ATTACH_START:
                             dialogSearch = new ProgressDialog(ActivityScales.this);
                             dialogSearch.setCancelable(false);
@@ -578,7 +590,7 @@ public class ActivityScales extends Activity implements View.OnClickListener, Vi
                                 }
                             });
                             dialog.show();
-                            break;
+                        break;
                         case MODULE_ERROR:
                             dialog = new AlertDialog.Builder(ActivityScales.this);
                             dialog.setTitle("Ошибка в настройках");
@@ -590,7 +602,7 @@ public class ActivityScales extends Activity implements View.OnClickListener, Vi
                                     onBackPressed();
                                 }
                             });
-                            dialog.setMessage("Запросите настройки у администратора. Настройки должен выполнять опытный пользователь. Ошибка("+s+ ')');
+                            dialog.setMessage("Запросите настройки у администратора. Настройки должен выполнять опытный пользователь. Ошибка(" + s + ')');
                             Toast.makeText(getBaseContext(), R.string.preferences_error, Toast.LENGTH_SHORT).show();
                             setTitle(getString(R.string.app_name) + ": админ настройки неправельные");
                             dialog.setPositiveButton(getString(R.string.OK), new DialogInterface.OnClickListener() {
@@ -601,7 +613,7 @@ public class ActivityScales extends Activity implements View.OnClickListener, Vi
                                 }
                             });
                             dialog.show();
-                            break;
+                        break;
                         case CONNECT_ERROR:
                             setTitle(getString(R.string.app_name) + getString(R.string.NO_CONNECT)); //установить заголовок
                             listView.setEnabled(false);
@@ -609,7 +621,7 @@ public class ActivityScales extends Activity implements View.OnClickListener, Vi
                             imageViewRemote.setImageDrawable(getResources().getDrawable(R.drawable.rss_off));
                             Intent intent = new Intent(getBaseContext(), ActivitySearch.class);
                             startActivityForResult(intent, REQUEST_SEARCH_SCALE);
-                            break;
+                        break;
                         default:
                     }
                 }
@@ -618,7 +630,7 @@ public class ActivityScales extends Activity implements View.OnClickListener, Vi
 
         @Override
         public void handleMessage(Message msg) {
-            switch (msg.what){
+            switch (msg.what) {
                 case RESULT_CANCELED:
                     listView.setEnabled(false);
                     break;
@@ -628,8 +640,9 @@ public class ActivityScales extends Activity implements View.OnClickListener, Vi
 
     };
 
-    /** Обработчик показаний заряда батареи и температуры.
-     *  Возвращяет время обновления в секундах.
+    /**
+     * Обработчик показаний заряда батареи и температуры.
+     * Возвращяет время обновления в секундах.
      */
     private final HandlerBatteryTemperature handlerBatteryTemperature = new HandlerBatteryTemperature() {
         /** Сообщение

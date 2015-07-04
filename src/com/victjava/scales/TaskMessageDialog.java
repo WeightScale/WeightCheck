@@ -300,8 +300,8 @@ public class TaskMessageDialog {
 
         @Override
         public boolean setViewValue(View view, Cursor cursor, int columnIndex) {
-            if(view.getId() == R.id.title){
-                ((TextView)view).setCompoundDrawablesWithIntrinsicBounds(res, 0, 0, 0);
+            if (view.getId() == R.id.title) {
+                ((TextView) view).setCompoundDrawablesWithIntrinsicBounds(res, 0, 0, 0);
                 ((TextView) view).setText(cursor.getString(columnIndex));
             }
             return true;

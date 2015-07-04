@@ -31,9 +31,9 @@ public class ActivityAbout extends Activity {
         } catch (Exception e) {
             textSettings.append(getString(R.string.Name_module_bluetooth) + '\n');
         }
-        try{
+        try {
             textSettings.append(getString(R.string.Address_bluetooth) + ScaleModule.getAddressBluetoothDevice() + '\n');
-        }catch (Exception e){
+        } catch (Exception e) {
             textSettings.append(getString(R.string.Address_bluetooth) + '\n');
         }
 

@@ -160,7 +160,7 @@ public class ActivityConnect extends Activity implements View.OnClickListener {
                             setTitle(getString(R.string.app_name) + " \"" + versionName + "\", v." + versionNumber); //установить заголовок
 
                             setProgressBarIndeterminateVisibility(false);
-                        break;
+                            break;
                         default:
                     }
                 }
@@ -229,17 +229,18 @@ public class ActivityConnect extends Activity implements View.OnClickListener {
     final BootModule bootModule = new BootModule("BOOT") {
         @Override
         public void handleResultConnect(ResultConnect result) {
-            switch (result){
+            switch (result) {
                 case STATUS_LOAD_OK:
                     setResult(RESULT_OK, new Intent());
                     finish();
-                break;
+                    break;
                 default:
             }
         }
 
         @Override
-        public void handleConnectError(ResultError error, String s) {}
+        public void handleConnectError(ResultError error, String s) {
+        }
 
     };
 
