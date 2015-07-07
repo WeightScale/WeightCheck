@@ -17,6 +17,7 @@ import android.view.*;
 import android.widget.*;
 import com.konst.module.BootModule;
 import com.konst.module.Module;
+import com.konst.module.OnEventConnectResult;
 import com.victjava.scales.*;
 
 public class ActivityConnect extends Activity implements View.OnClickListener {
@@ -26,10 +27,11 @@ public class ActivityConnect extends Activity implements View.OnClickListener {
     private Vibrator vibrator; //вибратор
 
     private BroadcastReceiver broadcastReceiver; //приёмник намерений
-    private final BluetoothAdapter bluetoothAdapter = BluetoothAdapter.getDefaultAdapter(); //блютуз адаптер
-    private BluetoothDevice bluetoothDevice;
+    //private final BluetoothAdapter bluetoothAdapter = BluetoothAdapter.getDefaultAdapter(); //блютуз адаптер
+    //private BluetoothDevice bluetoothDevice;
     private TextView textViewLog; //лог событий
     private LinearLayout linearScreen;//лайаут для экрана показывать когда загрузились настройки
+    private BootModule bootModule;
 
     public static int versionNumber;
     public static String versionName;
@@ -40,16 +42,22 @@ public class ActivityConnect extends Activity implements View.OnClickListener {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-        bluetoothDevice = bluetoothAdapter.getRemoteDevice(getIntent().getStringExtra("address"));
-
-        setupScale();
+        try {
+            bootModule = new BootModule("bootloader", onEventConnectResult);
+            log(R.string.bluetooth_off, true);
+            bootModule.getAdapter().enable();
+            while (!bootModule.getAdapter().isEnabled()) ;//ждем включения bluetooth
+            setupScale();
+        } catch (Exception e) {
+            Toast.makeText(getBaseContext(), e.getMessage(), Toast.LENGTH_LONG).show();
+            finish();
+        }
     }
 
     //==================================================================================================================
     private void exit() {
-        if (bluetoothAdapter.isDiscovering()) {
-            bluetoothAdapter.cancelDiscovery();
+        if (bootModule.getAdapter().isDiscovering()) {
+            bootModule.getAdapter().cancelDiscovery();
         }
         unregisterReceiver(broadcastReceiver);
     }
@@ -68,7 +76,7 @@ public class ActivityConnect extends Activity implements View.OnClickListener {
             //exit();
             return;
         }
-        bluetoothAdapter.cancelDiscovery();
+        bootModule.getAdapter().cancelDiscovery();
         doubleBackToExitPressedOnce = true;
         Toast.makeText(this, R.string.press_again_to_exit /*Please click BACK again to exit*/, Toast.LENGTH_SHORT).show();
         new Handler().postDelayed(new Runnable() {
@@ -104,7 +112,6 @@ public class ActivityConnect extends Activity implements View.OnClickListener {
         textViewLog.setText(getString(resource) + ' ' + str + '\n' + textViewLog.getText());
     }
 
-    //@TargetApi(Build.VERSION_CODES.HONEYCOMB)
     void setupScale() {
         /*Window window = getWindow();
         window.requestFeature(Window.FEATURE_CUSTOM_TITLE);*/
@@ -139,12 +146,12 @@ public class ActivityConnect extends Activity implements View.OnClickListener {
                 if (action != null) {
                     switch (action) {
                         case BluetoothAdapter.ACTION_STATE_CHANGED:
-                            if (bluetoothAdapter.getState() == BluetoothAdapter.STATE_OFF) {
+                            if (bootModule.getAdapter().getState() == BluetoothAdapter.STATE_OFF) {
                                 log(R.string.bluetooth_off);
-                                bluetoothAdapter.enable();
-                            } else if (bluetoothAdapter.getState() == BluetoothAdapter.STATE_TURNING_ON) {
+                                bootModule.getAdapter().enable();
+                            } else if (bootModule.getAdapter().getState() == BluetoothAdapter.STATE_TURNING_ON) {
                                 log(R.string.bluetooth_turning_on, true);
-                            } else if (bluetoothAdapter.getState() == BluetoothAdapter.STATE_ON) {
+                            } else if (bootModule.getAdapter().getState() == BluetoothAdapter.STATE_ON) {
                                 log(R.string.bluetooth_on, true);
                             }
                             break;
@@ -173,14 +180,6 @@ public class ActivityConnect extends Activity implements View.OnClickListener {
         intentFilter.addAction(BluetoothDevice.ACTION_ACL_DISCONNECTED);
         registerReceiver(broadcastReceiver, intentFilter);
 
-        if (bluetoothAdapter != null) {
-            if (bluetoothAdapter.isEnabled()) {
-                log(R.string.bluetooth_on, true);
-            } else {
-                log(R.string.bluetooth_off, true);
-                bluetoothAdapter.enable();
-            }
-        }
         //}
 
         PackageInfo packageInfo = null;
@@ -217,18 +216,19 @@ public class ActivityConnect extends Activity implements View.OnClickListener {
                 break;
             case R.id.buttonSearchBluetooth:
                 try {
-                    bootModule.init("bootloader", bluetoothDevice.getAddress());
+                    bootModule.init(getIntent().getStringExtra("address"));
+                    bootModule.attach();
                 } catch (Exception e) {
-                    bootModule.handleConnectError(Module.ResultError.CONNECT_ERROR, e.getMessage());
+                    onEventConnectResult.handleConnectError(Module.ResultError.CONNECT_ERROR, e.getMessage());
                 }
                 break;
             default:
         }
     }
 
-    final BootModule bootModule = new BootModule("BOOT") {
+    OnEventConnectResult onEventConnectResult = new OnEventConnectResult() {
         @Override
-        public void handleResultConnect(ResultConnect result) {
+        public void handleResultConnect(Module.ResultConnect result) {
             switch (result) {
                 case STATUS_LOAD_OK:
                     setResult(RESULT_OK, new Intent());
@@ -239,7 +239,7 @@ public class ActivityConnect extends Activity implements View.OnClickListener {
         }
 
         @Override
-        public void handleConnectError(ResultError error, String s) {
+        public void handleConnectError(Module.ResultError error, String s) {
         }
 
     };

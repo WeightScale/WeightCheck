@@ -3,6 +3,8 @@ package com.victjava.scales;
 import android.app.Application;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
 import com.konst.module.ScaleModule;
 import com.victjava.scales.service.ServiceSmsCommand;
 
@@ -18,6 +20,8 @@ public class Main extends Application {
      * Настройки для обновления весов.
      */
     public static Preferences preferencesUpdate;
+
+    static PackageInfo packageInfo;
 
     /**
      * Версия пограммы весового модуля.
@@ -115,6 +119,14 @@ public class Main extends Application {
     @Override
     public void onCreate() {
         super.onCreate();
+
+        try {
+            PackageManager packageManager = getPackageManager();
+            packageInfo = packageManager.getPackageInfo(getPackageName(), 0);
+            //Main.versionNumber = packageInfo.versionCode;
+            //Main.versionName = packageInfo.versionName;
+        } catch (PackageManager.NameNotFoundException e) {  }
+
         preferencesScale = new Preferences(getApplicationContext(), Preferences.PREFERENCES);
         preferencesUpdate = new Preferences(getApplicationContext(), Preferences.PREF_UPDATE);
         Preferences.load(getSharedPreferences(Preferences.PREFERENCES, Context.MODE_PRIVATE)); //загрузить настройки

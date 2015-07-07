@@ -32,7 +32,8 @@ public class ActivityBootloader extends Activity implements View.OnClickListener
     private ImageView startBoot, buttonBack;
     private TextView textViewLog;
     private ProgressDialog progressDialog;
-    private final BluetoothAdapter bluetoothAdapter = BluetoothAdapter.getDefaultAdapter(); //блютуз адаптер
+    //private final BluetoothAdapter bluetoothAdapter = BluetoothAdapter.getDefaultAdapter(); //блютуз адаптер
+    private BootModule bootModule;
 
     private AVRProgrammer programmer;
     private String addressDevice = "";
@@ -145,9 +146,10 @@ public class ActivityBootloader extends Activity implements View.OnClickListener
                 switch (i) {
                     case DialogInterface.BUTTON_POSITIVE:
                         try {
-                            bootModule.init("bootloader", addressDevice);
+                            bootModule.init( addressDevice);
+                            bootModule.attach();
                         } catch (Exception e) {
-                            bootModule.handleConnectError(Module.ResultError.CONNECT_ERROR, e.getMessage());
+                            onEventConnectResult.handleConnectError(Module.ResultError.CONNECT_ERROR, e.getMessage());
                         }
                         break;
                     default:
@@ -164,21 +166,22 @@ public class ActivityBootloader extends Activity implements View.OnClickListener
         dialog.setMessage(getString(R.string.TEXT_MESSAGE));
         dialog.show();
 
-        if (bluetoothAdapter != null) {
-            if (bluetoothAdapter.isEnabled()) {
-                log(getString(R.string.bluetooth_on));
-            } else {
-                log(getString(R.string.bluetooth_off));
-                bluetoothAdapter.enable();
-            }
+        try {
+            bootModule = new BootModule("bootloader", onEventConnectResult);
+            bootModule.getAdapter().enable();
+            log(getString(R.string.bluetooth_off));
+            while (!bootModule.getAdapter().isEnabled()) ;//ждем включения bluetooth
+        } catch (Exception e) {
+            log(e.getMessage());
+            finish();
         }
     }
 
-    final BootModule bootModule = new BootModule("BOOT") {
+    OnEventConnectResult onEventConnectResult = new OnEventConnectResult() {
         private AlertDialog.Builder dialog;
 
         @Override
-        public void handleResultConnect(final ResultConnect result) {
+        public void handleResultConnect(final Module.ResultConnect result) {
             runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
@@ -219,7 +222,7 @@ public class ActivityBootloader extends Activity implements View.OnClickListener
         }
 
         @Override
-        public void handleConnectError(ResultError error, String s) {
+        public void handleConnectError(Module.ResultError error, String s) {
             switch (error) {
                 case CONNECT_ERROR:
                     Intent intent = new Intent(getBaseContext(), ActivityConnect.class);
@@ -307,7 +310,7 @@ public class ActivityBootloader extends Activity implements View.OnClickListener
             switch (requestCode) {
                 case REQUEST_CONNECT_BOOT:
                     //scaleModule.obtainMessage(HandlerScaleConnect.Result.STATUS_LOAD_OK.ordinal()).sendToTarget();
-                    bootModule.handleResultConnect(Module.ResultConnect.STATUS_LOAD_OK);
+                    onEventConnectResult.handleResultConnect(Module.ResultConnect.STATUS_LOAD_OK);
                     break;
                 case REQUEST_CONNECT_SCALE:
                     log(getString(R.string.Loading_settings));
