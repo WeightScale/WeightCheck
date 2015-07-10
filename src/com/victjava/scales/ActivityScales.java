@@ -39,7 +39,6 @@ public class ActivityScales extends Activity implements View.OnClickListener, Vi
     private SimpleCursorAdapter namesAdapter;
     private CheckTable checkTable;
     private BroadcastReceiver broadcastReceiver; //приёмник намерений
-    //private BluetoothAdapter bluetooth; //блютуз адаптер
     private Vibrator vibrator; //вибратор
     private BatteryProgressBar progressBarBattery; //текст батареи
     private TemperatureProgressBar temperatureProgressBar;
@@ -48,11 +47,8 @@ public class ActivityScales extends Activity implements View.OnClickListener, Vi
     private ListView listView;
     private ScaleModule scaleModule;
 
-    /**
-     * лайаут для батарея температура
-     */
+    /** лайаут для батарея температура */
     private LinearLayout linearBatteryTemp;
-    public static final String PARAM_PENDING_INTENT = "pendingIntent";
     static final int REQUEST_SEARCH_SCALE = 2;
 
     private boolean doubleBackToExitPressedOnce;
@@ -70,13 +66,10 @@ public class ActivityScales extends Activity implements View.OnClickListener, Vi
         Main.networkCountry = telephonyManager.getNetworkCountryIso();
         int state = telephonyManager.getSimState();
 
-        //bluetooth = BluetoothAdapter.getDefaultAdapter();
         if (state == TelephonyManager.SIM_STATE_READY) {
             try {
                 scaleModule = new ScaleModule(Main.packageInfo.versionName, onEventConnectResult);
                 Toast.makeText(getBaseContext(), R.string.bluetooth_off, Toast.LENGTH_SHORT).show();
-                scaleModule.getAdapter().enable();
-                while (!scaleModule.getAdapter().isEnabled()) ;//ждем включения bluetooth
                 setupScale();
             } catch (Exception e) {
                 Toast.makeText(getBaseContext(), e.getMessage(), Toast.LENGTH_LONG).show();
@@ -261,6 +254,7 @@ public class ActivityScales extends Activity implements View.OnClickListener, Vi
         }
 
         broadcastReceiver = new BroadcastReceiver() {
+            private ProgressDialog dialog;
 
             @Override
             public void onReceive(Context context, Intent intent) { //обработчик Bluetooth
@@ -270,15 +264,25 @@ public class ActivityScales extends Activity implements View.OnClickListener, Vi
                         case BluetoothAdapter.ACTION_STATE_CHANGED:
                             switch (scaleModule.getAdapter().getState()) {
                                 case BluetoothAdapter.STATE_OFF:
-                                    Toast.makeText(getBaseContext(), R.string.bluetooth_off, Toast.LENGTH_SHORT).show();
+                                    dialog = new ProgressDialog(context);
+                                    dialog.setCancelable(false);
+                                    dialog.setIndeterminate(false);
+                                    dialog.show();
+                                    dialog.setContentView(R.layout.custom_progress_dialog);
+                                    TextView tv1 = (TextView) dialog.findViewById(R.id.textView1);
+                                    tv1.setText(R.string.bluetooth_turning_on);
+                                    //Toast.makeText(getBaseContext(), R.string.bluetooth_off, Toast.LENGTH_SHORT).show();
                                     new Internet(getApplicationContext()).turnOnWiFiConnection(false);
                                     scaleModule.getAdapter().enable();
                                     break;
                                 case BluetoothAdapter.STATE_TURNING_ON:
-                                    Toast.makeText(getBaseContext(), R.string.bluetooth_turning_on, Toast.LENGTH_SHORT).show();
+                                    //Toast.makeText(getBaseContext(), R.string.bluetooth_turning_on, Toast.LENGTH_SHORT).show();
                                     break;
                                 case BluetoothAdapter.STATE_ON:
-                                    Toast.makeText(getBaseContext(), R.string.bluetooth_on, Toast.LENGTH_SHORT).show();
+                                    if (dialog.isShowing()) {
+                                        dialog.dismiss();
+                                    }
+                                    //Toast.makeText(getBaseContext(), R.string.bluetooth_on, Toast.LENGTH_SHORT).show();
                                     break;
                                 default:
                                     break;
@@ -344,8 +348,7 @@ public class ActivityScales extends Activity implements View.OnClickListener, Vi
         updateList();
     }
 
-    /**
-     * Слушатель нажания чека в листе.
+    /** Слушатель нажания чека в листе.
      * Запускаем Активность работы с чеком.
      */
     private final AdapterView.OnItemClickListener onItemClickListener = new AdapterView.OnItemClickListener() {
@@ -355,8 +358,7 @@ public class ActivityScales extends Activity implements View.OnClickListener, Vi
         }
     };
 
-    /**
-     * Обновляем данные листа непроведенных чеков.
+    /** Обновляем данные листа непроведенных чеков.
      */
     private void updateList() {
         Cursor cursor = checkTable.getAllNoReadyCheck();
@@ -379,8 +381,7 @@ public class ActivityScales extends Activity implements View.OnClickListener, Vi
         listView.setAdapter(namesAdapter);
     }
 
-    /**
-     * Соеденяемся с Весовым модулем.
+    /** Соеденяемся с Весовым модулем.
      * Инициализируем созданый экземпляр модуля.
      */
     private void connectScaleModule(String address) {
@@ -396,7 +397,6 @@ public class ActivityScales extends Activity implements View.OnClickListener, Vi
     private void exit() {
         if (broadcastReceiver != null)
             unregisterReceiver(broadcastReceiver);
-        scaleModule.removeCallbacksAndMessages(null);
         scaleModule.dettach();
         scaleModule.getAdapter().disable();
         while (scaleModule.getAdapter().isEnabled()) ;
@@ -507,8 +507,7 @@ public class ActivityScales extends Activity implements View.OnClickListener, Vi
         return day1 - day2;
     }
 
-    /**
-     * Экземпляр Весового модуля.
+    /** Экземпляр Весового модуля.
      * Обработсик сообщений.
      */
     OnEventConnectResult onEventConnectResult = new OnEventConnectResult() {
@@ -631,8 +630,7 @@ public class ActivityScales extends Activity implements View.OnClickListener, Vi
 
     };
 
-    /**
-     * Обработчик показаний заряда батареи и температуры.
+    /** Обработчик показаний заряда батареи и температуры.
      * Возвращяет время обновления в секундах.
      */
     private final HandlerBatteryTemperature handlerBatteryTemperature = new HandlerBatteryTemperature() {

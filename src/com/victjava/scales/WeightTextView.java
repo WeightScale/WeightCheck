@@ -25,6 +25,7 @@ public class WeightTextView extends ProgressBar {
         bounds = new Rect();
         textPaint.setAntiAlias(true);
         textPaint.setTextSize(textSize);
+        setWillNotDraw(false);
     }
 
     public WeightTextView(Context context, AttributeSet attrs) {
@@ -33,6 +34,7 @@ public class WeightTextView extends ProgressBar {
         bounds = new Rect();
         textPaint.setAntiAlias(true);
         textPaint.setTextSize(textSize);
+        setWillNotDraw(false);
     }
 
     public synchronized void updateProgress(int progress, int color, float size) {
@@ -50,7 +52,7 @@ public class WeightTextView extends ProgressBar {
     }
 
     @Override
-    protected synchronized void onDraw(@NonNull Canvas canvas) {
+    protected synchronized void onDraw( Canvas canvas) {
         super.onDraw(canvas);
         textPaint.setColor(textColor);
         textPaint.setTextSize(textSize);

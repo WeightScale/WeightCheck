@@ -112,8 +112,7 @@
         <service android:enabled="true" android:name=".service.ServiceProcessTask" android:multiprocess="true"/>
         <receiver android:name=".GoogleSpreadsheets$CallbackReceiver" android:exported="true" android:enabled="true">
             <intent-filter>
-                <action android:name="com.victjava.scales.Callback">
-                </action>
+                <action android:name="com.victjava.scales.CallbackReceiver"/>
             </intent-filter>
         </receiver>
         <receiver android:name=".BootReceiver">
@@ -121,7 +120,6 @@
                 <action android:name="android.intent.action.BOOT_COMPLETED"/>
             </intent-filter>
         </receiver>
-        <provider android:authorities="com.victjava.scale.weightCheck" android:exported="false"
-                  android:name=".provider.WeightCheckBaseProvider"/>
+        <provider android:authorities="com.victjava.scale.weightCheck" android:exported="false" android:name=".provider.WeightCheckBaseProvider"/>
     </application>
 </manifest> 

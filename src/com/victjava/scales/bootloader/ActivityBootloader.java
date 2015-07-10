@@ -32,7 +32,6 @@ public class ActivityBootloader extends Activity implements View.OnClickListener
     private ImageView startBoot, buttonBack;
     private TextView textViewLog;
     private ProgressDialog progressDialog;
-    //private final BluetoothAdapter bluetoothAdapter = BluetoothAdapter.getDefaultAdapter(); //блютуз адаптер
     private BootModule bootModule;
 
     private AVRProgrammer programmer;
@@ -168,9 +167,7 @@ public class ActivityBootloader extends Activity implements View.OnClickListener
 
         try {
             bootModule = new BootModule("bootloader", onEventConnectResult);
-            bootModule.getAdapter().enable();
             log(getString(R.string.bluetooth_off));
-            while (!bootModule.getAdapter().isEnabled()) ;//ждем включения bluetooth
         } catch (Exception e) {
             log(e.getMessage());
             finish();

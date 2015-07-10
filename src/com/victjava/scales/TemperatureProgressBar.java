@@ -48,7 +48,7 @@ public class TemperatureProgressBar extends ProgressBar {
     }
 
     @Override
-    protected synchronized void onDraw(@NonNull Canvas canvas) {
+    protected synchronized void onDraw(Canvas canvas) {
         super.onDraw(canvas);
         textPaint.setColor(textColor);
         //Rect bounds = new Rect();

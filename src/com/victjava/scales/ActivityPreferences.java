@@ -397,6 +397,8 @@ public class ActivityPreferences extends PreferenceActivity implements SharedPre
         }
     }
 
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);

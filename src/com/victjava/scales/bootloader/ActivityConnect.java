@@ -42,11 +42,11 @@ public class ActivityConnect extends Activity implements View.OnClickListener {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setContentView(R.layout.connect);
+        textViewLog = (TextView) findViewById(R.id.textLog);
         try {
             bootModule = new BootModule("bootloader", onEventConnectResult);
             log(R.string.bluetooth_off, true);
-            bootModule.getAdapter().enable();
-            while (!bootModule.getAdapter().isEnabled()) ;//ждем включения bluetooth
             setupScale();
         } catch (Exception e) {
             Toast.makeText(getBaseContext(), e.getMessage(), Toast.LENGTH_LONG).show();
@@ -59,7 +59,8 @@ public class ActivityConnect extends Activity implements View.OnClickListener {
         if (bootModule.getAdapter().isDiscovering()) {
             bootModule.getAdapter().cancelDiscovery();
         }
-        unregisterReceiver(broadcastReceiver);
+        if (broadcastReceiver != null)
+            unregisterReceiver(broadcastReceiver);
     }
 
     @Override
@@ -117,14 +118,14 @@ public class ActivityConnect extends Activity implements View.OnClickListener {
         window.requestFeature(Window.FEATURE_CUSTOM_TITLE);*/
         requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
 
-        setContentView(R.layout.connect);
+
 
         setProgressBarIndeterminateVisibility(true);
 
         linearScreen = (LinearLayout) findViewById(R.id.searchScreen);
         //linearScreen.setVisibility(View.INVISIBLE);
 
-        textViewLog = (TextView) findViewById(R.id.textLog);
+
 
         WindowManager.LayoutParams lp = getWindow().getAttributes();
         lp.screenBrightness = 1.0f;

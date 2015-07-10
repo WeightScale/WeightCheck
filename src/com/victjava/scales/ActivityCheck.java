@@ -24,7 +24,7 @@ import com.victjava.scales.provider.CheckTable;
 import java.util.ArrayList;
 import java.util.concurrent.TimeUnit;
 
-public class ActivityCheck extends FragmentActivity implements View.OnClickListener/*, View.OnLongClickListener, InputFragment.onSomeEventListener*/ {
+public class ActivityCheck extends FragmentActivity implements View.OnClickListener {
 
     protected interface OnCheckEventListener {
         void someEvent();
@@ -293,28 +293,6 @@ public class ActivityCheck extends FragmentActivity implements View.OnClickListe
         }
     }
 
-    private void setupTabHost(Bundle savedInstanceState) {
-        mTabHost = (TabHost) findViewById(android.R.id.tabhost);
-        mTabHost.setup();
-        ViewPager mViewPager = (ViewPager) findViewById(R.id.pager);
-        mTabsAdapter = new TabsAdapter(this, mTabHost, mViewPager);
-        mTabsAdapter.addTab(mTabHost.newTabSpec("input").setIndicator(createTabView(this, getString(R.string.incoming))), InputFragment.class);
-        mTabsAdapter.addTab(mTabHost.newTabSpec("output").setIndicator(createTabView(this, getString(R.string.outgo))), OutputFragment.class);
-        switch (values.getAsInteger(CheckTable.KEY_DIRECT)) {
-            case CheckTable.DIRECT_DOWN:
-                mTabHost.setCurrentTab(0);
-                break;
-            case CheckTable.DIRECT_UP:
-                mTabHost.setCurrentTab(1);
-                break;
-            default:
-        }
-
-        if (savedInstanceState != null) {
-            mTabHost.setCurrentTabByTag(savedInstanceState.getString("tab"));
-        }
-    }
-
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         outState.putString("tab", mTabHost.getCurrentTabTag()); //save the tab selected
@@ -344,8 +322,49 @@ public class ActivityCheck extends FragmentActivity implements View.OnClickListe
         }
     }
 
-    protected void exit() {
+    @Override
+    public void onBackPressed() {
+        if (flagExit) {
+            super.onBackPressed();
+            exit();
+        }
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        handlerWeight.start();
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
         handlerWeight.stop(false);
+    }
+
+    private void setupTabHost(Bundle savedInstanceState) {
+        mTabHost = (TabHost) findViewById(android.R.id.tabhost);
+        mTabHost.setup();
+        ViewPager mViewPager = (ViewPager) findViewById(R.id.pager);
+        mTabsAdapter = new TabsAdapter(this, mTabHost, mViewPager);
+        mTabsAdapter.addTab(mTabHost.newTabSpec("input").setIndicator(createTabView(this, getString(R.string.incoming))), InputFragment.class);
+        mTabsAdapter.addTab(mTabHost.newTabSpec("output").setIndicator(createTabView(this, getString(R.string.outgo))), OutputFragment.class);
+        switch (values.getAsInteger(CheckTable.KEY_DIRECT)) {
+            case CheckTable.DIRECT_DOWN:
+                mTabHost.setCurrentTab(0);
+                break;
+            case CheckTable.DIRECT_UP:
+                mTabHost.setCurrentTab(1);
+                break;
+            default:
+        }
+
+        if (savedInstanceState != null) {
+            mTabHost.setCurrentTabByTag(savedInstanceState.getString("tab"));
+        }
+    }
+
+    protected void exit() {
         autoWeightThread.cancel();
         while (autoWeightThread.isStart()) ;
         if (weightType == WeightType.NETTO) {
@@ -355,14 +374,6 @@ public class ActivityCheck extends FragmentActivity implements View.OnClickListe
         }
         checkTable.updateEntry(entryID, values);
         finish();
-    }
-
-    @Override
-    public void onBackPressed() {
-        if (flagExit) {
-            super.onBackPressed();
-            exit();
-        }
     }
 
     private static View createTabView(final Context context, final CharSequence text) {
@@ -676,8 +687,7 @@ public class ActivityCheck extends FragmentActivity implements View.OnClickListe
 
     }
 
-    /**
-     * Обработчик показаний веса
+    /** Обработчик показаний веса
      * Возвращяем время обновления показаний веса в милисекундах.
      */
     final HandlerWeight handlerWeight = new HandlerWeight() {
@@ -685,7 +695,8 @@ public class ActivityCheck extends FragmentActivity implements View.OnClickListe
          * @param what Результат статуса сообщения энумератор ResultWeight.
          * @param weight Данные веса в килограмах.
          * @param sensor Данные показания сенсорного датчика.
-         * @return Время обновления показаний в милисекундах.*/
+         * @return Время обновления показаний в милисекундах.
+         */
         @Override
         public int onEvent(final ScaleModule.ResultWeight what, final int weight, final int sensor) {
             runOnUiThread(new Runnable() {
@@ -725,7 +736,6 @@ public class ActivityCheck extends FragmentActivity implements View.OnClickListe
                             break;
                         default:
                     }
-
                 }
             });
             return 20; // Обновляем через милисикунды

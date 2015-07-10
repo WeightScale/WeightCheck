@@ -51,6 +51,10 @@ public class ActivityTuning extends PreferenceActivity {
                 public boolean onPreferenceChange(Preference preference, Object o) {
                     try {
                         String str = ScaleModule.feelWeightSensor();
+                    if (str.isEmpty()) {
+                        Toast.makeText(getApplicationContext(), R.string.preferences_no, Toast.LENGTH_SHORT).show();
+                        return false;
+                    }
                         ScaleModule.setSensorTenzo(Integer.valueOf(str));
                         point2.x = Integer.valueOf(str);
                         point2.y = Integer.valueOf(o.toString());

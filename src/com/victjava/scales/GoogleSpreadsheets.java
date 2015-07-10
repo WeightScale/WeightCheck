@@ -199,7 +199,7 @@ public abstract class GoogleSpreadsheets extends AsyncTask<Void, Void, String[]>
 
     protected Intent makeCallback() {
         Intent intent = new Intent();
-        intent.setAction("com.victjava.scales.Callback");
+        intent.setAction("com.victjava.scales.CallbackReceiver");
         //intent.putExtra(HelloActivity.EXTRA_ACCOUNTNAME, accountName);
         //intent.putExtra(HelloActivity.TYPE_KEY, HelloActivity.Type.BACKGROUND.name());
         return intent;
@@ -424,14 +424,7 @@ public abstract class GoogleSpreadsheets extends AsyncTask<Void, Void, String[]>
 
         @Override
         public void onReceive(Context context, Intent callback) {
-                /*Bundle extras = callback.getExtras();
-                Intent intent = new Intent(context, HelloActivity.class);
-                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                intent.putExtras(extras);
-                Log.i(TAG, "Received broadcast. Resurrecting activity");
-                context.startActivity(intent);*/
             execute();
-            //new GetGoogleToken().execute();
         }
     }
 
