@@ -23,6 +23,7 @@ import com.konst.module.ScaleModule;
 import com.konst.module.ScaleModule.*;
 import com.victjava.scales.provider.CheckTable;
 import com.victjava.scales.provider.ErrorTable;
+import com.victjava.scales.provider.TaskTable;
 import com.victjava.scales.service.ServiceProcessTask;
 
 import java.text.ParseException;
@@ -65,7 +66,7 @@ public class ActivityScales extends Activity implements View.OnClickListener, Vi
         Main.networkOperatorName = telephonyManager.getNetworkOperatorName();
         Main.networkCountry = telephonyManager.getNetworkCountryIso();
         int state = telephonyManager.getSimState();
-
+        //new Internet(this).sendIntentOnDataConnection();
         if (state == TelephonyManager.SIM_STATE_READY) {
             try {
                 scaleModule = new ScaleModule(Main.packageInfo.versionName, onEventConnectResult);
@@ -482,7 +483,7 @@ public class ActivityScales extends Activity implements View.OnClickListener, Vi
                         if (day > Preferences.read(ActivityPreferences.KEY_DAY_CLOSED_CHECK, 5)) {
                             int id = cursor.getInt(cursor.getColumnIndex(CheckTable.KEY_ID));
                             checkTable.updateEntry(id, CheckTable.KEY_IS_READY, 1);
-                            checkTable.setCheckReady(id);
+                            new TaskTable(this).setCheckReady(id);
                         }
                     } catch (ParseException e) {
                         e.printStackTrace();

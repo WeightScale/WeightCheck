@@ -19,6 +19,7 @@ import android.widget.*;
 import com.konst.module.ScaleModule;
 import com.konst.module.ScaleModule.HandlerWeight;
 import com.victjava.scales.provider.CheckTable;
+import com.victjava.scales.provider.TaskTable;
 
 
 import java.util.ArrayList;
@@ -369,7 +370,7 @@ public class ActivityCheck extends FragmentActivity implements View.OnClickListe
         while (autoWeightThread.isStart()) ;
         if (weightType == WeightType.NETTO) {
             values.put(CheckTable.KEY_IS_READY, 1);
-            checkTable.setCheckReady(entryID);
+            new TaskTable(this).setCheckReady(entryID);
             startActivity(new Intent(getBaseContext(), ActivityViewCheck.class).putExtra("id", entryID));
         }
         checkTable.updateEntry(entryID, values);

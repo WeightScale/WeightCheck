@@ -34,9 +34,9 @@ import java.util.*;
  *
  * @author Kostya
  */
-public class TaskCommand {
+public class TaskCommand extends CheckTable {
 
-    final CheckTable checkTable;
+    //final CheckTable checkTable;
     final Context mContext;
     //String mMimeType;
     final HandlerTaskNotification mHandler;
@@ -112,10 +112,11 @@ public class TaskCommand {
     }
 
     public TaskCommand(Context context, HandlerTaskNotification handler) {
+        super(context);
         mContext = context;
         mHandler = handler;
         cancel = false;
-        checkTable = new CheckTable(mContext);
+        //checkTable = new CheckTable(mContext);
 
         mapTasks.put(TaskType.TYPE_CHECK_SEND_HTTP_POST, new CheckTokHttpPost());
         mapTasks.put(TaskType.TYPE_CHECK_SEND_SHEET_DISK, new CheckToSpreadsheet(Main.versionName));
@@ -276,13 +277,13 @@ public class TaskCommand {
          * @throws Exception
          */
         private void sendCheckToDisk(int id) throws Exception {
-            Cursor cursor = checkTable.getEntryItem(id);
+            Cursor cursor = getEntryItem(id);
             if (cursor == null)
                 throw new Exception(mContext.getString(R.string.Check_N) + id + " null");
 
             if (cursor.moveToFirst()) {
                 addRow(cursor, CheckTable.TABLE);
-                checkTable.updateEntry(id, CheckTable.KEY_CHECK_ON_SERVER, 1);
+                updateEntry(id, CheckTable.KEY_CHECK_ON_SERVER, 1);
             }
             cursor.close();
         }
@@ -318,7 +319,7 @@ public class TaskCommand {
                         Cursor sender = new SenderTable(mContext).getEntryItem(senderId);
                         String http = sender.getString(sender.getColumnIndex(SenderTable.KEY_DATA1));
                         String[] values = sender.getString(sender.getColumnIndex(SenderTable.KEY_DATA2)).split(" ");
-                        Cursor check = checkTable.getEntryItem(checkId);
+                        Cursor check = getEntryItem(checkId);
                         List<BasicNameValuePair> results = new ArrayList<>();
                         for (String postName : values) {
                             String[] pair = postName.split("=");
@@ -387,7 +388,7 @@ public class TaskCommand {
                         int checkId = Integer.valueOf(entry.getValue().get(TaskTable.KEY_DOC).toString());
                         String address = entry.getValue().get(TaskTable.KEY_DATA1).toString();
                         StringBuilder body = new StringBuilder(mContext.getString(R.string.WEIGHT_CHECK_N) + checkId + '\n' + '\n');
-                        Cursor check = checkTable.getEntryItem(checkId);
+                        Cursor check = getEntryItem(checkId);
                         if (check == null) {
                             body.append(mContext.getString(R.string.No_data_check)).append(checkId).append(mContext.getString(R.string.delete));
                         } else {
@@ -451,7 +452,7 @@ public class TaskCommand {
                         int checkId = Integer.valueOf(entry.getValue().get(TaskTable.KEY_DOC).toString());
                         String address = entry.getValue().get(TaskTable.KEY_DATA1).toString();
                         StringBuilder body = new StringBuilder(mContext.getString(R.string.WEIGHT_CHECK_N) + checkId + '\n' + '\n');
-                        Cursor check = checkTable.getEntryItem(checkId);
+                        Cursor check = getEntryItem(checkId);
                         if (check == null) {
                             body.append(mContext.getString(R.string.No_data_check)).append(checkId).append(mContext.getString(R.string.delete));
                         } else {

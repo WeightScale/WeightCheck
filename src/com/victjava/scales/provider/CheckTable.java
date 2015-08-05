@@ -270,7 +270,7 @@ public class CheckTable {
         }
     }
 
-    public void setCheckReady(int _rowIndex) {
+    /*public void setCheckReady(int _rowIndex) {
         //if (updateEntry(_rowIndex, KEY_IS_READY, 1) ) {
         Cursor cursor = new SenderTable(mContext).geSystemItem();
         try {
@@ -301,6 +301,6 @@ public class CheckTable {
 
         }
         //}
-    }
+    }*/
 
 }

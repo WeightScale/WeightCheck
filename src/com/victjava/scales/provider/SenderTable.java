@@ -9,6 +9,8 @@ import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
 import android.provider.BaseColumns;
 import android.text.TextUtils;
+import com.konst.module.ScaleModule;
+import com.victjava.scales.TaskCommand;
 import org.apache.http.message.BasicNameValuePair;
 
 import java.util.ArrayList;

@@ -5,6 +5,7 @@ import android.content.*;
 import android.net.ConnectivityManager;
 import android.net.wifi.WifiManager;
 import android.os.Build;
+import android.provider.Settings;
 import android.telephony.PhoneStateListener;
 import android.telephony.TelephonyManager;
 import android.util.Log;
@@ -19,7 +20,7 @@ import java.net.*;
  * @author Kostya
  */
 public class Internet {
-    private final Context context;
+    private final Context mContext;
     /**
      * Менеджер телефона
      */
@@ -33,14 +34,14 @@ public class Internet {
     public static final String INTERNET_DISCONNECT = "internet_disconnect";
 
     public Internet(Context c) {
-        context = c;
+        mContext = c;
     }
 
     /**
      * Сделать соединение с интернетом
      */
     public void connect() {
-        telephonyManager = (TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE);
+        telephonyManager = (TelephonyManager) mContext.getSystemService(Context.TELEPHONY_SERVICE);
         phoneStateListener = new PhoneStateListener() {
             @Override
             public void onDataConnectionStateChanged(int state) {
@@ -98,7 +99,7 @@ public class Internet {
      * @param on true - включить.
      */
     public void turnOnWiFiConnection(boolean on) {
-        WifiManager wifi = (WifiManager) context.getSystemService(Context.WIFI_SERVICE);
+        WifiManager wifi = (WifiManager) mContext.getSystemService(Context.WIFI_SERVICE);
         if (wifi == null) {
             return;
         }
@@ -117,7 +118,7 @@ public class Internet {
             //int bv = Build.VERSION_CODES.FROYO;
             if (bv == Build.VERSION_CODES.FROYO) { //2.2
 
-                TelephonyManager telephonyManager = (TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE);
+                TelephonyManager telephonyManager = (TelephonyManager) mContext.getSystemService(Context.TELEPHONY_SERVICE);
 
                 Class<?> telephonyManagerClass = Class.forName(telephonyManager.getClass().getName());
                 Method getITelephonyMethod = telephonyManagerClass.getDeclaredMethod("getITelephony");
@@ -148,7 +149,7 @@ public class Internet {
                 Map<String,ContentValues> map = mQueryMap.getRows();
                 ContentValues values = map.get(Settings.Secure.DATA_ROAMING);*/
 
-                ConnectivityManager dataManager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+                ConnectivityManager dataManager = (ConnectivityManager) mContext.getSystemService(Context.CONNECTIVITY_SERVICE);
                 Method setMobileDataEnabledMethod = ConnectivityManager.class.getDeclaredMethod("setMobileDataEnabled", boolean.class);
                 setMobileDataEnabledMethod.setAccessible(true);
                 setMobileDataEnabledMethod.invoke(dataManager, on);
@@ -171,7 +172,7 @@ public class Internet {
                 //intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                 //context.startActivity(intent);
             } else {
-                ConnectivityManager dataManager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+                ConnectivityManager dataManager = (ConnectivityManager) mContext.getSystemService(Context.CONNECTIVITY_SERVICE);
                  /*final Method setMobileDataEnabledMethod = ConnectivityManager.class.getDeclaredMethod("setMobileDataEnabled", Boolean.TYPE);
                 //Method[] setMobileDataEnabledMethod = ConnectivityManager.class.getDeclaredMethods("setMobileDataEnabled");
                 setMobileDataEnabledMethod.setAccessible(on);
@@ -256,6 +257,31 @@ public class Internet {
         } catch (IOException ignored) {
             return false;
         }
+    }
+
+    void sendIntentOnDataConnection(){
+        /*Intent intent=new Intent(Settings.ACTION_DATA_ROAMING_SETTINGS);
+        ComponentName cn = new ComponentName("com.android.phone","com.android.phone.Settings");
+        intent.setComponent(cn);
+        mContext.startActivity(intent);*/
+
+        Intent intent = new Intent();
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        //intent.setAction(android.provider.Settings.ACTION_DATA_ROAMING_SETTINGS);
+        intent.setAction(Settings.ACTION_QUICK_LAUNCH_SETTINGS);
+        mContext.startActivity(intent);
+
+        /*final  Intent intent=new Intent(Settings.ACTION_DATA_ROAMING_SETTINGS);
+        intent.addCategory(Intent.CATEGORY_LAUNCHER);
+        final ComponentName cn = new ComponentName("com.android.phone","com.android.phone.Settings");
+        intent.setComponent(cn);
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        startActivity(intent);*/
+
+        /*Intent intent = new Intent(Intent.ACTION_MAIN);
+        intent.setClassName("com.android.phone", "com.android.phone.NetworkSetting");
+        startActivity(intent);
+        */
     }
 
 }

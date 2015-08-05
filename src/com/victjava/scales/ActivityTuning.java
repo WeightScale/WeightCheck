@@ -125,6 +125,7 @@ public class ActivityTuning extends PreferenceActivity {
                         flag_restore = true;
                         return true;
                     } catch (Exception e) {
+                        Toast.makeText(getApplicationContext(), R.string.preferences_no, Toast.LENGTH_SHORT).show();
                         return false;
                     }
                 }

@@ -6,10 +6,8 @@ import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
 import android.provider.BaseColumns;
+import com.konst.module.ScaleModule;
 import com.victjava.scales.TaskCommand;
-
-//import android.content.res.Resources;
-//import android.database.sqlite.SQLiteOpenHelper;
 
 /**
  * Created with IntelliJ IDEA.
@@ -19,7 +17,7 @@ import com.victjava.scales.TaskCommand;
  * To change this template use File | Settings | File Templates.
  */
 public class TaskTable {
-    private final Context context;
+    private final Context mContext;
     public static final String TABLE = "taskTable";
 
     public static final String KEY_ID = BaseColumns._ID;
@@ -30,12 +28,6 @@ public class TaskTable {
     public static final String KEY_NUM_ERROR = "num_error";
 
     private final int COUNT_ERROR = 5;
-
-    /*public static final int TYPE_CHECK_MAIL_CONTACT = 1;    //для електронной почты
-    public static final int TYPE_CHECK_DISK         = 2;    //для google disk
-    public static final int TYPE_PREF_DISK          = 3;    //для google disk
-    public static final int TYPE_CHECK_SMS_CONTACT  = 4;    //для смс отправки контакту
-    public static final int TYPE_CHECK_SMS_SERVER   = 5;    //для смс отправки боссу*/
 
     public static final String TABLE_CREATE = "create table "
             + TABLE + " ("
@@ -49,7 +41,7 @@ public class TaskTable {
     public static final Uri CONTENT_URI = Uri.parse("content://" + WeightCheckBaseProvider.AUTHORITY + '/' + TABLE);
 
     public TaskTable(Context cnt) {
-        context = cnt;
+        mContext = cnt;
     }
 
     public Uri insertNewTask(TaskCommand.TaskType mimeType, long documentId, long dataId, String data1) {
@@ -59,13 +51,13 @@ public class TaskTable {
         newTaskValues.put(KEY_ID_DATA, dataId);
         newTaskValues.put(KEY_DATA1, data1);
         newTaskValues.put(KEY_NUM_ERROR, 0);
-        return context.getContentResolver().insert(CONTENT_URI, newTaskValues);
+        return mContext.getContentResolver().insert(CONTENT_URI, newTaskValues);
     }
 
     public boolean isTaskReady() {
         try {
             boolean flag = false;
-            Cursor result = context.getContentResolver().query(CONTENT_URI, null, null, null, null);
+            Cursor result = mContext.getContentResolver().query(CONTENT_URI, null, null, null, null);
             if (result.getCount() > 0) {
                 flag = true;
             }
@@ -77,13 +69,13 @@ public class TaskTable {
     }
 
     public Cursor getAllEntries() {
-        return context.getContentResolver().query(CONTENT_URI, null, null, null, null);
+        return mContext.getContentResolver().query(CONTENT_URI, null, null, null, null);
     }
 
     public int getKeyInt(int _rowIndex, String key) {
         Uri uri = ContentUris.withAppendedId(CONTENT_URI, _rowIndex);
         try {
-            Cursor result = context.getContentResolver().query(uri, new String[]{KEY_ID, key}, null, null, null);
+            Cursor result = mContext.getContentResolver().query(uri, new String[]{KEY_ID, key}, null, null, null);
             result.moveToFirst();
             return result.getInt(result.getColumnIndex(key));
         } catch (Exception e) {
@@ -93,7 +85,7 @@ public class TaskTable {
 
     public boolean removeEntry(int _rowIndex) {
         Uri uri = ContentUris.withAppendedId(CONTENT_URI, _rowIndex);
-        return uri != null && context.getContentResolver().delete(uri, null, null) > 0;
+        return uri != null && mContext.getContentResolver().delete(uri, null, null) > 0;
     }
 
     public boolean updateEntry(int _rowIndex, String key, int in) {
@@ -101,7 +93,7 @@ public class TaskTable {
         try {
             ContentValues newValues = new ContentValues();
             newValues.put(key, in);
-            return context.getContentResolver().update(uri, newValues, null, null) > 0;
+            return mContext.getContentResolver().update(uri, newValues, null, null) > 0;
         } catch (Exception e) {
             return false;
         }
@@ -113,11 +105,42 @@ public class TaskTable {
         if (err++ < COUNT_ERROR) {
             return updateEntry(_rowIndex, KEY_NUM_ERROR, err);
         }
-        return uri != null && context.getContentResolver().delete(uri, null, null) > 0;
+        return uri != null && mContext.getContentResolver().delete(uri, null, null) > 0;
     }
 
     public Cursor getTypeEntry(TaskCommand.TaskType type) {
-        return context.getContentResolver().query(CONTENT_URI, null, KEY_MIME_TYPE + " = " + type.ordinal(), null, null);
+        return mContext.getContentResolver().query(CONTENT_URI, null, KEY_MIME_TYPE + " = " + type.ordinal(), null, null);
+    }
+
+    public void setCheckReady(int _rowIndex) {
+        Cursor cursor = new SenderTable(mContext).geSystemItem();
+        try {
+            cursor.moveToFirst();
+            if (!cursor.isAfterLast()) {
+                do {
+                    int senderId = cursor.getInt(cursor.getColumnIndex(SenderTable.KEY_ID));
+                    SenderTable.TypeSender type_sender = SenderTable.TypeSender.values()[cursor.getInt(cursor.getColumnIndex(SenderTable.KEY_TYPE))];
+                    switch (type_sender) {
+                        case TYPE_HTTP_POST:
+                            insertNewTask(TaskCommand.TaskType.TYPE_CHECK_SEND_HTTP_POST, _rowIndex, senderId, "");
+                            break;
+                        case TYPE_GOOGLE_DISK:
+                            insertNewTask(TaskCommand.TaskType.TYPE_CHECK_SEND_SHEET_DISK, _rowIndex, senderId, "");
+                            break;
+                        case TYPE_EMAIL:
+                            insertNewTask(TaskCommand.TaskType.TYPE_CHECK_SEND_MAIL_ADMIN, _rowIndex, senderId, ScaleModule.getUserName());
+                            break;
+                        case TYPE_SMS:
+                            insertNewTask(TaskCommand.TaskType.TYPE_CHECK_SEND_SMS_ADMIN, _rowIndex, senderId, ScaleModule.getPhone());
+                            break;
+                        default:
+                    }
+                } while (cursor.moveToNext());
+            }
+
+        } catch (Exception e) {
+
+        }
     }
 
 }
