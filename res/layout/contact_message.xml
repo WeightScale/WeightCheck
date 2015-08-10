@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:fillViewport="true" android:orientation="vertical" android:focusable="false"
+              android:padding="@dimen/padding">
+    <LinearLayout
+            android:orientation="vertical"
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent" android:background="@color/background2"
+            android:padding="@dimen/padding">
+        <LinearLayout
+                android:layout_height="0dp"
+                      android:layout_width="fill_parent" android:orientation="vertical" android:clickable="true"
+                      android:focusable="false" android:layout_weight="1">
+
+            <LinearLayout
+                    android:orientation="vertical"
+                    android:layout_width="fill_parent"
+                    android:layout_height="0dp" android:layout_weight="1">
+                <TextView
+                        android:layout_width="fill_parent"
+                        android:layout_height="wrap_content"
+                        android:id="@+id/textView8" android:background="@drawable/round_rectangle" android:focusable="false"
+                        android:text="передать весовой чек"
+                        android:textColor="@color/text" android:gravity="center"/>
+                <ListView   android:id="@+id/listViewData"
+                            android:layout_height="fill_parent"
+                            android:layout_width="fill_parent" android:clickable="true" android:focusable="false"
+                            android:divider="@color/background"
+                            android:dividerHeight="@dimen/stroke" android:padding="@dimen/corners">
+
+                </ListView>
+            </LinearLayout>
+        </LinearLayout>
+        <LinearLayout android:orientation="horizontal" android:layout_width="fill_parent"
+                      android:layout_height="wrap_content"
+                >
+            <ImageButton style="@style/CustomButtonImage" android:layout_width="wrap_content"
+                    android:layout_height="match_parent" android:text="@string/New" android:id="@+id/buttonSelectAll"
+                    android:layout_weight="1"
+                         android:src="@drawable/ic_action_check" android:clickable="true"/>
+            <ImageButton style="@style/CustomButtonImage" android:layout_width="wrap_content"
+                    android:layout_height="match_parent" android:text="@string/All" android:id="@+id/buttonUnselect"
+                         android:layout_weight="1" android:clickable="true" android:src="@drawable/ic_action_close"/>
+            <ImageButton style="@style/CustomButtonImage" android:id="@+id/buttonBack"
+                    android:layout_width="wrap_content" android:layout_height="match_parent"
+                    android:text="@string/Close" android:layout_weight="1" android:clickable="true"
+                         android:src="@drawable/ic_action_back"/>
+        </LinearLayout>
+    </LinearLayout>
+
+</LinearLayout>
