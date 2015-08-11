@@ -1,12 +1,10 @@
 package com.victjava.scales;
 
-import android.annotation.TargetApi;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.*;
 import android.database.Cursor;
 import android.graphics.Color;
-import android.graphics.Paint;
 import android.graphics.Typeface;
 import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
@@ -16,7 +14,6 @@ import android.provider.ContactsContract.*;
 import android.text.InputType;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
 import android.view.Window;
 import android.widget.*;
 import com.victjava.scales.provider.TaskTable;

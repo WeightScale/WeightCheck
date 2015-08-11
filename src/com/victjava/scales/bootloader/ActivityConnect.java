@@ -227,7 +227,7 @@ public class ActivityConnect extends Activity implements View.OnClickListener {
         }
     }
 
-    OnEventConnectResult onEventConnectResult = new OnEventConnectResult() {
+    final OnEventConnectResult onEventConnectResult = new OnEventConnectResult() {
         @Override
         public void handleResultConnect(Module.ResultConnect result) {
             switch (result) {

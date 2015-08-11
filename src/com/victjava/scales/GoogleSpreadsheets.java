@@ -189,7 +189,7 @@ public abstract class GoogleSpreadsheets extends AsyncTask<Void, Void, String[]>
                 .setAccessToken(token);
     }
 
-    final String getToken(String account) throws IOException, GoogleAuthException, IllegalArgumentException {
+    String getToken(String account) throws IOException, GoogleAuthException, IllegalArgumentException {
         //return token = GoogleAuthUtil.getToken(mContext, account, "oauth2:" + SCOPE);
 
         //Intent returnIntent = new Intent(context, ActivityScales.class);

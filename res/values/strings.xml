@@ -18,7 +18,7 @@
     <!--<string name="tuning">Настройки для администратора</string>-->
     <string name="input_check">Чек приход</string>
     <!--<string name="output_check">Чек расход</string>-->
-    <string name="connect">Соединение</string>
+    <!--<string name="connect">Соединение</string>-->
     <string name="NO_CONNECT">" нет соединения"</string>
     <string name="OVER_LOAD">ПЕРЕГРУЗ!!!</string>
 
@@ -27,14 +27,14 @@
     <string name="bluetooth_on">Bluetooth включен</string>
     <string name="bluetooth_turning_on">Bluetooth включается</string>
     <string name="bluetooth_off">Bluetooth выключен</string>
-    <string name="bluetooth_no">Устройство не поддерживает Bluetooth</string>
+    <!--<string name="bluetooth_no">Устройство не поддерживает Bluetooth</string>-->
     <string name="bluetooth_connected">Bluetooth соеденено</string>
     <string name="bluetooth_disconnected">Bluetooth разьеденено</string>
 
-    <string name="connect_to">Подключение к весам</string>
-    <string name="connect_no">Не удалось подключиться</string>
+    <!--<string name="connect_to">Подключение к весам</string>-->
+    <!--<string name="connect_no">Не удалось подключиться</string>-->
     <!--<string name="version_no">Неподдерживаемая версия весов</string>-->
-    <string name="error_choice">Ошибка выбора весов</string>
+    <!--<string name="error_choice">Ошибка выбора весов</string>-->
     <string name="BACK">НАЗАД</string>
     <string name="GROSS">БРУТТО:</string>
     <!--<string name="NETTO">НЕТТО:</string>-->
@@ -77,7 +77,7 @@
     <!--<string name="Check_block">Чек заблокирован</string>-->
     <!--<string name="Do_you_want_to_unlock_a_check">Вы хотите разблокировать чек?</string>-->
     <!--<string name="Enter_agent">Введите агента</string>-->
-    <string name="Check_send">Чек отправлен</string>
+    <!--<string name="Check_send">Чек отправлен</string>-->
     <string name="Checks_send_count">"Чеков отправлено кол-во: "</string>
     <string name="Checks_not_send_count">"Не отправлено чеков кол-во: "</string>
     <string name="sent_to_the_server">" отправлен на диск"</string>
@@ -164,7 +164,7 @@
     <string name="Contacts">Контакты</string>
     <string name="CHANGE">ИЗМЕНИТЬ</string>
     <string name="DELETE">УДАЛИТЬ</string>
-    <string name="SELECT">ВЫБРАТЬ</string>
+    <!--<string name="SELECT">ВЫБРАТЬ</string>-->
     <string name="Removing">"Удаление: "</string>
     <string name="Do_you_want_to_remove">Вы хотите удалить?</string>
     <string name="Yes">Да</string>
@@ -197,7 +197,7 @@
     <string name="TEXT_MESSAGE2">Произошла ошибка программирования смотрите текст лога</string>
     <string name="Warning_Connect">Внимание! Соединение</string>
     <string name="TEXT_MESSAGE3">"Ищем фаил HEX для этого устройства "</string>
-    <string name="TEXT_MESSAGE4">Разбор XML-файла параметров устройства …</string>
+    <!--<string name="TEXT_MESSAGE4">Разбор XML-файла параметров устройства …</string>-->
     <string name="Warning_update">Внимание! Обновление</string>
     <string name="TEXT_MESSAGE5">На весах нажмите кнопку и отпустите индикатор прекратит мигать. После этого нажмитеОК
     </string>
@@ -207,7 +207,7 @@
     <string name="Setting_no_loaded">Настройки не загружены!!!</string>
     <string name="Not_programmer">Не программатор</string>
     <string name="Programmer_defined">Программатор определен</string>
-    <string name="TEXT_MESSAGE6">Попробуйте еще раз, нажмите кнопку соединения</string>
+    <!--<string name="TEXT_MESSAGE6">Попробуйте еще раз, нажмите кнопку соединения</string>-->
     <string name="get_checks">получаем чеки…</string>
     <string name="Max_weight">"Максимальный вес: "</string>
     <string name="ConstantA">Константа А:</string>
@@ -242,4 +242,11 @@
     <string name="outgo">расход</string>
     <string name="Scale_off">Выключение весов</string>
     <string name="TEXT_MESSAGE15">Вы действительно хотите выключить питание весов</string>
+    <string name="checkbox_empty_summary">Снять галочки в контактах (выбор отправки на смс или почту весового чека)</string>
+    <string name="checkbox_empty">Очистить в контактах</string>
+    <string name="Clear_checkbox_dialog_message">"Вы действительно хотите очистить выбор для отправки весового чека на
+        смс или почту в контактах. Если вы очистете, то весовой чек не будет отправлятся адресату (контакту) чека"</string>
+    <string name="Cleaning">Очистка</string>
+    <string name="send_weight_check">передать весовой чек</string>
+    <string name="Off_scales">ВЫКЛЮЧИТЬ ВЕСЫ</string>
 </resources>

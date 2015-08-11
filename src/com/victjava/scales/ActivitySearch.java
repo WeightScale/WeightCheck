@@ -256,7 +256,7 @@ public class ActivitySearch extends Activity implements View.OnClickListener {
         }
     }
 
-    OnEventConnectResult onEventConnectResult = new OnEventConnectResult() {
+    final OnEventConnectResult onEventConnectResult = new OnEventConnectResult() {
         AlertDialog.Builder dialog;
         private ProgressDialog dialogSearch;
 

@@ -6,7 +6,6 @@ import android.net.Uri;
 import android.provider.BaseColumns;
 import com.konst.module.ScaleModule;
 import com.victjava.scales.R;
-import com.victjava.scales.TaskCommand;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;

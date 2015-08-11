@@ -17,7 +17,7 @@
     <!--<string name="tuning">Admin settings</string>-->
     <string name="input_check">Check incoming</string>
     <!--<string name="output_check">Check outcoming</string>-->
-    <string name="connect">Connect</string>
+    <!--<string name="connect">Connect</string>-->
     <string name="NO_CONNECT">" no connect"</string>
     <string name="OVER_LOAD">OVER LOAD!!!</string>
 
@@ -26,14 +26,14 @@
     <string name="bluetooth_on">Bluetooth on</string>
     <string name="bluetooth_turning_on">Bluetooth is turned on</string>
     <string name="bluetooth_off">Bluetooth off</string>
-    <string name="bluetooth_no">The device does not support Bluetooth</string>
+    <!--<string name="bluetooth_no">The device does not support Bluetooth</string>-->
     <string name="bluetooth_connected">Bluetooth connection is</string>
     <string name="bluetooth_disconnected">Bluetooth disconnect</string>
 
-    <string name="connect_to">Connecting to the scales</string>
-    <string name="connect_no">Failed to connect</string>
+    <!--<string name="connect_to">Connecting to the scales</string>-->
+    <!--<string name="connect_no">Failed to connect</string>-->
     <!--<string name="version_no">Unsupported version of scales</string>-->
-    <string name="error_choice">Error selecting scales</string>
+    <!--<string name="error_choice">Error selecting scales</string>-->
     <string name="BACK">BACK</string>
     <string name="GROSS">GROSS</string>
     <!--<string name="NETTO">NET:</string>-->
@@ -74,7 +74,7 @@
     <!--<string name="Check_block">Check block</string>-->
     <!--<string name="Do_you_want_to_unlock_a_check">Do you want to unlock a check?</string>-->
     <!--<string name="Enter_agent">Enter agent</string>-->
-    <string name="Check_send">Check send</string>
+    <!--<string name="Check_send">Check send</string>-->
     <string name="Checks_send_count">"Checks sent Qty: "</string>
     <string name="Checks_not_send_count">"Not sent checks Qty: "</string>
     <string name="sent_to_the_server">" sent to the drive"</string>
@@ -163,7 +163,7 @@
     <string name="Contacts">Contacts</string>
     <string name="CHANGE">CHANGE</string>
     <string name="DELETE">DELETE</string>
-    <string name="SELECT">SELECT</string>
+    <!--<string name="SELECT">SELECT</string>-->
     <string name="Removing">"Removal: "</string>
     <string name="Do_you_want_to_remove">Do you want to remove?</string>
     <string name="Yes">Yes</string>
@@ -196,7 +196,7 @@
     <string name="TEXT_MESSAGE2">There was a programming error, see the text of the log</string>
     <string name="Warning_Connect">Warning! Connection</string>
     <string name="TEXT_MESSAGE3">"Fail HEX looking for this device "</string>
-    <string name="TEXT_MESSAGE4">Parsing XML file for device parameters…</string>
+    <!--<string name="TEXT_MESSAGE4">Parsing XML file for device parameters…</string>-->
     <string name="Warning_update">Warning! Update</string>
     <string name="TEXT_MESSAGE5">On the scale, press and release the indicator stops flashing. Then click OK</string>
     <string name="Loading_settings">Loading settings…</string>
@@ -205,7 +205,7 @@
     <string name="Setting_no_loaded">The settings are not loaded!!!</string>
     <string name="Not_programmer">Not programmer</string>
     <string name="Programmer_defined">The programmer defined</string>
-    <string name="TEXT_MESSAGE6">Please try again, click the connect button</string>
+    <!--<string name="TEXT_MESSAGE6">Please try again, click the connect button</string>-->
     <string name="get_checks">get the checks…</string>
     <string name="Max_weight">"Weight limit: "</string>
     <string name="ConstantA">Constant A:</string>
@@ -240,5 +240,12 @@
     <string name="outgo">outgo</string>
     <string name="Scale_off">Power off</string>
     <string name="TEXT_MESSAGE15">Do you really want to turn off the power scales</string>
+    <string name="checkbox_empty_summary">Off a checkbox in contacts (Choice sending SMS or Email to Weight Check)</string>
+    <string name="checkbox_empty">Clean the contacts</string>
+    <string name="Clear_checkbox_dialog_message">"Do you really want to send a clear choice for a weight check
+                 SMS or email your contacts. If you clear, the weight check will not be sent (contact) check."</string>
+    <string name="Cleaning">Cleaning</string>
+    <string name="send_weight_check">передать весовой чек</string>
+    <string name="Off_scales">ВЫКЛЮЧИТЬ ВЕСЫ</string>
 
 </resources>

@@ -12,10 +12,7 @@ import android.provider.ContactsContract.*;
 import android.view.View;
 import android.widget.*;
 
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.Map;
 
 /**
@@ -149,10 +146,13 @@ public class ActivityContactMessage extends Activity implements View.OnClickList
     private String getNameContact(long contactId){
         String name = "null";
         Cursor cursor = getContentResolver().query(Contacts.CONTENT_URI, new String[] {BaseColumns._ID, Contacts.DISPLAY_NAME},
-                Contacts._ID + "=?",new String[] {String.valueOf(contactId)}, null);
-        if(cursor.moveToFirst()){
-            name = cursor.getString(cursor.getColumnIndex(Contacts.DISPLAY_NAME));
-        }
+                BaseColumns._ID + "=?",new String[] {String.valueOf(contactId)}, null);
+        try {
+            if(cursor.moveToFirst()){
+                return cursor.getString(cursor.getColumnIndex(Contacts.DISPLAY_NAME));
+            }
+        }catch (Exception e){}
+
         return name;
     }
 
@@ -162,8 +162,8 @@ public class ActivityContactMessage extends Activity implements View.OnClickList
             cursor.moveToFirst();
             if (!cursor.isAfterLast()) {
                 do {
-                    int id = cursor.getInt(cursor.getColumnIndex(Data._ID));
-                    updateData5((int) id, Data.DATA5, 1);
+                    int id = cursor.getInt(cursor.getColumnIndex(BaseColumns._ID));
+                    updateData5(id, Data.DATA5, 1);
                 } while (cursor.moveToNext());
             }
         }catch (Exception e){ }
@@ -175,8 +175,8 @@ public class ActivityContactMessage extends Activity implements View.OnClickList
             cursor.moveToFirst();
             if (!cursor.isAfterLast()) {
                 do {
-                    int id = cursor.getInt(cursor.getColumnIndex(Data._ID));
-                    updateData5((int) id, Data.DATA5, 0);
+                    int id = cursor.getInt(cursor.getColumnIndex(BaseColumns._ID));
+                    updateData5(id, Data.DATA5, 0);
                 } while (cursor.moveToNext());
             }
         }catch (Exception e){ }

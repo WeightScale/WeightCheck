@@ -270,15 +270,15 @@ public class ActivityContact extends ListActivity implements View.OnClickListene
         /*final Cursor data = getContentResolver().query(ContactsContract.Data.CONTENT_URI, null,
                 *//*ContactsContract.RawContacts.CONTACT_ID + " = " + contactId*//*null, null, null);*/
         Cursor phone = getContentResolver().query(ContactsContract.Data.CONTENT_URI,
-                new String[] {ContactsContract.Data._ID,
+                new String[] {BaseColumns._ID,
                         ContactsContract.Data.DATA1,
                         ContactsContract.Data.DATA2,
                         ContactsContract.Data.DATA3,
                         ContactsContract.Data.DATA4,
                         ContactsContract.Data.DATA5,
                 ContactsContract.Data.MIMETYPE},
-                ContactsContract.Data.CONTACT_ID + "=" + contactId
-                        + " and " + ContactsContract.Data.MIMETYPE + "='" + ContactsContract.CommonDataKinds.Phone.CONTENT_ITEM_TYPE + "'"
+                ContactsContract.Data.CONTACT_ID + '=' + contactId
+                        + " and " + ContactsContract.Data.MIMETYPE + "='" + ContactsContract.CommonDataKinds.Phone.CONTENT_ITEM_TYPE + '\''
                         /*+ " and " + ContactsContract.Data.MIMETYPE + "='" + ContactsContract.CommonDataKinds.Email.CONTENT_ITEM_TYPE + "'"*/
                         /*+ " OR " + ContactsContract.Data.MIMETYPE + "='" + ContactsContract.CommonDataKinds.Phone.CONTENT_ITEM_TYPE + "'"*/
                         /*+ " and " + ContactsContract.Data.MIMETYPE + "='" + ContactsContract.CommonDataKinds.Email.CONTENT_ITEM_TYPE + "'"*/
@@ -296,28 +296,26 @@ public class ActivityContact extends ListActivity implements View.OnClickListene
             ArrayList<ContentProviderOperation> ops = new ArrayList<>();
 
             ops.add(ContentProviderOperation.newUpdate(ContactsContract.Data.CONTENT_URI)
-                    .withSelection(ContactsContract.Data._ID + "=?", new String[]{String.valueOf(dataId)})
+                    .withSelection(BaseColumns._ID + "=?", new String[]{String.valueOf(dataId)})
                     .withValue(ContactsContract.Data.DATA5, true)
                     .build());
             try {
                 getContentResolver().applyBatch(ContactsContract.AUTHORITY, ops);
-            } catch (RemoteException e) {
-                e.printStackTrace();
-            } catch (OperationApplicationException e) {
+            } catch (RemoteException | OperationApplicationException e) {
                 e.printStackTrace();
             }
         }
 
 
         Cursor email = getContentResolver().query(ContactsContract.Data.CONTENT_URI,
-                new String[] {ContactsContract.Data._ID,
+                new String[] {BaseColumns._ID,
                         ContactsContract.Data.DATA1,
                         ContactsContract.Data.DATA2,
                         ContactsContract.Data.DATA3,
                         ContactsContract.Data.DATA4,
                         ContactsContract.Data.MIMETYPE},
-                ContactsContract.Data.CONTACT_ID + "=" + contactId
-                        + " and " + ContactsContract.Data.MIMETYPE + "='" + ContactsContract.CommonDataKinds.Email.CONTENT_ITEM_TYPE + "'",null, null);
+                ContactsContract.Data.CONTACT_ID + '=' + contactId
+                        + " and " + ContactsContract.Data.MIMETYPE + "='" + ContactsContract.CommonDataKinds.Email.CONTENT_ITEM_TYPE + '\'',null, null);
 
         /*if (email == null) {
             return;

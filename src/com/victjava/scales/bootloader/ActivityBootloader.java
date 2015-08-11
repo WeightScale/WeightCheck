@@ -174,7 +174,7 @@ public class ActivityBootloader extends Activity implements View.OnClickListener
         }
     }
 
-    OnEventConnectResult onEventConnectResult = new OnEventConnectResult() {
+    final OnEventConnectResult onEventConnectResult = new OnEventConnectResult() {
         private AlertDialog.Builder dialog;
 
         @Override

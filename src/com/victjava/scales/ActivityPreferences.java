@@ -1,13 +1,17 @@
 //Активность настроек
 package com.victjava.scales;
 
-import android.content.Intent;
-import android.content.SharedPreferences;
+import android.app.AlertDialog;
+import android.content.*;
+import android.database.Cursor;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.RemoteException;
 import android.preference.Preference;
 import android.preference.PreferenceActivity;
 import android.preference.PreferenceManager;
+import android.provider.BaseColumns;
+import android.provider.ContactsContract;
 import android.widget.Toast;
 import com.konst.module.InterfaceVersions;
 import com.konst.module.ScaleModule;
@@ -16,6 +20,7 @@ import com.victjava.scales.provider.CheckTable;
 import com.victjava.scales.provider.PreferencesTable;
 import com.victjava.scales.provider.TaskTable;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -39,6 +44,7 @@ public class ActivityPreferences extends PreferenceActivity implements SharedPre
     static final String KEY_UPDATE = "update";
     public static final String KEY_FLAG_UPDATE = "flag_update";
     public static final String KEY_TIME_DELAY_DETECT_CAPTURE = "key_time_delay_capture";
+    public static final String KEY_EMPTY_CHECKBOX = "key_empty_checkbox";
     //static final String KEY_DATA                = "data";
     private boolean flagChange;
 
@@ -55,6 +61,7 @@ public class ActivityPreferences extends PreferenceActivity implements SharedPre
         mapPreferences.put(KEY_AUTO_CAPTURE, new PreferenceAutoCapture());
         mapPreferences.put(KEY_DAY_CLOSED_CHECK, new PreferenceDayClosedCheck());
         mapPreferences.put(KEY_DAY_CHECK_DELETE, new PreferenceDayCheckDelete());
+        mapPreferences.put(KEY_EMPTY_CHECKBOX, new PreferenceEmptyCheckBox());
         mapPreferences.put(KEY_ABOUT, new PreferenceAbout());
     }
 
@@ -394,6 +401,72 @@ public class ActivityPreferences extends PreferenceActivity implements SharedPre
                     return false;
                 }
             });
+        }
+    }
+
+    class PreferenceEmptyCheckBox implements InterfacePreference {
+
+        @Override
+        public void setup(Preference name) throws Exception {
+            name.setSummary(getString(R.string.checkbox_empty_summary));
+            name.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+                @Override
+                public boolean onPreferenceClick(Preference preference) {
+                    startDialog();
+                    return true;
+                }
+            });
+        }
+
+        void startDialog(){
+            AlertDialog.Builder dialog = new AlertDialog.Builder(ActivityPreferences.this);
+            dialog.setTitle(getString(R.string.Cleaning));
+            dialog.setCancelable(false);
+            dialog.setPositiveButton(getString(R.string.OK), new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialogInterface, int i) {
+                    clearCheckboxContact();
+                }
+            });
+            dialog.setNegativeButton(getString(R.string.Close), new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    dialog.dismiss();
+                }
+            });
+            dialog.setMessage(getString(R.string.Clear_checkbox_dialog_message));
+            dialog.show();
+        }
+
+        void clearCheckboxContact(){
+            Cursor data = getContentResolver().query(ContactsContract.Data.CONTENT_URI,
+                    new String[] {BaseColumns._ID, ContactsContract.Data.DATA5},
+                    '(' + ContactsContract.Data.MIMETYPE+"='"+ ContactsContract.CommonDataKinds.Phone.CONTENT_ITEM_TYPE+'\''+" or "+ ContactsContract.Data.MIMETYPE+"='"+ ContactsContract.CommonDataKinds.Email.CONTENT_ITEM_TYPE+'\''+')'
+                            +" and "+ ContactsContract.Data.DATA5+" = 1", null, null);
+            try {
+                data.moveToFirst();
+                if(!data.isAfterLast()){
+                    do {
+                        int id = data.getInt(data.getColumnIndex(BaseColumns._ID));
+                        updateData5(id, ContactsContract.Data.DATA5, 0);
+                    } while (data.moveToNext());
+                }
+                data.close();
+            }catch (Exception e){}
+        }
+
+        public void updateData5(long _rowIndex, String key, int value) {
+            ArrayList<ContentProviderOperation> ops = new ArrayList<>();
+
+            ops.add(ContentProviderOperation.newUpdate(ContactsContract.Data.CONTENT_URI)
+                    .withSelection(BaseColumns._ID + "=?", new String[]{String.valueOf(_rowIndex)})
+                    .withValue(key, value)
+                    .build());
+            try {
+                getContentResolver().applyBatch(ContactsContract.AUTHORITY, ops);
+            } catch (RemoteException | OperationApplicationException e) {
+                e.printStackTrace();
+            }
         }
     }
 

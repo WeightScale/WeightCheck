@@ -204,7 +204,7 @@ public class ActivityScales extends Activity implements View.OnClickListener, Vi
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         dialog.dismiss();
-                        finish();
+                        //finish();
                     }
                 });
                 dialog.setMessage(getString(R.string.TEXT_MESSAGE15));
@@ -513,7 +513,7 @@ public class ActivityScales extends Activity implements View.OnClickListener, Vi
     /** Экземпляр Весового модуля.
      * Обработсик сообщений.
      */
-    OnEventConnectResult onEventConnectResult = new OnEventConnectResult() {
+    final OnEventConnectResult onEventConnectResult = new OnEventConnectResult() {
         AlertDialog.Builder dialog;
         ProgressDialog dialogSearch;
 

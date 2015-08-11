@@ -348,7 +348,7 @@ public class SmsCommand extends SenderTable {
      * Без параметра возвращяет запить раннее сохраненые.
      * формат команды wrtdat=wgm_5000:cfa_0.00019
      */
-    private final class CmdWeightData implements InterfaceSmsCommand {
+    private class CmdWeightData implements InterfaceSmsCommand {
 
         /**
          * Контейнер команд.

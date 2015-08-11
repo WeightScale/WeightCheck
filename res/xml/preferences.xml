@@ -27,6 +27,7 @@
                                     android:inputType="number"/>
                 <EditTextPreference android:title="@string/closed_checks" android:summary="@string/sum_closed_checks"
                                     android:key="day_closed_check" android:inputType="number"/>
+                <Preference android:title="@string/checkbox_empty" android:summary="@string/checkbox_empty_summary" android:key="key_empty_checkbox" />
             </PreferenceCategory>
         </PreferenceScreen>
         <EditTextPreference android:title="@string/filter_adc" android:summary="@string/sum_filter_adc"
