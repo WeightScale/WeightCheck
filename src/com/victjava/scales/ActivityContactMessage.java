@@ -7,6 +7,7 @@ import android.os.Bundle;
 import android.os.RemoteException;
 import android.provider.BaseColumns;
 import android.provider.ContactsContract;
+import android.provider.ContactsContract.CommonDataKinds.*;
 import android.provider.ContactsContract.*;
 import android.view.View;
 import android.widget.*;
@@ -84,9 +85,10 @@ public class ActivityContactMessage extends Activity implements View.OnClickList
      * @return Курсор даных.
      */
     Cursor getDataContact(int id){
-        return getContentResolver().query(Data.CONTENT_URI, new String[] {BaseColumns._ID, Data.DATA1, Data.DATA5,Data.MIMETYPE},
-                Data.CONTACT_ID + "=?" + " and (" + Data.MIMETYPE + "='" + CommonDataKinds.Phone.CONTENT_ITEM_TYPE + '\''
-                        +" or "+ Data.MIMETYPE + "='" + CommonDataKinds.Email.CONTENT_ITEM_TYPE + '\'' + ')',new String[] {String.valueOf(id)}, null);
+        return getContentResolver().query(Data.CONTENT_URI,
+                new String[] {BaseColumns._ID, Data.DATA1, Data.DATA5,Data.MIMETYPE},
+                Data.CONTACT_ID+"=?"+" and ("+Data.MIMETYPE+"='"+Phone.CONTENT_ITEM_TYPE+'\''+" or "+Data.MIMETYPE+"='"+Email.CONTENT_ITEM_TYPE+'\''+')',
+                new String[] {String.valueOf(id)}, null);
     }
 
     private class ListMessageBinder implements SimpleCursorAdapter.ViewBinder {

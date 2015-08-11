@@ -42,7 +42,7 @@
                          android:src="@drawable/ic_action_check" android:clickable="true"/>
             <ImageButton style="@style/CustomButtonImage" android:layout_width="wrap_content"
                     android:layout_height="match_parent" android:text="@string/All" android:id="@+id/buttonUnselect"
-                         android:layout_weight="1" android:clickable="true" android:src="@drawable/ic_action_close"/>
+                         android:layout_weight="1" android:clickable="true" android:src="@drawable/ic_action_checkbox_empty"/>
             <ImageButton style="@style/CustomButtonImage" android:id="@+id/buttonBack"
                     android:layout_width="wrap_content" android:layout_height="match_parent"
                     android:text="@string/Close" android:layout_weight="1" android:clickable="true"

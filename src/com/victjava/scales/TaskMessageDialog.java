@@ -1,18 +1,22 @@
 package com.victjava.scales;
 
+import android.annotation.TargetApi;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.*;
 import android.database.Cursor;
 import android.graphics.Color;
+import android.graphics.Paint;
+import android.graphics.Typeface;
 import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
 import android.os.Build;
 import android.provider.BaseColumns;
-import android.provider.ContactsContract;
+import android.provider.ContactsContract.*;
 import android.text.InputType;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.Window;
 import android.widget.*;
 import com.victjava.scales.provider.TaskTable;
@@ -40,16 +44,14 @@ public class TaskMessageDialog extends TaskTable {
         //taskTable = new TaskTable(context);
     }
 
-    //@TargetApi(Build.VERSION_CODES.HONEYCOMB)
     public void openListEmailDialog() {
-
-        final Cursor emails = contentResolver.query(ContactsContract.CommonDataKinds.Email.CONTENT_URI, null,
-                ContactsContract.CommonDataKinds.Email.CONTACT_ID + " = " + mContactId, null, null);
+        final Cursor emails = getDataContact(mContactId, CommonDataKinds.Email.CONTENT_ITEM_TYPE);
+        //final Cursor emails = contentResolver.query(CommonDataKinds.Email.CONTENT_URI, null,CommonDataKinds.Email.CONTACT_ID + " = " + mContactId, null, null);
         if (emails == null) {
             return;
         }
         if (emails.moveToFirst()) {
-            String[] columns = {ContactsContract.CommonDataKinds.Email.DATA};
+            String[] columns = {CommonDataKinds.Email.DATA};
             int[] to = {R.id.title};
             SimpleCursorAdapter cursorAdapter = new SimpleCursorAdapter(mContext, R.layout.item_list_dialog, emails, columns, to);
             cursorAdapter.setViewBinder(new MyViewBinder(R.drawable.mail1));
@@ -63,11 +65,11 @@ public class TaskMessageDialog extends TaskTable {
             listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                 @Override
                 public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                    Uri uri = ContentUris.withAppendedId(ContactsContract.CommonDataKinds.Email.CONTENT_URI, id);
-                    Cursor result = contentResolver.query(uri, new String[]{ContactsContract.CommonDataKinds.Email.DATA}, null, null, null);
+                    Uri uri = ContentUris.withAppendedId(CommonDataKinds.Email.CONTENT_URI, id);
+                    Cursor result = contentResolver.query(uri, new String[]{CommonDataKinds.Email.DATA}, null, null, null);
                     if (result != null) {
                         if (result.moveToFirst()) {
-                            String str = result.getString(result.getColumnIndex(ContactsContract.CommonDataKinds.Email.DATA));
+                            String str = result.getString(result.getColumnIndex(CommonDataKinds.Email.DATA));
                             insertNewTask(TaskCommand.TaskType.TYPE_CHECK_SEND_MAIL_CONTACT, mCheckId, mContactId, str);
                         }
                     }
@@ -90,7 +92,7 @@ public class TaskMessageDialog extends TaskTable {
                     emails.moveToFirst();
                     if (!emails.isAfterLast()) {
                         do {
-                            String str = emails.getString(emails.getColumnIndex(ContactsContract.CommonDataKinds.Email.DATA));
+                            String str = emails.getString(emails.getColumnIndex(CommonDataKinds.Email.DATA));
                             insertNewTask(TaskCommand.TaskType.TYPE_CHECK_SEND_MAIL_CONTACT, mCheckId, mContactId, str);
                         } while (emails.moveToNext());
                     }
@@ -149,35 +151,35 @@ public class TaskMessageDialog extends TaskTable {
 
     }
 
-    //@TargetApi(Build.VERSION_CODES.HONEYCOMB)
     private Uri addEmailToContact(String mail) {
-        Cursor cursor = contentResolver.query(ContactsContract.RawContacts.CONTENT_URI, null, ContactsContract.RawContacts.CONTACT_ID + " = " + mContactId, null, null);
+        Cursor cursor = contentResolver.query(RawContacts.CONTENT_URI, null, RawContacts.CONTACT_ID + " = " + mContactId, null, null);
         if (cursor == null) {
             return null;
         }
         if (cursor.moveToFirst()) {
             int rawContactId = cursor.getInt(cursor.getColumnIndex(BaseColumns._ID));
             ContentValues values = new ContentValues();
-            values.put(ContactsContract.Data.RAW_CONTACT_ID, rawContactId);
-            values.put(ContactsContract.Data.MIMETYPE, ContactsContract.CommonDataKinds.Email.CONTENT_ITEM_TYPE);
+            values.put(Data.RAW_CONTACT_ID, rawContactId);
+            values.put(Data.MIMETYPE, CommonDataKinds.Email.CONTENT_ITEM_TYPE);
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB)
-                values.put(ContactsContract.CommonDataKinds.Email.ADDRESS, mail);
+                values.put(CommonDataKinds.Email.ADDRESS, mail);
             else
-                values.put(ContactsContract.CommonDataKinds.Email.DISPLAY_NAME, mail);
-            values.put(ContactsContract.CommonDataKinds.Email.TYPE, ContactsContract.CommonDataKinds.Email.TYPE_WORK);
-            return contentResolver.insert(ContactsContract.Data.CONTENT_URI, values);
+                values.put(CommonDataKinds.Email.DISPLAY_NAME, mail);
+            values.put(CommonDataKinds.Email.TYPE, CommonDataKinds.Email.TYPE_WORK);
+            return contentResolver.insert(Data.CONTENT_URI, values);
         }
         return null;
     }
 
     public void openListPhoneDialog() {
-        final Cursor phones = contentResolver.query(ContactsContract.CommonDataKinds.Phone.CONTENT_URI, null,
-                ContactsContract.CommonDataKinds.Phone.CONTACT_ID + " = " + mContactId, null, null);
+        /*final Cursor phones = contentResolver.query(CommonDataKinds.Phone.CONTENT_URI, null,
+                CommonDataKinds.Phone.CONTACT_ID + " = " + mContactId, null, null);*/
+        final Cursor phones = getDataContact(mContactId, CommonDataKinds.Phone.CONTENT_ITEM_TYPE);
         if (phones == null) {
             return;
         }
         if (phones.moveToFirst()) {
-            String[] columns = {ContactsContract.CommonDataKinds.Phone.NUMBER};
+            String[] columns = {CommonDataKinds.Phone.NUMBER};
             int[] to = {R.id.title};
             SimpleCursorAdapter cursorAdapter = new SimpleCursorAdapter(mContext, R.layout.item_list_dialog, phones, columns, to);
             cursorAdapter.setViewBinder(new MyViewBinder(R.drawable.messages));
@@ -190,12 +192,12 @@ public class TaskMessageDialog extends TaskTable {
             listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                 @Override
                 public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                    Uri uri = ContentUris.withAppendedId(ContactsContract.CommonDataKinds.Phone.CONTENT_URI, id);
-                    Cursor result = contentResolver.query(uri, new String[]{ContactsContract.CommonDataKinds.Phone.DATA}, null, null, null);
+                    Uri uri = ContentUris.withAppendedId(CommonDataKinds.Phone.CONTENT_URI, id);
+                    Cursor result = contentResolver.query(uri, new String[]{CommonDataKinds.Phone.DATA}, null, null, null);
                     if (result != null) {
                         if (result.moveToFirst()) {
-                            String str = result.getString(result.getColumnIndex(ContactsContract.CommonDataKinds.Phone.DATA));
-                            insertNewTask(TaskCommand.TaskType.TYPE_CHECK_SEND_SMS_CONTACT, mCheckId, mContactId, str);
+                            String str = result.getString(result.getColumnIndex(CommonDataKinds.Phone.DATA));
+                            insertNewTask(TaskCommand.TaskType.TYPE_CHECK_SEND_SMS_CONTACT, mCheckId, mContactId, str);//todo после отладки разкоментировать
                         }
                     }
 
@@ -218,7 +220,7 @@ public class TaskMessageDialog extends TaskTable {
                     phones.moveToFirst();
                     if (!phones.isAfterLast()) {
                         do {
-                            String str = phones.getString(phones.getColumnIndex(ContactsContract.CommonDataKinds.Phone.DATA));
+                            String str = phones.getString(phones.getColumnIndex(CommonDataKinds.Phone.DATA));
                             insertNewTask(TaskCommand.TaskType.TYPE_CHECK_SEND_SMS_CONTACT, mCheckId, mContactId, str);
                         } while (phones.moveToNext());
                     }
@@ -237,6 +239,7 @@ public class TaskMessageDialog extends TaskTable {
             createPhoneDialog();
         }
     }
+
 
     private void createPhoneDialog() {
         AlertDialog.Builder alertDialog = new AlertDialog.Builder(mContext);
@@ -276,23 +279,28 @@ public class TaskMessageDialog extends TaskTable {
     }
 
     private Uri addPhoneToContact(String phone) {
-        Cursor cursor = contentResolver.query(ContactsContract.RawContacts.CONTENT_URI, null, ContactsContract.RawContacts.CONTACT_ID + " = " + mContactId, null, null);
+        Cursor cursor = contentResolver.query(RawContacts.CONTENT_URI, null, RawContacts.CONTACT_ID + " = " + mContactId, null, null);
         if (cursor == null) {
             return null;
         }
         if (cursor.moveToFirst()) {
             int rawContactId = cursor.getInt(cursor.getColumnIndex(BaseColumns._ID));
             ContentValues values = new ContentValues();
-            values.put(ContactsContract.Data.RAW_CONTACT_ID, rawContactId);
-            values.put(ContactsContract.Data.MIMETYPE, ContactsContract.CommonDataKinds.Phone.CONTENT_ITEM_TYPE);
-            values.put(ContactsContract.CommonDataKinds.Phone.NUMBER, phone);
-            values.put(ContactsContract.CommonDataKinds.Phone.TYPE, ContactsContract.CommonDataKinds.Phone.TYPE_WORK);
-            return contentResolver.insert(ContactsContract.Data.CONTENT_URI, values);
+            values.put(Data.RAW_CONTACT_ID, rawContactId);
+            values.put(Data.MIMETYPE, CommonDataKinds.Phone.CONTENT_ITEM_TYPE);
+            values.put(CommonDataKinds.Phone.NUMBER, phone);
+            values.put(CommonDataKinds.Phone.TYPE, CommonDataKinds.Phone.TYPE_WORK);
+            return contentResolver.insert(Data.CONTENT_URI, values);
         }
         return null;
     }
 
-    private static class MyViewBinder implements SimpleCursorAdapter.ViewBinder {
+    Cursor getDataContact(int id, String mimeType){
+        return contentResolver.query(Data.CONTENT_URI, new String[] {BaseColumns._ID, Data.DATA1, Data.DATA5, Data.MIMETYPE},
+                Data.CONTACT_ID + "=?" + " and " + Data.MIMETYPE + "='" + mimeType + '\'',new String[] {String.valueOf(id)}, null);
+    }
+
+    private class MyViewBinder implements SimpleCursorAdapter.ViewBinder {
         protected final int res;
 
         public MyViewBinder(int res) {
@@ -302,10 +310,24 @@ public class TaskMessageDialog extends TaskTable {
         @Override
         public boolean setViewValue(View view, Cursor cursor, int columnIndex) {
             if (view.getId() == R.id.title) {
-                ((TextView) view).setCompoundDrawablesWithIntrinsicBounds(res, 0, 0, 0);
+                int enable = cursor.getInt(cursor.getColumnIndex(Data.DATA5));
+                if(enable > 0){
+                    view.setClickable(true);
+                    ((TextView)view).setTextColor(mContext.getResources().getColor(R.color.background));
+                    ((TextView)view).setTypeface(((TextView) view).getTypeface(), Typeface.ITALIC);
+                    ((TextView) view).setCompoundDrawablesWithIntrinsicBounds(R.mipmap.icon_check, 0, 0, 0);
+                }else {
+                    //view.setEnabled(true);
+                    view.setClickable(false);
+                    ((TextView)view).setTextColor(mContext.getResources().getColor(R.color.text));
+                    ((TextView)view).setTypeface(((TextView) view).getTypeface(), Typeface.BOLD);
+                    ((TextView) view).setCompoundDrawablesWithIntrinsicBounds(res, 0, 0, 0);
+                }
+
                 ((TextView) view).setText(cursor.getString(columnIndex));
             }
             return true;
         }
     }
+
 }

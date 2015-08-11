@@ -5,10 +5,13 @@ import android.app.ProgressDialog;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
+import android.database.Cursor;
 import android.graphics.Color;
 import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
 import android.os.*;
+import android.provider.BaseColumns;
+import android.provider.ContactsContract.*;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
@@ -371,10 +374,39 @@ public class ActivityCheck extends FragmentActivity implements View.OnClickListe
         if (weightType == WeightType.NETTO) {
             values.put(CheckTable.KEY_IS_READY, 1);
             new TaskTable(this).setCheckReady(entryID);
+            taskToContact();
             startActivity(new Intent(getBaseContext(), ActivityViewCheck.class).putExtra("id", entryID));
         }
         checkTable.updateEntry(entryID, values);
         finish();
+    }
+
+    /** Добавляет задачи для контакта в весовом чеке.
+     * Если для контакта установлены галочки для телефона и почты.
+     */
+    private void taskToContact(){
+        int contactId = values.getAsInteger(CheckTable.KEY_VENDOR_ID);
+        Cursor data = getContentResolver().query(Data.CONTENT_URI,
+                new String[] {BaseColumns._ID, Data.DATA1, Data.DATA5, Data.MIMETYPE},
+                Data.CONTACT_ID+"=?"+" and ("+ Data.MIMETYPE+"='"+ CommonDataKinds.Phone.CONTENT_ITEM_TYPE+'\''+" or "+ Data.MIMETYPE+"='"+ CommonDataKinds.Email.CONTENT_ITEM_TYPE+'\''+')'
+                        +" and "+Data.DATA5+" = 1",
+                new String[] {String.valueOf(contactId)}, null);
+        try {
+            data.moveToFirst();
+            if(!data.isAfterLast()){
+                do {
+                    String type = data.getString(data.getColumnIndex(Data.MIMETYPE));
+                    String address = data.getString(data.getColumnIndex(Data.DATA1));
+                    if(CommonDataKinds.Phone.CONTENT_ITEM_TYPE.equals(type))
+                        new TaskTable(this).insertNewTask(TaskCommand.TaskType.TYPE_CHECK_SEND_SMS_CONTACT, entryID, contactId, address);
+                    else if(CommonDataKinds.Email.CONTENT_ITEM_TYPE.equals(type))
+                        new TaskTable(this).insertNewTask(TaskCommand.TaskType.TYPE_CHECK_SEND_MAIL_CONTACT, entryID, contactId, address);
+                } while (data.moveToNext());
+            }
+            data.close();
+        }catch (Exception e){}
+
+
     }
 
     private static View createTabView(final Context context, final CharSequence text) {

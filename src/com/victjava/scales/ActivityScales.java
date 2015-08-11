@@ -66,7 +66,7 @@ public class ActivityScales extends Activity implements View.OnClickListener, Vi
         Main.networkOperatorName = telephonyManager.getNetworkOperatorName();
         Main.networkCountry = telephonyManager.getNetworkCountryIso();
         int state = telephonyManager.getSimState();
-        //new Internet(this).sendIntentOnDataConnection();
+
         if (state == TelephonyManager.SIM_STATE_READY) {
             try {
                 scaleModule = new ScaleModule(Main.packageInfo.versionName, onEventConnectResult);
@@ -398,9 +398,11 @@ public class ActivityScales extends Activity implements View.OnClickListener, Vi
     private void exit() {
         if (broadcastReceiver != null)
             unregisterReceiver(broadcastReceiver);
-        scaleModule.dettach();
-        scaleModule.getAdapter().disable();
-        while (scaleModule.getAdapter().isEnabled()) ;
+        if(scaleModule != null){
+            scaleModule.dettach();
+            scaleModule.getAdapter().disable();
+            while (scaleModule.getAdapter().isEnabled()) ;
+        }
         startService(new Intent(this, ServiceProcessTask.class));
     }
 
