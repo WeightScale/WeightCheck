@@ -16,6 +16,7 @@ import android.view.Window;
 import android.view.WindowManager;
 import android.widget.*;
 import com.victjava.scales.provider.CheckTable;
+import com.victjava.scales.service.ServiceProcessTask;
 
 import java.util.*;
 
@@ -107,6 +108,7 @@ public class ActivityViewCheck extends Activity implements View.OnClickListener 
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.imageViewBack:
+                startService(new Intent(this, ServiceProcessTask.class).setAction("send_sms"));
                 onBackPressed();
                 break;
             case R.id.imageViewMail:

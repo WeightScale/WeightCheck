@@ -41,6 +41,13 @@ public class ServiceProcessTask extends Service {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
+        if(intent !=null){
+            String action = intent.getAction();
+            if("send_sms".equals(action)){
+                taskProcess(TaskType.TYPE_CHECK_SEND_SMS);
+                return START_STICKY;
+            }
+        }
         taskProcess();
         return START_STICKY;
     }
@@ -98,6 +105,25 @@ public class ServiceProcessTask extends Service {
             } catch (Exception e) {
                 msgHandler.sendEmptyMessage(TaskCommand.HANDLER_FINISH_THREAD);
             }
+        }
+    }
+
+    /** Процесс выполнить задачу.
+     * @param taskType тип задачи.
+     */
+    private void taskProcess(TaskType taskType) {
+        /**Экземпляр команд задач*/
+        TaskCommand taskCommand = new TaskCommand(this, msgHandler);
+        /**Сообщение на обработчик запущен процесс задач*/
+        msgHandler.obtainMessage(TaskCommand.HANDLER_TASK_START, 1, 0).sendToTarget();
+        Cursor cursor = taskTable.getTypeEntry(taskType);
+        ContentQueryMap mQueryMap = new ContentQueryMap(cursor, BaseColumns._ID, true, null);
+        Map<String, ContentValues> map = mQueryMap.getRows();
+        cursor.close();
+        try {
+            taskCommand.execute(taskType, map);
+        } catch (Exception e) {
+            msgHandler.sendEmptyMessage(TaskCommand.HANDLER_FINISH_THREAD);
         }
     }
 

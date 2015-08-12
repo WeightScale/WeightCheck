@@ -71,11 +71,7 @@ public class TaskCommand extends CheckTable {
         /**
          * чек для електронной почты
          */
-        TYPE_CHECK_SEND_MAIL_CONTACT,
-        /**
-         * чек для електронной почты боссу
-         */
-        TYPE_CHECK_SEND_MAIL_ADMIN,
+        TYPE_CHECK_SEND_MAIL,
         /**
          * чек для облака
          */
@@ -93,13 +89,9 @@ public class TaskCommand extends CheckTable {
          */
         TYPE_PREF_SEND_SHEET_DISK,
         /**
-         * чек для смс отправки контакту
+         * чек для смс отправки
          */
-        TYPE_CHECK_SEND_SMS_CONTACT,
-        /**
-         * чек для смс отправки боссу
-         */
-        TYPE_CHECK_SEND_SMS_ADMIN
+        TYPE_CHECK_SEND_SMS
     }
 
     /**
@@ -120,10 +112,10 @@ public class TaskCommand extends CheckTable {
 
         mapTasks.put(TaskType.TYPE_CHECK_SEND_HTTP_POST, new CheckTokHttpPost());
         mapTasks.put(TaskType.TYPE_CHECK_SEND_SHEET_DISK, new CheckToSpreadsheet(Main.versionName));
-        mapTasks.put(TaskType.TYPE_CHECK_SEND_MAIL_CONTACT, new CheckToMail());
-        mapTasks.put(TaskType.TYPE_CHECK_SEND_MAIL_ADMIN, new CheckToMail());
-        mapTasks.put(TaskType.TYPE_CHECK_SEND_SMS_CONTACT, new CheckToSms());
-        mapTasks.put(TaskType.TYPE_CHECK_SEND_SMS_ADMIN, new CheckToSms());
+        mapTasks.put(TaskType.TYPE_CHECK_SEND_MAIL, new CheckToMail());
+        /*mapTasks.put(TaskType.TYPE_CHECK_SEND_MAIL_ADMIN, new CheckToMail());*/
+        mapTasks.put(TaskType.TYPE_CHECK_SEND_SMS, new CheckToSms());
+        /*mapTasks.put(TaskType.TYPE_CHECK_SEND_SMS_ADMIN, new CheckToSms());*/
         mapTasks.put(TaskType.TYPE_PREF_SEND_SHEET_DISK, new PreferenceToSpreadsheet(Main.versionName));
     }
 
