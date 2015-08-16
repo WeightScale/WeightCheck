@@ -115,7 +115,7 @@ public class SenderTable {
         results.add(new BasicNameValuePair(GO_TIME_HTTP, CheckTable.KEY_TIME_CREATE));
         String joined = TextUtils.join(" ", results);
         contentValues.put(KEY_DATA2, joined);
-        contentValues.put(KEY_SYS, 1);
+        contentValues.put(KEY_SYS, 0);
         db.insert(TABLE, null, contentValues);
     }
 
@@ -126,7 +126,7 @@ public class SenderTable {
         contentValues.put(KEY_DATA1, "");
         contentValues.put(KEY_DATA2, "");
         contentValues.put(KEY_DATA3, "");
-        contentValues.put(KEY_SYS, 1);
+        contentValues.put(KEY_SYS, 0);
         db.insert(TABLE, null, contentValues);
     }
 
@@ -135,7 +135,7 @@ public class SenderTable {
         //Resources res = mContext.getResources();
         contentValues.put(KEY_TYPE, TypeSender.TYPE_EMAIL.ordinal());
         contentValues.put(KEY_DATA1, "");
-        contentValues.put(KEY_SYS, 1);
+        contentValues.put(KEY_SYS, 0);
         db.insert(TABLE, null, contentValues);
     }
 

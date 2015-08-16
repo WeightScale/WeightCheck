@@ -20,8 +20,8 @@ import java.util.Map;
  */
 public class ActivityContactMessage extends Activity implements View.OnClickListener{
     ListView listViewData;
-    ContentValues values = new ContentValues();
-    Map<String, ContentValues> mapData;
+    //ContentValues values = new ContentValues();
+    //Map<String, ContentValues> mapData;
     int contactId;
 
     @Override
@@ -34,8 +34,8 @@ public class ActivityContactMessage extends Activity implements View.OnClickList
         }
         setTitle(getNameContact(contactId));
 
-        ContentQueryMap mQueryMap = new ContentQueryMap(getDataContact(contactId), BaseColumns._ID, true, null);
-        mapData = mQueryMap.getRows();
+        //ContentQueryMap mQueryMap = new ContentQueryMap(getDataContact(contactId), BaseColumns._ID, true, null);
+        //mapData = mQueryMap.getRows();
 
         listViewData = (ListView)findViewById(R.id.listViewData);
         listViewData.setOnItemClickListener(onItemClickListener);

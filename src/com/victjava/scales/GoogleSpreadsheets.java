@@ -45,7 +45,7 @@ public abstract class GoogleSpreadsheets extends AsyncTask<Void, Void, String[]>
     private final SpreadsheetService spreadsheetService;
     private List<WorksheetEntry> worksheets;
     private SpreadsheetEntry spreadsheetEntry;
-    private final String spreadsheetName = "";
+    //private final String spreadsheetName = "";
     /**
      * Client ID созданый для application в  https://console.developers.google.com/project/
      */
@@ -57,7 +57,7 @@ public abstract class GoogleSpreadsheets extends AsyncTask<Void, Void, String[]>
     /**
      * Redirect URIs созданый для application в  https://console.developers.google.com/project/
      */
-    final String REDIRECT_URI = "https://www.example.com/oauth2callback";
+    //final String REDIRECT_URI = "https://www.example.com/oauth2callback";
     /**
      * Email address в созданом клиенте на  https://console.developers.google.com/project/
      */
@@ -420,7 +420,7 @@ public abstract class GoogleSpreadsheets extends AsyncTask<Void, Void, String[]>
      * Обратный вызов при получении разрешения для токена
      */
     public class CallbackReceiver extends BroadcastReceiver {
-        public static final String TAG = "CallbackReceiver";
+        //public static final String TAG = "CallbackReceiver";
 
         @Override
         public void onReceive(Context context, Intent callback) {

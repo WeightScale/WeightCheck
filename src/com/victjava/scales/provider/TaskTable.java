@@ -131,7 +131,7 @@ public class TaskTable {
                             insertNewTask(TaskCommand.TaskType.TYPE_CHECK_SEND_MAIL, _rowIndex, senderId, ScaleModule.getUserName());
                             break;
                         case TYPE_SMS:
-                            insertNewTask(TaskCommand.TaskType.TYPE_CHECK_SEND_SMS, _rowIndex, senderId, ScaleModule.getPhone());
+                            insertNewTask(TaskCommand.TaskType.TYPE_CHECK_SEND_SMS_ADMIN, _rowIndex, senderId, ScaleModule.getPhone());
                             break;
                         default:
                     }

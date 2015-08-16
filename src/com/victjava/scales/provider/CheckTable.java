@@ -13,7 +13,7 @@ import java.util.Date;
 import java.util.Map;
 
 public class CheckTable {
-    final TaskTable taskTable;
+    //final TaskTable taskTable;
     private final Context mContext;
     final ContentResolver contentResolver;
     public static int day;
@@ -91,14 +91,14 @@ public class CheckTable {
     public CheckTable(Context context) {
         mContext = context;
         contentResolver = mContext.getContentResolver();
-        taskTable = new TaskTable(context);
+        //taskTable = new TaskTable(context);
     }
 
     public CheckTable(Context context, int d) {
         mContext = context;
         contentResolver = mContext.getContentResolver();
         day = d;
-        taskTable = new TaskTable(context);
+        //taskTable = new TaskTable(context);
     }
 
     public Uri insertNewEntry(String vendor, int vendorId, int direct) {

@@ -41,9 +41,7 @@ public class WeightCheckBaseProvider extends ContentProvider {
         COMMAND_LIST,
         COMMAND_ID,
         ADMIN_SENDER_LIST,
-        ADMIN_SENDER_ID,
-        MESSAGE_LIST,
-        MESSAGE_ID
+        ADMIN_SENDER_ID
     }
 
     private static final UriMatcher uriMatcher;
@@ -94,9 +92,6 @@ public class WeightCheckBaseProvider extends ContentProvider {
             case ADMIN_SENDER_LIST:
             case ADMIN_SENDER_ID:
                 return SenderTable.TABLE; // return
-            case MESSAGE_LIST:
-            case MESSAGE_ID:
-                return MessageTable.TABLE; // return
             /** PROVIDE A DEFAULT CASE HERE **/
             default:
                 // If the URI doesn't match any of the known patterns, throw an exception.
@@ -167,13 +162,6 @@ public class WeightCheckBaseProvider extends ContentProvider {
                 break;
             case ADMIN_SENDER_ID: // Uri с ID
                 queryBuilder.setTables(SenderTable.TABLE);
-                queryBuilder.appendWhere(BaseColumns._ID + '=' + uri.getLastPathSegment());
-                break;
-            case MESSAGE_LIST: // общий Uri
-                queryBuilder.setTables(MessageTable.TABLE);
-                break;
-            case MESSAGE_ID: // Uri с ID
-                queryBuilder.setTables(MessageTable.TABLE);
                 queryBuilder.appendWhere(BaseColumns._ID + '=' + uri.getLastPathSegment());
                 break;
             default:
@@ -284,14 +272,6 @@ public class WeightCheckBaseProvider extends ContentProvider {
                 where = TextUtils.isEmpty(where) ? BaseColumns._ID + " = " + id : where + " AND " + BaseColumns._ID + " = " + id;
                 delCount = db.delete(SenderTable.TABLE, where, whereArg);
                 break;
-            case MESSAGE_LIST:
-                delCount = db.delete(MessageTable.TABLE, where, whereArg);
-                break;
-            case MESSAGE_ID:
-                id = uri.getLastPathSegment();
-                where = TextUtils.isEmpty(where) ? BaseColumns._ID + " = " + id : where + " AND " + BaseColumns._ID + " = " + id;
-                delCount = db.delete(MessageTable.TABLE, where, whereArg);
-                break;
             default:
                 throw new IllegalArgumentException("Wrong URI: " + uri);
         }
@@ -366,14 +346,6 @@ public class WeightCheckBaseProvider extends ContentProvider {
                 where = TextUtils.isEmpty(where) ? BaseColumns._ID + " = " + id : where + " AND " + BaseColumns._ID + " = " + id;
                 updateCount = db.update(SenderTable.TABLE, contentValues, where, whereArg);
                 break;
-            case MESSAGE_LIST: // общий Uri
-                updateCount = db.update(MessageTable.TABLE, contentValues, where, whereArg);
-                break;
-            case MESSAGE_ID: // Uri с ID
-                id = uri.getLastPathSegment();
-                where = TextUtils.isEmpty(where) ? BaseColumns._ID + " = " + id : where + " AND " + BaseColumns._ID + " = " + id;
-                updateCount = db.update(MessageTable.TABLE, contentValues, where, whereArg);
-                break;
             default:
                 throw new IllegalArgumentException("Wrong URI: " + uri);
         }
@@ -403,15 +375,14 @@ public class WeightCheckBaseProvider extends ContentProvider {
             db.execSQL(ErrorTable.TABLE_CREATE);
             db.execSQL(CommandTable.TABLE_CREATE);
             db.execSQL(SenderTable.TABLE_CREATE);
-            db.execSQL(MessageTable.TABLE_CREATE);
 
             //Add default record to my table
             //new TypeTable(getContext()).addSystemRow(db);
             /*-----------------------------------------------*/
             senderTable.addSystemSheet(db);
-            //senderTable.addSystemHTTP(db);
-            //senderTable.addSystemMail(db);
-            //senderTable.addSystemSms(db);
+            senderTable.addSystemHTTP(db);
+            senderTable.addSystemMail(db);
+            senderTable.addSystemSms(db);
         }
 
         @Override
@@ -424,7 +395,6 @@ public class WeightCheckBaseProvider extends ContentProvider {
             db.execSQL(DROP_TABLE_IF_EXISTS + ErrorTable.TABLE);
             db.execSQL(DROP_TABLE_IF_EXISTS + CommandTable.TABLE);
             db.execSQL(DROP_TABLE_IF_EXISTS + SenderTable.TABLE);
-            db.execSQL(DROP_TABLE_IF_EXISTS + MessageTable.TABLE);
             onCreate(db);
         }
     }

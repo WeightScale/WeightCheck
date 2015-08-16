@@ -32,7 +32,6 @@ public class SimpleGestureFilter extends SimpleOnGestureListener {
     private final Activity context;
     private final GestureDetector detector;
     private final SimpleGestureListener listener;
-    private View view;
 
     public SimpleGestureFilter(Activity context, SimpleGestureListener sgl) {
 

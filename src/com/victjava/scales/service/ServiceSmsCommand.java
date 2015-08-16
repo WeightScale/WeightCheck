@@ -6,12 +6,18 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
 import android.os.IBinder;
+import android.telephony.PhoneNumberUtils;
+import android.telephony.SmsMessage;
+import com.konst.sms_commander.GsmAlphabet;
 import com.konst.sms_commander.OnSmsCommandListener;
 import com.konst.sms_commander.SMS;
 import com.konst.sms_commander.SmsCommander;
 import com.victjava.scales.BootReceiver;
 import com.victjava.scales.SmsCommand;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.lang.reflect.Method;
 import java.util.*;
 
 /**
@@ -27,6 +33,7 @@ public class ServiceSmsCommand extends Service {
      * Кодовое слово для дешифрации сообщения
      */
     final String codeword = "weightcheck";
+    final String COMMAND_TAG = "command";
 
     @Override
     public IBinder onBind(Intent intent) {
@@ -43,20 +50,16 @@ public class ServiceSmsCommand extends Service {
         intentFilter.setPriority(999);
         registerReceiver(incomingSMSReceiver, intentFilter);
 
-        /*String msg = "0503285426 coffa=0.25687 coffb gogusr=kreogen.lg@gmail.com gogpsw=htcehc25";
-        String str = null;
+        String msg = "command(sender=0503285426 coffa=0.25687 coffb gogusr=kreogen.lg@gmail.com gogpsw=htcehc25 numsms=380990551439 sndchk=0-0_1-0_2-1_3-0)";
         try {
-            str = SMS.encrypt(codeword, msg);
+            //GsmAlphabet.createFakeSms(this,"380503285426", SMS.encrypt(codeword, msg));
         } catch (Exception e) {
             e.printStackTrace();
         }
-        //decodeMessage(str);
-        byte[] pdu = SMS.fromHexString("07914400000000F001000B811000000000F000006D51E7FCC8CC96EDED2C19199D078D6A375D1BAEE3CCF397F2CE44CAD736E1BA6D9EC770D8A0B4166697ADECE079655EAAF341EC1D7E54B76FF86C1EC93CB6CDF4B2F9AE383ADF6EB83A2C5FE1CA3228121B7CE663D6B052796EAE84526515D603");
 
-        Intent intent = new Intent(ServiceSmsCommand.IncomingSMSReceiver.SMS_RECEIVED_ACTION);
-        intent.putExtra("pdus", new Object[]{pdu});
-        sendBroadcast(intent);*/
     }
+
+
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
@@ -100,7 +103,7 @@ public class ServiceSmsCommand extends Service {
                     if (bundle != null) {
                         Object[] pdus = (Object[]) intent.getExtras().get("pdus");
                         try {
-                            new SmsCommander(codeword, pdus, onSmsCommandListener);
+                             new SmsCommander(codeword, pdus, onSmsCommandListener);
                             abortBroadcast();
                         } catch (Exception e) {
                         }
@@ -118,23 +121,45 @@ public class ServiceSmsCommand extends Service {
         StringBuilder result = new StringBuilder();
 
         /** Событие есть смс команда.
-         *  @param address Адресс отправителя.
-         *  @param list Лист смс команд.
+         *  @param commands Обьект с смс командами.
          */
         @Override
-        public void onEvent(String address, List<SmsCommander.Command> list) {
-            try {
-                /** Обрабатываем лист команд и возвращяем результат */
-                result = new SmsCommand(getApplicationContext(), list).process();
-            } catch (Exception e) {
-                result.append(e.getMessage());
-            }
+        public void onEvent(SmsCommander.Commands commands) {
+            if (COMMAND_TAG.equals(commands.getTAG())){
+                if(isValidCommands(commands)){
+                    try {
+                        /** Обрабатываем лист команд и возвращяем результат */
+                        result = new SmsCommand(getApplicationContext(), commands.getMap()).process();
+                    } catch (Exception e) {
+                        result.append(e.getMessage());
+                    }
 
-            try {
-                /** Отправляем результат выполнения команд адресату */
-                SMS.sendSMS(address, result.toString());
-            } catch (Exception e) {
+                    try {
+                        /** Отправляем результат выполнения команд адресату */
+                        SMS.sendSMS(commands.getAddress(), result.toString());
+                    } catch (Exception e) {}
+                }
             }
+        }
+
+        private boolean isValidCommands(SmsCommander.Commands commands){
+            String address1;
+            String address2;
+            address1 = commands.getAddress();
+            if(commands.getMap().containsKey("sender")){
+                address2 = commands.getMap().get("sender");
+                if (!address2.isEmpty()) {
+                    if (address2.length() > address1.length()) {
+                        address2 = address2.substring(address2.length() - address1.length(), address2.length());
+                    } else if (address2.length() < address1.length()) {
+                        address1 = address1.substring(address1.length() - address2.length(), address1.length());
+                    }
+                    if (address1.equals(address2)) {
+                        return true;
+                    }
+                }
+            }
+            return false;
         }
     };
 

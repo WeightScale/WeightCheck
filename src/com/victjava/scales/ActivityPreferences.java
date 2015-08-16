@@ -29,7 +29,7 @@ public class ActivityPreferences extends PreferenceActivity implements SharedPre
     static final String KEY_STEP = "step";
     private static final String KEY_NAME = "name";
     public static final String KEY_ADDRESS = "address";
-    static final String KEY_DEVICES = "devices";
+    //static final String KEY_DEVICES = "devices";
     private static final String KEY_NULL = "null";
     static final String KEY_AUTO_CAPTURE = "auto_capture";
     public static final String KEY_DAY_CLOSED_CHECK = "day_closed_check";

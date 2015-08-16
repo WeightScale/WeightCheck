@@ -13,11 +13,11 @@
       <excludeFolder url="file://$MODULE_DIR$/Doc" />
       <excludeFolder url="file://$MODULE_DIR$/temp" />
     </content>
-    <orderEntry type="jdk" jdkName="Android API 15 Platform" jdkType="Android SDK" />
+    <orderEntry type="jdk" jdkName="Android 4.0.3 Google APIs" jdkType="Android SDK" />
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="library" exported="" name="activation" level="project" />
     <orderEntry type="library" exported="" name="bootloader_avr" level="project" />
-    <orderEntry type="library" exported="" name="SMSCommander" level="project" />
     <orderEntry type="library" exported="" name="ScaleModule" level="project" />
+    <orderEntry type="library" exported="" name="SMSCommander" level="project" />
   </component>
 </module>

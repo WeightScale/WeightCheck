@@ -22,7 +22,8 @@ import java.util.*;
 public class SmsCommand extends SenderTable {
     final Context mContext;
     //List<BasicNameValuePair> results;
-    final List<SmsCommander.Command> commandList;
+    //final List<SmsCommander.Command> commandList;
+    Map<String, String> mapCommand;
     //final SenderTable senderTable;
 
     /**
@@ -95,10 +96,11 @@ public class SmsCommand extends SenderTable {
         BasicNameValuePair execute(String value) throws Exception;
     }
 
-    public SmsCommand(Context context, List<SmsCommander.Command> commandList) {
+    public SmsCommand(Context context, Map<String,String> map) {
         super(context);
         mContext = context;
-        this.commandList = commandList;
+        //this.commandList = commandList;
+        mapCommand = map;
         //senderTable = new SenderTable(context);
         cmdMap.put(SMS_CMD_GETERR, new CmdGetError());      //получить ошибки параметр количество
         cmdMap.put(SMS_CMD_DELERR, new CmdDeleteError());   //удалить ошибки параметр количество
@@ -114,19 +116,42 @@ public class SmsCommand extends SenderTable {
         //cmdMap = Collections.unmodifiableMap(cmdMap);
     }
 
+    public SmsCommand(Context context) {
+        super(context);
+        mContext = context;
+        cmdMap.put(SMS_CMD_GETERR, new CmdGetError());      //получить ошибки параметр количество
+        cmdMap.put(SMS_CMD_DELERR, new CmdDeleteError());   //удалить ошибки параметр количество
+        cmdMap.put(SMS_CMD_NUMSMS, new CmdNumSmsAdmin());   //номер телефона босса
+        cmdMap.put(SMS_CMD_WGHMAX, new CmdWeightMax());     //максимальный вес
+        cmdMap.put(SMS_CMD_COFFA, new CmdCoefficientA());   //коэфициент вес
+        cmdMap.put(SMS_CMD_COFFB, new CmdCoefficientB());   //
+        cmdMap.put(SMS_CMD_GOGUSR, new CmdGoogleUser());    //учетнное имя google account
+        cmdMap.put(SMS_CMD_GOGPSW, new CmdGooglePassword());//пароль google account
+        cmdMap.put(SMS_CMD_PHNSMS, new CmdPhoneSms());      //телефон для отправки смс
+        cmdMap.put(SMS_CMD_WRTDAT, new CmdWeightData());    //записать данные в весы функция writeDataScale() wrtdat=wgm_5000|cfa_0.00019
+        cmdMap.put(SMS_CMD_SNDCHK, new CmdSenderCheck());   //установка отсылателей чеков
+    }
+
+    public void execute(String cmd, String value){
+        try {
+            cmdMap.get(cmd).execute(value);
+        } catch (Exception e) { }
+    }
+
     /** Выполнить команды в смс сообщении.
      * @return Результат выполнения.
      */
     public StringBuilder process() {
         StringBuilder textSent = new StringBuilder();
-        for (SmsCommander.Command result : commandList) {
+        for (Map.Entry<String,String> entry : mapCommand.entrySet()){
             try {
-                textSent.append(cmdMap.get(result.getName()).execute(result.getValue()));
+                textSent.append(cmdMap.get(entry.getKey()).execute(entry.getValue()));
             } catch (Exception e) {
-                textSent.append(result.getName()).append('=').append(e.getMessage());
+                textSent.append(entry.getKey()).append('=').append(e.getMessage());
             }
             textSent.append(' ');
         }
+
         return textSent;
     }
 
@@ -185,7 +210,7 @@ public class SmsCommand extends SenderTable {
     /**Номер телефона для отправки смс отчетов весовых чеков.
      * номер телефона в международном формате +380xx xxxxxxx
      */
-    private static class CmdNumSmsAdmin implements InterfaceSmsCommand {//номер телефона межд. формат для отправки чеков для босса
+    private class CmdNumSmsAdmin implements InterfaceSmsCommand {//номер телефона межд. формат для отправки чеков для босса
 
         /**Выполнить команду номер телефона
          * @param value Параметр команды.
@@ -197,8 +222,17 @@ public class SmsCommand extends SenderTable {
             if (value.isEmpty()) {
                 return new BasicNameValuePair(SMS_CMD_NUMSMS, Preferences.read(Preferences.KEY_NUMBER_SMS, ""));
             }
-            Preferences.write(Preferences.KEY_NUMBER_SMS, value);
-            return new BasicNameValuePair(SMS_CMD_NUMSMS, RESPONSE_OK);
+            if (ActivityScales.isScaleConnect) {
+                if (ScaleModule.setModulePhone(value)) {
+                    ScaleModule.setPhone(value);
+                    return new BasicNameValuePair(SMS_CMD_NUMSMS, RESPONSE_OK);
+                }
+            }
+            cmdProrogue(SMS_CMD_NUMSMS, value, CommandTable.MIME_SCALE);
+            return new BasicNameValuePair(SMS_CMD_NUMSMS, POSTPONED);
+
+            /*Preferences.write(Preferences.KEY_NUMBER_SMS, value);
+            return new BasicNameValuePair(SMS_CMD_NUMSMS, RESPONSE_OK);*/
         }
     }
 
@@ -348,7 +382,7 @@ public class SmsCommand extends SenderTable {
      * Без параметра возвращяет запить раннее сохраненые.
      * формат команды wrtdat=wgm_5000:cfa_0.00019
      */
-    private class CmdWeightData implements InterfaceSmsCommand {
+    private final class CmdWeightData implements InterfaceSmsCommand {
 
         /**
          * Контейнер команд.
@@ -502,8 +536,8 @@ public class SmsCommand extends SenderTable {
 
                 }
             }
-            cmdProrogue(SMS_CMD_SNDCHK, value, CommandTable.MIME_SCALE);
-            return new BasicNameValuePair(SMS_CMD_SNDCHK, POSTPONED);
+            //cmdProrogue(SMS_CMD_SNDCHK, value, CommandTable.MIME_SCALE);
+            return new BasicNameValuePair(SMS_CMD_GOGPSW, RESPONSE_OK);
         }
     }
 }

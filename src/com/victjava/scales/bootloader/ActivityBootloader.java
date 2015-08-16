@@ -398,7 +398,7 @@ public class ActivityBootloader extends Activity implements View.OnClickListener
         return true;
     }
 
-    public boolean backupPreference() {
+    /*public boolean backupPreference() {
         Preferences.load(getSharedPreferences(Preferences.PREF_UPDATE, Context.MODE_PRIVATE));
 
         Preferences.write(InterfaceVersions.CMD_FILTER, ScaleModule.getFilterADC());
@@ -413,7 +413,7 @@ public class ActivityBootloader extends Activity implements View.OnClickListener
 
         //editor.apply();
         return true;
-    }
+    }*/
 
     /*public boolean restorePreferences() {
         if (ScaleModule.isScales()) {

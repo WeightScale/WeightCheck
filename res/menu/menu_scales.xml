@@ -7,6 +7,6 @@
     <item android:id="@+id/type" android:icon="@drawable/type" android:title="@string/TYPE"/>
     <item android:id="@+id/checks" android:icon="@drawable/accept_database" android:title="@string/CHECKS"/>
     <item android:id="@+id/contact" android:icon="@drawable/contact" android:title="@string/CONTACT"/>
-    <item android:id="@+id/exit" android:icon="@drawable/back" android:title="@string/BACK"/>
+    <!--<item android:id="@+id/exit" android:icon="@drawable/back" android:title="@string/BACK"/>-->
     <item android:id="@+id/power_off" android:icon="@drawable/exit" android:title="@string/Off_scales"/>
 </menu>

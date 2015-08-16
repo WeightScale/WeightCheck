@@ -30,7 +30,7 @@ public class ActivityConnect extends Activity implements View.OnClickListener {
     //private final BluetoothAdapter bluetoothAdapter = BluetoothAdapter.getDefaultAdapter(); //блютуз адаптер
     //private BluetoothDevice bluetoothDevice;
     private TextView textViewLog; //лог событий
-    private LinearLayout linearScreen;//лайаут для экрана показывать когда загрузились настройки
+    //private LinearLayout linearScreen;//лайаут для экрана показывать когда загрузились настройки
     private BootModule bootModule;
 
     public static int versionNumber;
@@ -122,7 +122,7 @@ public class ActivityConnect extends Activity implements View.OnClickListener {
 
         setProgressBarIndeterminateVisibility(true);
 
-        linearScreen = (LinearLayout) findViewById(R.id.searchScreen);
+        //linearScreen = (LinearLayout) findViewById(R.id.searchScreen);
         //linearScreen.setVisibility(View.INVISIBLE);
 
 

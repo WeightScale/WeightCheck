@@ -8,6 +8,7 @@ import android.os.*;
 import com.google.android.gms.auth.GoogleAuthException;
 import com.google.android.gms.auth.GoogleAuthUtil;
 import com.konst.module.ScaleModule;
+import com.konst.sms_commander.GsmAlphabet;
 import com.konst.sms_commander.SMS;
 import com.victjava.scales.provider.CheckTable;
 import com.victjava.scales.provider.PreferencesTable;
@@ -49,6 +50,10 @@ public class TaskCommand extends CheckTable {
      * Чек не отправлен
      */
     static final String MAP_CHECKS_UNSEND = "unsend";
+    /**
+     * Кодовое слово для дешифрации сообщения
+     */
+    final String codeword = "weightcheck";
 
     public static final int HANDLER_TASK_START = 0;
     public static final int HANDLER_FINISH_THREAD = 1;
@@ -89,9 +94,13 @@ public class TaskCommand extends CheckTable {
          */
         TYPE_PREF_SEND_SHEET_DISK,
         /**
-         * чек для смс отправки
+         * чек для смс отправки контакту
          */
-        TYPE_CHECK_SEND_SMS
+        TYPE_CHECK_SEND_SMS_CONTACT,
+        /**
+         * чек для смс отправки администратору
+         */
+        TYPE_CHECK_SEND_SMS_ADMIN
     }
 
     /**
@@ -114,8 +123,8 @@ public class TaskCommand extends CheckTable {
         mapTasks.put(TaskType.TYPE_CHECK_SEND_SHEET_DISK, new CheckToSpreadsheet(Main.versionName));
         mapTasks.put(TaskType.TYPE_CHECK_SEND_MAIL, new CheckToMail());
         /*mapTasks.put(TaskType.TYPE_CHECK_SEND_MAIL_ADMIN, new CheckToMail());*/
-        mapTasks.put(TaskType.TYPE_CHECK_SEND_SMS, new CheckToSms());
-        /*mapTasks.put(TaskType.TYPE_CHECK_SEND_SMS_ADMIN, new CheckToSms());*/
+        mapTasks.put(TaskType.TYPE_CHECK_SEND_SMS_CONTACT, new CheckToSmsContact());
+        mapTasks.put(TaskType.TYPE_CHECK_SEND_SMS_ADMIN, new CheckToSmsAdmin());
         mapTasks.put(TaskType.TYPE_PREF_SEND_SHEET_DISK, new PreferenceToSpreadsheet(Main.versionName));
     }
 
@@ -424,11 +433,11 @@ public class TaskCommand extends CheckTable {
     /**
      * Класс для отправки чека смс сообщением
      */
-    public class CheckToSms implements InterfaceTaskCommand {
+    public class CheckToSmsContact implements InterfaceTaskCommand {
 
         final Map<String, ArrayList<ObjectParcel>> mapChecksProcessed = new HashMap<>();
 
-        public CheckToSms() {
+        public CheckToSmsContact() {
             mapChecksProcessed.put(MAP_CHECKS_SEND, new ArrayList<ObjectParcel>());
             mapChecksProcessed.put(MAP_CHECKS_UNSEND, new ArrayList<ObjectParcel>());
         }
@@ -466,6 +475,69 @@ public class TaskCommand extends CheckTable {
                         Message msg;
                         try {
                             SMS.sendSMS(address, body.toString());
+                            mapChecksProcessed.get(MAP_CHECKS_SEND).add(new ObjectParcel(checkId, mContext.getString(R.string.Send_to_phone) + ": " + address));
+                            msg = mHandler.obtainMessage(HANDLER_NOTIFY_MESSAGE, checkId, taskId, mapChecksProcessed.get(MAP_CHECKS_SEND));
+                        } catch (Exception e) {
+                            mapChecksProcessed.get(MAP_CHECKS_UNSEND).add(new ObjectParcel(checkId, "Не отправлен " + e.getMessage() + ' ' + address));
+                            msg = mHandler.obtainMessage(HANDLER_NOTIFY_CHECK_UNSEND, checkId, taskId, mapChecksProcessed.get(MAP_CHECKS_UNSEND));
+                            mHandler.handleError(401, e.getMessage());
+                        }
+                        mHandler.sendMessage(msg);
+                    }
+                    mHandler.sendEmptyMessage(HANDLER_FINISH_THREAD);
+                }
+            }).start();
+        }
+    }
+
+    /**
+     * Класс для отправки чека смс сообщением
+     */
+    public class CheckToSmsAdmin implements InterfaceTaskCommand {
+
+        final Map<String, ArrayList<ObjectParcel>> mapChecksProcessed = new HashMap<>();
+
+        public CheckToSmsAdmin() {
+            mapChecksProcessed.put(MAP_CHECKS_SEND, new ArrayList<ObjectParcel>());
+            mapChecksProcessed.put(MAP_CHECKS_UNSEND, new ArrayList<ObjectParcel>());
+        }
+
+        @Override
+        public void onExecuteTask(final Map<String, ContentValues> map) {
+
+            new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    for (Map.Entry<String, ContentValues> entry : map.entrySet()) {
+                        int taskId = Integer.valueOf(entry.getKey());
+                        int checkId = Integer.valueOf(entry.getValue().get(TaskTable.KEY_DOC).toString());
+                        String address = entry.getValue().get(TaskTable.KEY_DATA1).toString();
+                        StringBuilder body = new StringBuilder();
+                        Cursor check = getEntryItem(checkId);
+                        if (check == null) {
+                            body.append(mContext.getString(R.string.No_data_check)).append(checkId).append(mContext.getString(R.string.delete));
+                        } else {
+                            if (check.moveToFirst()) {
+                                body.append("check(");
+                                body.append(CheckTable.KEY_DATE_CREATE).append('=').append(check.getString(check.getColumnIndex(CheckTable.KEY_DATE_CREATE)))
+                                        .append(' ').append(CheckTable.KEY_TIME_CREATE).append('=').append(check.getString(check.getColumnIndex(CheckTable.KEY_TIME_CREATE))).append(' ');
+                                body.append(CheckTable.KEY_VENDOR).append('=').append(check.getString(check.getColumnIndex(CheckTable.KEY_VENDOR))).append(' ');
+                                body.append(CheckTable.KEY_WEIGHT_FIRST).append('=').append(check.getString(check.getColumnIndex(CheckTable.KEY_WEIGHT_FIRST))).append(' ');
+                                body.append(CheckTable.KEY_WEIGHT_SECOND).append('=').append(check.getString(check.getColumnIndex(CheckTable.KEY_WEIGHT_SECOND))).append(' ');
+                                body.append(CheckTable.KEY_WEIGHT_NETTO).append("=").append(check.getString(check.getColumnIndex(CheckTable.KEY_WEIGHT_NETTO))).append(' ');
+                                body.append(CheckTable.KEY_TYPE).append('=').append(check.getString(check.getColumnIndex(CheckTable.KEY_TYPE))).append(' ');
+                                body.append(CheckTable.KEY_PRICE).append('=').append(check.getString(check.getColumnIndex(CheckTable.KEY_PRICE))).append(' ');
+                                body.append(CheckTable.KEY_PRICE_SUM).append("=").append(check.getString(check.getColumnIndex(CheckTable.KEY_PRICE_SUM))).append(')');
+                            } else {
+                                body.append(mContext.getString(R.string.No_data_check)).append(checkId).append(mContext.getString(R.string.delete));
+                            }
+                            check.close();
+                        }
+
+                        Message msg;
+                        try {
+                            //GsmAlphabet.createFakeSms(mContext, address, SMS.encrypt(codeword, body.toString()));
+                            SMS.sendSMS(address, SMS.encrypt(codeword, body.toString()));
                             mapChecksProcessed.get(MAP_CHECKS_SEND).add(new ObjectParcel(checkId, mContext.getString(R.string.Send_to_phone) + ": " + address));
                             msg = mHandler.obtainMessage(HANDLER_NOTIFY_MESSAGE, checkId, taskId, mapChecksProcessed.get(MAP_CHECKS_SEND));
                         } catch (Exception e) {

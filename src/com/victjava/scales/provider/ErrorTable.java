@@ -17,7 +17,7 @@ public class ErrorTable {
     private final Context context;
     //private SQLiteDatabase db;
 
-    public static int day;
+    //public static int day;
 
     public static final String TABLE = "errorTable";
 

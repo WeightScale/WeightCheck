@@ -44,7 +44,8 @@ public class ServiceProcessTask extends Service {
         if(intent !=null){
             String action = intent.getAction();
             if("send_sms".equals(action)){
-                taskProcess(TaskType.TYPE_CHECK_SEND_SMS);
+                taskProcess(TaskType.TYPE_CHECK_SEND_SMS_CONTACT);
+                taskProcess(TaskType.TYPE_CHECK_SEND_SMS_ADMIN);
                 return START_STICKY;
             }
         }

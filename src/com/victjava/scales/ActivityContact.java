@@ -7,9 +7,7 @@ import android.database.CursorWrapper;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.RemoteException;
 import android.os.Vibrator;
-import android.provider.BaseColumns;
 import android.provider.ContactsContract;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -17,9 +15,6 @@ import android.view.*;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.*;
 import com.victjava.scales.provider.CheckTable;
-
-import java.util.ArrayList;
-import java.util.Map;
 
 /*
  * Created with IntelliJ IDEA.

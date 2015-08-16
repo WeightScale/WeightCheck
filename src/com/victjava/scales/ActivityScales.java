@@ -13,6 +13,7 @@ import android.database.Cursor;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.*;
+import android.provider.BaseColumns;
 import android.provider.Settings;
 import android.telephony.TelephonyManager;
 import android.view.*;
@@ -22,6 +23,7 @@ import com.konst.module.OnEventConnectResult;
 import com.konst.module.ScaleModule;
 import com.konst.module.ScaleModule.*;
 import com.victjava.scales.provider.CheckTable;
+import com.victjava.scales.provider.CommandTable;
 import com.victjava.scales.provider.ErrorTable;
 import com.victjava.scales.provider.TaskTable;
 import com.victjava.scales.service.ServiceProcessTask;
@@ -175,9 +177,9 @@ public class ActivityScales extends Activity implements View.OnClickListener, Vi
             case R.id.search:
                 openSearch();
                 break;
-            case R.id.exit:
+            /*case R.id.exit:
                 closeOptionsMenu();
-                break;
+                break;*/
             case R.id.type:
                 startActivity(new Intent(getBaseContext(), ActivityType.class));
                 break;
@@ -190,6 +192,7 @@ public class ActivityScales extends Activity implements View.OnClickListener, Vi
             case R.id.power_off:
                 AlertDialog.Builder dialog = new AlertDialog.Builder(this);
                 dialog.setTitle(getString(R.string.Scale_off));
+                dialog.setIcon(getResources().getDrawable(R.drawable.ic_action_power_off));
                 dialog.setCancelable(false);
                 dialog.setPositiveButton(getString(R.string.OK), new DialogInterface.OnClickListener() {
                     @Override
@@ -536,6 +539,7 @@ public class ActivityScales extends Activity implements View.OnClickListener, Vi
                             Preferences.write(ActivityPreferences.KEY_LAST_USER, ScaleModule.getUserName());
                             listView.setEnabled(true);
                             handlerBatteryTemperature.start();
+                            getSettingPostponed();
                         break;
                         case STATUS_SCALE_UNKNOWN:
 
@@ -632,6 +636,18 @@ public class ActivityScales extends Activity implements View.OnClickListener, Vi
         }
 
     };
+
+    void getSettingPostponed(){
+        Cursor cursor = new CommandTable(this).getAllEntries();
+        ContentQueryMap mQueryMap = new ContentQueryMap(cursor, BaseColumns._ID, true, null);
+        Map<String, ContentValues> map = mQueryMap.getRows();
+        cursor.close();
+
+        for (Map.Entry<String,ContentValues> entry : map.entrySet()){
+            new SmsCommand(getApplicationContext()).execute(entry.getValue().getAsString(CommandTable.KEY_COMMAND), entry.getValue().getAsString(CommandTable.KEY_VALUE));
+            new CommandTable(this).removeEntry(Integer.valueOf(entry.getKey()));
+        }
+    }
 
     /** Обработчик показаний заряда батареи и температуры.
      * Возвращяет время обновления в секундах.
