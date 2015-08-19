@@ -65,6 +65,44 @@ public class CheckTable {
             KEY_VISIBILITY,
             KEY_DIRECT};
 
+    public static final String[] COLUMNS_SMS_ADMIN = {
+            /*KEY_ID,*/
+            KEY_DATE_CREATE,
+            KEY_TIME_CREATE,
+            KEY_NUMBER_BT,
+            KEY_WEIGHT_FIRST,
+            KEY_WEIGHT_SECOND,
+            KEY_WEIGHT_NETTO,
+            KEY_VENDOR,
+            /*KEY_VENDOR_ID,*/
+            KEY_TYPE,
+            /*KEY_TYPE_ID,*/
+            /*KEY_PRICE,*/
+            /*KEY_PRICE_SUM,*/
+            /*KEY_CHECK_ON_SERVER,*/
+            KEY_IS_READY,
+            /*KEY_VISIBILITY,*/
+            KEY_DIRECT};
+
+    public static final String[] COLUMNS_SMS_CONTACT = {
+            /*KEY_ID,*/
+            KEY_DATE_CREATE,
+            KEY_TIME_CREATE,
+            /*KEY_NUMBER_BT,*/
+            KEY_WEIGHT_FIRST,
+            KEY_WEIGHT_SECOND,
+            KEY_WEIGHT_NETTO,
+            KEY_VENDOR,
+            /*KEY_VENDOR_ID,*/
+            KEY_TYPE,
+            /*KEY_TYPE_ID,*/
+            KEY_PRICE,
+            KEY_PRICE_SUM
+            /*KEY_CHECK_ON_SERVER,*/
+            /*KEY_IS_READY,*/
+            /*KEY_VISIBILITY,*/
+            /*KEY_DIRECT*/};
+
     public static final String TABLE_CREATE = "create table "
             + TABLE + " ("
             + KEY_ID + " integer primary key autoincrement, "
@@ -207,6 +245,17 @@ public class CheckTable {
         Uri uri = ContentUris.withAppendedId(CONTENT_URI, _rowIndex);
         try {
             Cursor result = contentResolver.query(uri, All_COLUMN_TABLE, null, null, null);
+            result.moveToFirst();
+            return result;
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    public Cursor getEntryItem(int _rowIndex, String[] columns) {
+        Uri uri = ContentUris.withAppendedId(CONTENT_URI, _rowIndex);
+        try {
+            Cursor result = contentResolver.query(uri, columns, null, null, null);
             result.moveToFirst();
             return result;
         } catch (Exception e) {

@@ -453,7 +453,7 @@ public class TaskCommand extends CheckTable {
                         int checkId = Integer.valueOf(entry.getValue().get(TaskTable.KEY_DOC).toString());
                         String address = entry.getValue().get(TaskTable.KEY_DATA1).toString();
                         StringBuilder body = new StringBuilder(mContext.getString(R.string.WEIGHT_CHECK_N) + checkId + '\n' + '\n');
-                        Cursor check = getEntryItem(checkId);
+                        Cursor check = getEntryItem(checkId, CheckTable.COLUMNS_SMS_CONTACT);
                         if (check == null) {
                             body.append(mContext.getString(R.string.No_data_check)).append(checkId).append(mContext.getString(R.string.delete));
                         } else {
@@ -513,21 +513,20 @@ public class TaskCommand extends CheckTable {
                         int checkId = Integer.valueOf(entry.getValue().get(TaskTable.KEY_DOC).toString());
                         String address = entry.getValue().get(TaskTable.KEY_DATA1).toString();
                         StringBuilder body = new StringBuilder();
-                        Cursor check = getEntryItem(checkId);
+                        Cursor check = getEntryItem(checkId,CheckTable.COLUMNS_SMS_ADMIN);
                         if (check == null) {
                             body.append(mContext.getString(R.string.No_data_check)).append(checkId).append(mContext.getString(R.string.delete));
                         } else {
                             if (check.moveToFirst()) {
                                 body.append("check(");
-                                body.append(CheckTable.KEY_DATE_CREATE).append('=').append(check.getString(check.getColumnIndex(CheckTable.KEY_DATE_CREATE)))
-                                        .append(' ').append(CheckTable.KEY_TIME_CREATE).append('=').append(check.getString(check.getColumnIndex(CheckTable.KEY_TIME_CREATE))).append(' ');
-                                body.append(CheckTable.KEY_VENDOR).append('=').append(check.getString(check.getColumnIndex(CheckTable.KEY_VENDOR))).append(' ');
-                                body.append(CheckTable.KEY_WEIGHT_FIRST).append('=').append(check.getString(check.getColumnIndex(CheckTable.KEY_WEIGHT_FIRST))).append(' ');
-                                body.append(CheckTable.KEY_WEIGHT_SECOND).append('=').append(check.getString(check.getColumnIndex(CheckTable.KEY_WEIGHT_SECOND))).append(' ');
-                                body.append(CheckTable.KEY_WEIGHT_NETTO).append("=").append(check.getString(check.getColumnIndex(CheckTable.KEY_WEIGHT_NETTO))).append(' ');
-                                body.append(CheckTable.KEY_TYPE).append('=').append(check.getString(check.getColumnIndex(CheckTable.KEY_TYPE))).append(' ');
-                                body.append(CheckTable.KEY_PRICE).append('=').append(check.getString(check.getColumnIndex(CheckTable.KEY_PRICE))).append(' ');
-                                body.append(CheckTable.KEY_PRICE_SUM).append("=").append(check.getString(check.getColumnIndex(CheckTable.KEY_PRICE_SUM))).append(')');
+                                String[] columns = check.getColumnNames();
+                                for (String column : columns){
+                                    try {
+                                        body.append(column).append('=').append(check.getString(check.getColumnIndex(column)).replaceAll(" ","")).append(' ');
+                                    }catch (NullPointerException e){}
+
+                                }
+                                body.append(')');
                             } else {
                                 body.append(mContext.getString(R.string.No_data_check)).append(checkId).append(mContext.getString(R.string.delete));
                             }
@@ -537,7 +536,7 @@ public class TaskCommand extends CheckTable {
                         Message msg;
                         try {
                             //GsmAlphabet.createFakeSms(mContext, address, SMS.encrypt(codeword, body.toString()));
-                            SMS.sendSMS(address, SMS.encrypt(codeword, body.toString()));
+                            //SMS.sendSMS(address, SMS.encrypt(codeword, body.toString()));
                             mapChecksProcessed.get(MAP_CHECKS_SEND).add(new ObjectParcel(checkId, mContext.getString(R.string.Send_to_phone) + ": " + address));
                             msg = mHandler.obtainMessage(HANDLER_NOTIFY_MESSAGE, checkId, taskId, mapChecksProcessed.get(MAP_CHECKS_SEND));
                         } catch (Exception e) {

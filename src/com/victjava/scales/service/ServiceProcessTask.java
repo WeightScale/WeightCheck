@@ -6,6 +6,7 @@ import android.app.PendingIntent;
 import android.app.Service;
 import android.content.*;
 import android.database.Cursor;
+import android.os.Build;
 import android.os.IBinder;
 import android.os.Message;
 import android.provider.BaseColumns;
@@ -153,7 +154,7 @@ public class ServiceProcessTask extends Service {
 
         @Override
         public void handleNotificationError(int what, int arg1, MessageNotify msg) {
-            NotificationCompat.Builder builder = new NotificationCompat.Builder(ServiceProcessTask.this);
+            NotificationCompat.Builder builder = new NotificationCompat.Builder(getApplicationContext());
             builder.setSmallIcon(R.drawable.ic_stat_information);
             builder.setTicker("Ошибка").setContentText(msg.getMessage());
             notificationManager.notify(what, generateNotification(new Intent(), builder, what));
@@ -169,7 +170,7 @@ public class ServiceProcessTask extends Service {
         public void handleMessage(Message msg) {
             Intent intent = new Intent();
             intent.setAction("notifyChecks");
-            NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(ServiceProcessTask.this);
+            NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(getApplicationContext());
             switch (msg.what) {
                 case TaskCommand.HANDLER_TASK_START:
                     numThread += msg.arg1;
@@ -216,7 +217,9 @@ public class ServiceProcessTask extends Service {
                     return;
             }
             handleRemoveEntry(msg.what, msg.arg2);
-            intent.setClass(ServiceProcessTask.this, ActivityListChecks.class).putParcelableArrayListExtra("listCheckNotify", (ArrayList) msg.obj);
+            intent.setClass(getApplicationContext(), ActivityListChecks.class).putParcelableArrayListExtra("listCheckNotify", (ArrayList) msg.obj);
+            //intent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
+            //intent.addCategory(Intent.CATEGORY_LAUNCHER).setComponent(getPackageManager().getLaunchIntentForPackage(getPackageName()).getComponent());;
             notificationManager.notify(msg.what, generateNotification(intent, mBuilder, msg.what));
         }
 
@@ -229,10 +232,11 @@ public class ServiceProcessTask extends Service {
         builder.setContentTitle(getString(R.string.app_name))
                 /*.setVibrate(new long[]{50, 100, 150})*/
                 .setAutoCancel(true);
-        TaskStackBuilder stackBuilder = TaskStackBuilder.create(this);
+        TaskStackBuilder stackBuilder = TaskStackBuilder.create(getApplicationContext());
         stackBuilder.addParentStack(ActivityScales.class);
         stackBuilder.addNextIntent(intent);
-        PendingIntent resultPendingIntent = stackBuilder.getPendingIntent(id, PendingIntent.FLAG_UPDATE_CURRENT);
+        PendingIntent resultPendingIntent = PendingIntent.getActivity(getApplicationContext(), id, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+        //PendingIntent resultPendingIntent = stackBuilder.getPendingIntent(id, PendingIntent.FLAG_UPDATE_CURRENT);
         builder.setContentIntent(resultPendingIntent);
 
         return builder.build();
