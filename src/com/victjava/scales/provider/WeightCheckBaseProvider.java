@@ -360,10 +360,12 @@ public class WeightCheckBaseProvider extends ContentProvider {
 
     private static class DBHelper extends SQLiteOpenHelper {
         final SenderTable senderTable;
+        final TypeTable typeTable;
 
         DBHelper(Context context) {
             super(context, DATABASE_NAME, null, DATABASE_VERSION);
             senderTable = new SenderTable(context);
+            typeTable = new TypeTable(context);
         }
 
         @Override
@@ -377,7 +379,7 @@ public class WeightCheckBaseProvider extends ContentProvider {
             db.execSQL(SenderTable.TABLE_CREATE);
 
             //Add default record to my table
-            //new TypeTable(getContext()).addSystemRow(db);
+            typeTable.addSystemRow(db);
             /*-----------------------------------------------*/
             senderTable.addSystemSheet(db);
             senderTable.addSystemHTTP(db);

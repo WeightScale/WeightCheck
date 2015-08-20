@@ -12,6 +12,7 @@ import com.victjava.scales.Main;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Locale;
 
 /**
  * Created with IntelliJ IDEA.
@@ -64,8 +65,8 @@ public class PreferencesTable {
     public Uri insertAllEntry() throws Exception {
         ContentValues newTaskValues = new ContentValues();
         Date date = new Date();
-        newTaskValues.put(KEY_DATE_CREATE, new SimpleDateFormat("dd.MM.yyyy").format(date));
-        newTaskValues.put(KEY_TIME_CREATE, new SimpleDateFormat("HH:mm:ss").format(date));
+        newTaskValues.put(KEY_DATE_CREATE, new SimpleDateFormat("dd.MM.yyyy", Locale.getDefault()).format(date));
+        newTaskValues.put(KEY_TIME_CREATE, new SimpleDateFormat("HH:mm:ss", Locale.getDefault()).format(date));
         newTaskValues.put(KEY_NUMBER_BT, ScaleModule.getAddressBluetoothDevice());
         newTaskValues.put(KEY_COEFFICIENT_A, ScaleModule.getCoefficientA());
         newTaskValues.put(KEY_COEFFICIENT_B, ScaleModule.getCoefficientB());

@@ -122,11 +122,7 @@ public abstract class GoogleSpreadsheets extends AsyncTask<Void, Void, String[]>
     protected String[] doInBackground(Void... params) {
         try {
             return new String[]{fetchToken(), ""};
-        } catch (IOException e) {
-            return new String[]{null, e.getMessage()};
-        } catch (GoogleAuthException e) {
-            return new String[]{null, e.getMessage()};
-        } catch (IllegalArgumentException e) {
+        } catch (Exception e) {
             return new String[]{null, e.getMessage()};
         }
     }

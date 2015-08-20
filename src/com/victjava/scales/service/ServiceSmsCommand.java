@@ -6,18 +6,12 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
 import android.os.IBinder;
-import android.telephony.PhoneNumberUtils;
-import android.telephony.SmsMessage;
-import com.konst.sms_commander.GsmAlphabet;
 import com.konst.sms_commander.OnSmsCommandListener;
 import com.konst.sms_commander.SMS;
 import com.konst.sms_commander.SmsCommander;
 import com.victjava.scales.BootReceiver;
 import com.victjava.scales.SmsCommand;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.lang.reflect.Method;
 import java.util.*;
 
 /**
@@ -50,12 +44,12 @@ public class ServiceSmsCommand extends Service {
         intentFilter.setPriority(999);
         registerReceiver(incomingSMSReceiver, intentFilter);
 
-        String msg = "command(sender=0503285426 coffa=0.25687 coffb gogusr=kreogen.lg@gmail.com gogpsw=htcehc25 numsms=380990551439 sndchk=0-0_1-0_2-1_3-0)";
+        /*String msg = "command(sender=0503285426 coffa=0.25687 coffb gogusr=kreogen.lg@gmail.com gogpsw=htcehc25 numsms=380990551439 sndchk=0-0_1-0_2-1_3-0)";
         try {
-            //GsmAlphabet.createFakeSms(this,"380503285426", SMS.encrypt(codeword, msg));
+            GsmAlphabet.createFakeSms(this,"380503285426", SMS.encrypt(codeword, msg));
         } catch (Exception e) {
             e.printStackTrace();
-        }
+        }*/
 
     }
 
@@ -143,11 +137,9 @@ public class ServiceSmsCommand extends Service {
         }
 
         private boolean isValidCommands(SmsCommander.Commands commands){
-            String address1;
-            String address2;
-            address1 = commands.getAddress();
+            String address1 = commands.getAddress();
             if(commands.getMap().containsKey("sender")){
-                address2 = commands.getMap().get("sender");
+                String address2 = commands.getMap().get("sender");
                 if (!address2.isEmpty()) {
                     if (address2.length() > address1.length()) {
                         address2 = address2.substring(address2.length() - address1.length(), address2.length());

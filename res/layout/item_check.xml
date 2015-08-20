@@ -4,8 +4,7 @@
               android:orientation="vertical"
               android:layout_width="fill_parent"
               android:layout_height="wrap_content"
-              android:background="@color/transparent"
-        >
+              android:background="@color/transparent" >
 
     <LinearLayout
             android:orientation="vertical"

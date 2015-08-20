@@ -600,7 +600,7 @@ public class ActivityCheck extends FragmentActivity implements View.OnClickListe
 
     private class TabsAdapter extends FragmentPagerAdapter implements TabHost.OnTabChangeListener, ViewPager.OnPageChangeListener {
 
-        private final FragmentManager fragmentManager;
+        //private final FragmentManager fragmentManager;
         private Fragment mCurrentFragment;
         private final Context mContext;
         private final TabHost mTabHost;
@@ -646,7 +646,7 @@ public class ActivityCheck extends FragmentActivity implements View.OnClickListe
         public TabsAdapter(final FragmentActivity activity, final TabHost tabHost, final ViewPager pager) {
             super(activity.getSupportFragmentManager());
 
-            fragmentManager = activity.getSupportFragmentManager();
+            //fragmentManager = activity.getSupportFragmentManager();
             mContext = activity;
             mTabHost = tabHost;
             mViewPager = pager;

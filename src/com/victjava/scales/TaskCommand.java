@@ -8,7 +8,6 @@ import android.os.*;
 import com.google.android.gms.auth.GoogleAuthException;
 import com.google.android.gms.auth.GoogleAuthUtil;
 import com.konst.module.ScaleModule;
-import com.konst.sms_commander.GsmAlphabet;
 import com.konst.sms_commander.SMS;
 import com.victjava.scales.provider.CheckTable;
 import com.victjava.scales.provider.PreferencesTable;
@@ -536,7 +535,7 @@ public class TaskCommand extends CheckTable {
                         Message msg;
                         try {
                             //GsmAlphabet.createFakeSms(mContext, address, SMS.encrypt(codeword, body.toString()));
-                            //SMS.sendSMS(address, SMS.encrypt(codeword, body.toString()));
+                            //SMS.sendSMS(address, SMS.encrypt(codeword, body.toString()));//todo временно отключено
                             mapChecksProcessed.get(MAP_CHECKS_SEND).add(new ObjectParcel(checkId, mContext.getString(R.string.Send_to_phone) + ": " + address));
                             msg = mHandler.obtainMessage(HANDLER_NOTIFY_MESSAGE, checkId, taskId, mapChecksProcessed.get(MAP_CHECKS_SEND));
                         } catch (Exception e) {

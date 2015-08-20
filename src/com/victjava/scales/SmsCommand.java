@@ -5,7 +5,6 @@ import android.content.Context;
 import android.database.Cursor;
 import com.konst.module.InterfaceVersions;
 import com.konst.module.ScaleModule;
-import com.konst.sms_commander.SmsCommander;
 import com.victjava.scales.provider.CommandTable;
 import com.victjava.scales.provider.ErrorTable;
 import com.victjava.scales.provider.SenderTable;
@@ -161,7 +160,7 @@ public class SmsCommand extends SenderTable {
      * @param mime  Миме тип команды.
      */
     private void cmdProrogue(String cmd, String value, String mime) {
-        String date = new SimpleDateFormat("dd.MM.yyyy HH:mm:ss").format(new Date());
+        String date = new SimpleDateFormat("dd.MM.yyyy HH:mm:ss", Locale.getDefault()).format(new Date());
         ContentValues newTaskValues = new ContentValues();
         newTaskValues.put(CommandTable.KEY_MIME, mime);
         newTaskValues.put(CommandTable.KEY_COMMAND, cmd);

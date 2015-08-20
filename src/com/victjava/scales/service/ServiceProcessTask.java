@@ -6,7 +6,6 @@ import android.app.PendingIntent;
 import android.app.Service;
 import android.content.*;
 import android.database.Cursor;
-import android.os.Build;
 import android.os.IBinder;
 import android.os.Message;
 import android.provider.BaseColumns;

@@ -10,6 +10,7 @@ import com.victjava.scales.R;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Locale;
 import java.util.Map;
 
 public class CheckTable {
@@ -123,27 +124,25 @@ public class CheckTable {
             + KEY_VISIBILITY + " integer,"
             + KEY_DIRECT + " integer );";
 
-    //static final String TABLE_CHECKS_PATH = TABLE_CHECKS;
+
     private static final Uri CONTENT_URI = Uri.parse("content://" + WeightCheckBaseProvider.AUTHORITY + '/' + TABLE);
 
     public CheckTable(Context context) {
         mContext = context;
         contentResolver = mContext.getContentResolver();
-        //taskTable = new TaskTable(context);
     }
 
     public CheckTable(Context context, int d) {
         mContext = context;
         contentResolver = mContext.getContentResolver();
         day = d;
-        //taskTable = new TaskTable(context);
     }
 
     public Uri insertNewEntry(String vendor, int vendorId, int direct) {
         ContentValues newTaskValues = new ContentValues();
         Date date = new Date();
-        newTaskValues.put(KEY_DATE_CREATE, new SimpleDateFormat("dd.MM.yyyy").format(date));
-        newTaskValues.put(KEY_TIME_CREATE, new SimpleDateFormat("HH:mm:ss").format(date));
+        newTaskValues.put(KEY_DATE_CREATE, new SimpleDateFormat("dd.MM.yyyy", Locale.getDefault()).format(date));
+        newTaskValues.put(KEY_TIME_CREATE, new SimpleDateFormat("HH:mm:ss", Locale.getDefault()).format(date));
         newTaskValues.put(KEY_NUMBER_BT, ScaleModule.getAddressBluetoothDevice());
         newTaskValues.put(KEY_VENDOR, vendor);
         newTaskValues.put(KEY_VENDOR_ID, vendorId);
@@ -193,7 +192,7 @@ public class CheckTable {
                     String date = result.getString(result.getColumnIndex(KEY_DATE_CREATE));
                     long day = 0;
                     try {
-                        day = dayDiff(new Date(), new SimpleDateFormat("dd.MM.yy").parse(date));
+                        day = dayDiff(new Date(), new SimpleDateFormat("dd.MM.yy", Locale.getDefault()).parse(date));
                     } catch (ParseException e) {
                         e.printStackTrace();
                     }
@@ -252,7 +251,7 @@ public class CheckTable {
         }
     }
 
-    public Cursor getEntryItem(int _rowIndex, String[] columns) {
+    public Cursor getEntryItem(int _rowIndex, String... columns) {
         Uri uri = ContentUris.withAppendedId(CONTENT_URI, _rowIndex);
         try {
             Cursor result = contentResolver.query(uri, columns, null, null, null);
@@ -270,6 +269,7 @@ public class CheckTable {
             result.moveToFirst();
             ContentQueryMap mQueryMap = new ContentQueryMap(result, BaseColumns._ID, true, null);
             Map<String, ContentValues> map = mQueryMap.getRows();
+            result.close();
             return map.get(String.valueOf(_rowIndex));
         } catch (Exception e) {
             throw new Exception(e);
@@ -317,38 +317,4 @@ public class CheckTable {
             return false;
         }
     }
-
-    /*public void setCheckReady(int _rowIndex) {
-        //if (updateEntry(_rowIndex, KEY_IS_READY, 1) ) {
-        Cursor cursor = new SenderTable(mContext).geSystemItem();
-        try {
-            cursor.moveToFirst();
-            if (!cursor.isAfterLast()) {
-                do {
-                    int senderId = cursor.getInt(cursor.getColumnIndex(SenderTable.KEY_ID));
-                    SenderTable.TypeSender type_sender = SenderTable.TypeSender.values()[cursor.getInt(cursor.getColumnIndex(SenderTable.KEY_TYPE))];
-                    switch (type_sender) {
-                        case TYPE_HTTP_POST:
-                            taskTable.insertNewTask(TaskCommand.TaskType.TYPE_CHECK_SEND_HTTP_POST, _rowIndex, senderId, "");
-                            break;
-                        case TYPE_GOOGLE_DISK:
-                            taskTable.insertNewTask(TaskCommand.TaskType.TYPE_CHECK_SEND_SHEET_DISK, _rowIndex, senderId, "");
-                            break;
-                        case TYPE_EMAIL:
-                            taskTable.insertNewTask(TaskCommand.TaskType.TYPE_CHECK_SEND_MAIL_ADMIN, _rowIndex, senderId, ScaleModule.getUserName());
-                            break;
-                        case TYPE_SMS:
-                            taskTable.insertNewTask(TaskCommand.TaskType.TYPE_CHECK_SEND_SMS_ADMIN, _rowIndex, senderId, ScaleModule.getPhone());
-                            break;
-                        default:
-                    }
-                } while (cursor.moveToNext());
-            }
-
-        } catch (Exception e) {
-
-        }
-        //}
-    }*/
-
 }

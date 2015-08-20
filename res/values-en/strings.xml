@@ -1,86 +1,46 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Scales</string>
-
-    <!--<string name="discovery_start">START SEARCH</string>-->
     <string name="discovery_started">Search scales…</string>
     <string name="scales_list">List of scales</string>
     <string name="scales_kg">kg</string>
-    <!--<string name="scales_null">ZERO</string>-->
-    <!--<string name="scales_tuning_no">Requires setting weights</string>-->
-    <!--<string name="scales_wait">…</string>-->
     <string name="search_log">Log</string>
     <string name="preferences_yes">Set</string>
     <string name="preferences_no">Error</string>
     <string name="preferences_error">Error in settings scales</string>
     <string name="device_found">Found device</string>
-    <!--<string name="tuning">Admin settings</string>-->
     <string name="input_check">Check incoming</string>
-    <!--<string name="output_check">Check outcoming</string>-->
-    <!--<string name="connect">Connect</string>-->
     <string name="NO_CONNECT">" no connect"</string>
     <string name="OVER_LOAD">OVER LOAD!!!</string>
-
     <string name="telephony_sim_no">The SIM card is not installed or is not ready</string>
-
     <string name="bluetooth_on">Bluetooth on</string>
     <string name="bluetooth_turning_on">Bluetooth is turned on</string>
     <string name="bluetooth_off">Bluetooth off</string>
-    <!--<string name="bluetooth_no">The device does not support Bluetooth</string>-->
     <string name="bluetooth_connected">Bluetooth connection is</string>
     <string name="bluetooth_disconnected">Bluetooth disconnect</string>
-
-    <!--<string name="connect_to">Connecting to the scales</string>-->
-    <!--<string name="connect_no">Failed to connect</string>-->
-    <!--<string name="version_no">Unsupported version of scales</string>-->
-    <!--<string name="error_choice">Error selecting scales</string>-->
     <string name="BACK">BACK</string>
     <string name="GROSS">GROSS</string>
-    <!--<string name="NETTO">NET:</string>-->
     <string name="TAPE">TARE</string>
-    <!--<string name="PRICE">PRICE</string>-->
-    <!--<string name="TOTAL">TOTAL:</string>-->
-    <!--<string name="Total:">Total:</string>-->
     <string name="About">About</string>
-    <!--<string name="rrr">Small Text</string>-->
-
-    <!--<string name="checks">checks</string>-->
     <string name="CHECKS">CHECKS</string>
     <string name="CONTACT">CONTACTS</string>
-    <!--<string name="search">search</string>-->
     <string name="TYPE">GOODS</string>
-    <!--<string name="back">back</string>-->
-    <!--<string name="exit">exit</string>-->
     <string name="Checks_closed">Checks closed</string>
-    <!--<string name="Unfreeze">Unfreeze</string>-->
-    <!--<string name="NEW_TYPE">NEW TYPE</string>-->
-    <!--<string name="NEW_AGENT">NEW CONTACT</string>-->
     <string name="Check_N">Check №</string>
     <string name="Tape">Tare</string>
     <string name="Checks_unclosed">Checks unclosed</string>
     <string name="Gross">Gross</string>
-    <!--<string name="MENU">MENU</string>-->
     <string name="Netto">Net</string>
     <string name="Sum">Sum</string>
     <string name="image_about">Image About</string>
     <string name="des_image_remote">Indicator remote</string>
-    <!--<string name="des_image_battery">Battery charge indicator of scales</string>-->
     <string name="des_image_down">Choice of incoming a scales check (long click)</string>
-    <!--<string name="des_image_up">Choice of outcoming a scales check (long click)</string>-->
-    <!--<string name="des_button_check">View saved checks</string>-->
-    <!--<string name="des_button_freeze">Press to freeze the check</string>-->
     <string name="press_again_to_exit">press again to exit</string>
     <string name="Vendor">Contact:</string>
-    <!--<string name="Check_block">Check block</string>-->
-    <!--<string name="Do_you_want_to_unlock_a_check">Do you want to unlock a check?</string>-->
-    <!--<string name="Enter_agent">Enter agent</string>-->
-    <!--<string name="Check_send">Check send</string>-->
     <string name="Checks_send_count">"Checks sent Qty: "</string>
     <string name="Checks_not_send_count">"Not sent checks Qty: "</string>
     <string name="sent_to_the_server">" sent to the drive"</string>
-    <!--<string name="sent_to_the_cloud">" sent to the cloud"</string>-->
     <string name="settings">SETTINGS</string>
-
     <string name="name_scales">Name scales</string>
     <string name="address_scales">Address scales</string>
     <string name="information">Bluetooth</string>
@@ -109,18 +69,10 @@
     <string name="second">sec</string>
     <string name="sum_time_auto_zero">Response time</string>
     <string name="sum_max_null">Limit zero</string>
-    <!--<string name="sum_auto_capture">Авто захват</string>-->
     <string name="sum_delete_check">Remove checks through:</string>
     <string name="day">days</string>
     <string name="version">Version:</string>
-
-    <!--<string name="file_load">file to download</string>-->
     <string name="start_load">Start download</string>
-
-    <!--layout scale-->
-    <!--<string name="BLUETOOTH">BLUETOOTH</string>-->
-    <!--<string name="ON">ON</string>-->
-    <!--<string name="OFF">OFF</string>-->
     <string name="Date">Date:</string>
     <string name="EXIT">EXIT</string>
     <string name="SEARCH">SEARCH</string>
@@ -163,7 +115,6 @@
     <string name="Contacts">Contacts</string>
     <string name="CHANGE">CHANGE</string>
     <string name="DELETE">DELETE</string>
-    <!--<string name="SELECT">SELECT</string>-->
     <string name="Removing">"Removal: "</string>
     <string name="Do_you_want_to_remove">Do you want to remove?</string>
     <string name="Yes">Yes</string>
@@ -180,7 +131,6 @@
     <string name="Scale_update">"Scale updated to the latest version "</string>
     <string name="Connecting">"Connecting "</string>
     <string name="OK">OK</string>
-    <!--<string name="search">" search…"</string>-->
     <string name="Error_connect">"Connection error"</string>
     <string name="not_scale">" it does not scale"</string>
     <string name="Type">Type</string>
@@ -196,7 +146,6 @@
     <string name="TEXT_MESSAGE2">There was a programming error, see the text of the log</string>
     <string name="Warning_Connect">Warning! Connection</string>
     <string name="TEXT_MESSAGE3">"Fail HEX looking for this device "</string>
-    <!--<string name="TEXT_MESSAGE4">Parsing XML file for device parameters…</string>-->
     <string name="Warning_update">Warning! Update</string>
     <string name="TEXT_MESSAGE5">On the scale, press and release the indicator stops flashing. Then click OK</string>
     <string name="Loading_settings">Loading settings…</string>
@@ -205,20 +154,15 @@
     <string name="Setting_no_loaded">The settings are not loaded!!!</string>
     <string name="Not_programmer">Not programmer</string>
     <string name="Programmer_defined">The programmer defined</string>
-    <!--<string name="TEXT_MESSAGE6">Please try again, click the connect button</string>-->
     <string name="get_checks">get the checks…</string>
     <string name="Max_weight">"Weight limit: "</string>
     <string name="ConstantA">Constant A:</string>
     <string name="Table">"Table: "</string>
     <string name="TEXT_MESSAGE7">"Name of the table spreadsheet in Google drive "</string>
     <string name="weighed">WEIGHED</string>
-    <!--<string name="Check_sent">Check sent</string>-->
     <string name="No_data_check">No data check №</string>
     <string name="delete">" delete"</string>
     <string name="Contact">Contact:</string>
-    <!--<string name="TEXT_MESSAGE8">Starts the service of sending data</string>-->
-    <!--<string name="TEXT_MESSAGE9">Send data to the server</string>-->
-    <!--<string name="TEXT_MESSAGE10">ServiceSendDateServer service stopped</string>-->
     <string name="Send_mail">Send MAIL</string>
     <string name="Enter_address">Enter the address</string>
     <string name="Send">Send</string>
@@ -230,10 +174,8 @@
     <string name="TEXT_MESSAGES13">Restrictions, limits, etc.</string>
     <string name="Update_scale">Updating the scale</string>
     <string name="TEXT_MESSAGE14">Update to the latest version of weights</string>
-    <!--<string name="Settings_send">Settings sent</string>-->
     <string name="Send_to_mail">Sent to the mail</string>
     <string name="Send_to_phone">Sent to phone</string>
-    <!--<string name="Mail_sent">Mail sent</string>-->
     <string name="Message_sent">Message sent</string>
     <string name="Phone_for_sms">Phone for sms</string>
     <string name="incoming">incoming</string>

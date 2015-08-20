@@ -11,6 +11,7 @@ import com.konst.module.ScaleModule;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Locale;
 
 public class ErrorTable {
 
@@ -45,7 +46,7 @@ public class ErrorTable {
 
     public Uri insertNewEntry(String number, String des) {
         Date date = new Date();
-        SimpleDateFormat sdf = new SimpleDateFormat("dd.MM.yy HH:mm:ss");
+        SimpleDateFormat sdf = new SimpleDateFormat("dd.MM.yy HH:mm:ss", Locale.getDefault());
         ContentValues newTaskValues = new ContentValues();
         TelephonyManager mngr = (TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE);
         //mngr.getDeviceId();

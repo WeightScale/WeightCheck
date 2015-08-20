@@ -69,6 +69,7 @@ public class TaskMessageDialog extends TaskTable {
                             String str = result.getString(result.getColumnIndex(CommonDataKinds.Email.DATA));
                             insertNewTask(TaskCommand.TaskType.TYPE_CHECK_SEND_MAIL, mCheckId, mContactId, str);
                         }
+                        result.close();
                     }
                     dialog.dismiss();
                 }
@@ -155,6 +156,7 @@ public class TaskMessageDialog extends TaskTable {
         }
         if (cursor.moveToFirst()) {
             int rawContactId = cursor.getInt(cursor.getColumnIndex(BaseColumns._ID));
+            cursor.close();
             ContentValues values = new ContentValues();
             values.put(Data.RAW_CONTACT_ID, rawContactId);
             values.put(Data.MIMETYPE, CommonDataKinds.Email.CONTENT_ITEM_TYPE);
@@ -196,6 +198,7 @@ public class TaskMessageDialog extends TaskTable {
                             String str = result.getString(result.getColumnIndex(CommonDataKinds.Phone.DATA));
                             insertNewTask(TaskCommand.TaskType.TYPE_CHECK_SEND_SMS_CONTACT, mCheckId, mContactId, str);//todo после отладки разкоментировать
                         }
+                        result.close();
                     }
 
                     dialog.dismiss();
@@ -281,6 +284,7 @@ public class TaskMessageDialog extends TaskTable {
         }
         if (cursor.moveToFirst()) {
             int rawContactId = cursor.getInt(cursor.getColumnIndex(BaseColumns._ID));
+            cursor.close();
             ContentValues values = new ContentValues();
             values.put(Data.RAW_CONTACT_ID, rawContactId);
             values.put(Data.MIMETYPE, CommonDataKinds.Phone.CONTENT_ITEM_TYPE);

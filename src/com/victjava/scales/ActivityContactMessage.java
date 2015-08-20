@@ -13,7 +13,6 @@ import android.view.View;
 import android.widget.*;
 
 import java.util.ArrayList;
-import java.util.Map;
 
 /**
  * @author Kostya
@@ -144,7 +143,6 @@ public class ActivityContactMessage extends Activity implements View.OnClickList
     }
 
     private String getNameContact(long contactId){
-        String name = "null";
         Cursor cursor = getContentResolver().query(Contacts.CONTENT_URI, new String[] {BaseColumns._ID, Contacts.DISPLAY_NAME},
                 BaseColumns._ID + "=?",new String[] {String.valueOf(contactId)}, null);
         try {
@@ -153,7 +151,7 @@ public class ActivityContactMessage extends Activity implements View.OnClickList
             }
         }catch (Exception e){}
 
-        return name;
+        return "null";
     }
 
     private void selectedAll(){

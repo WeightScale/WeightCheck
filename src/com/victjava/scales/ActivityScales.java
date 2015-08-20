@@ -174,9 +174,9 @@ public class ActivityScales extends Activity implements View.OnClickListener, Vi
             /*case R.id.tuning:
                 startActivity(new Intent(this, ActivityTuning.class));
             break;*/
-            case R.id.search:
+            /*case R.id.search:
                 openSearch();
-                break;
+                break;*/
             /*case R.id.exit:
                 closeOptionsMenu();
                 break;*/
@@ -484,7 +484,7 @@ public class ActivityScales extends Activity implements View.OnClickListener, Vi
                 do {
                     String date = cursor.getString(cursor.getColumnIndex(CheckTable.KEY_DATE_CREATE));
                     try {
-                        long day = dayDiff(new Date(), new SimpleDateFormat("dd.MM.yy").parse(date));
+                        long day = dayDiff(new Date(), new SimpleDateFormat("dd.MM.yy",Locale.getDefault()).parse(date));
                         if (day > Preferences.read(ActivityPreferences.KEY_DAY_CLOSED_CHECK, 5)) {
                             int id = cursor.getInt(cursor.getColumnIndex(CheckTable.KEY_ID));
                             checkTable.updateEntry(id, CheckTable.KEY_IS_READY, 1);

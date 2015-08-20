@@ -4,7 +4,6 @@ import android.app.Activity;
 import android.view.GestureDetector;
 import android.view.GestureDetector.SimpleOnGestureListener;
 import android.view.MotionEvent;
-import android.view.View;
 
 /*
  * Created by Kostya on 08.03.2015.

@@ -3,7 +3,7 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
     <item android:id="@+id/preferences" android:icon="@drawable/tools" android:title="@string/settings"/>
     <!--<item android:id="@+id/tuning" android:icon="@drawable/tools" android:title="tuning"/>-->
-    <item android:id="@+id/search" android:title="@string/SEARCH" android:icon="@drawable/ic_action_bluetooth"/>
+    <!--<item android:id="@+id/search" android:title="@string/SEARCH" android:icon="@drawable/ic_action_bluetooth"/>-->
     <item android:id="@+id/type" android:icon="@drawable/type" android:title="@string/TYPE"/>
     <item android:id="@+id/checks" android:icon="@drawable/accept_database" android:title="@string/CHECKS"/>
     <item android:id="@+id/contact" android:icon="@drawable/contact" android:title="@string/CONTACT"/>

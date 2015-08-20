@@ -7,23 +7,4 @@
         <item>Перевеска</item>
         <item>Тест</item>
     </string-array>
-    <!--<string-array name="mime_type_for_send_admin">
-        <item>googleDisk</item>
-        <item>sms</item>
-        <item>email</item>
-    </string-array>-->
-    <!-- <integer-array name="thermometer">
-         <item>@drawable/thermometer-0</item>
-         <item>@drawable/thermometer-1</item>
-         <item>@drawable/thermometer-2</item>
-         <item>@drawable/thermometer-3</item>
-         <item>@drawable/thermometer-4</item>
-         <item>@drawable/thermometer-5</item>
-         <item>@drawable/tThermometer-6</item>
-         <item>@drawable/thermometer-7</item>
-         <item>@drawable/thermometer-8</item>
-         <item>@drawable/thermometer-9</item>
-         <item>@drawable/thermometer-10</item>
-         <item>@drawable/thermometer-11</item>
-     </integer-array>-->
 </resources>
