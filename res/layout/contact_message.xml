@@ -33,9 +33,9 @@
                 </ListView>
             </LinearLayout>
         </LinearLayout>
-        <LinearLayout android:orientation="horizontal" android:layout_width="fill_parent"
-                      android:layout_height="wrap_content"
-                >
+        <LinearLayout android:orientation="horizontal"
+                      android:layout_width="fill_parent"
+                      android:layout_height="wrap_content">
             <ImageButton style="@style/CustomButtonImage" android:layout_width="wrap_content"
                     android:layout_height="match_parent" android:text="@string/New" android:id="@+id/buttonSelectAll"
                     android:layout_weight="1"

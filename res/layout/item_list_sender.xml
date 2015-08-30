@@ -6,7 +6,7 @@
                  android:layout_height="?android:attr/listPreferredItemHeight"
                  android:textSize="@dimen/text_medium"
                  style="?android:attr/spinnerDropDownItemStyle"
-                 android:textColor="@android:color/white" android:background="@android:color/transparent"
+                 android:textColor="@color/text" android:background="@android:color/transparent"
                  android:checkMark="?android:attr/textCheckMark"
                  android:padding="@dimen/corners"
                  android:checked="true"

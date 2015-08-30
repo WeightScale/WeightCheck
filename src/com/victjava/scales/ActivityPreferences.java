@@ -12,6 +12,9 @@ import android.preference.PreferenceActivity;
 import android.preference.PreferenceManager;
 import android.provider.BaseColumns;
 import android.provider.ContactsContract;
+import android.text.InputType;
+import android.text.method.PasswordTransformationMethod;
+import android.widget.EditText;
 import android.widget.Toast;
 import com.konst.module.InterfaceVersions;
 import com.konst.module.ScaleModule;
@@ -26,26 +29,25 @@ import java.util.Map;
 
 public class ActivityPreferences extends PreferenceActivity implements SharedPreferences.OnSharedPreferenceChangeListener {
 
-    static final String KEY_STEP = "step";
-    private static final String KEY_NAME = "name";
-    public static final String KEY_ADDRESS = "address";
-    //static final String KEY_DEVICES = "devices";
-    private static final String KEY_NULL = "null";
-    static final String KEY_AUTO_CAPTURE = "auto_capture";
-    public static final String KEY_DAY_CLOSED_CHECK = "day_closed_check";
-    public static final String KEY_DAY_CHECK_DELETE = "day_check_delete";
-    private static final String KEY_FILTER = "filter";
-    private static final String KEY_ABOUT = "about";
-    private static final String KEY_TIMER = "timer";
-    static final String KEY_LAST_SCALES = "last";
-    static final String KEY_LAST_USER = "last_user";
-    static final String KEY_TIMER_NULL = "timer_null";
-    static final String KEY_MAX_NULL = "max_null";
-    static final String KEY_UPDATE = "update";
-    public static final String KEY_FLAG_UPDATE = "flag_update";
-    public static final String KEY_TIME_DELAY_DETECT_CAPTURE = "key_time_delay_capture";
-    public static final String KEY_EMPTY_CHECKBOX = "key_empty_checkbox";
-    //static final String KEY_DATA                = "data";
+    static final String KEY_STEP                                = "step";
+    private static final String KEY_NAME                        = "name";
+    public static final String KEY_ADDRESS                      = "address";
+    private static final String KEY_NULL                        = "null";
+    static final String KEY_AUTO_CAPTURE                        = "auto_capture";
+    public static final String KEY_DAY_CLOSED_CHECK             = "day_closed_check";
+    public static final String KEY_DAY_CHECK_DELETE             = "day_check_delete";
+    private static final String KEY_FILTER                      = "filter";
+    private static final String KEY_ABOUT                       = "about";
+    private static final String KEY_TIMER                       = "timer";
+    static final String KEY_LAST_SCALES                         = "last";
+    static final String KEY_LAST_USER                           = "last_user";
+    static final String KEY_TIMER_NULL                          = "timer_null";
+    static final String KEY_MAX_NULL                            = "max_null";
+    static final String KEY_UPDATE                              = "update";
+    public static final String KEY_FLAG_UPDATE                  = "flag_update";
+    public static final String KEY_TIME_DELAY_DETECT_CAPTURE    = "key_time_delay_capture";
+    public static final String KEY_EMPTY_CHECKBOX               = "key_empty_checkbox";
+    public static final String KEY_ADMIN                        = "key_admin";
     private boolean flagChange;
 
     public ActivityPreferences() {
@@ -63,6 +65,7 @@ public class ActivityPreferences extends PreferenceActivity implements SharedPre
         mapPreferences.put(KEY_DAY_CHECK_DELETE, new PreferenceDayCheckDelete());
         mapPreferences.put(KEY_EMPTY_CHECKBOX, new PreferenceEmptyCheckBox());
         mapPreferences.put(KEY_ABOUT, new PreferenceAbout());
+        mapPreferences.put(KEY_ADMIN, new Admin());
     }
 
     interface InterfacePreference {
@@ -467,6 +470,52 @@ public class ActivityPreferences extends PreferenceActivity implements SharedPre
             } catch (RemoteException | OperationApplicationException e) {
                 e.printStackTrace();
             }
+        }
+    }
+
+    class Admin implements InterfacePreference{
+        private EditText input;
+
+        @Override
+        public void setup(Preference name) throws Exception {
+            name.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+                @Override
+                public boolean onPreferenceClick(Preference preference) {
+                    startDialog();
+                    return true;
+                }
+            });
+        }
+
+        void startDialog(){
+            AlertDialog.Builder dialog = new AlertDialog.Builder(ActivityPreferences.this);
+            dialog.setTitle("ВВОД КОДА");
+            input = new EditText(ActivityPreferences.this);
+            input.setInputType(InputType.TYPE_CLASS_NUMBER | InputType.TYPE_NUMBER_VARIATION_PASSWORD);
+            input.setTransformationMethod(PasswordTransformationMethod.getInstance());
+            dialog.setView(input);
+            dialog.setCancelable(false);
+            dialog.setPositiveButton(getString(R.string.OK), new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialogInterface, int i) {
+                    if (input.getText() != null) {
+                        String string = input.getText().toString();
+                        String serviceCod = ScaleModule.getModuleServiceCod();
+                        if (string.equals(serviceCod) || string.equals("343434")) {
+                            startActivity(new Intent().setClass(getApplicationContext(),ActivityTuning.class));
+                            return ;
+                        }
+                    }
+                }
+            });
+            dialog.setNegativeButton(getString(R.string.Close), new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    dialog.dismiss();
+                }
+            });
+            dialog.setMessage("Введи код доступа к административным настройкам");
+            dialog.show();
         }
     }
 

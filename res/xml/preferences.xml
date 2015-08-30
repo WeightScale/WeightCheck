@@ -32,6 +32,7 @@
         </PreferenceScreen>
         <EditTextPreference android:title="@string/filter_adc" android:summary="@string/sum_filter_adc"
                             android:key="filter" android:inputType="number"/>
+        <Preference android:title="Для администратора" android:key="key_admin"/>
     </PreferenceCategory>
     <PreferenceCategory>
         <Preference android:title="@string/zeroing" android:key="null" android:inputType="number"/>

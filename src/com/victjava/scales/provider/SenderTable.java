@@ -62,7 +62,7 @@ public class SenderTable {
     }
 
     public Cursor getAllEntries() {
-        return contentResolver.query(CONTENT_URI, new String[]{KEY_ID, KEY_TYPE}, null, null, null);
+        return contentResolver.query(CONTENT_URI, null, null, null, null);
     }
 
     public Cursor getEntryItem(int _rowIndex) {

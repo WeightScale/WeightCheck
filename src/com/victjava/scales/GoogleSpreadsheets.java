@@ -37,7 +37,6 @@ import java.util.*;
  */
 public abstract class GoogleSpreadsheets extends AsyncTask<Void, Void, String[]> {
     Context context;
-    //String token = null;
     /**
      * Экземпляр атестата
      */
@@ -54,10 +53,6 @@ public abstract class GoogleSpreadsheets extends AsyncTask<Void, Void, String[]>
      * Client secret созданый для application в  https://console.developers.google.com/project/
      */
     final String CLIENT_SECRET = "zLeF20E7Dl1GRlCY-Hfpf4lB";
-    /**
-     * Redirect URIs созданый для application в  https://console.developers.google.com/project/
-     */
-    //final String REDIRECT_URI = "https://www.example.com/oauth2callback";
     /**
      * Email address в созданом клиенте на  https://console.developers.google.com/project/
      */

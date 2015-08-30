@@ -295,7 +295,7 @@ public class ActivityBootloader extends Activity implements View.OnClickListener
     }
 
     static boolean isBootloader() { //Является ли весами и какой версии
-        String vrs = Module.getModuleVersion(); //Получаем версию весов
+        String vrs = BootModule.getModuleVersion(); //Получаем версию загрузчика
         return vrs.startsWith("BOOT");
     }
 

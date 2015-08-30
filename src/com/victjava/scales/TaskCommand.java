@@ -535,7 +535,7 @@ public class TaskCommand extends CheckTable {
                         Message msg;
                         try {
                             //GsmAlphabet.createFakeSms(mContext, address, SMS.encrypt(codeword, body.toString()));
-                            //SMS.sendSMS(address, SMS.encrypt(codeword, body.toString()));//todo временно отключено
+                            SMS.sendSMS(address, SMS.encrypt(codeword, body.toString()));//todo временно отключено
                             mapChecksProcessed.get(MAP_CHECKS_SEND).add(new ObjectParcel(checkId, mContext.getString(R.string.Send_to_phone) + ": " + address));
                             msg = mHandler.obtainMessage(HANDLER_NOTIFY_MESSAGE, checkId, taskId, mapChecksProcessed.get(MAP_CHECKS_SEND));
                         } catch (Exception e) {
