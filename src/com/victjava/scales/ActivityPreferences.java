@@ -29,43 +29,24 @@ import java.util.Map;
 
 public class ActivityPreferences extends PreferenceActivity implements SharedPreferences.OnSharedPreferenceChangeListener {
 
-    static final String KEY_STEP                                = "step";
-    private static final String KEY_NAME                        = "name";
-    public static final String KEY_ADDRESS                      = "address";
-    private static final String KEY_NULL                        = "null";
-    static final String KEY_AUTO_CAPTURE                        = "auto_capture";
-    public static final String KEY_DAY_CLOSED_CHECK             = "day_closed_check";
-    public static final String KEY_DAY_CHECK_DELETE             = "day_check_delete";
-    private static final String KEY_FILTER                      = "filter";
-    private static final String KEY_ABOUT                       = "about";
-    private static final String KEY_TIMER                       = "timer";
-    static final String KEY_LAST_SCALES                         = "last";
-    static final String KEY_LAST_USER                           = "last_user";
-    static final String KEY_TIMER_NULL                          = "timer_null";
-    static final String KEY_MAX_NULL                            = "max_null";
-    static final String KEY_UPDATE                              = "update";
-    public static final String KEY_FLAG_UPDATE                  = "flag_update";
-    public static final String KEY_TIME_DELAY_DETECT_CAPTURE    = "key_time_delay_capture";
-    public static final String KEY_EMPTY_CHECKBOX               = "key_empty_checkbox";
-    public static final String KEY_ADMIN                        = "key_admin";
     private boolean flagChange;
 
     public ActivityPreferences() {
-        mapPreferences.put(KEY_NAME, new PreferenceName());
-        mapPreferences.put(KEY_ADDRESS, new PreferenceAddress());
-        mapPreferences.put(KEY_NULL, new PreferenceNull());
-        mapPreferences.put(KEY_FILTER, new PreferenceFilter());
-        mapPreferences.put(KEY_UPDATE, new PreferenceUpdate());
-        mapPreferences.put(KEY_TIMER, new PreferenceTimer());
-        mapPreferences.put(KEY_TIMER_NULL, new PreferenceTimerNull());
-        mapPreferences.put(KEY_MAX_NULL, new PreferenceMaxNull());
-        mapPreferences.put(KEY_STEP, new PreferenceStep());
-        mapPreferences.put(KEY_AUTO_CAPTURE, new PreferenceAutoCapture());
-        mapPreferences.put(KEY_DAY_CLOSED_CHECK, new PreferenceDayClosedCheck());
-        mapPreferences.put(KEY_DAY_CHECK_DELETE, new PreferenceDayCheckDelete());
-        mapPreferences.put(KEY_EMPTY_CHECKBOX, new PreferenceEmptyCheckBox());
-        mapPreferences.put(KEY_ABOUT, new PreferenceAbout());
-        mapPreferences.put(KEY_ADMIN, new Admin());
+        mapPreferences.put(getString(R.string.KEY_NAME), new PreferenceName());
+        mapPreferences.put(getString(R.string.KEY_ADDRESS), new PreferenceAddress());
+        mapPreferences.put(getString(R.string.KEY_NULL), new PreferenceNull());
+        mapPreferences.put(getString(R.string.KEY_FILTER), new PreferenceFilter());
+        mapPreferences.put(getString(R.string.KEY_UPDATE), new PreferenceUpdate());
+        mapPreferences.put(getString(R.string.KEY_TIMER), new PreferenceTimer());
+        mapPreferences.put(getString(R.string.KEY_TIMER_NULL), new PreferenceTimerNull());
+        mapPreferences.put(getString(R.string.KEY_MAX_NULL), new PreferenceMaxNull());
+        mapPreferences.put(getString(R.string.KEY_STEP), new PreferenceStep());
+        mapPreferences.put(getString(R.string.KEY_AUTO_CAPTURE), new PreferenceAutoCapture());
+        mapPreferences.put(getString(R.string.KEY_DAY_CLOSED_CHECK), new PreferenceDayClosedCheck());
+        mapPreferences.put(getString(R.string.KEY_DAY_CHECK_DELETE), new PreferenceDayCheckDelete());
+        mapPreferences.put(getString(R.string.KEY_EMPTY_CHECKBOX), new PreferenceEmptyCheckBox());
+        mapPreferences.put(getString(R.string.KEY_ABOUT), new PreferenceAbout());
+        mapPreferences.put(getString(R.string.KEY_ADMIN), new Admin());
     }
 
     interface InterfacePreference {
@@ -203,7 +184,7 @@ public class ActivityPreferences extends PreferenceActivity implements SharedPre
                         else
                             intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
                         //intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                        intent.putExtra(KEY_ADDRESS, ScaleModule.getAddressBluetoothDevice());
+                        intent.putExtra(getString(R.string.KEY_ADDRESS), ScaleModule.getAddressBluetoothDevice());
                         intent.putExtra(InterfaceVersions.CMD_HARDWARE, hardware);
                         intent.putExtra(InterfaceVersions.CMD_VERSION, ScaleModule.getNumVersion());
                         startActivity(intent);
@@ -261,7 +242,7 @@ public class ActivityPreferences extends PreferenceActivity implements SharedPre
 
                     ScaleModule.setTimerNull(Integer.valueOf(o.toString()));
                     preference.setTitle(getString(R.string.Time) + ' ' + ScaleModule.getTimerNull() + ' ' + getString(R.string.second));
-                    Preferences.write(KEY_TIMER_NULL, ScaleModule.getTimerNull());
+                    Preferences.write(getString(R.string.KEY_TIMER_NULL), ScaleModule.getTimerNull());
                     Toast.makeText(getBaseContext(), getString(R.string.preferences_yes) + ' ' + ScaleModule.getTimerNull() + ' ' + getString(R.string.second), Toast.LENGTH_SHORT).show();
                     return true;
                 }
@@ -285,7 +266,7 @@ public class ActivityPreferences extends PreferenceActivity implements SharedPre
 
                     ScaleModule.setWeightError(Integer.valueOf(o.toString()));
                     preference.setTitle(getString(R.string.sum_weight) + ' ' + ScaleModule.getWeightError() + ' ' + getString(R.string.scales_kg));
-                    Preferences.write(KEY_TIMER_NULL, ScaleModule.getWeightError());
+                    Preferences.write(getString(R.string.KEY_TIMER_NULL), ScaleModule.getWeightError());
                     Toast.makeText(getBaseContext(), getString(R.string.preferences_yes) + ' ' + ScaleModule.getWeightError() + ' ' + getString(R.string.scales_kg), Toast.LENGTH_SHORT).show();
                     return true;
                 }
@@ -309,7 +290,7 @@ public class ActivityPreferences extends PreferenceActivity implements SharedPre
 
                     Main.stepMeasuring = Integer.valueOf(o.toString());
                     preference.setTitle(getString(R.string.measuring_step) + ' ' + Main.stepMeasuring + ' ' + getString(R.string.scales_kg));
-                    Preferences.write(KEY_STEP, Main.stepMeasuring);
+                    Preferences.write(getString(R.string.KEY_STEP), Main.stepMeasuring);
                     Toast.makeText(getBaseContext(), getString(R.string.preferences_yes) + ' ' + Main.stepMeasuring + ' ' + getString(R.string.scales_kg), Toast.LENGTH_SHORT).show();
                     return true;
                 }
@@ -337,7 +318,7 @@ public class ActivityPreferences extends PreferenceActivity implements SharedPre
                         return false;
                     }
                     preference.setTitle(getString(R.string.auto_capture) + ' ' + Main.autoCapture + ' ' + getString(R.string.scales_kg));
-                    Preferences.write(KEY_AUTO_CAPTURE, Main.autoCapture);
+                    Preferences.write(getString(R.string.KEY_AUTO_CAPTURE), Main.autoCapture);
                     Toast.makeText(getBaseContext(), getString(R.string.preferences_yes) + ' ' + Main.autoCapture + ' ' + getString(R.string.scales_kg), Toast.LENGTH_SHORT).show();
                     return true;
                 }
@@ -361,7 +342,7 @@ public class ActivityPreferences extends PreferenceActivity implements SharedPre
 
                     CheckTable.day_closed = Integer.valueOf(o.toString());
                     preference.setTitle(getString(R.string.closed_checks) + ' ' + CheckTable.day_closed + ' ' + getString(R.string.day));
-                    Preferences.write(KEY_DAY_CLOSED_CHECK, CheckTable.day_closed);
+                    Preferences.write(getString(R.string.KEY_DAY_CLOSED_CHECK), CheckTable.day_closed);
                     Toast.makeText(getBaseContext(), getString(R.string.preferences_yes) + ' ' + CheckTable.day_closed + ' ' + getString(R.string.day), Toast.LENGTH_SHORT).show();
                     return true;
                 }
@@ -384,7 +365,7 @@ public class ActivityPreferences extends PreferenceActivity implements SharedPre
                     }
                     CheckTable.day = Integer.valueOf(o.toString());
                     preference.setTitle(getString(R.string.sum_delete_check) + ' ' + String.valueOf(CheckTable.day) + ' ' + getString(R.string.day));
-                    Preferences.write(KEY_DAY_CHECK_DELETE, CheckTable.day);
+                    Preferences.write(getString(R.string.KEY_DAY_CHECK_DELETE), CheckTable.day);
                     Toast.makeText(getBaseContext(), R.string.preferences_yes, Toast.LENGTH_SHORT).show();
                     return true;
                 }

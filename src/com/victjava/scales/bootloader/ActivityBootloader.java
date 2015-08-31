@@ -122,7 +122,7 @@ public class ActivityBootloader extends Activity implements View.OnClickListener
         super.onCreate(savedInstanceState);
         setContentView(R.layout.bootloder);
 
-        addressDevice = getIntent().getStringExtra(ActivityPreferences.KEY_ADDRESS);
+        addressDevice = getIntent().getStringExtra(getString(R.string.KEY_ADDRESS));
         hardware = getIntent().getStringExtra(InterfaceVersions.CMD_HARDWARE);
 
         //Spinner spinnerField = (Spinner) findViewById(R.id.spinnerField);
@@ -286,7 +286,7 @@ public class ActivityBootloader extends Activity implements View.OnClickListener
     void exit() {
         if (flagProgramsFinish) {
             //Preferences.load(getSharedPreferences(Preferences.PREFERENCES, Context.MODE_PRIVATE));
-            Preferences.write(ActivityPreferences.KEY_FLAG_UPDATE, true);
+            Preferences.write(getString(R.string.KEY_FLAG_UPDATE), true);
             bootModule.dettach();
             BluetoothAdapter.getDefaultAdapter().disable();
             while (BluetoothAdapter.getDefaultAdapter().isEnabled()) ;

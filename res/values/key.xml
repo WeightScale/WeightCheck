@@ -1,5 +1,33 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources>
-    <!--<string name="KEY_DAY_CLOSED_CHECK">day_closed_check</string>-->
-    <!--<string name="PREF_UPDATE">pref_update</string>-->
+<resources >
+    <string name="KEY_STEP">key_step</string>
+    <string name="KEY_NAME">key_name</string>
+    <string name="KEY_ADDRESS">key_address</string>
+    <string name="KEY_NULL">key_null</string>
+    <string name="KEY_AUTO_CAPTURE">key_auto_capture</string>
+    <string name="KEY_DAY_CLOSED_CHECK">key_day_closed_check</string>
+    <string name="KEY_DAY_CHECK_DELETE">key_day_check_delete</string>
+    <string name="KEY_FILTER">key_filter</string>
+    <string name="KEY_ABOUT">key_about</string>
+    <string name="KEY_TIMER">key_timer</string>
+    <string name="KEY_LAST_SCALES">key_last_scales</string>
+    <string name="KEY_LAST_USER">key_last_user</string>
+    <string name="KEY_TIMER_NULL">key_timer_null</string>
+    <string name="KEY_MAX_NULL">key_max_null</string>
+    <string name="KEY_UPDATE">key_update</string>
+    <string name="KEY_FLAG_UPDATE">key_flag_update</string>
+    <string name="KEY_TIME_DELAY_DETECT_CAPTURE">key_time_delay_detect_capture</string>
+    <string name="KEY_EMPTY_CHECKBOX">key_empty_checkbox</string>
+    <string name="KEY_ADMIN">key_admin</string>
+
+    <string name="KEY_POINT1">key_point1</string>
+    <string name="KEY_POINT2">key_point2</string>
+    <string name="KEY_WEIGHT_MAX">key_weight_max</string>
+    <string name="KEY_COEFFICIENT_A">key_coefficient_a</string>
+    <string name="KEY_CALL_BATTERY">key_call_battery</string>
+    <string name="KEY_SHEET">key_sheet</string>
+    <string name="KEY_USER">key_user</string>
+    <string name="KEY_PASSWORD">key_password</string>
+    <string name="KEY_PHONE">key_phone</string>
+    <string name="KEY_SENDER">key_sender</string>
 </resources>

@@ -338,7 +338,7 @@ public class ActivityScales extends Activity implements View.OnClickListener, Vi
         temperatureProgressBar.updateProgress(0);
 
         listCheckSetup();
-        connectScaleModule(Preferences.read(ActivityPreferences.KEY_LAST_SCALES, ""));
+        connectScaleModule(Preferences.read(getString(R.string.KEY_LAST_SCALES), ""));
 
     }
 
@@ -485,7 +485,7 @@ public class ActivityScales extends Activity implements View.OnClickListener, Vi
                     String date = cursor.getString(cursor.getColumnIndex(CheckTable.KEY_DATE_CREATE));
                     try {
                         long day = dayDiff(new Date(), new SimpleDateFormat("dd.MM.yy",Locale.getDefault()).parse(date));
-                        if (day > Preferences.read(ActivityPreferences.KEY_DAY_CLOSED_CHECK, 5)) {
+                        if (day > Preferences.read(getString(R.string.KEY_DAY_CLOSED_CHECK), 5)) {
                             int id = cursor.getInt(cursor.getColumnIndex(CheckTable.KEY_ID));
                             checkTable.updateEntry(id, CheckTable.KEY_IS_READY, 1);
                             new TaskTable(this).setCheckReady(id);
@@ -535,8 +535,8 @@ public class ActivityScales extends Activity implements View.OnClickListener, Vi
                             } catch (Exception e) {
                                 setTitle(getString(R.string.app_name) + " , v." + ScaleModule.getNumVersion()); //установить заголовок
                             }
-                            Preferences.write(ActivityPreferences.KEY_LAST_SCALES, ScaleModule.getAddressBluetoothDevice());
-                            Preferences.write(ActivityPreferences.KEY_LAST_USER, ScaleModule.getUserName());
+                            Preferences.write(getString(R.string.KEY_LAST_SCALES), ScaleModule.getAddressBluetoothDevice());
+                            Preferences.write(getString(R.string.KEY_LAST_USER), ScaleModule.getUserName());
                             listView.setEnabled(true);
                             handlerBatteryTemperature.start();
                             getSettingPostponed();

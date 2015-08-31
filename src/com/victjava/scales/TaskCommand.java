@@ -244,7 +244,7 @@ public class TaskCommand extends CheckTable {
                 mHandler.sendEmptyMessage(HANDLER_FINISH_THREAD);
                 return null;
             }
-            String user = Preferences.read(ActivityPreferences.KEY_LAST_USER, "");
+            String user = Preferences.read(mContext.getString(R.string.KEY_LAST_USER), "");
             return GoogleAuthUtil.getTokenWithNotification(mContext, user /*ScaleModule.getUserName()*/, "oauth2:" + SCOPE, null, makeCallback());
         }
 
@@ -632,7 +632,7 @@ public class TaskCommand extends CheckTable {
                 mHandler.sendEmptyMessage(HANDLER_FINISH_THREAD);
                 return null;
             }
-            String user = Preferences.read(ActivityPreferences.KEY_LAST_USER, "");
+            String user = Preferences.read(mContext.getString(R.string.KEY_LAST_USER), "");
             return GoogleAuthUtil.getTokenWithNotification(mContext, user /*ScaleModule.getUserName()*/, "oauth2:" + SCOPE, null, makeCallback());
         }
 

@@ -31,35 +31,23 @@ import java.util.Map;
 public class ActivityTuning extends PreferenceActivity {
     protected Dialog dialog;
 
-    public static final String KEY_POINT1           = "key_point1";
-    public static final String KEY_POINT2           = "key_point2";
-    public static final String KEY_WEIGHT_MAX       = "key_weight_max";
-    public static final String KEY_COEFFICIENT_A    = "key_coefficient_a";
-    public static final String KEY_CALL_BATTERY     = "key_call_battery";
-    public static final String KEY_SHEET            = "key_sheet";
-    public static final String KEY_USER             = "key_user";
-    public static final String KEY_PASSWORD         = "key_password";
-    public static final String KEY_PHONE            = "key_phone";
-    public static final String KEY_SENDER           = "key_sender";
-    public static final String KEY_UPDATE           = "key_update";
-
     private final Point point1 = new Point(Integer.MIN_VALUE, 0);
     private final Point point2 = new Point(Integer.MIN_VALUE, 0);
     private boolean flag_restore;
     final Map<String, InterfacePreference> mapTuning = new HashMap<>();
 
     public ActivityTuning(){
-        mapTuning.put(KEY_POINT1, new Point1());
-        mapTuning.put(KEY_POINT2, new Point2());
-        mapTuning.put(KEY_WEIGHT_MAX, new WeightMax());
-        mapTuning.put(KEY_COEFFICIENT_A, new CoefficientA());
-        mapTuning.put(KEY_CALL_BATTERY, new CallBattery());
-        mapTuning.put(KEY_SHEET, new Sheet());
-        mapTuning.put(KEY_USER, new User());
-        mapTuning.put(KEY_PASSWORD, new Password());
-        mapTuning.put(KEY_PHONE, new Phone());
-        mapTuning.put(KEY_SENDER, new Sender());
-        mapTuning.put(KEY_UPDATE, new Update());
+        mapTuning.put(getString(R.string.KEY_POINT1), new Point1());
+        mapTuning.put(getString(R.string.KEY_POINT2), new Point2());
+        mapTuning.put(getString(R.string.KEY_WEIGHT_MAX), new WeightMax());
+        mapTuning.put(getString(R.string.KEY_COEFFICIENT_A), new CoefficientA());
+        mapTuning.put(getString(R.string.KEY_CALL_BATTERY), new CallBattery());
+        mapTuning.put(getString(R.string.KEY_SHEET), new Sheet());
+        mapTuning.put(getString(R.string.KEY_USER), new User());
+        mapTuning.put(getString(R.string.KEY_PASSWORD), new Password());
+        mapTuning.put(getString(R.string.KEY_PHONE), new Phone());
+        mapTuning.put(getString(R.string.KEY_SENDER), new Sender());
+        mapTuning.put(getString(R.string.KEY_UPDATE), new Update());
     }
 
     interface InterfacePreference {
@@ -481,7 +469,7 @@ public class ActivityTuning extends PreferenceActivity {
                         else
                             intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
                         //intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                        intent.putExtra(ActivityPreferences.KEY_ADDRESS, ScaleModule.getAddressBluetoothDevice());
+                        intent.putExtra(getString(R.string.KEY_ADDRESS), ScaleModule.getAddressBluetoothDevice());
                         intent.putExtra(InterfaceVersions.CMD_HARDWARE, hardware);
                         intent.putExtra(InterfaceVersions.CMD_VERSION, ScaleModule.getNumVersion());
                         startActivity(intent);

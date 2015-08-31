@@ -131,13 +131,13 @@ public class Main extends Application {
         preferencesUpdate = new Preferences(getApplicationContext(), Preferences.PREF_UPDATE);
         Preferences.load(getSharedPreferences(Preferences.PREFERENCES, Context.MODE_PRIVATE)); //загрузить настройки
 
-        stepMeasuring = Preferences.read(ActivityPreferences.KEY_STEP, default_max_step_scale);
-        autoCapture = Preferences.read(ActivityPreferences.KEY_AUTO_CAPTURE, default_max_auto_capture);
-        day_delete = Preferences.read(ActivityPreferences.KEY_DAY_CHECK_DELETE, default_day_delete_check);
-        day_closed = Preferences.read(ActivityPreferences.KEY_DAY_CLOSED_CHECK, default_day_close_check);
-        ScaleModule.setTimerNull(Preferences.read(ActivityPreferences.KEY_TIMER_NULL, default_max_time_auto_null));
-        ScaleModule.setWeightError(Preferences.read(ActivityPreferences.KEY_MAX_NULL, default_limit_auto_null));
-        timeDelayDetectCapture = Preferences.read(ActivityPreferences.KEY_TIME_DELAY_DETECT_CAPTURE, 1);
+        stepMeasuring = Preferences.read(getString(R.string.KEY_STEP), default_max_step_scale);
+        autoCapture = Preferences.read(getString(R.string.KEY_AUTO_CAPTURE), default_max_auto_capture);
+        day_delete = Preferences.read(getString(R.string.KEY_DAY_CHECK_DELETE), default_day_delete_check);
+        day_closed = Preferences.read(getString(R.string.KEY_DAY_CLOSED_CHECK), default_day_close_check);
+        ScaleModule.setTimerNull(Preferences.read(getString(R.string.KEY_TIMER_NULL), default_max_time_auto_null));
+        ScaleModule.setWeightError(Preferences.read(getString(R.string.KEY_MAX_NULL), default_limit_auto_null));
+        timeDelayDetectCapture = Preferences.read(getString(R.string.KEY_TIME_DELAY_DETECT_CAPTURE), 1);
 
         /** Запускаем сервис для приемеа смс команд. */
         getApplicationContext().startService(new Intent(getApplicationContext(), ServiceSmsCommand.class));
