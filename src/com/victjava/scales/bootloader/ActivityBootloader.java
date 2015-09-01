@@ -158,7 +158,7 @@ public class ActivityBootloader extends Activity implements View.OnClickListener
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 dialog.dismiss();
-                finish();
+                exit();
             }
         });
         dialog.setMessage(getString(R.string.TEXT_MESSAGE));
@@ -172,6 +172,59 @@ public class ActivityBootloader extends Activity implements View.OnClickListener
             finish();
         }
     }
+
+    @Override
+    public void onClick(View v) {
+        switch (v.getId()) {
+            case R.id.buttonBack:
+                exit();
+                break;
+            case R.id.buttonBoot:
+                if (!startProgramed()) {
+                    flagProgramsFinish = true;
+                }
+                break;
+            default:
+        }
+    }
+
+    @Override
+    public void onBackPressed() {
+        exit();
+        //return;
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (resultCode == RESULT_OK) {
+            log("Connected...");
+            switch (requestCode) {
+                case REQUEST_CONNECT_BOOT:
+                    //scaleModule.obtainMessage(HandlerScaleConnect.Result.STATUS_LOAD_OK.ordinal()).sendToTarget();
+                    onEventConnectResult.handleResultConnect(Module.ResultConnect.STATUS_LOAD_OK);
+                    break;
+                case REQUEST_CONNECT_SCALE:
+                    log(getString(R.string.Loading_settings));
+                    if (ScaleModule.isScales()) {
+                        //restorePreferences(); //todo сделать загрузку настроек которые сохранены пере перепрограммированием.
+                        log(getString(R.string.Settings_loaded));
+                        break;
+                    }
+                    log(getString(R.string.Scale_no_defined));
+                    log(getString(R.string.Setting_no_loaded));
+                    break;
+                default:
+            }
+        } else {
+            log("Not connected...");
+        }
+    }
+
+    /*@Override
+    protected void onDestroy() {
+        exit();
+        super.onDestroy();
+    }*/
 
     final OnEventConnectResult onEventConnectResult = new OnEventConnectResult() {
         private AlertDialog.Builder dialog;
@@ -257,27 +310,6 @@ public class ActivityBootloader extends Activity implements View.OnClickListener
         }
     };
 
-    @Override
-    public void onClick(View v) {
-        switch (v.getId()) {
-            case R.id.buttonBack:
-                exit();
-                break;
-            case R.id.buttonBoot:
-                if (!startProgramed()) {
-                    flagProgramsFinish = true;
-                }
-                break;
-            default:
-        }
-    }
-
-    @Override
-    public void onBackPressed() {
-        exit();
-        //return;
-    }
-
     void log(String string) { //для текста
         //textViewLog.append(string);
         textViewLog.setText(string + '\n' + textViewLog.getText());
@@ -297,32 +329,6 @@ public class ActivityBootloader extends Activity implements View.OnClickListener
     static boolean isBootloader() { //Является ли весами и какой версии
         String vrs = BootModule.getModuleVersion(); //Получаем версию загрузчика
         return vrs.startsWith("BOOT");
-    }
-
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (resultCode == RESULT_OK) {
-            log("Connected...");
-            switch (requestCode) {
-                case REQUEST_CONNECT_BOOT:
-                    //scaleModule.obtainMessage(HandlerScaleConnect.Result.STATUS_LOAD_OK.ordinal()).sendToTarget();
-                    onEventConnectResult.handleResultConnect(Module.ResultConnect.STATUS_LOAD_OK);
-                    break;
-                case REQUEST_CONNECT_SCALE:
-                    log(getString(R.string.Loading_settings));
-                    if (ScaleModule.isScales()) {
-                        //restorePreferences(); //todo сделать загрузку настроек которые сохранены пере перепрограммированием.
-                        log(getString(R.string.Settings_loaded));
-                        break;
-                    }
-                    log(getString(R.string.Scale_no_defined));
-                    log(getString(R.string.Setting_no_loaded));
-                    break;
-                default:
-            }
-        } else {
-            log("Not connected...");
-        }
     }
 
     boolean startProgramed() {

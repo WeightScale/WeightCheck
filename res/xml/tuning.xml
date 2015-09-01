@@ -5,19 +5,19 @@
                           android:summary="Калибровка весов с ипользыванием калиброваного веса">
             <PreferenceCategory android:title="Калибровка весов">
                 <Preference android:title="Нулевой вес"
-                            android:summary="Установите нулевой вес на весах, и нажминте на поле" android:key="key_point1"/>
+                            android:summary="Установите нулевой вес на весах, и нажминте на поле" android:key="@string/KEY_POINT1"/>
                 <EditTextPreference android:title="Контрольный вес"
                                     android:summary=" Установите калиброваный вес на весах, и введите вес в поле"
-                                    android:key="key_point2" android:inputType="number"/>
+                                    android:key="@string/KEY_POINT2" android:inputType="number"/>
                 <EditTextPreference android:title="Максимальный вес"
                                     android:summary="Введите в поле максимальный вес который взвешивают весы"
-                                    android:key="key_weight_max" android:inputType="number"/>
+                                    android:key="@string/KEY_WEIGHT_MAX" android:inputType="number"/>
                 <EditTextPreference android:title="Установить температуру"
-                                    android:summary="Введите в поле текущую температуру" android:key="key_call_temp"
+                                    android:summary="Введите в поле текущую температуру" android:key="@string/KEY_CALL_TEMP"
                                     android:inputType="number"/>
                 <EditTextPreference android:title="Батарея"
                                     android:summary="Введите в поле текущий заряд батареи в процентах"
-                                    android:key="key_call_battery" android:inputType="number"/>
+                                    android:key="@string/KEY_CALL_BATTERY" android:inputType="number"/>
             </PreferenceCategory>
         </PreferenceScreen>
     </PreferenceCategory>
@@ -27,10 +27,10 @@
             <PreferenceCategory android:title="Ввод калибровочных данных">
                 <EditTextPreference android:title="Константа А"
                                     android:summary="Введите константу А которая была вычеслена при калибровке весов"
-                                    android:key="key_coefficient_a" android:inputType="numberDecimal"/>
+                                    android:key="@string/KEY_COEFFICIENT_A" android:inputType="numberDecimal"/>
                 <EditTextPreference android:title="Константа B"
                                     android:summary="Введите константу В которая была вычеслена при калибровке весов"
-                                    android:key="key_coefficient_b" android:inputType="numberDecimal"/>
+                                    android:key="@string/KEY_COEFFICIENT_B" android:inputType="numberDecimal"/>
             </PreferenceCategory>
         </PreferenceScreen>
     </PreferenceCategory>
@@ -38,22 +38,23 @@
         <PreferenceScreen android:title="Настройки для облака" android:summary="Настройки для отправки данных через интернет">
             <PreferenceCategory android:title="Настройки для облака">
                 <EditTextPreference android:title="Таблица" android:summary="Имя таблици spreadsheet в Google drive "
-                                    android:key="key_sheet" android:inputType="text"/>
-                <EditTextPreference android:title="Пользователь" android:summary="Account Google" android:key="key_user"
+                                    android:key="@string/KEY_SHEET" android:inputType="text"/>
+                <EditTextPreference android:title="Пользователь" android:summary="Account Google" android:key="@string/KEY_USER"
                                     android:inputType="textEmailAddress"/>
                 <EditTextPreference android:title="Пароль" android:summary="Password account Google"
-                                    android:key="key_password" android:inputType="textPassword"/>
+                                    android:key="@string/KEY_PASSWORD" android:inputType="textPassword"/>
             </PreferenceCategory>
         </PreferenceScreen>
     </PreferenceCategory>
     <PreferenceCategory android:title="Настройки для сообщений" android:summary="Настройки для отправки сообщений через смс">
         <PreferenceScreen android:title="Настройки для сообщений">
-            <EditTextPreference android:title="Телефон" android:summary="Номер телефона для смс" android:key="key_phone"
+            <EditTextPreference android:title="Телефон" android:summary="Номер телефона для смс" android:key="@string/KEY_PHONE"
                                 android:inputType="phone"/>
         </PreferenceScreen>
     </PreferenceCategory>
     <PreferenceCategory android:title="Отсылатели">
-        <Preference android:title="Установить" android:summary="Выбор куда отсылать весовой чек" android:key="key_sender"/>
+        <Preference android:title="Установить" android:summary="Выбор куда отсылать весовой чек" android:key="@string/KEY_SENDER"/>
     </PreferenceCategory>
-    <Preference android:title="@string/Update_scale" android:summary="@string/TEXT_MESSAGE14" android:key="key_update"/>
+    <EditTextPreference android:key="@string/KEY_SERVICE_COD" android:inputType="numberPassword" android:title="Сервис код" android:summary="Сервис код для доступа к административным настройкам"/>
+    <Preference android:title="@string/Update_scale" android:summary="@string/TEXT_MESSAGE14" android:key="@string/KEY_UPDATE"/>
 </PreferenceScreen>

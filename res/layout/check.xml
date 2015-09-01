@@ -30,8 +30,7 @@
     <LinearLayout
             android:orientation="horizontal"
             android:layout_width="fill_parent"
-            android:layout_height="0dp" android:background="@color/background2" android:layout_weight="1"
-            >
+            android:layout_height="0dp" android:background="@color/background2" android:layout_weight="1">
         <TabHost android:id="@android:id/tabhost"
                  android:layout_width="fill_parent"
                  android:layout_height="fill_parent"
@@ -39,7 +38,7 @@
 
             <LinearLayout android:orientation="vertical"
                           android:layout_width="fill_parent"
-                          android:layout_height="fill_parent">
+                          android:layout_height="fill_parent" android:id="@+id/screenWeightPager">
 
                 <TabWidget android:id="@android:id/tabs"
                            android:layout_width="fill_parent"

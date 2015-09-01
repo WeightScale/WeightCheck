@@ -2,7 +2,7 @@
 
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
     <PreferenceCategory android:title="@string/information">
-        <EditTextPreference android:title="@string/name_scales" android:key="name"/>
+        <EditTextPreference android:title="@string/name_scales" android:key="@string/KEY_NAME"/>
         <Preference android:title="@string/address_scales" android:key="address" android:enabled="false"/>
     </PreferenceCategory>
     <PreferenceCategory android:title="@string/Settings">
@@ -12,32 +12,32 @@
                                   android:summary="@string/sum_setting_auto_zero">
                     <PreferenceCategory android:title="@string/Auto_zero" android:summary="@string/sum_auto_zero">
                         <EditTextPreference android:title="@string/Time" android:summary="@string/sum_time_auto_zero"
-                                            android:key="timer_null" android:inputType="number"/>
+                                            android:key="@string/KEY_TIMER_NULL" android:inputType="number"/>
                         <EditTextPreference android:title="@string/weight" android:summary="@string/sum_weight"
-                                            android:key="max_null" android:inputType="number"/>
+                                            android:key="@string/KEY_MAX_NULL" android:inputType="number"/>
                     </PreferenceCategory>
                 </PreferenceScreen>
-                <EditTextPreference android:title="@string/Timer_off" android:key="timer" android:inputType="number"/>
-                <EditTextPreference android:title="@string/measuring_step" android:key="step"
+                <EditTextPreference android:title="@string/Timer_off" android:key="@string/KEY_TIMER" android:inputType="number"/>
+                <EditTextPreference android:title="@string/measuring_step" android:key="@string/KEY_STEP"
                                     android:inputType="number"/>
-                <EditTextPreference android:title="@string/auto_capture" android:key="auto_capture"
+                <EditTextPreference android:title="@string/auto_capture" android:key="@string/KEY_AUTO_CAPTURE"
                                     android:inputType="number"/>
                 <EditTextPreference android:title="@string/removing_checks"
-                                    android:summary="@string/sum_removing_checks" android:key="day_check_delete"
+                                    android:summary="@string/sum_removing_checks" android:key="@string/KEY_DAY_CHECK_DELETE"
                                     android:inputType="number"/>
                 <EditTextPreference android:title="@string/closed_checks" android:summary="@string/sum_closed_checks"
-                                    android:key="day_closed_check" android:inputType="number"/>
-                <Preference android:title="@string/checkbox_empty" android:summary="@string/checkbox_empty_summary" android:key="key_empty_checkbox" />
+                                    android:key="@string/KEY_DAY_CLOSED_CHECK" android:inputType="number"/>
+                <Preference android:title="@string/checkbox_empty" android:summary="@string/checkbox_empty_summary" android:key="@string/KEY_EMPTY_CHECKBOX" />
             </PreferenceCategory>
         </PreferenceScreen>
         <EditTextPreference android:title="@string/filter_adc" android:summary="@string/sum_filter_adc"
-                            android:key="filter" android:inputType="number"/>
-        <Preference android:title="Для администратора" android:key="key_admin"/>
+                            android:key="@string/KEY_FILTER" android:inputType="number"/>
+        <Preference android:title="Для администратора" android:key="@string/KEY_ADMIN"/>
     </PreferenceCategory>
     <PreferenceCategory>
-        <Preference android:title="@string/zeroing" android:key="null" android:inputType="number"/>
-        <Preference android:title="@string/Update_scale" android:summary="@string/TEXT_MESSAGE14" android:key="update"
+        <Preference android:title="@string/zeroing" android:key="@string/KEY_NULL" android:inputType="number"/>
+        <Preference android:title="@string/Update_scale" android:summary="@string/TEXT_MESSAGE14" android:key="@string/KEY_UPDATE"
                     android:enabled="false"/>
-        <Preference android:title="@string/about" android:key="about"/>
+        <Preference android:title="@string/about" android:key="@string/KEY_ABOUT"/>
     </PreferenceCategory>
 </PreferenceScreen>

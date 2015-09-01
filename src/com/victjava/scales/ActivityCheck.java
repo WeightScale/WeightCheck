@@ -89,6 +89,8 @@ public class ActivityCheck extends FragmentActivity implements View.OnClickListe
          */
         final int ACTION_UPDATE_PROGRESS = 4;
 
+        final int ACTION_FREEZE_SCREEN = 5;
+
         @Override
         public synchronized void start() {
             setPriority(Thread.MIN_PRIORITY);
@@ -102,6 +104,7 @@ public class ActivityCheck extends FragmentActivity implements View.OnClickListe
                 Thread.sleep(50);
             } catch (InterruptedException ignored) {
             }
+            handler.obtainMessage(ACTION_FREEZE_SCREEN, true).sendToTarget();                                           //Экран делаем видимым
             while (!cancelled) {
 
                 weightViewIsSwipe = false;
@@ -113,7 +116,7 @@ public class ActivityCheck extends FragmentActivity implements View.OnClickListe
                     } catch (InterruptedException ignored) {
                     }
                 }
-                handler.sendMessage(handler.obtainMessage(ACTION_START_WEIGHTING));
+                handler.obtainMessage(ACTION_START_WEIGHTING).sendToTarget();
                 isStable = false;
                 while (!cancelled && !(isStable || weightViewIsSwipe)) {                                                //ждем стабилизации веса или нажатием выбора веса
                     try {
@@ -122,7 +125,7 @@ public class ActivityCheck extends FragmentActivity implements View.OnClickListe
                     }
                     if (!touchWeightView) {                                                                              //если не прикасаемся к индикатору тогда стабилизируем вес
                         isStable = processStable(getWeightToStepMeasuring(moduleWeight));
-                        handler.sendMessage(handler.obtainMessage(ACTION_UPDATE_PROGRESS, numStable, 0));
+                        handler.obtainMessage(ACTION_UPDATE_PROGRESS, numStable, 0).sendToTarget();
                     }
                 }
                 numStable = COUNT_STABLE;
@@ -130,7 +133,7 @@ public class ActivityCheck extends FragmentActivity implements View.OnClickListe
                     break;
                 }
                 if (isStable) {
-                    handler.sendMessage(handler.obtainMessage(ACTION_STORE_WEIGHTING, moduleWeight, 0));                 //сохраняем стабильный вес
+                    handler.obtainMessage(ACTION_STORE_WEIGHTING, moduleWeight, 0).sendToTarget();                      //сохраняем стабильный вес
                 }
 
                 weightViewIsSwipe = false;
@@ -142,23 +145,24 @@ public class ActivityCheck extends FragmentActivity implements View.OnClickListe
                     }                                   // ждем разгрузки весов
                 }
                 vibrator.vibrate(100);
-                handler.sendMessage(handler.obtainMessage(ACTION_UPDATE_PROGRESS, 0, 0));
+                handler.obtainMessage(ACTION_UPDATE_PROGRESS, 0, 0).sendToTarget();
                 if (cancelled) {
                     if (isStable && weightType == WeightType.SECOND) {                                                  //Если тара зафоксирована и выход через кнопку назад
                         weightType = WeightType.NETTO;
                     }
                     break;
                 }
+                handler.obtainMessage(ACTION_FREEZE_SCREEN, false).sendToTarget();                                      // Экран делаем не видимым
                 try {
                     TimeUnit.SECONDS.sleep(2);
                 } catch (InterruptedException ignored) {
                 }                            //задержка
-
+                handler.obtainMessage(ACTION_FREEZE_SCREEN, true).sendToTarget();                                       // Экран делаем видимым
                 if (weightType == WeightType.SECOND) {
                     cancelled = true;
                 }
 
-                handler.sendMessage(handler.obtainMessage(ACTION_STOP_WEIGHTING));
+                handler.obtainMessage(ACTION_STOP_WEIGHTING).sendToTarget();
             }
             start = false;
         }
@@ -192,6 +196,12 @@ public class ActivityCheck extends FragmentActivity implements View.OnClickListe
                     case ACTION_UPDATE_PROGRESS:
                         weightTextView.setSecondaryProgress(msg.arg1);
                         break;
+                    case ACTION_FREEZE_SCREEN:
+                        if ((boolean)msg.obj)
+                            screenWeightPager.setVisibility(View.VISIBLE);
+                        else
+                            screenWeightPager.setVisibility(View.INVISIBLE);
+                        break;
                     default:
                 }
             }
@@ -216,6 +226,7 @@ public class ActivityCheck extends FragmentActivity implements View.OnClickListe
     private ImageView buttonFinish;
     private SimpleGestureFilter detectorWeightView;
     private Drawable dProgressWeight, dWeightDanger;
+    private LinearLayout screenWeightPager;
 
     /**
      * Энумератор типа веса.
@@ -272,6 +283,8 @@ public class ActivityCheck extends FragmentActivity implements View.OnClickListe
         } catch (Exception e) {
             exit();
         }
+
+        screenWeightPager = (LinearLayout)findViewById(R.id.screenWeightPager);
 
         setTitle(getString(R.string.input_check) + " № " + entryID + ' ' + ": " + values.getAsString(CheckTable.KEY_VENDOR)); //установить заголовок
         setupTabHost(savedInstanceState);

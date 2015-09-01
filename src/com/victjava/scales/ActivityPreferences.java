@@ -32,21 +32,7 @@ public class ActivityPreferences extends PreferenceActivity implements SharedPre
     private boolean flagChange;
 
     public ActivityPreferences() {
-        mapPreferences.put(getString(R.string.KEY_NAME), new PreferenceName());
-        mapPreferences.put(getString(R.string.KEY_ADDRESS), new PreferenceAddress());
-        mapPreferences.put(getString(R.string.KEY_NULL), new PreferenceNull());
-        mapPreferences.put(getString(R.string.KEY_FILTER), new PreferenceFilter());
-        mapPreferences.put(getString(R.string.KEY_UPDATE), new PreferenceUpdate());
-        mapPreferences.put(getString(R.string.KEY_TIMER), new PreferenceTimer());
-        mapPreferences.put(getString(R.string.KEY_TIMER_NULL), new PreferenceTimerNull());
-        mapPreferences.put(getString(R.string.KEY_MAX_NULL), new PreferenceMaxNull());
-        mapPreferences.put(getString(R.string.KEY_STEP), new PreferenceStep());
-        mapPreferences.put(getString(R.string.KEY_AUTO_CAPTURE), new PreferenceAutoCapture());
-        mapPreferences.put(getString(R.string.KEY_DAY_CLOSED_CHECK), new PreferenceDayClosedCheck());
-        mapPreferences.put(getString(R.string.KEY_DAY_CHECK_DELETE), new PreferenceDayCheckDelete());
-        mapPreferences.put(getString(R.string.KEY_EMPTY_CHECKBOX), new PreferenceEmptyCheckBox());
-        mapPreferences.put(getString(R.string.KEY_ABOUT), new PreferenceAbout());
-        mapPreferences.put(getString(R.string.KEY_ADMIN), new Admin());
+
     }
 
     interface InterfacePreference {
@@ -505,6 +491,22 @@ public class ActivityPreferences extends PreferenceActivity implements SharedPre
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        mapPreferences.put(getString(R.string.KEY_NAME), new PreferenceName());
+        mapPreferences.put(getString(R.string.KEY_ADDRESS), new PreferenceAddress());
+        mapPreferences.put(getString(R.string.KEY_NULL), new PreferenceNull());
+        mapPreferences.put(getString(R.string.KEY_FILTER), new PreferenceFilter());
+        mapPreferences.put(getString(R.string.KEY_UPDATE), new PreferenceUpdate());
+        mapPreferences.put(getString(R.string.KEY_TIMER), new PreferenceTimer());
+        mapPreferences.put(getString(R.string.KEY_TIMER_NULL), new PreferenceTimerNull());
+        mapPreferences.put(getString(R.string.KEY_MAX_NULL), new PreferenceMaxNull());
+        mapPreferences.put(getString(R.string.KEY_STEP), new PreferenceStep());
+        mapPreferences.put(getString(R.string.KEY_AUTO_CAPTURE), new PreferenceAutoCapture());
+        mapPreferences.put(getString(R.string.KEY_DAY_CLOSED_CHECK), new PreferenceDayClosedCheck());
+        mapPreferences.put(getString(R.string.KEY_DAY_CHECK_DELETE), new PreferenceDayCheckDelete());
+        mapPreferences.put(getString(R.string.KEY_EMPTY_CHECKBOX), new PreferenceEmptyCheckBox());
+        mapPreferences.put(getString(R.string.KEY_ABOUT), new PreferenceAbout());
+        mapPreferences.put(getString(R.string.KEY_ADMIN), new Admin());
 
         addPreferencesFromResource(R.xml.preferences);
 

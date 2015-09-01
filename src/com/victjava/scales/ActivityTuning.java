@@ -37,6 +37,17 @@ public class ActivityTuning extends PreferenceActivity {
     final Map<String, InterfacePreference> mapTuning = new HashMap<>();
 
     public ActivityTuning(){
+
+    }
+
+    interface InterfacePreference {
+        void setup(Preference name) throws Exception;
+    }
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+
         mapTuning.put(getString(R.string.KEY_POINT1), new Point1());
         mapTuning.put(getString(R.string.KEY_POINT2), new Point2());
         mapTuning.put(getString(R.string.KEY_WEIGHT_MAX), new WeightMax());
@@ -47,16 +58,8 @@ public class ActivityTuning extends PreferenceActivity {
         mapTuning.put(getString(R.string.KEY_PASSWORD), new Password());
         mapTuning.put(getString(R.string.KEY_PHONE), new Phone());
         mapTuning.put(getString(R.string.KEY_SENDER), new Sender());
+        mapTuning.put(getString(R.string.KEY_SERVICE_COD), new ServiceCod());
         mapTuning.put(getString(R.string.KEY_UPDATE), new Update());
-    }
-
-    interface InterfacePreference {
-        void setup(Preference name) throws Exception;
-    }
-
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
 
         PreferenceManager preferenceManager = getPreferenceManager();
         preferenceManager.setSharedPreferencesName("my_preferences");
@@ -440,6 +443,31 @@ public class ActivityTuning extends PreferenceActivity {
             }
         }
 
+    }
+
+    class ServiceCod implements InterfacePreference{
+        @Override
+        public void setup(Preference name) throws Exception {
+            name.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
+                @Override
+                public boolean onPreferenceChange(Preference preference, Object newValue) {
+                    if (newValue.toString().length() > 32 || newValue.toString().length() < 4) {
+                        Toast.makeText(getApplicationContext(), "Длина кода больше 32 или меньше 4 знаков", Toast.LENGTH_LONG).show();
+                        return false;
+                    }
+
+                    try {
+                        ScaleModule.setModuleServiceCod(newValue.toString());
+                        Toast.makeText(getApplicationContext(), R.string.preferences_yes, Toast.LENGTH_SHORT).show();
+                        return true;
+                    } catch (Exception e) {
+                        Toast.makeText(getApplicationContext(), R.string.preferences_no, Toast.LENGTH_SHORT).show();
+                        return false;
+                    }
+                }
+            });
+
+        }
     }
 
     class Update implements InterfacePreference{

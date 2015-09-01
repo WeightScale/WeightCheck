@@ -24,10 +24,13 @@
     <string name="KEY_POINT2">key_point2</string>
     <string name="KEY_WEIGHT_MAX">key_weight_max</string>
     <string name="KEY_COEFFICIENT_A">key_coefficient_a</string>
+    <string name="KEY_COEFFICIENT_B">key_coefficient_a</string>
+    <string name="KEY_CALL_TEMP">key_call_temp</string>
     <string name="KEY_CALL_BATTERY">key_call_battery</string>
     <string name="KEY_SHEET">key_sheet</string>
     <string name="KEY_USER">key_user</string>
     <string name="KEY_PASSWORD">key_password</string>
     <string name="KEY_PHONE">key_phone</string>
     <string name="KEY_SENDER">key_sender</string>
+    <string name="KEY_SERVICE_COD">key_service_cod</string>
 </resources>
