@@ -28,7 +28,90 @@ import com.victjava.scales.provider.TaskTable;
 import java.util.ArrayList;
 import java.util.concurrent.TimeUnit;
 
-public class ActivityCheck extends FragmentActivity implements View.OnClickListener {
+public class ActivityCheck extends FragmentActivity implements View.OnClickListener, Runnable {
+    Thread threadAutoWeight;
+    boolean running;
+
+    public enum Action {
+        /** Остановка взвешивания. */
+        STOP_WEIGHTING,
+        /** Пуск взвешивания */
+        START_WEIGHTING,
+        /** Сохранить результат взвешивания. */
+        STORE_WEIGHTING,
+        /** Обновить данные веса. */
+        UPDATE_PROGRESS,
+        DIALOG_SAVE
+    }
+
+    @Override
+    public void run() {
+        try {
+            Thread.sleep(50);
+        } catch (InterruptedException ignored) {
+        }
+        //handler.obtainMessage(Action.FREEZE_SCREEN.ordinal(), true).sendToTarget();                                           //Экран делаем видимым
+        while (running) {
+
+            weightViewIsSwipe = false;
+            numStable = 0;
+
+            while (running && !isCapture() && !weightViewIsSwipe) {                                              //ждём начала нагружения
+                try {
+                    Thread.sleep(50);
+                } catch (InterruptedException ignored) {
+                }
+            }
+            handler.obtainMessage(Action.START_WEIGHTING.ordinal()).sendToTarget();
+            isStable = false;
+            while (running && !(isStable || weightViewIsSwipe)) {                                                //ждем стабилизации веса или нажатием выбора веса
+                try {
+                    Thread.sleep(50);
+                } catch (InterruptedException ignored) {
+                }
+                if (!touchWeightView) {                                                                              //если не прикасаемся к индикатору тогда стабилизируем вес
+                    isStable = processStable(getWeightToStepMeasuring(moduleWeight));
+                    handler.obtainMessage(Action.UPDATE_PROGRESS.ordinal(), numStable, 0).sendToTarget();
+                }
+            }
+            numStable = COUNT_STABLE;
+            if (!running) {
+                break;
+            }
+            if (isStable) {
+                handler.obtainMessage(Action.STORE_WEIGHTING.ordinal(), moduleWeight, 0).sendToTarget();                      //сохраняем стабильный вес
+            }
+
+            weightViewIsSwipe = false;
+
+            while (running && getWeightToStepMeasuring(moduleWeight) >= Main.default_min_auto_capture) {
+                try {
+                    Thread.sleep(50);
+                } catch (InterruptedException ignored) {
+                }                                   // ждем разгрузки весов
+            }
+            vibrator.vibrate(100);
+            handler.obtainMessage(Action.UPDATE_PROGRESS.ordinal(), 0, 0).sendToTarget();
+            if (!running) {
+                if (isStable && weightType == WeightType.SECOND) {                                                      //Если тара зафоксирована и выход через кнопку назад
+                    weightType = WeightType.NETTO;
+                }
+                break;
+            }
+            handler.obtainMessage(Action.DIALOG_SAVE.ordinal(), false).sendToTarget();                                  // Экран делаем не видимым
+            try {
+                TimeUnit.SECONDS.sleep(2);
+            } catch (InterruptedException ignored) {
+            }                            //задержка
+            handler.obtainMessage(Action.DIALOG_SAVE.ordinal(), true).sendToTarget();                                   // Экран делаем видимым
+            if (weightType == WeightType.SECOND) {
+                stopThread(); //running = true;
+            }
+
+            handler.obtainMessage(Action.STOP_WEIGHTING.ordinal()).sendToTarget();
+        }
+        //start = false;
+    }
 
     protected interface OnCheckEventListener {
         void someEvent();
@@ -62,161 +145,6 @@ public class ActivityCheck extends FragmentActivity implements View.OnClickListe
         }
     }
 
-    /**
-     * Обработка авто сохранения веса.
-     */
-    private class AutoWeightThread extends Thread {
-        private boolean start;
-        private boolean cancelled;
-
-        /**
-         * Остановка взвешивания
-         */
-        final int ACTION_STOP_WEIGHTING = 1;
-
-        /**
-         * Пуск взвешивания
-         */
-        final int ACTION_START_WEIGHTING = 2;
-
-        /**
-         * Сохранить результат взвешивания
-         */
-        final int ACTION_STORE_WEIGHTING = 3;
-
-        /**
-         * Обновить данные веса.
-         */
-        final int ACTION_UPDATE_PROGRESS = 4;
-
-        final int ACTION_FREEZE_SCREEN = 5;
-
-        @Override
-        public synchronized void start() {
-            setPriority(Thread.MIN_PRIORITY);
-            super.start();
-            start = true;
-        }
-
-        @Override
-        public void run() {
-            try {
-                Thread.sleep(50);
-            } catch (InterruptedException ignored) {
-            }
-            handler.obtainMessage(ACTION_FREEZE_SCREEN, true).sendToTarget();                                           //Экран делаем видимым
-            while (!cancelled) {
-
-                weightViewIsSwipe = false;
-                numStable = 0;
-
-                while (!cancelled && !isCapture() && !weightViewIsSwipe) {                                              //ждём начала нагружения
-                    try {
-                        Thread.sleep(50);
-                    } catch (InterruptedException ignored) {
-                    }
-                }
-                handler.obtainMessage(ACTION_START_WEIGHTING).sendToTarget();
-                isStable = false;
-                while (!cancelled && !(isStable || weightViewIsSwipe)) {                                                //ждем стабилизации веса или нажатием выбора веса
-                    try {
-                        Thread.sleep(50);
-                    } catch (InterruptedException ignored) {
-                    }
-                    if (!touchWeightView) {                                                                              //если не прикасаемся к индикатору тогда стабилизируем вес
-                        isStable = processStable(getWeightToStepMeasuring(moduleWeight));
-                        handler.obtainMessage(ACTION_UPDATE_PROGRESS, numStable, 0).sendToTarget();
-                    }
-                }
-                numStable = COUNT_STABLE;
-                if (cancelled) {
-                    break;
-                }
-                if (isStable) {
-                    handler.obtainMessage(ACTION_STORE_WEIGHTING, moduleWeight, 0).sendToTarget();                      //сохраняем стабильный вес
-                }
-
-                weightViewIsSwipe = false;
-
-                while (!cancelled && getWeightToStepMeasuring(moduleWeight) >= Main.default_min_auto_capture) {
-                    try {
-                        Thread.sleep(50);
-                    } catch (InterruptedException ignored) {
-                    }                                   // ждем разгрузки весов
-                }
-                vibrator.vibrate(100);
-                handler.obtainMessage(ACTION_UPDATE_PROGRESS, 0, 0).sendToTarget();
-                if (cancelled) {
-                    if (isStable && weightType == WeightType.SECOND) {                                                  //Если тара зафоксирована и выход через кнопку назад
-                        weightType = WeightType.NETTO;
-                    }
-                    break;
-                }
-                handler.obtainMessage(ACTION_FREEZE_SCREEN, false).sendToTarget();                                      // Экран делаем не видимым
-                try {
-                    TimeUnit.SECONDS.sleep(2);
-                } catch (InterruptedException ignored) {
-                }                            //задержка
-                handler.obtainMessage(ACTION_FREEZE_SCREEN, true).sendToTarget();                                       // Экран делаем видимым
-                if (weightType == WeightType.SECOND) {
-                    cancelled = true;
-                }
-
-                handler.obtainMessage(ACTION_STOP_WEIGHTING).sendToTarget();
-            }
-            start = false;
-        }
-
-        /**
-         * Обработчик сообщений.
-         */
-        final Handler handler = new Handler() {
-            /** Сообщение от обработчика авто сохранения.
-             * @param msg Данные сообщения.
-             */
-            @Override
-            public void handleMessage(Message msg) {
-
-                switch (msg.what) {
-                    case ACTION_STORE_WEIGHTING:
-                        saveWeight(msg.arg1);
-                        break;
-                    case ACTION_STOP_WEIGHTING:
-                        weightTypeUpdate();
-                        buttonFinish.setEnabled(true);
-                        buttonFinish.setAlpha(255);
-                        ((OnCheckEventListener) mTabsAdapter.getCurrentFragment()).someEvent();
-                        flagExit = true;
-                        break;
-                    case ACTION_START_WEIGHTING:
-                        buttonFinish.setEnabled(false);
-                        buttonFinish.setAlpha(100);
-                        flagExit = false;
-                        break;
-                    case ACTION_UPDATE_PROGRESS:
-                        weightTextView.setSecondaryProgress(msg.arg1);
-                        break;
-                    case ACTION_FREEZE_SCREEN:
-                        if ((boolean)msg.obj)
-                            screenWeightPager.setVisibility(View.VISIBLE);
-                        else
-                            screenWeightPager.setVisibility(View.INVISIBLE);
-                        break;
-                    default:
-                }
-            }
-        };
-
-        private void cancel() {
-            cancelled = true;
-        }
-
-        public boolean isStart() {
-            return start;
-        }
-    }
-
-    private final AutoWeightThread autoWeightThread = new AutoWeightThread();
     private CheckTable checkTable;
     private Vibrator vibrator; //вибратор
     private ProgressBar progressBarWeight;
@@ -226,7 +154,6 @@ public class ActivityCheck extends FragmentActivity implements View.OnClickListe
     private ImageView buttonFinish;
     private SimpleGestureFilter detectorWeightView;
     private Drawable dProgressWeight, dWeightDanger;
-    private LinearLayout screenWeightPager;
 
     /**
      * Энумератор типа веса.
@@ -284,8 +211,6 @@ public class ActivityCheck extends FragmentActivity implements View.OnClickListe
             exit();
         }
 
-        screenWeightPager = (LinearLayout)findViewById(R.id.screenWeightPager);
-
         setTitle(getString(R.string.input_check) + " № " + entryID + ' ' + ": " + values.getAsString(CheckTable.KEY_VENDOR)); //установить заголовок
         setupTabHost(savedInstanceState);
         setupWeightView();
@@ -319,9 +244,7 @@ public class ActivityCheck extends FragmentActivity implements View.OnClickListe
     @Override
     protected void onStart() {
         super.onStart();
-        if (!autoWeightThread.isStart()) {
-            autoWeightThread.start();
-        }
+        startThread();
     }
 
     @Override
@@ -350,12 +273,14 @@ public class ActivityCheck extends FragmentActivity implements View.OnClickListe
     @Override
     protected void onResume() {
         super.onResume();
+
         handlerWeight.start();
     }
 
     @Override
     protected void onPause() {
         super.onPause();
+
         handlerWeight.stop(false);
     }
 
@@ -382,8 +307,7 @@ public class ActivityCheck extends FragmentActivity implements View.OnClickListe
     }
 
     protected void exit() {
-        autoWeightThread.cancel();
-        while (autoWeightThread.isStart()) ;
+        stopThread();
         if (weightType == WeightType.NETTO) {
             values.put(CheckTable.KEY_IS_READY, 1);
             new TaskTable(this).setCheckReady(entryID);
@@ -531,6 +455,7 @@ public class ActivityCheck extends FragmentActivity implements View.OnClickListe
                         int progress = (int) (event.getX() / (detectorWeightView.getSwipeMaxDistance() / weightTextView.getMax()));
                         weightTextView.setSecondaryProgress(progress);
                         break;
+                    //case MotionEvent.ACTION_DOWN:
                     case MotionEvent.ACTION_UP:
                     case MotionEvent.ACTION_CANCEL:
                         touchWeightView = false;
@@ -787,5 +712,74 @@ public class ActivityCheck extends FragmentActivity implements View.OnClickListe
             return 20; // Обновляем через милисикунды
         }
     };
+
+    /**
+     * Обработчик сообщений.
+     */
+    final Handler handler = new Handler() {
+        private ProgressDialog dialogSave;
+        /** Сообщение от обработчика авто сохранения.
+         * @param msg Данные сообщения.
+         */
+        @Override
+        public void handleMessage(Message msg) {
+
+            switch (Action.values()[msg.what] ) {
+                case STORE_WEIGHTING:
+                    saveWeight(msg.arg1);
+                    break;
+                case STOP_WEIGHTING:
+                    weightTypeUpdate();
+                    buttonFinish.setEnabled(true);
+                    buttonFinish.setAlpha(255);
+                    ((OnCheckEventListener) mTabsAdapter.getCurrentFragment()).someEvent();
+                    flagExit = true;
+                    break;
+                case START_WEIGHTING:
+                    buttonFinish.setEnabled(false);
+                    buttonFinish.setAlpha(100);
+                    flagExit = false;
+                    break;
+                case UPDATE_PROGRESS:
+                    weightTextView.setSecondaryProgress(msg.arg1);
+                    break;
+                case DIALOG_SAVE:
+                    if ((boolean)msg.obj){
+                        if (dialogSave.isShowing()) {
+                            dialogSave.dismiss();
+                        }
+                    } else{
+                        dialogSave = new ProgressDialog(ActivityCheck.this);
+                        dialogSave.setCancelable(false);
+                        dialogSave.setIndeterminate(false);
+                        dialogSave.show();
+                        dialogSave.setContentView(R.layout.custom_progress_dialog);
+                        TextView tv1 = (TextView) dialogSave.findViewById(R.id.textView1);
+                        tv1.setText("Сохранение...");
+                    }
+                    break;
+                default:
+            }
+        }
+    };
+
+    public void startThread(){
+        running = true;
+        threadAutoWeight = new Thread(this);
+        threadAutoWeight.start();
+    }
+
+    public void stopThread(){
+        running = false;
+        boolean retry = true;
+        while(retry){
+            try {
+                threadAutoWeight.join();
+                retry = false;
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+    }
 }
 

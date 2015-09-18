@@ -190,4 +190,5 @@
     <string name="Cleaning">Очистка</string>
     <string name="send_weight_check">передать весовой чек</string>
     <string name="Off_scales">ВЫКЛЮЧИТЬ ВЕСЫ</string>
+    <string name="text_setting_admin">Настройки для опытного пользователя</string>
 </resources>

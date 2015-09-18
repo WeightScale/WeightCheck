@@ -30,9 +30,12 @@
                 <Preference android:title="@string/checkbox_empty" android:summary="@string/checkbox_empty_summary" android:key="@string/KEY_EMPTY_CHECKBOX" />
             </PreferenceCategory>
         </PreferenceScreen>
-        <com.victjava.scales.DialogFilterADC android:title="@string/filter_adc" android:summary="@string/sum_filter_adc"
-                            android:key="@string/KEY_FILTER" android:inputType="number"/>
-        <Preference android:title="Для администратора" android:key="@string/KEY_ADMIN"/>
+        <com.victjava.scales.DialogFilterADC  android:title="@string/filter_adc"
+                       android:summary="@string/sum_filter_adc"
+                       android:key="@string/KEY_FILTER"
+                                              android:defaultValue="10"
+                       android:inputType="number"/>
+        <Preference android:title="Для администратора" android:summary="@string/text_setting_admin" android:key="@string/KEY_ADMIN"/>
     </PreferenceCategory>
     <PreferenceCategory>
         <Preference android:title="@string/zeroing" android:key="@string/KEY_NULL" android:inputType="number"/>

@@ -187,7 +187,8 @@
     <string name="Clear_checkbox_dialog_message">"Do you really want to send a clear choice for a weight check
                  SMS or email your contacts. If you clear, the weight check will not be sent (contact) check."</string>
     <string name="Cleaning">Cleaning</string>
-    <string name="send_weight_check">передать весовой чек</string>
-    <string name="Off_scales">ВЫКЛЮЧИТЬ ВЕСЫ</string>
+    <string name="send_weight_check">transfer the weight check</string>
+    <string name="Off_scales">OFF SCALES</string>
+    <string name="text_setting_admin">Advanced User Settings</string>
 
 </resources>

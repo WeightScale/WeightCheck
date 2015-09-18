@@ -1,6 +1,7 @@
 //Активность настроек
 package com.victjava.scales;
 
+import android.annotation.TargetApi;
 import android.app.AlertDialog;
 import android.content.*;
 import android.database.Cursor;
@@ -14,7 +15,9 @@ import android.provider.BaseColumns;
 import android.provider.ContactsContract;
 import android.text.InputType;
 import android.text.method.PasswordTransformationMethod;
+import android.util.AttributeSet;
 import android.widget.EditText;
+import android.widget.NumberPicker;
 import android.widget.Toast;
 import com.konst.module.InterfaceVersions;
 import com.konst.module.ScaleModule;
@@ -531,5 +534,22 @@ public class ActivityPreferences extends PreferenceActivity implements SharedPre
     @Override
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String s) {
         flagChange = true;
+    }
+
+    @TargetApi(Build.VERSION_CODES.HONEYCOMB)
+    class NumberPickerDialogADC extends NumberPicker {
+
+        @TargetApi(Build.VERSION_CODES.HONEYCOMB)
+        public NumberPickerDialogADC(Context context, AttributeSet attrs) {
+            super(context, attrs);
+            processAttributeSet(attrs);
+        }
+
+        @TargetApi(Build.VERSION_CODES.HONEYCOMB)
+        private void processAttributeSet(AttributeSet attrs) {
+            //This method reads the parameters given in the xml file and sets the properties according to it
+            setMinValue(attrs.getAttributeIntValue(null, "min", 0));
+            setMaxValue(attrs.getAttributeIntValue(null, "max", 0));
+        }
     }
 }

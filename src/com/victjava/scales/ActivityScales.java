@@ -525,6 +525,7 @@ public class ActivityScales extends Activity implements View.OnClickListener, Vi
          */
         @Override
         public void handleResultConnect(final Module.ResultConnect result) {
+
             runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
@@ -545,18 +546,20 @@ public class ActivityScales extends Activity implements View.OnClickListener, Vi
 
                             break;
                         case STATUS_ATTACH_START:
-                            dialogSearch = new ProgressDialog(ActivityScales.this);
+                            setTitle(getString(R.string.app_name) + " >> " + ScaleModule.getNameBluetoothDevice());
+                            /*dialogSearch = new ProgressDialog(ActivityScales.this);
                             dialogSearch.setCancelable(false);
                             dialogSearch.setIndeterminate(false);
                             dialogSearch.show();
                             dialogSearch.setContentView(R.layout.custom_progress_dialog);
                             TextView tv1 = (TextView) dialogSearch.findViewById(R.id.textView1);
-                            tv1.setText(getString(R.string.Connecting) + '\n' + ScaleModule.getNameBluetoothDevice());
+                            tv1.setText(getString(R.string.Connecting) + '\n' + ScaleModule.getNameBluetoothDevice());*/
                         break;
                         case STATUS_ATTACH_FINISH:
-                            if (dialogSearch.isShowing()) {
+                            setProgressBarIndeterminateVisibility(false);
+                            /*if (dialogSearch.isShowing()) {
                                 dialogSearch.dismiss();
-                            }
+                            }*/
                         break;
                         default:
                     }
@@ -570,6 +573,7 @@ public class ActivityScales extends Activity implements View.OnClickListener, Vi
          */
         @Override
         public void handleConnectError(final Module.ResultError error, final String s) {
+            //setProgressBarIndeterminateVisibility(false);
             runOnUiThread(new Runnable() {
                 @Override
                 public void run() {

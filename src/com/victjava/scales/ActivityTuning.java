@@ -36,10 +36,6 @@ public class ActivityTuning extends PreferenceActivity {
     private boolean flag_restore;
     final Map<String, InterfacePreference> mapTuning = new HashMap<>();
 
-    public ActivityTuning(){
-
-    }
-
     interface InterfacePreference {
         void setup(Preference name) throws Exception;
     }

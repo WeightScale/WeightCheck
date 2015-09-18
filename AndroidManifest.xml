@@ -4,7 +4,7 @@
           android:versionCode="38"
           android:allowClearUserData="true"
           android:versionName="WeightScales">
-    <uses-sdk android:minSdkVersion="10" android:targetSdkVersion="15"/>
+    <uses-sdk android:minSdkVersion="10" android:targetSdkVersion="21"/>
     <uses-permission android:name="android.permission.BLUETOOTH"/>
     <uses-permission android:name="android.permission.BLUETOOTH_ADMIN"/>
     <uses-permission android:name="android.permission.VIBRATE"/>
@@ -56,12 +56,12 @@
             </intent-filter>
         </activity>
         <activity android:name=".ActivityPreferences"
-                  android:theme="@style/Preferences.black"
+
                   android:screenOrientation="portrait"
                   android:configChanges="orientation">
         </activity>
         <activity android:name=".ActivityTuning"
-                  android:theme="@style/Preferences.black"
+
                   android:screenOrientation="portrait"
                   android:configChanges="orientation">
         </activity>
