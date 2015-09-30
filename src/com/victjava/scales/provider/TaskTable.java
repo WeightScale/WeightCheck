@@ -7,6 +7,7 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.provider.BaseColumns;
 import com.konst.module.ScaleModule;
+import com.victjava.scales.Main;
 import com.victjava.scales.TaskCommand;
 
 /**
@@ -18,6 +19,7 @@ import com.victjava.scales.TaskCommand;
  */
 public class TaskTable {
     private final Context mContext;
+    final ScaleModule scaleModule;
     public static final String TABLE = "taskTable";
 
     public static final String KEY_ID = BaseColumns._ID;
@@ -42,6 +44,7 @@ public class TaskTable {
 
     public TaskTable(Context cnt) {
         mContext = cnt;
+        scaleModule = ((Main)mContext.getApplicationContext()).getScaleModule();
     }
 
     public Uri insertNewTask(TaskCommand.TaskType mimeType, long documentId, long dataId, String data1) {
@@ -128,10 +131,10 @@ public class TaskTable {
                             insertNewTask(TaskCommand.TaskType.TYPE_CHECK_SEND_SHEET_DISK, _rowIndex, senderId, "");
                             break;
                         case TYPE_EMAIL:
-                            insertNewTask(TaskCommand.TaskType.TYPE_CHECK_SEND_MAIL, _rowIndex, senderId, ScaleModule.getUserName());
+                            insertNewTask(TaskCommand.TaskType.TYPE_CHECK_SEND_MAIL, _rowIndex, senderId, scaleModule.getUserName());
                             break;
                         case TYPE_SMS:
-                            insertNewTask(TaskCommand.TaskType.TYPE_CHECK_SEND_SMS_ADMIN, _rowIndex, senderId, ScaleModule.getPhone());
+                            insertNewTask(TaskCommand.TaskType.TYPE_CHECK_SEND_SMS_ADMIN, _rowIndex, senderId, scaleModule.getPhone());
                             break;
                         default:
                     }

@@ -39,10 +39,30 @@ public class SenderTable {
     public static final String KEY_SYS = "system"; //  0 или 1
 
     public enum TypeSender {
-        TYPE_GOOGLE_DISK,       //для google disk
-        TYPE_HTTP_POST,         //на облако
-        TYPE_SMS,               //для смс отправки боссу
-        TYPE_EMAIL              //для електронной почты
+        TYPE_GOOGLE_DISK{
+            @Override
+            public String toString() {
+                return "GOOGLE DISK";
+            }
+        },       //для google disk
+        TYPE_HTTP_POST{
+            @Override
+            public String toString() {
+                return "HTTP POST";
+            }
+        },         //на облако
+        TYPE_SMS{
+            @Override
+            public String toString() {
+                return "SMS";
+            }
+        },               //для смс отправки боссу
+        TYPE_EMAIL{
+            @Override
+            public String toString() {
+                return "EMAIL";
+            }
+        }              //для електронной почты
     }
 
     public static final String TABLE_CREATE = "create table "

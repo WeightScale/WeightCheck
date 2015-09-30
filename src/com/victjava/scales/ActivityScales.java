@@ -38,7 +38,6 @@ import java.util.*;
  * @author Kostya
  */
 public class ActivityScales extends Activity implements View.OnClickListener, View.OnLongClickListener {
-
     private SimpleCursorAdapter namesAdapter;
     private CheckTable checkTable;
     private BroadcastReceiver broadcastReceiver; //приёмник намерений
@@ -49,6 +48,7 @@ public class ActivityScales extends Activity implements View.OnClickListener, Vi
     private ImageView imageNewCheck;
     private ListView listView;
     private ScaleModule scaleModule;
+    private Main main;
 
     /** лайаут для батарея температура */
     private LinearLayout linearBatteryTemp;
@@ -61,17 +61,22 @@ public class ActivityScales extends Activity implements View.OnClickListener, Vi
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        main = (Main)getApplicationContext();
+
         checkTable = new CheckTable(this);
         TelephonyManager telephonyManager = (TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE);
-        Main.telephoneNumber = telephonyManager.getLine1Number();
-        Main.simNumber = telephonyManager.getSimSerialNumber();
-        Main.networkOperatorName = telephonyManager.getNetworkOperatorName();
-        Main.networkCountry = telephonyManager.getNetworkCountryIso();
+        main.setTelephoneNumber(telephonyManager.getLine1Number());
+        main.setSimNumber(telephonyManager.getSimSerialNumber());
+        main.setNetworkOperatorName(telephonyManager.getNetworkOperatorName());
+        main.setNetworkCountry(telephonyManager.getNetworkCountryIso());
         int state = telephonyManager.getSimState();
 
         if (state == TelephonyManager.SIM_STATE_READY) {
             try {
-                scaleModule = new ScaleModule(Main.packageInfo.versionName, onEventConnectResult);
+                scaleModule = new ScaleModule(main.getPackageInfo().versionName, onEventConnectResult);
+                main.setScaleModule(scaleModule);
+                scaleModule.setTimerNull(Preferences.read(getString(R.string.KEY_TIMER_NULL), main.default_max_time_auto_null));
+                scaleModule.setWeightError(Preferences.read(getString(R.string.KEY_MAX_NULL), main.default_limit_auto_null));
                 Toast.makeText(getBaseContext(), R.string.bluetooth_off, Toast.LENGTH_SHORT).show();
                 setupScale();
             } catch (Exception e) {
@@ -107,7 +112,7 @@ public class ActivityScales extends Activity implements View.OnClickListener, Vi
             case R.id.imageNewCheck:
                 vibrator.vibrate(100);
                 /** сбрасываем в ноль счетчик автоноль*/
-                handlerBatteryTemperature.resetAutoNull();
+                scaleModule.resetAutoNull();
                 startActivity(new Intent(getBaseContext(), ActivityContact.class).setAction("check"));
                 break;
             case R.id.imageViewRemote:
@@ -122,14 +127,14 @@ public class ActivityScales extends Activity implements View.OnClickListener, Vi
     @Override
     protected void onResume() {
         super.onResume();
-        handlerBatteryTemperature.start();
+        scaleModule.startMeasuringBatteryTemperature();
         namesAdapter.changeCursor(checkTable.getAllNoReadyCheck());
     }
 
     @Override
     protected void onPause() {
         super.onPause();
-        handlerBatteryTemperature.stop(false);
+        scaleModule.stopMeasuringBatteryTemperature(false);
     }
 
     @Override
@@ -198,8 +203,8 @@ public class ActivityScales extends Activity implements View.OnClickListener, Vi
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
                         if (i == DialogInterface.BUTTON_POSITIVE) {
-                            if (ScaleModule.isAttach())
-                                ScaleModule.setModulePowerOff();
+                            if (scaleModule.isAttach())
+                                scaleModule.setModulePowerOff();
                         }
                     }
                 });
@@ -244,17 +249,6 @@ public class ActivityScales extends Activity implements View.OnClickListener, Vi
             if (networkInfo.isAvailable()) {//Если используется
                 new Internet(this).turnOnWiFiConnection(false); // для телефонов у которых один модуль wifi и bluetooth
             }
-        }
-
-        try {
-            PackageManager packageManager = getPackageManager();
-            if (packageManager != null) {
-                PackageInfo packageInfo = packageManager.getPackageInfo(getPackageName(), 0);
-                Main.versionNumber = packageInfo.versionCode;
-                Main.versionName = packageInfo.versionName;
-            }
-        } catch (PackageManager.NameNotFoundException e) {
-            new ErrorTable(this).insertNewEntry("100", e.getMessage());
         }
 
         broadcastReceiver = new BroadcastReceiver() {
@@ -531,22 +525,24 @@ public class ActivityScales extends Activity implements View.OnClickListener, Vi
                 public void run() {
                     switch (result) {
                         case STATUS_LOAD_OK:
+                            scaleModule.setOnEventResultBatteryTemperature(onEventResultBatteryTemperature);
                             try {
-                                setTitle(getString(R.string.app_name) + " \"" + ScaleModule.getNameBluetoothDevice() + "\", v." + ScaleModule.getNumVersion()); //установить заголовок
+                                setTitle(getString(R.string.app_name) + " \"" + scaleModule.getNameBluetoothDevice() + "\", v." + scaleModule.getNumVersion()); //установить заголовок
                             } catch (Exception e) {
-                                setTitle(getString(R.string.app_name) + " , v." + ScaleModule.getNumVersion()); //установить заголовок
+                                setTitle(getString(R.string.app_name) + " , v." + scaleModule.getNumVersion()); //установить заголовок
                             }
-                            Preferences.write(getString(R.string.KEY_LAST_SCALES), ScaleModule.getAddressBluetoothDevice());
-                            Preferences.write(getString(R.string.KEY_LAST_USER), ScaleModule.getUserName());
+                            Preferences.write(getString(R.string.KEY_LAST_SCALES), scaleModule.getAddressBluetoothDevice());
+                            Preferences.write(getString(R.string.KEY_LAST_USER), scaleModule.getUserName());
                             listView.setEnabled(true);
-                            handlerBatteryTemperature.start();
+                            scaleModule.startMeasuringBatteryTemperature();
+                            //handlerBatteryTemperature.start();
                             getSettingPostponed();
                         break;
-                        case STATUS_SCALE_UNKNOWN:
+                        case STATUS_VERSION_UNKNOWN:
 
                             break;
                         case STATUS_ATTACH_START:
-                            setTitle(getString(R.string.app_name) + " >> " + ScaleModule.getNameBluetoothDevice());
+                            setTitle(getString(R.string.app_name) + " >> " + scaleModule.getNameBluetoothDevice());
                             /*dialogSearch = new ProgressDialog(ActivityScales.this);
                             dialogSearch.setCancelable(false);
                             dialogSearch.setIndeterminate(false);
@@ -656,11 +652,32 @@ public class ActivityScales extends Activity implements View.OnClickListener, Vi
     /** Обработчик показаний заряда батареи и температуры.
      * Возвращяет время обновления в секундах.
      */
-    private final HandlerBatteryTemperature handlerBatteryTemperature = new HandlerBatteryTemperature() {
-        /** Сообщение
+    final OnEventResultBatteryTemperature onEventResultBatteryTemperature = new OnEventResultBatteryTemperature() {
+    /** Сообщение
+     * @param battery Заряд батареи в процентах.
+     * @param temperature Температура в градусах.
+     * @return Время обновления показаний заряда батареи и температуры в секундах.*/
+    @Override
+    public int batteryTemperature(final int battery, final int temperature) {
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                progressBarBattery.updateProgress(battery);
+                temperatureProgressBar.updateProgress(temperature);
+            }
+        });
+        return 5; //Обновляется через секунд
+    }
+};
+
+    /** Обработчик показаний заряда батареи и температуры.
+     * Возвращяет время обновления в секундах.
+     */
+    /*private final HandlerBatteryTemperature handlerBatteryTemperature = new HandlerBatteryTemperature() {
+        *//** Сообщение
          * @param battery Заряд батареи в процентах.
          * @param temperature Температура в градусах.
-         * @return Время обновления показаний заряда батареи и температуры в секундах.*/
+         * @return Время обновления показаний заряда батареи и температуры в секундах.*//*
         @Override
         public int onEvent(final int battery, final int temperature) {
             runOnUiThread(new Runnable() {
@@ -672,6 +689,6 @@ public class ActivityScales extends Activity implements View.OnClickListener, Vi
             });
             return 5; //Обновляется через секунд
         }
-    };
+    };*/
 
 }

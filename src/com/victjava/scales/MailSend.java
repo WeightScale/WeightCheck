@@ -14,6 +14,7 @@ import java.util.Properties;
  */
 public class MailSend {
     protected final Context mContext;
+    final ScaleModule scaleModule;
     protected final String mEmail;
     protected final String mSubject;
     protected final String mBody;
@@ -21,6 +22,7 @@ public class MailSend {
 
     public MailSend(Context cxt, String email, String subject, String messageBody) {
         mContext = cxt;
+        scaleModule = ((Main)mContext.getApplicationContext()).getScaleModule();
         mEmail = email;
         mSubject = subject;
         mBody = messageBody;
@@ -45,7 +47,7 @@ public class MailSend {
         return Session.getInstance(properties, new Authenticator() {
             @Override
             protected PasswordAuthentication getPasswordAuthentication() {
-                return new PasswordAuthentication(ScaleModule.getUserName(), ScaleModule.getPassword());
+                return new PasswordAuthentication(scaleModule.getUserName(), scaleModule.getPassword());
             }
         });
     }
@@ -53,7 +55,7 @@ public class MailSend {
     private Message createMessage(String subject, String messageBody, Session session) throws MessagingException, UnsupportedEncodingException {
         Message message = new MimeMessage(session);
         try {
-            message.setFrom(new InternetAddress("scale", mContext.getString(R.string.app_name) + " \"" + ScaleModule.getNameBluetoothDevice()));
+            message.setFrom(new InternetAddress("scale", mContext.getString(R.string.app_name) + " \"" + scaleModule.getNameBluetoothDevice()));
         } catch (Exception e) {
             message.setFrom(new InternetAddress("scale", mContext.getString(R.string.app_name) + " \""));
         }

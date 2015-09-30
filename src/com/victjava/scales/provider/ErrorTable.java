@@ -8,6 +8,7 @@ import android.net.Uri;
 import android.provider.BaseColumns;
 import android.telephony.TelephonyManager;
 import com.konst.module.ScaleModule;
+import com.victjava.scales.Main;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -16,9 +17,7 @@ import java.util.Locale;
 public class ErrorTable {
 
     private final Context context;
-    //private SQLiteDatabase db;
-
-    //public static int day;
+    final ScaleModule scaleModule;
 
     public static final String TABLE = "errorTable";
 
@@ -42,6 +41,7 @@ public class ErrorTable {
 
     public ErrorTable(Context cnt) {
         context = cnt;
+        scaleModule = ((Main)context.getApplicationContext()).getScaleModule();
     }
 
     public Uri insertNewEntry(String number, String des) {
@@ -53,7 +53,7 @@ public class ErrorTable {
         String bt_number = mngr.getDeviceId();
         newTaskValues.put(KEY_DATE_CREATE, sdf.format(date));
         if (bt_number != null) {
-            newTaskValues.put(KEY_NUMBER_BT, bt_number + ' ' + ScaleModule.getAddressBluetoothDevice());
+            newTaskValues.put(KEY_NUMBER_BT, bt_number + ' ' + scaleModule.getAddressBluetoothDevice());
         }
         newTaskValues.put(KEY_NUMBER_ERROR, number);
         newTaskValues.put(KEY_DESCRIPTION, des);

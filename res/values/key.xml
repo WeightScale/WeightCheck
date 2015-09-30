@@ -3,6 +3,7 @@
     <string name="KEY_STEP">key_step</string>
     <string name="KEY_NAME">key_name</string>
     <string name="KEY_ADDRESS">key_address</string>
+    <string name="KEY_SPEED_PORT">key_speed_port</string>
     <string name="KEY_NULL">key_null</string>
     <string name="KEY_AUTO_CAPTURE">key_auto_capture</string>
     <string name="KEY_DAY_CLOSED_CHECK">key_day_closed_check</string>

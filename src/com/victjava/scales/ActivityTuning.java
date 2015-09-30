@@ -30,6 +30,8 @@ import java.util.Map;
 
 public class ActivityTuning extends PreferenceActivity {
     protected Dialog dialog;
+    ScaleModule scaleModule;
+    Main main;
 
     private final Point point1 = new Point(Integer.MIN_VALUE, 0);
     private final Point point2 = new Point(Integer.MIN_VALUE, 0);
@@ -43,6 +45,9 @@ public class ActivityTuning extends PreferenceActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        main = (Main)getApplication();
+        scaleModule = main.getScaleModule();
 
         mapTuning.put(getString(R.string.KEY_POINT1), new Point1());
         mapTuning.put(getString(R.string.KEY_POINT2), new Point2());
@@ -87,8 +92,8 @@ public class ActivityTuning extends PreferenceActivity {
                 @Override
                 public boolean onPreferenceClick(Preference preference) {
                     try {
-                        String str = ScaleModule.feelWeightSensor();
-                        ScaleModule.setSensorTenzo(Integer.valueOf(str));
+                        String str = scaleModule.feelWeightSensor();
+                        scaleModule.setSensorTenzo(Integer.valueOf(str));
                         point1.x = Integer.valueOf(str);
                         point1.y = 0;
                         Toast.makeText(getApplicationContext(), R.string.preferences_yes, Toast.LENGTH_SHORT).show();
@@ -110,12 +115,12 @@ public class ActivityTuning extends PreferenceActivity {
                 @Override
                 public boolean onPreferenceChange(Preference preference, Object o) {
                     try {
-                        String str = ScaleModule.feelWeightSensor();
+                        String str = scaleModule.feelWeightSensor();
                         if (str.isEmpty()) {
                             Toast.makeText(getApplicationContext(), R.string.preferences_no, Toast.LENGTH_SHORT).show();
                             return false;
                         }
-                        ScaleModule.setSensorTenzo(Integer.valueOf(str));
+                        scaleModule.setSensorTenzo(Integer.valueOf(str));
                         point2.x = Integer.valueOf(str);
                         point2.y = Integer.valueOf(o.toString());
                         Toast.makeText(getApplicationContext(), R.string.preferences_yes, Toast.LENGTH_SHORT).show();
@@ -133,17 +138,17 @@ public class ActivityTuning extends PreferenceActivity {
     class WeightMax implements InterfacePreference{
         @Override
         public void setup(Preference name) throws Exception {
-            name.setTitle(getString(R.string.Max_weight) + ScaleModule.getWeightMax() + getString(R.string.scales_kg));
+            name.setTitle(getString(R.string.Max_weight) + scaleModule.getWeightMax() + getString(R.string.scales_kg));
             name.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
                 @Override
                 public boolean onPreferenceChange(Preference preference, Object o) {
-                    if (o.toString().isEmpty() || Integer.valueOf(o.toString()) < Main.default_max_weight) {
+                    if (o.toString().isEmpty() || Integer.valueOf(o.toString()) < main.default_max_weight) {
                         Toast.makeText(getApplicationContext(), R.string.preferences_no, Toast.LENGTH_SHORT).show();
                         return false;
                     }
-                    ScaleModule.setWeightMax(Integer.valueOf(o.toString()));
-                    ScaleModule.setWeightMargin((int) (ScaleModule.getWeightMax() * 1.2));
-                    preference.setTitle(getString(R.string.Max_weight) + ScaleModule.getWeightMax() + getString(R.string.scales_kg));
+                    scaleModule.setWeightMax(Integer.valueOf(o.toString()));
+                    scaleModule.setWeightMargin((int) (scaleModule.getWeightMax() * 1.2));
+                    preference.setTitle(getString(R.string.Max_weight) + scaleModule.getWeightMax() + getString(R.string.scales_kg));
                     Toast.makeText(getApplicationContext(), R.string.preferences_yes, Toast.LENGTH_SHORT).show();
                     flag_restore = true;
                     return true;
@@ -155,13 +160,13 @@ public class ActivityTuning extends PreferenceActivity {
     class CoefficientA implements InterfacePreference{
         @Override
         public void setup(Preference name) throws Exception {
-            name.setTitle(getString(R.string.ConstantA) + Float.toString(ScaleModule.getCoefficientA()));
+            name.setTitle(getString(R.string.ConstantA) + Float.toString(scaleModule.getCoefficientA()));
             name.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
                 @Override
                 public boolean onPreferenceChange(Preference preference, Object o) {
                     try {
-                        ScaleModule.setCoefficientA(Float.valueOf(o.toString()));
-                        preference.setTitle(getString(R.string.ConstantA) + Float.toString(ScaleModule.getCoefficientA()));
+                        scaleModule.setCoefficientA(Float.valueOf(o.toString()));
+                        preference.setTitle(getString(R.string.ConstantA) + Float.toString(scaleModule.getCoefficientA()));
                         Toast.makeText(getApplicationContext(), R.string.preferences_yes, Toast.LENGTH_SHORT).show();
                         flag_restore = true;
                         return true;
@@ -178,17 +183,17 @@ public class ActivityTuning extends PreferenceActivity {
 
         @Override
         public void setup(Preference name) throws Exception {
-            name.setTitle(getString(R.string.Battery) + ScaleModule.getBattery() + '%');
+            name.setTitle(getString(R.string.Battery) + scaleModule.getBattery() + '%');
             name.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
                 @Override
                 public boolean onPreferenceChange(Preference preference, Object o) {
-                    if (o.toString().isEmpty() || "0".equals(o.toString()) || Integer.valueOf(o.toString()) > Main.default_max_battery) {
+                    if (o.toString().isEmpty() || "0".equals(o.toString()) || Integer.valueOf(o.toString()) > main.default_max_battery) {
                         Toast.makeText(getApplicationContext(), R.string.preferences_no, Toast.LENGTH_SHORT).show();
                         return false;
                     }
-                    if (ScaleModule.setModuleBatteryCharge(0)) {
-                        ScaleModule.setBattery(Integer.valueOf(o.toString()));
-                        preference.setTitle(getString(R.string.Battery) + ScaleModule.getBattery() + '%');
+                    if (scaleModule.setModuleBatteryCharge(0)) {
+                        scaleModule.setBattery(Integer.valueOf(o.toString()));
+                        preference.setTitle(getString(R.string.Battery) + scaleModule.getBattery() + '%');
                         Toast.makeText(getApplicationContext(), R.string.preferences_yes, Toast.LENGTH_SHORT).show();
                         return true;
                     }
@@ -204,7 +209,7 @@ public class ActivityTuning extends PreferenceActivity {
 
         @Override
         public void setup(Preference name) throws Exception {
-            name.setTitle(getString(R.string.Table) + '"' + ScaleModule.getSpreadSheet() + '"');
+            name.setTitle(getString(R.string.Table) + '"' + scaleModule.getSpreadSheet() + '"');
             name.setSummary(getString(R.string.TEXT_MESSAGE7));
             name.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
                 @Override
@@ -213,9 +218,9 @@ public class ActivityTuning extends PreferenceActivity {
                         Toast.makeText(getApplicationContext(), R.string.preferences_no, Toast.LENGTH_SHORT).show();
                         return false;
                     }
-                    if (ScaleModule.setModuleSpreadsheet(o.toString())) {
+                    if (scaleModule.setModuleSpreadsheet(o.toString())) {
                         preference.setTitle(getString(R.string.Table) + '"' + o + '"');
-                        ScaleModule.setSpreadSheet(o.toString());
+                        scaleModule.setSpreadSheet(o.toString());
                         Toast.makeText(getApplicationContext(), R.string.preferences_yes, Toast.LENGTH_SHORT).show();
                         return true;
                     }
@@ -231,7 +236,7 @@ public class ActivityTuning extends PreferenceActivity {
     class User implements InterfacePreference{
         @Override
         public void setup(Preference name) throws Exception {
-            name.setSummary("Account Google: " + ScaleModule.getUserName());
+            name.setSummary("Account Google: " + scaleModule.getUserName());
             name.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
                 @Override
                 public boolean onPreferenceChange(Preference preference, Object o) {
@@ -239,9 +244,9 @@ public class ActivityTuning extends PreferenceActivity {
                         Toast.makeText(getApplicationContext(), R.string.preferences_no, Toast.LENGTH_SHORT).show();
                         return false;
                     }
-                    if (ScaleModule.setModuleUserName(o.toString())) {
+                    if (scaleModule.setModuleUserName(o.toString())) {
                         preference.setSummary("Account Google: " + o);
-                        ScaleModule.setUserName(o.toString());
+                        scaleModule.setUserName(o.toString());
                         Toast.makeText(getApplicationContext(), R.string.preferences_yes, Toast.LENGTH_SHORT).show();
                         return true;
                     }
@@ -257,7 +262,7 @@ public class ActivityTuning extends PreferenceActivity {
     class Password implements InterfacePreference{
         @Override
         public void setup(Preference name) throws Exception {
-            name.setSummary("Password account Google - " + ScaleModule.getPassword());
+            name.setSummary("Password account Google - " + scaleModule.getPassword());
             name.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
                 @Override
                 public boolean onPreferenceChange(Preference preference, Object o) {
@@ -266,9 +271,9 @@ public class ActivityTuning extends PreferenceActivity {
                         return false;
                     }
 
-                    if (ScaleModule.setModulePassword(o.toString())) {
+                    if (scaleModule.setModulePassword(o.toString())) {
                         preference.setSummary("Password account Google: " + o);
-                        ScaleModule.setPassword(o.toString());
+                        scaleModule.setPassword(o.toString());
                         Toast.makeText(getApplicationContext(), R.string.preferences_yes, Toast.LENGTH_SHORT).show();
                         return true;
                     }
@@ -284,7 +289,7 @@ public class ActivityTuning extends PreferenceActivity {
     class Phone implements InterfacePreference{
         @Override
         public void setup(Preference name) throws Exception {
-            name.setSummary("Phone for Boss - " + ScaleModule.getPhone());
+            name.setSummary("Номер телефона для смс - " + scaleModule.getPhone());
             name.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
                 @Override
                 public boolean onPreferenceChange(Preference preference, Object o) {
@@ -293,13 +298,13 @@ public class ActivityTuning extends PreferenceActivity {
                         return false;
                     }
 
-                    if (ScaleModule.setModulePhone(o.toString())) {
-                        preference.setSummary("Phone for Boss: " + o);
-                        ScaleModule.setPhone(o.toString());
+                    if (scaleModule.setModulePhone(o.toString())) {
+                        preference.setSummary("Номер телефона для смс: " + o);
+                        scaleModule.setPhone(o.toString());
                         Toast.makeText(getApplicationContext(), R.string.preferences_yes, Toast.LENGTH_SHORT).show();
                         return true;
                     }
-                    preference.setSummary("Phone for Boss: ???");
+                    preference.setSummary("Номер телефона для смс: ???");
                     Toast.makeText(getApplicationContext(), R.string.preferences_no, Toast.LENGTH_SHORT).show();
 
                     return false;
@@ -453,7 +458,7 @@ public class ActivityTuning extends PreferenceActivity {
                     }
 
                     try {
-                        ScaleModule.setModuleServiceCod(newValue.toString());
+                        scaleModule.setModuleServiceCod(newValue.toString());
                         Toast.makeText(getApplicationContext(), R.string.preferences_yes, Toast.LENGTH_SHORT).show();
                         return true;
                     } catch (Exception e) {
@@ -469,38 +474,37 @@ public class ActivityTuning extends PreferenceActivity {
     class Update implements InterfacePreference{
         @Override
         public void setup(Preference name) throws Exception {
-            if (ScaleModule.getVersion() != null) {
-                if (ScaleModule.getNumVersion() < Main.microSoftware) {
+            if (scaleModule.getVersion() != null) {
+                if (scaleModule.getNumVersion() < main.microSoftware) {
                     name.setSummary(getString(R.string.Is_new_version));
                     //name.setEnabled(true);
                 } else {
                     name.setSummary(getString(R.string.Scale_update));
                     //name.setEnabled(false);
                 }
-
-                name.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
-                    //@TargetApi(Build.VERSION_CODES.HONEYCOMB)
-                    @Override
-                    public boolean onPreferenceClick(Preference preference) {
-                        //Scales.vScale.backupPreference();
-                        String hardware = ScaleModule.getModuleHardware();
-                        if (hardware.isEmpty()) {
-                            hardware = "MBC04.36.2";
-                        }
-                        Intent intent = new Intent(ActivityTuning.this, ActivityBootloader.class);
-                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB)
-                            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-                        else
-                            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                        //intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                        intent.putExtra(getString(R.string.KEY_ADDRESS), ScaleModule.getAddressBluetoothDevice());
-                        intent.putExtra(InterfaceVersions.CMD_HARDWARE, hardware);
-                        intent.putExtra(InterfaceVersions.CMD_VERSION, ScaleModule.getNumVersion());
-                        startActivity(intent);
-                        return false;
-                    }
-                });
             }
+            name.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+                //@TargetApi(Build.VERSION_CODES.HONEYCOMB)
+                @Override
+                public boolean onPreferenceClick(Preference preference) {
+                    //Scales.vScale.backupPreference();
+                    String hardware = scaleModule.getModuleHardware();
+                    if (hardware.isEmpty()) {
+                        hardware = "MBC04.36.2";
+                    }
+                    Intent intent = new Intent(ActivityTuning.this, ActivityBootloader.class);
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB)
+                        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                    else
+                        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                    //intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                    intent.putExtra(getString(R.string.KEY_ADDRESS), scaleModule.getAddressBluetoothDevice());
+                    intent.putExtra(InterfaceVersions.CMD_HARDWARE, hardware);
+                    intent.putExtra(InterfaceVersions.CMD_VERSION, scaleModule.getNumVersion());
+                    startActivity(intent);
+                    return false;
+                }
+            });
         }
     }
 
@@ -509,15 +513,15 @@ public class ActivityTuning extends PreferenceActivity {
         super.onDestroy();
         if (flag_restore) {
             if (point1.x != Integer.MIN_VALUE && point2.x != Integer.MIN_VALUE) {
-                ScaleModule.setCoefficientA((float) (point1.y - point2.y) / (point1.x - point2.x));
-                ScaleModule.setCoefficientB(point1.y - ScaleModule.getCoefficientA() * point1.x);
+                scaleModule.setCoefficientA((float) (point1.y - point2.y) / (point1.x - point2.x));
+                scaleModule.setCoefficientB(point1.y - scaleModule.getCoefficientA() * point1.x);
             }
-            ScaleModule.setLimitTenzo((int) (ScaleModule.getWeightMax() / ScaleModule.getCoefficientA()));
-            if (ScaleModule.getLimitTenzo() > 0xffffff) {
-                ScaleModule.setLimitTenzo(0xffffff);
-                ScaleModule.setWeightMax((int) (0xffffff * ScaleModule.getCoefficientA()));
+            scaleModule.setLimitTenzo((int) (scaleModule.getWeightMax() / scaleModule.getCoefficientA()));
+            if (scaleModule.getLimitTenzo() > 0xffffff) {
+                scaleModule.setLimitTenzo(0xffffff);
+                scaleModule.setWeightMax((int) (0xffffff * scaleModule.getCoefficientA()));
             }
-            if (ScaleModule.writeData()) {
+            if (scaleModule.writeData()) {
                 Toast.makeText(getApplicationContext(), R.string.preferences_yes, Toast.LENGTH_SHORT).show();
             } else {
                 Toast.makeText(getApplicationContext(), R.string.preferences_no, Toast.LENGTH_SHORT).show();

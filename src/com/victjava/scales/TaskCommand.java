@@ -38,7 +38,7 @@ public class TaskCommand extends CheckTable {
 
     //final CheckTable checkTable;
     final Context mContext;
-    //String mMimeType;
+    final ScaleModule scaleModule;
     final HandlerTaskNotification mHandler;
     boolean cancel = true;
     /**
@@ -114,17 +114,18 @@ public class TaskCommand extends CheckTable {
     public TaskCommand(Context context, HandlerTaskNotification handler) {
         super(context);
         mContext = context;
+        scaleModule = ((Main)mContext.getApplicationContext()).getScaleModule();
         mHandler = handler;
         cancel = false;
         //checkTable = new CheckTable(mContext);
 
         mapTasks.put(TaskType.TYPE_CHECK_SEND_HTTP_POST, new CheckTokHttpPost());
-        mapTasks.put(TaskType.TYPE_CHECK_SEND_SHEET_DISK, new CheckToSpreadsheet(Main.versionName));
+        mapTasks.put(TaskType.TYPE_CHECK_SEND_SHEET_DISK, new CheckToSpreadsheet(((Main)mContext.getApplicationContext()).getVersionName()));
         mapTasks.put(TaskType.TYPE_CHECK_SEND_MAIL, new CheckToMail());
         /*mapTasks.put(TaskType.TYPE_CHECK_SEND_MAIL_ADMIN, new CheckToMail());*/
         mapTasks.put(TaskType.TYPE_CHECK_SEND_SMS_CONTACT, new CheckToSmsContact());
         mapTasks.put(TaskType.TYPE_CHECK_SEND_SMS_ADMIN, new CheckToSmsAdmin());
-        mapTasks.put(TaskType.TYPE_PREF_SEND_SHEET_DISK, new PreferenceToSpreadsheet(Main.versionName));
+        mapTasks.put(TaskType.TYPE_PREF_SEND_SHEET_DISK, new PreferenceToSpreadsheet(((Main)mContext.getApplicationContext()).getVersionName()));
     }
 
     public void execute(TaskType type, Map<String, ContentValues> map) throws Exception {
@@ -196,7 +197,7 @@ public class TaskCommand extends CheckTable {
                             mHandler.sendEmptyMessage(HANDLER_FINISH_THREAD);
                             return;
                         }
-                        getSheetEntry(ScaleModule.getSpreadSheet());
+                        getSheetEntry(scaleModule.getSpreadSheet());
                         UpdateListWorksheets();
 
                         for (Map.Entry<String, ContentValues> entry : mapChecks.entrySet()) {
@@ -595,7 +596,7 @@ public class TaskCommand extends CheckTable {
                         return;
                     }
                     try {
-                        getSheetEntry(ScaleModule.getSpreadSheet());
+                        getSheetEntry(scaleModule.getSpreadSheet());
                         UpdateListWorksheets();
 
                         Message msg = new Message();

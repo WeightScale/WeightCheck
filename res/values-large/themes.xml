@@ -4,10 +4,11 @@
         <item name="android:windowBackground">@color/background_light</item>
         <!--<item name="android:alertDialogStyle">@style/CustomAlertDialogStyle</item>-->
         <item name="android:windowTitleStyle">@style/windowTitleStyle</item>
+        <item name="android:windowSoftInputMode">adjustPan</item>
         <!--<item name="android:windowTitleSize">30dip</item>-->
         <item name="android:buttonStyle">@style/CustomButton</item>
         <item name="android:imageButtonStyle">@style/CustomImageButton</item>
-        <item name="android:spinnerStyle">@android:style/Widget.Spinner</item>
+        <item name="android:spinnerStyle">@style/CustomSpinner</item>
         <item name="android:tabWidgetStyle">@style/CustomTabWidget</item>
     </style>
 </resources>

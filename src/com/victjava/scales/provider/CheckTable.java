@@ -5,6 +5,7 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.provider.BaseColumns;
 import com.konst.module.ScaleModule;
+import com.victjava.scales.Main;
 import com.victjava.scales.R;
 
 import java.text.ParseException;
@@ -14,7 +15,7 @@ import java.util.Locale;
 import java.util.Map;
 
 public class CheckTable {
-    //final TaskTable taskTable;
+    final ScaleModule scaleModule;
     private final Context mContext;
     final ContentResolver contentResolver;
     public static int day;
@@ -129,11 +130,13 @@ public class CheckTable {
 
     public CheckTable(Context context) {
         mContext = context;
+        scaleModule = ((Main)mContext.getApplicationContext()).getScaleModule();
         contentResolver = mContext.getContentResolver();
     }
 
     public CheckTable(Context context, int d) {
         mContext = context;
+        scaleModule = ((Main)mContext.getApplicationContext()).getScaleModule();
         contentResolver = mContext.getContentResolver();
         day = d;
     }
@@ -143,7 +146,7 @@ public class CheckTable {
         Date date = new Date();
         newTaskValues.put(KEY_DATE_CREATE, new SimpleDateFormat("dd.MM.yyyy", Locale.getDefault()).format(date));
         newTaskValues.put(KEY_TIME_CREATE, new SimpleDateFormat("HH:mm:ss", Locale.getDefault()).format(date));
-        newTaskValues.put(KEY_NUMBER_BT, ScaleModule.getAddressBluetoothDevice());
+        newTaskValues.put(KEY_NUMBER_BT, scaleModule.getAddressBluetoothDevice());
         newTaskValues.put(KEY_VENDOR, vendor);
         newTaskValues.put(KEY_VENDOR_ID, vendorId);
         newTaskValues.put(KEY_CHECK_ON_SERVER, false);

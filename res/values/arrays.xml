@@ -20,4 +20,12 @@
         <item>55</item>
         <item>60</item>
     </string-array>
+
+    <string-array name="array_speed_port">
+        <item>9600</item>
+        <item>19200</item>
+        <item>38400</item>
+        <item>57600</item>
+        <item>115200</item>
+    </string-array>
 </resources>

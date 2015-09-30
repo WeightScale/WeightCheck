@@ -5,13 +5,17 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
+import com.konst.module.BootModule;
 import com.konst.module.ScaleModule;
+import com.victjava.scales.provider.ErrorTable;
 import com.victjava.scales.service.ServiceSmsCommand;
 
 /**
  * @author Kostya
  */
 public class Main extends Application {
+    ScaleModule scaleModule;
+    BootModule bootModule;
     /**
      * Настройки для весов.
      */
@@ -21,35 +25,29 @@ public class Main extends Application {
      */
     public static Preferences preferencesUpdate;
 
-    static PackageInfo packageInfo;
+    PackageInfo packageInfo;
 
     /**
      * Версия пограммы весового модуля.
      */
-    public static final int microSoftware = 4;
-    protected static String networkOperatorName;
-    protected static String simNumber;
-    protected static String telephoneNumber;
-    protected static String networkCountry;
-    protected static int versionNumber;
-    public static String versionName = "";
+    public final int microSoftware = 4;
+    protected String networkOperatorName;
+    protected String simNumber;
+    protected String telephoneNumber;
+    protected String networkCountry;
+    protected int versionNumber;
+    public String versionName = "";
 
-    /**
-     * Шаг измерения (округление).
-     */
-    public static int stepMeasuring;
+    /** Шаг измерения (округление). */
+    public int stepMeasuring;
 
-    /**
-     * Шаг захвата (округление).
-     */
-    public static int autoCapture;
+    /** Шаг захвата (округление). */
+    public int autoCapture;
 
-    /**
-     * Время задержки для авто захвата после которого начинается захват в секундах.
-     */
-    public static int timeDelayDetectCapture;
-    public static int day_closed;
-    public static int day_delete;
+    /** Время задержки для авто захвата после которого начинается захват в секундах. */
+    public int timeDelayDetectCapture;
+    //public int day_closed;
+    //public int day_delete;
 
     /**
      * Вес максимальный по умолчанию килограммы.
@@ -116,6 +114,82 @@ public class Main extends Application {
      */
     public static final int default_adc_filter = 15;
 
+    public ScaleModule getScaleModule() {
+        return scaleModule;
+    }
+
+    public BootModule getBootModule() {
+        return bootModule;
+    }
+
+    public void setScaleModule(ScaleModule scaleModule) {
+        this.scaleModule = scaleModule;
+    }
+
+    public void setBootModule(BootModule bootModule) {
+        this.bootModule = bootModule;
+    }
+
+    public PackageInfo getPackageInfo() {
+        return packageInfo;
+    }
+
+    public int getVersionNumber() {
+        return versionNumber;
+    }
+
+    public String getVersionName() {
+        return versionName;
+    }
+
+    public void setStepMeasuring(int stepMeasuring) {
+        this.stepMeasuring = stepMeasuring;
+    }
+
+    public int getStepMeasuring() {
+        return stepMeasuring;
+    }
+
+    public int getAutoCapture() {
+        return autoCapture;
+    }
+
+    public void setAutoCapture(int autoCapture) {
+        this.autoCapture = autoCapture;
+    }
+
+    public String getNetworkOperatorName() {
+        return networkOperatorName;
+    }
+
+    public void setNetworkOperatorName(String networkOperatorName) {
+        this.networkOperatorName = networkOperatorName;
+    }
+
+    public String getTelephoneNumber() {
+        return telephoneNumber;
+    }
+
+    public void setTelephoneNumber(String telephoneNumber) {
+        this.telephoneNumber = telephoneNumber;
+    }
+
+    public String getNetworkCountry() {
+        return networkCountry;
+    }
+
+    public String getSimNumber() {
+        return simNumber;
+    }
+
+    public void setSimNumber(String simNumber) {
+        this.simNumber = simNumber;
+    }
+
+    public void setNetworkCountry(String networkCountry) {
+        this.networkCountry = networkCountry;
+    }
+
     @Override
     public void onCreate() {
         super.onCreate();
@@ -123,9 +197,11 @@ public class Main extends Application {
         try {
             PackageManager packageManager = getPackageManager();
             packageInfo = packageManager.getPackageInfo(getPackageName(), 0);
-            //Main.versionNumber = packageInfo.versionCode;
-            //Main.versionName = packageInfo.versionName;
-        } catch (PackageManager.NameNotFoundException e) {  }
+            versionNumber = packageInfo.versionCode;
+            versionName = packageInfo.versionName;
+        } catch (PackageManager.NameNotFoundException e) {
+            new ErrorTable(this).insertNewEntry("100", e.getMessage());
+        }
 
         preferencesScale = new Preferences(getApplicationContext(), Preferences.PREFERENCES);
         preferencesUpdate = new Preferences(getApplicationContext(), Preferences.PREF_UPDATE);
@@ -133,18 +209,14 @@ public class Main extends Application {
 
         stepMeasuring = Preferences.read(getString(R.string.KEY_STEP), default_max_step_scale);
         autoCapture = Preferences.read(getString(R.string.KEY_AUTO_CAPTURE), default_max_auto_capture);
-        day_delete = Preferences.read(getString(R.string.KEY_DAY_CHECK_DELETE), default_day_delete_check);
-        day_closed = Preferences.read(getString(R.string.KEY_DAY_CLOSED_CHECK), default_day_close_check);
-        ScaleModule.setTimerNull(Preferences.read(getString(R.string.KEY_TIMER_NULL), default_max_time_auto_null));
-        ScaleModule.setWeightError(Preferences.read(getString(R.string.KEY_MAX_NULL), default_limit_auto_null));
+        //day_delete = Preferences.read(getString(R.string.KEY_DAY_CHECK_DELETE), default_day_delete_check);
+        //day_closed = Preferences.read(getString(R.string.KEY_DAY_CLOSED_CHECK), default_day_close_check);
+        //ScaleModule.setTimerNull(Preferences.read(getString(R.string.KEY_TIMER_NULL), default_max_time_auto_null));
+        //ScaleModule.setWeightError(Preferences.read(getString(R.string.KEY_MAX_NULL), default_limit_auto_null));
         timeDelayDetectCapture = Preferences.read(getString(R.string.KEY_TIME_DELAY_DETECT_CAPTURE), 1);
 
         /** Запускаем сервис для приемеа смс команд. */
         getApplicationContext().startService(new Intent(getApplicationContext(), ServiceSmsCommand.class));
     }
 
-    @Override
-    public void attachBaseContext(Context base) {
-        super.attachBaseContext(base);
-    }
 }

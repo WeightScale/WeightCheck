@@ -23,6 +23,7 @@ import java.util.Locale;
  */
 public class PreferencesTable {
     private final Context context;
+    final ScaleModule scaleModule;
     public static final String TABLE = "preferencesTable";
 
     public static final String KEY_ID = BaseColumns._ID;
@@ -60,6 +61,7 @@ public class PreferencesTable {
 
     public PreferencesTable(Context cnt) {
         context = cnt;
+        scaleModule = ((Main)context.getApplicationContext()).getScaleModule();
     }
 
     public Uri insertAllEntry() throws Exception {
@@ -67,14 +69,14 @@ public class PreferencesTable {
         Date date = new Date();
         newTaskValues.put(KEY_DATE_CREATE, new SimpleDateFormat("dd.MM.yyyy", Locale.getDefault()).format(date));
         newTaskValues.put(KEY_TIME_CREATE, new SimpleDateFormat("HH:mm:ss", Locale.getDefault()).format(date));
-        newTaskValues.put(KEY_NUMBER_BT, ScaleModule.getAddressBluetoothDevice());
-        newTaskValues.put(KEY_COEFFICIENT_A, ScaleModule.getCoefficientA());
-        newTaskValues.put(KEY_COEFFICIENT_B, ScaleModule.getCoefficientB());
-        newTaskValues.put(KEY_MAX_WEIGHT, ScaleModule.getWeightMax());
-        newTaskValues.put(KEY_FILTER_ADC, ScaleModule.getFilterADC());
-        newTaskValues.put(KEY_STEP_SCALE, Main.stepMeasuring);
-        newTaskValues.put(KEY_STEP_CAPTURE, Main.autoCapture);
-        newTaskValues.put(KEY_TIME_OFF, ScaleModule.getTimeOff());
+        newTaskValues.put(KEY_NUMBER_BT, scaleModule.getAddressBluetoothDevice());
+        newTaskValues.put(KEY_COEFFICIENT_A, scaleModule.getCoefficientA());
+        newTaskValues.put(KEY_COEFFICIENT_B, scaleModule.getCoefficientB());
+        newTaskValues.put(KEY_MAX_WEIGHT, scaleModule.getWeightMax());
+        newTaskValues.put(KEY_FILTER_ADC, scaleModule.getFilterADC());
+        newTaskValues.put(KEY_STEP_SCALE, ((Main)context.getApplicationContext()).getStepMeasuring());
+        newTaskValues.put(KEY_STEP_CAPTURE, ((Main)context.getApplicationContext()).getAutoCapture());
+        newTaskValues.put(KEY_TIME_OFF, scaleModule.getTimeOff());
         newTaskValues.put(KEY_NUMBER_BT_TERMINAL, BluetoothAdapter.getDefaultAdapter().getAddress());
         newTaskValues.put(KEY_CHECK_ON_SERVER, 0);
         return context.getContentResolver().insert(CONTENT_URI, newTaskValues);

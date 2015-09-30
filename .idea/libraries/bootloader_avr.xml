@@ -1,9 +1,0 @@
-<component name="libraryTable">
-  <library name="bootloader_avr">
-    <CLASSES>
-      <root url="jar://$PROJECT_DIR$/../../bootloader_avr/out/artifacts/bootloader_avr_jar/bootloader_avr.jar!/" />
-    </CLASSES>
-    <JAVADOC />
-    <SOURCES />
-  </library>
-</component>

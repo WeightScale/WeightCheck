@@ -20,6 +20,7 @@ import java.util.*;
  */
 public class SmsCommand extends SenderTable {
     final Context mContext;
+    final ScaleModule scaleModule;
     //List<BasicNameValuePair> results;
     //final List<SmsCommander.Command> commandList;
     Map<String, String> mapCommand;
@@ -98,6 +99,7 @@ public class SmsCommand extends SenderTable {
     public SmsCommand(Context context, Map<String,String> map) {
         super(context);
         mContext = context;
+        scaleModule = ((Main)mContext.getApplicationContext()).getScaleModule();
         //this.commandList = commandList;
         mapCommand = map;
         //senderTable = new SenderTable(context);
@@ -118,6 +120,7 @@ public class SmsCommand extends SenderTable {
     public SmsCommand(Context context) {
         super(context);
         mContext = context;
+        scaleModule = ((Main)mContext.getApplicationContext()).getScaleModule();
         cmdMap.put(SMS_CMD_GETERR, new CmdGetError());      //получить ошибки параметр количество
         cmdMap.put(SMS_CMD_DELERR, new CmdDeleteError());   //удалить ошибки параметр количество
         cmdMap.put(SMS_CMD_NUMSMS, new CmdNumSmsAdmin());   //номер телефона босса
@@ -222,8 +225,8 @@ public class SmsCommand extends SenderTable {
                 return new BasicNameValuePair(SMS_CMD_NUMSMS, Preferences.read(Preferences.KEY_NUMBER_SMS, ""));
             }
             if (ActivityScales.isScaleConnect) {
-                if (ScaleModule.setModulePhone(value)) {
-                    ScaleModule.setPhone(value);
+                if (scaleModule.setModulePhone(value)) {
+                    scaleModule.setPhone(value);
                     return new BasicNameValuePair(SMS_CMD_NUMSMS, RESPONSE_OK);
                 }
             }
@@ -238,7 +241,7 @@ public class SmsCommand extends SenderTable {
     /**
      * Устанавливаем максимальный вес предела взвешивания весов.
      */
-    private static class CmdWeightMax implements InterfaceSmsCommand {
+    private class CmdWeightMax implements InterfaceSmsCommand {
 
         /** Выполнить команду максимальный вес.
          * @param value Параметр команды.
@@ -248,9 +251,9 @@ public class SmsCommand extends SenderTable {
         @Override
         public BasicNameValuePair execute(String value) throws Exception {
             if (value.isEmpty()) {
-                return new BasicNameValuePair(SMS_CMD_WGHMAX, String.valueOf(ScaleModule.getWeightMax()));
+                return new BasicNameValuePair(SMS_CMD_WGHMAX, String.valueOf(scaleModule.getWeightMax()));
             }
-            ScaleModule.setWeightMax(Integer.valueOf(value));
+            scaleModule.setWeightMax(Integer.valueOf(value));
             return new BasicNameValuePair(SMS_CMD_WGHMAX, RESPONSE_OK);
         }
     }
@@ -259,7 +262,7 @@ public class SmsCommand extends SenderTable {
      * Определяется во время каллибровки весов.
      * (ноль вес - конт. вес) / (ацп ноль веса - ацп кон. веса)
      */
-    private static class CmdCoefficientA implements InterfaceSmsCommand {//номер телефона межд. формат для отправки чеков для босса
+    private class CmdCoefficientA implements InterfaceSmsCommand {//номер телефона межд. формат для отправки чеков для босса
 
         /** Выполнить команду коэфициент А.
          * @param value Параметр команды если параметр есть тогда сохраняем парамет, иначе возвращяем.
@@ -269,9 +272,9 @@ public class SmsCommand extends SenderTable {
         @Override
         public BasicNameValuePair execute(String value) throws Exception {
             if (value.isEmpty()) {
-                return new BasicNameValuePair(SMS_CMD_COFFA, String.valueOf(ScaleModule.getCoefficientA()));
+                return new BasicNameValuePair(SMS_CMD_COFFA, String.valueOf(scaleModule.getCoefficientA()));
             }
-            ScaleModule.setCoefficientA(Float.valueOf(value));
+            scaleModule.setCoefficientA(Float.valueOf(value));
             return new BasicNameValuePair(SMS_CMD_COFFA, RESPONSE_OK);
         }
     }
@@ -279,7 +282,7 @@ public class SmsCommand extends SenderTable {
     /** Получаем или записываем коэффициент оффсет (старая команда)
      * ноль вес - Scales.coefficientA * ацп ноль веса.
      */
-    private static class CmdCoefficientB implements InterfaceSmsCommand {
+    private class CmdCoefficientB implements InterfaceSmsCommand {
 
         /** Выполнить команду коэфициент В.
          * @param value Параметр команды если параметр есть тогда сохраняем парамет, иначе возвращяем.
@@ -289,9 +292,9 @@ public class SmsCommand extends SenderTable {
         @Override
         public BasicNameValuePair execute(String value) throws Exception {
             if (value.isEmpty()) {
-                return new BasicNameValuePair(SMS_CMD_COFFB, String.valueOf(ScaleModule.getCoefficientB()));
+                return new BasicNameValuePair(SMS_CMD_COFFB, String.valueOf(scaleModule.getCoefficientB()));
             }
-            ScaleModule.setCoefficientB(Float.valueOf(value));
+            scaleModule.setCoefficientB(Float.valueOf(value));
             return new BasicNameValuePair(SMS_CMD_COFFB, RESPONSE_OK);
         }
     }
@@ -309,11 +312,11 @@ public class SmsCommand extends SenderTable {
         @Override
         public BasicNameValuePair execute(String value) throws Exception {
             if (value.isEmpty()) {
-                return new BasicNameValuePair(SMS_CMD_GOGUSR, ScaleModule.getUserName());
+                return new BasicNameValuePair(SMS_CMD_GOGUSR, scaleModule.getUserName());
             }
             if (ActivityScales.isScaleConnect) {
-                if (ScaleModule.setModuleUserName(value)) {
-                    ScaleModule.setUserName(value);
+                if (scaleModule.setModuleUserName(value)) {
+                    scaleModule.setUserName(value);
                     return new BasicNameValuePair(SMS_CMD_GOGUSR, RESPONSE_OK);
                 }
             }
@@ -336,11 +339,11 @@ public class SmsCommand extends SenderTable {
         @Override
         public BasicNameValuePair execute(String value) throws Exception {
             if (value.isEmpty()) {
-                return new BasicNameValuePair(SMS_CMD_GOGPSW, ScaleModule.getPassword());
+                return new BasicNameValuePair(SMS_CMD_GOGPSW, scaleModule.getPassword());
             }
             if (ActivityScales.isScaleConnect) {
-                if (ScaleModule.setModulePassword(value)) {
-                    ScaleModule.setPassword(value);
+                if (scaleModule.setModulePassword(value)) {
+                    scaleModule.setPassword(value);
                     return new BasicNameValuePair(SMS_CMD_GOGPSW, RESPONSE_OK);
                 }
             }
@@ -363,11 +366,11 @@ public class SmsCommand extends SenderTable {
         @Override
         public BasicNameValuePair execute(String value) throws Exception {
             if (value.isEmpty()) {
-                return new BasicNameValuePair(SMS_CMD_PHNSMS, ScaleModule.getPhone());
+                return new BasicNameValuePair(SMS_CMD_PHNSMS, scaleModule.getPhone());
             }
             if (ActivityScales.isScaleConnect) {
-                if (ScaleModule.setModulePhone(value)) {
-                    ScaleModule.setPhone(value);
+                if (scaleModule.setModulePhone(value)) {
+                    scaleModule.setPhone(value);
                     return new BasicNameValuePair(SMS_CMD_PHNSMS, RESPONSE_OK);
                 }
             }
@@ -403,7 +406,7 @@ public class SmsCommand extends SenderTable {
         public BasicNameValuePair execute(String value) throws Exception {
             if (value.isEmpty()) {
                 try {
-                    if (ScaleModule.writeData()) {
+                    if (scaleModule.writeData()) {
                         return new BasicNameValuePair(SMS_CMD_WRTDAT, RESPONSE_OK);
                     }
                 } catch (Exception e) {
@@ -420,12 +423,12 @@ public class SmsCommand extends SenderTable {
                                 e.printStackTrace();
                             }
                         }
-                        ScaleModule.setLimitTenzo((int) (ScaleModule.getWeightMax() / ScaleModule.getCoefficientA()));
-                        if (ScaleModule.getLimitTenzo() > 0xffffff) {
-                            ScaleModule.setLimitTenzo(0xffffff);
-                            ScaleModule.setWeightMax((int) (0xffffff * ScaleModule.getCoefficientA()));
+                        scaleModule.setLimitTenzo((int) (scaleModule.getWeightMax() / scaleModule.getCoefficientA()));
+                        if (scaleModule.getLimitTenzo() > 0xffffff) {
+                            scaleModule.setLimitTenzo(0xffffff);
+                            scaleModule.setWeightMax((int) (0xffffff * scaleModule.getCoefficientA()));
                         }
-                        if (ScaleModule.writeData()) {
+                        if (scaleModule.writeData()) {
                             return new BasicNameValuePair(SMS_CMD_WRTDAT, RESPONSE_OK);
                         }
                     } catch (Exception e) {
@@ -450,7 +453,7 @@ public class SmsCommand extends SenderTable {
         private class CoefficientA extends Data {
             @Override
             public void setValue(Object v) {
-                ScaleModule.setCoefficientA(Float.valueOf(v.toString()));
+                scaleModule.setCoefficientA(Float.valueOf(v.toString()));
             }
         }
 
@@ -460,7 +463,7 @@ public class SmsCommand extends SenderTable {
         private class WeightMax extends Data {
             @Override
             public void setValue(Object v) {
-                ScaleModule.setWeightMax(Integer.valueOf(v.toString()));
+                scaleModule.setWeightMax(Integer.valueOf(v.toString()));
             }
         }
 

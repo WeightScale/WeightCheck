@@ -86,8 +86,8 @@ public class ActivityListChecks extends ListActivity implements View.OnClickList
     }
 
     private void listSetup() {
-        /*
-            Устанавливаем флаг не показывать старые чеки
+        /**
+        *    Устанавливаем флаг не показывать старые чеки
         */
         checkTable.invisibleCheckIsReady(Preferences.read(getString(R.string.KEY_DAY_CHECK_DELETE), Main.default_day_delete_check));
         /*

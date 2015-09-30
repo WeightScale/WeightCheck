@@ -32,6 +32,7 @@ public class ActivityBootloader extends Activity implements View.OnClickListener
     private TextView textViewLog;
     private ProgressDialog progressDialog;
     private BootModule bootModule;
+    Main main;
 
     private AVRProgrammer programmer;
     private String addressDevice = "";
@@ -47,9 +48,9 @@ public class ActivityBootloader extends Activity implements View.OnClickListener
     private static final SparseArray<String> mapCodeDevice = new SparseArray<>();
 
     static {
-        mapCodeDevice.put(0x9514, "atmega328.xml");
-        mapCodeDevice.put(0x9406, "atmega168.xml");
-        mapCodeDevice.put(0x930a, "atmega88.xml");
+        mapCodeDevice.put(0x9514, "atmega328.xml"); //38164
+        mapCodeDevice.put(0x9406, "atmega168.xml"); //37894
+        mapCodeDevice.put(0x930a, "atmega88.xml");  //37642
     }
 
     private class ThreadDoDeviceDependent extends AsyncTask<Void, Void, Boolean> {
@@ -164,8 +165,10 @@ public class ActivityBootloader extends Activity implements View.OnClickListener
         dialog.setMessage(getString(R.string.TEXT_MESSAGE));
         dialog.show();
 
+        main = (Main)getApplication();
         try {
-            bootModule = new BootModule("bootloader", onEventConnectResult);
+            bootModule = new BootModule("BOOT", onEventConnectResult);
+            main.setBootModule(bootModule);
             log(getString(R.string.bluetooth_off));
         } catch (Exception e) {
             log(e.getMessage());
@@ -205,7 +208,7 @@ public class ActivityBootloader extends Activity implements View.OnClickListener
                     break;
                 case REQUEST_CONNECT_SCALE:
                     log(getString(R.string.Loading_settings));
-                    if (ScaleModule.isScales()) {
+                    if (bootModule.isBootloader()) {
                         //restorePreferences(); //todo сделать загрузку настроек которые сохранены пере перепрограммированием.
                         log(getString(R.string.Settings_loaded));
                         break;
@@ -236,11 +239,18 @@ public class ActivityBootloader extends Activity implements View.OnClickListener
                 public void run() {
                     switch (result) {
                         case STATUS_LOAD_OK:
-                            startBoot.setEnabled(true);
-                            startBoot.setAlpha(255);
                             dialog = new AlertDialog.Builder(ActivityBootloader.this);
                             dialog.setTitle(getString(R.string.Warning_update));
                             dialog.setCancelable(false);
+                            int numVersion = bootModule.getBootVersion();
+                            if(numVersion > 1){
+                                hardware = bootModule.getModuleHardware();
+                                dialog.setMessage("После нажатия кнопки ОК начнется программирование");
+                            }else {
+                                dialog.setMessage(getString(R.string.TEXT_MESSAGE5));
+                            }
+                            startBoot.setEnabled(true);
+                            startBoot.setAlpha(255);
                             dialog.setPositiveButton(getString(R.string.OK), new DialogInterface.OnClickListener() {
                                 @Override
                                 public void onClick(DialogInterface dialogInterface, int i) {
@@ -261,7 +271,7 @@ public class ActivityBootloader extends Activity implements View.OnClickListener
                                     finish();
                                 }
                             });
-                            dialog.setMessage(getString(R.string.TEXT_MESSAGE5));
+
                             dialog.show();
                             break;
                         default:
@@ -326,8 +336,8 @@ public class ActivityBootloader extends Activity implements View.OnClickListener
         }
     }
 
-    static boolean isBootloader() { //Является ли весами и какой версии
-        String vrs = BootModule.getModuleVersion(); //Получаем версию загрузчика
+    boolean isBootloader() { //Является ли весами и какой версии
+        String vrs = bootModule.getModuleVersion(); //Получаем версию загрузчика
         return vrs.startsWith("BOOT");
     }
 
@@ -335,12 +345,12 @@ public class ActivityBootloader extends Activity implements View.OnClickListener
         programmer = new AVRProgrammer(handlerProgrammed) {
             @Override
             public void sendByte(byte b) {
-                Module.sendByte(b);
+                bootModule.sendByte(b);
             }
 
             @Override
             public int getByte() {
-                return Module.getByte();
+                return bootModule.getByte();
             }
         };
         if (!programmer.isProgrammerId()) {
@@ -372,7 +382,7 @@ public class ActivityBootloader extends Activity implements View.OnClickListener
                     .append(desc).append('_')               //дескриптор сигнатура 1 и сигнатура 2
                     .append(hardware.toLowerCase())         //hardware- это версия платы
                     .append('_')
-                    .append(Main.microSoftware)             //version- этоверсия программы платы
+                    .append(main.microSoftware)             //version- этоверсия программы платы
                     .append(".hex").toString();
             log(getString(R.string.TEXT_MESSAGE3) + constructBootFile);
             String[] bootFiles = getAssets().list(dirBootFiles);

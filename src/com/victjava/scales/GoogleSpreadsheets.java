@@ -37,6 +37,7 @@ import java.util.*;
  */
 public abstract class GoogleSpreadsheets extends AsyncTask<Void, Void, String[]> {
     Context context;
+    ScaleModule scaleModule;
     /**
      * Экземпляр атестата
      */
@@ -108,6 +109,7 @@ public abstract class GoogleSpreadsheets extends AsyncTask<Void, Void, String[]>
      */
     protected GoogleSpreadsheets(Context context, String service, String accountName) throws GoogleAuthException, IOException, IllegalArgumentException {
         this.context = context;
+        scaleModule = ((Main)context.getApplicationContext()).getScaleModule();
         spreadsheetService = new SpreadsheetService(service);
         spreadsheetService.setProtocolVersion(SpreadsheetService.Versions.V3);
         spreadsheetService.setAuthSubToken(getToken(accountName));
@@ -428,7 +430,7 @@ public abstract class GoogleSpreadsheets extends AsyncTask<Void, Void, String[]>
                 .setSmallIcon(android.R.drawable.ic_dialog_alert)
                 .setTicker("Permission requested")
                 .setContentTitle("Permission requested")
-                .setContentText("for account " + ScaleModule.getUserName())
+                .setContentText("for account " + scaleModule.getUserName())
                 .setContentIntent(pendingIntent).setAutoCancel(true);
         notificationManager.notify(0, notification.build());
     }

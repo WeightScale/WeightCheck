@@ -1,6 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
-    <PreferenceCategory android:title="Калибровка весов">
+    <PreferenceCategory android:title="@string/information">
+        <EditTextPreference android:title="@string/name_scales" android:key="@string/KEY_NAME"/>
+        <com.victjava.scales.DialogSpeedPort android:title="Скорость порта" android:summary="Скорость передачи данных порта bluetooth модуля"
+                                             android:key="@string/KEY_SPEED_PORT" android:inputType="number"/>
+    </PreferenceCategory>
+    <PreferenceCategory android:title="Калибровка">
         <PreferenceScreen android:title="Калибровка весов"
                           android:summary="Калибровка весов с ипользыванием калиброваного веса">
             <PreferenceCategory android:title="Калибровка весов">
@@ -20,8 +25,6 @@
                                     android:key="@string/KEY_CALL_BATTERY" android:inputType="number"/>
             </PreferenceCategory>
         </PreferenceScreen>
-    </PreferenceCategory>
-    <PreferenceCategory android:title="Ввод калибровочных данных">
         <PreferenceScreen android:title="Ввод калибровочных данных"
                           android:summary="Ввод в ручную калибровочных данных которые известны">
             <PreferenceCategory android:title="Ввод калибровочных данных">
@@ -34,8 +37,8 @@
             </PreferenceCategory>
         </PreferenceScreen>
     </PreferenceCategory>
-    <PreferenceCategory android:title="Настройки для облака">
-        <PreferenceScreen android:title="Настройки для облака" android:summary="Настройки для отправки данных через интернет">
+    <PreferenceCategory android:title="Настройки для отправки чеков">
+        <PreferenceScreen android:title="Настройки для облака" android:summary="Настройки для отправки данных через интернет на google disk">
             <PreferenceCategory android:title="Настройки для облака">
                 <EditTextPreference android:title="Таблица" android:summary="Имя таблици spreadsheet в Google drive "
                                     android:key="@string/KEY_SHEET" android:inputType="text"/>
@@ -45,16 +48,15 @@
                                     android:key="@string/KEY_PASSWORD" android:inputType="textPassword"/>
             </PreferenceCategory>
         </PreferenceScreen>
-    </PreferenceCategory>
-    <PreferenceCategory android:title="Настройки для сообщений" android:summary="Настройки для отправки сообщений через смс">
-        <PreferenceScreen android:title="Настройки для сообщений">
+        <PreferenceScreen android:title="Настройки для сообщений" android:summary="Настройки для отправки весового чека сообщением через смс">
             <EditTextPreference android:title="Телефон" android:summary="Номер телефона для смс" android:key="@string/KEY_PHONE"
                                 android:inputType="phone"/>
         </PreferenceScreen>
+        <Preference android:title="Настройка отсылателя" android:summary="Выбор куда отсылать весовой чек" android:key="@string/KEY_SENDER"/>
     </PreferenceCategory>
-    <PreferenceCategory android:title="Отсылатели">
-        <Preference android:title="Установить" android:summary="Выбор куда отсылать весовой чек" android:key="@string/KEY_SENDER"/>
+    <PreferenceCategory>
+        <EditTextPreference android:key="@string/KEY_SERVICE_COD" android:inputType="numberPassword" android:title="Сервис код" android:summary="Сервис код для доступа к административным настройкам"/>
+        <Preference android:title="@string/Update_scale" android:summary="@string/TEXT_MESSAGE14" android:key="@string/KEY_UPDATE"/>
     </PreferenceCategory>
-    <EditTextPreference android:key="@string/KEY_SERVICE_COD" android:inputType="numberPassword" android:title="Сервис код" android:summary="Сервис код для доступа к административным настройкам"/>
-    <Preference android:title="@string/Update_scale" android:summary="@string/TEXT_MESSAGE14" android:key="@string/KEY_UPDATE"/>
+
 </PreferenceScreen>

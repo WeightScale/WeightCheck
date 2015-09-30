@@ -3,7 +3,7 @@
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
     <PreferenceCategory android:title="@string/information">
         <EditTextPreference android:title="@string/name_scales" android:key="@string/KEY_NAME"/>
-        <Preference android:title="@string/address_scales" android:key="address" android:enabled="false"/>
+        <Preference android:title="@string/address_scales" android:key="@string/KEY_ADDRESS" android:enabled="false"/>
     </PreferenceCategory>
     <PreferenceCategory android:title="@string/Settings">
         <PreferenceScreen android:title="@string/Set_values" android:summary="@string/TEXT_MESSAGES13">
@@ -17,7 +17,7 @@
                                             android:key="@string/KEY_MAX_NULL" android:inputType="number"/>
                     </PreferenceCategory>
                 </PreferenceScreen>
-                <EditTextPreference android:title="@string/Timer_off" android:key="@string/KEY_TIMER" android:inputType="number"/>
+                <com.victjava.scales.DialogTimerOff android:title="@string/Timer_off" android:key="@string/KEY_TIMER" android:inputType="number"/>
                 <com.victjava.scales.DialogStepWeight android:title="@string/measuring_step" android:key="@string/KEY_STEP"
                                     android:inputType="number"/>
                 <EditTextPreference android:title="@string/auto_capture" android:key="@string/KEY_AUTO_CAPTURE"
