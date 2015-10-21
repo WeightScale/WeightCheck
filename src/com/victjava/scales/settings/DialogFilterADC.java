@@ -1,26 +1,27 @@
-package com.victjava.scales;
+package com.victjava.scales.settings;
 
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.preference.DialogPreference;
 import android.util.AttributeSet;
 import android.view.View;
+import com.victjava.scales.NumberPicker;
+import com.victjava.scales.R;
 
 /**
  * @author Kostya
  */
-class DialogTimerOff extends DialogPreference /*implements ActivityPreferences.InterfacePreference*/ {
+class DialogFilterADC extends DialogPreference /*implements ActivityPreferences.InterfacePreference*/ {
     private int mNumber;
-    private final String[] intArray;
     private NumberPicker numberPicker;
     final int minValue;
     final int maxValue;
 
-    public DialogTimerOff(Context context, AttributeSet attrs) {
+    public DialogFilterADC(Context context, AttributeSet attrs) {
         super(context, attrs);
-        intArray = context.getResources().getStringArray(R.array.array_timer_minute);
-        minValue = 0;
-        maxValue = intArray.length > 0 ? intArray.length - 1 : 0;
+        TypedArray attributesArray = context.obtainStyledAttributes(attrs, R.styleable.dialogFilterADC,R.attr.dialogFilterADCStyle, 0);
+        minValue = attributesArray.getInt(R.styleable.dialogFilterADC_minFilterADC, 0);
+        maxValue = attributesArray.getInt(R.styleable.dialogFilterADC_maxFilterADC, 0);
         setPersistent(true);
         setDialogLayoutResource(R.layout.number_picker);
     }
@@ -30,7 +31,6 @@ class DialogTimerOff extends DialogPreference /*implements ActivityPreferences.I
         numberPicker = (NumberPicker) view.findViewById(R.id.numberPicker);
         numberPicker.setMaxValue(maxValue);
         numberPicker.setMinValue(minValue);
-        numberPicker.setDisplayedValues(intArray);
         numberPicker.setValue(mNumber);
         super.onBindDialogView(view);
     }
@@ -57,7 +57,7 @@ class DialogTimerOff extends DialogPreference /*implements ActivityPreferences.I
         if (value != mNumber) {
             mNumber = value;
             notifyChanged();
-            callChangeListener(Integer.valueOf(intArray[value]));
+            callChangeListener(value);
         }
     }
 

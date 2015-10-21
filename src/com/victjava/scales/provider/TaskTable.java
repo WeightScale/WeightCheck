@@ -146,4 +146,35 @@ public class TaskTable {
         }
     }
 
+    public void setPreferenceReady(int _rowIndex) {
+        Cursor cursor = new SenderTable(mContext).geSystemItem();
+        try {
+            cursor.moveToFirst();
+            if (!cursor.isAfterLast()) {
+                do {
+                    int senderId = cursor.getInt(cursor.getColumnIndex(SenderTable.KEY_ID));
+                    SenderTable.TypeSender type_sender = SenderTable.TypeSender.values()[cursor.getInt(cursor.getColumnIndex(SenderTable.KEY_TYPE))];
+                    switch (type_sender) {
+                        /*case TYPE_HTTP_POST:
+                            insertNewTask(TaskCommand.TaskType.TYPE_CHECK_SEND_HTTP_POST, _rowIndex, senderId, "");
+                            break;*/
+                        case TYPE_GOOGLE_DISK:
+                            insertNewTask(TaskCommand.TaskType.TYPE_PREF_SEND_SHEET_DISK, _rowIndex, senderId, "preferences");
+                            break;
+                        /*case TYPE_EMAIL:
+                            insertNewTask(TaskCommand.TaskType.TYPE_CHECK_SEND_MAIL, _rowIndex, senderId, scaleModule.getUserName());
+                            break;*/
+                        /*case TYPE_SMS:
+                            insertNewTask(TaskCommand.TaskType.TYPE_CHECK_SEND_SMS_ADMIN, _rowIndex, senderId, scaleModule.getPhone());
+                            break;*/
+                        default:
+                    }
+                } while (cursor.moveToNext());
+            }
+
+        } catch (Exception e) {
+
+        }
+    }
+
 }

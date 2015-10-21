@@ -46,8 +46,8 @@ public class Main extends Application {
 
     /** Время задержки для авто захвата после которого начинается захват в секундах. */
     public int timeDelayDetectCapture;
-    //public int day_closed;
-    //public int day_delete;
+    public int dayClosedCheck;
+    public int dayDeleteCheck;
 
     /**
      * Вес максимальный по умолчанию килограммы.
@@ -67,47 +67,47 @@ public class Main extends Application {
     /**
      * Минимальное время бездействия весов в минутах.
      */
-    protected static final int default_min_time_off = 10;
+    public static final int default_min_time_off = 10;
 
     /**
      * Максимальное время срабатывания авто ноль секундах.
      */
-    protected static final int default_max_time_auto_null = 120;
+    public static final int default_max_time_auto_null = 120;
 
     /**
      * Предел ошибки при котором срабатывает авто ноль килограммы.
      */
-    protected static final int default_limit_auto_null = 50;
+    public static final int default_limit_auto_null = 50;
 
     /**
      * Максимальный шаг измерения весов килограммы.
      */
-    protected static final int default_max_step_scale = 20;
+    public static final int default_max_step_scale = 20;
 
     /**
      * Максимальный значение авто захвата веса килограммы.
      */
-    protected static final int default_max_auto_capture = 100;
+    public static final int default_max_auto_capture = 100;
 
     /**
      * Дельта значение авто захвата веса килограммы.
      */
-    protected static final int default_delta_auto_capture = 10;
+    public static final int default_delta_auto_capture = 10;
 
     /**
      * Минимальное значение авто захвата веса килограммы.
      */
-    protected static final int default_min_auto_capture = 20;
+    public static final int default_min_auto_capture = 20;
 
     /**
      * Максимальное количество дней для закрытия не закрытых чеков дней.
      */
-    protected static final int default_day_close_check = 10;
+    public static final int default_day_close_check = 10;
 
     /**
      * Максимальное количество дней для удвления чеков дней.
      */
-    protected static final int default_day_delete_check = 10;
+    public static final int default_day_delete_check = 10;
 
     /**
      * Максимальное значение фильтра ацп.
@@ -182,6 +182,22 @@ public class Main extends Application {
         return simNumber;
     }
 
+    public int getDayClosedCheck() {
+        return dayClosedCheck;
+    }
+
+    public int getDayDeleteCheck() {
+        return dayDeleteCheck;
+    }
+
+    public void setDayClosedCheck(int dayClosedCheck) {
+        this.dayClosedCheck = dayClosedCheck;
+    }
+
+    public void setDayDeleteCheck(int dayDeleteCheck) {
+        this.dayDeleteCheck = dayDeleteCheck;
+    }
+
     public void setSimNumber(String simNumber) {
         this.simNumber = simNumber;
     }
@@ -209,8 +225,8 @@ public class Main extends Application {
 
         stepMeasuring = Preferences.read(getString(R.string.KEY_STEP), default_max_step_scale);
         autoCapture = Preferences.read(getString(R.string.KEY_AUTO_CAPTURE), default_max_auto_capture);
-        //day_delete = Preferences.read(getString(R.string.KEY_DAY_CHECK_DELETE), default_day_delete_check);
-        //day_closed = Preferences.read(getString(R.string.KEY_DAY_CLOSED_CHECK), default_day_close_check);
+        dayDeleteCheck = Preferences.read(getString(R.string.KEY_DAY_CHECK_DELETE), default_day_delete_check);
+        dayClosedCheck = Preferences.read(getString(R.string.KEY_DAY_CLOSED_CHECK), default_day_close_check);
         //ScaleModule.setTimerNull(Preferences.read(getString(R.string.KEY_TIMER_NULL), default_max_time_auto_null));
         //ScaleModule.setWeightError(Preferences.read(getString(R.string.KEY_MAX_NULL), default_limit_auto_null));
         timeDelayDetectCapture = Preferences.read(getString(R.string.KEY_TIME_DELAY_DETECT_CAPTURE), 1);

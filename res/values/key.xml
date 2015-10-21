@@ -34,4 +34,5 @@
     <string name="KEY_PHONE">key_phone</string>
     <string name="KEY_SENDER">key_sender</string>
     <string name="KEY_SERVICE_COD">key_service_cod</string>
+    <string name="KEY_MOBIL_INTERNET">key_mobil_internet</string>
 </resources>

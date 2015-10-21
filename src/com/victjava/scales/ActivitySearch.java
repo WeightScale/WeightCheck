@@ -10,7 +10,8 @@ import android.view.*;
 import android.widget.*;
 import com.konst.module.Module;
 import com.konst.module.OnEventConnectResult;
-import com.konst.module.ScaleModule;
+import com.victjava.scales.settings.ActivityPreferences;
+import com.victjava.scales.settings.ActivityTuning;
 
 import java.util.ArrayList;
 

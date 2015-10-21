@@ -1,29 +1,37 @@
-package com.victjava.scales;
+package com.victjava.scales.settings;
 
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.preference.DialogPreference;
 import android.util.AttributeSet;
 import android.view.View;
+import com.victjava.scales.Main;
+import com.victjava.scales.NumberPicker;
+import com.victjava.scales.R;
+
+import java.util.Arrays;
 
 /**
- * Created by Kostya on 30.09.2015.
+ * @author Kostya
  */
-public class DialogSpeedPort extends DialogPreference {
+class DialogTimerOff extends DialogPreference /*implements ActivityPreferences.InterfacePreference*/ {
+    Main main;
     private int mNumber;
-    private final String[] intArray;
+    private final String[] timeArray;
     private NumberPicker numberPicker;
     final int minValue;
     final int maxValue;
 
-    public DialogSpeedPort(Context context, AttributeSet attrs) {
+    public DialogTimerOff(Context context, AttributeSet attrs) {
         super(context, attrs);
-        intArray = context.getResources().getStringArray(R.array.array_speed_port);
+        timeArray = context.getResources().getStringArray(R.array.array_timer_minute);
         minValue = 0;
-        if(intArray.length > 0)
-            maxValue = intArray.length-1;
-        else
-            maxValue = 0;
+        maxValue = timeArray.length > 0 ? timeArray.length - 1 : 0;
+        main = (Main)context.getApplicationContext();
+        int time = main.getScaleModule().isAttach()?((Main)context.getApplicationContext()).getScaleModule().getTimeOff():0;
+        int index = Arrays.asList(timeArray).indexOf(String.valueOf(time));
+        if(index != -1)
+            mNumber = index;
         setPersistent(true);
         setDialogLayoutResource(R.layout.number_picker);
     }
@@ -33,7 +41,7 @@ public class DialogSpeedPort extends DialogPreference {
         numberPicker = (NumberPicker) view.findViewById(R.id.numberPicker);
         numberPicker.setMaxValue(maxValue);
         numberPicker.setMinValue(minValue);
-        numberPicker.setDisplayedValues(intArray);
+        numberPicker.setDisplayedValues(timeArray);
         numberPicker.setValue(mNumber);
         super.onBindDialogView(view);
     }
@@ -60,7 +68,7 @@ public class DialogSpeedPort extends DialogPreference {
         if (value != mNumber) {
             mNumber = value;
             notifyChanged();
-            callChangeListener(Integer.valueOf(intArray[value]));
+            callChangeListener(Integer.valueOf(timeArray[value]));
         }
     }
 
@@ -68,7 +76,6 @@ public class DialogSpeedPort extends DialogPreference {
     protected Object onGetDefaultValue(TypedArray a, int index) {
         return a.getInt(index, 0);
     }
-
 
 
 }

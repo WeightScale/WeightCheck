@@ -5,6 +5,7 @@ import android.content.*;
 import android.net.ConnectivityManager;
 import android.net.wifi.WifiManager;
 import android.os.Build;
+import android.preference.PreferenceManager;
 import android.provider.Settings;
 import android.telephony.PhoneStateListener;
 import android.telephony.TelephonyManager;
@@ -62,7 +63,9 @@ public class Internet {
         if (!BluetoothAdapter.getDefaultAdapter().isEnabled()) {
             turnOnWiFiConnection(true);
         }
+
         turnOnDataConnection(true);
+
     }
 
     /**
@@ -113,25 +116,27 @@ public class Internet {
      * @param on true - включить.
      */
     private boolean turnOnDataConnection(boolean on) {
-        try {
-            int bv = Build.VERSION.SDK_INT;
-            //int bv = Build.VERSION_CODES.FROYO;
-            if (bv == Build.VERSION_CODES.FROYO) { //2.2
+        /** Настройки администратора мобильный интернет */
+        if(Preferences.read(mContext.getString(R.string.KEY_MOBIL_INTERNET), false)){
+            try {
+                int bv = Build.VERSION.SDK_INT;
+                //int bv = Build.VERSION_CODES.FROYO;
+                if (bv == Build.VERSION_CODES.FROYO) { //2.2
 
-                TelephonyManager telephonyManager = (TelephonyManager) mContext.getSystemService(Context.TELEPHONY_SERVICE);
+                    TelephonyManager telephonyManager = (TelephonyManager) mContext.getSystemService(Context.TELEPHONY_SERVICE);
 
-                Class<?> telephonyManagerClass = Class.forName(telephonyManager.getClass().getName());
-                Method getITelephonyMethod = telephonyManagerClass.getDeclaredMethod("getITelephony");
-                getITelephonyMethod.setAccessible(true);
-                Object ITelephonyStub = getITelephonyMethod.invoke(telephonyManager);
-                Class<?> ITelephonyClass = Class.forName(ITelephonyStub.getClass().getName());
+                    Class<?> telephonyManagerClass = Class.forName(telephonyManager.getClass().getName());
+                    Method getITelephonyMethod = telephonyManagerClass.getDeclaredMethod("getITelephony");
+                    getITelephonyMethod.setAccessible(true);
+                    Object ITelephonyStub = getITelephonyMethod.invoke(telephonyManager);
+                    Class<?> ITelephonyClass = Class.forName(ITelephonyStub.getClass().getName());
 
-                Method dataConnSwitchMethod = on ? ITelephonyClass.getDeclaredMethod("enableDataConnectivity") : ITelephonyClass.getDeclaredMethod("disableDataConnectivity");
+                    Method dataConnSwitchMethod = on ? ITelephonyClass.getDeclaredMethod("enableDataConnectivity") : ITelephonyClass.getDeclaredMethod("disableDataConnectivity");
 
-                dataConnSwitchMethod.setAccessible(true);
-                dataConnSwitchMethod.invoke(ITelephonyStub);
-            } else if (bv <= Build.VERSION_CODES.ICE_CREAM_SANDWICH_MR1) {
-                //log.i("App running on Ginger bread+");
+                    dataConnSwitchMethod.setAccessible(true);
+                    dataConnSwitchMethod.invoke(ITelephonyStub);
+                } else if (bv <= Build.VERSION_CODES.ICE_CREAM_SANDWICH_MR1) {
+                    //log.i("App running on Ginger bread+");
                 /*final ConnectivityManager conman = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
                 final Class<?> conmanClass = Class.forName(conman.getClass().getName());
                 final Field iConnectivityManagerField = conmanClass.getDeclaredField("mService");
@@ -142,56 +147,56 @@ public class Internet {
                 setMobileDataEnabledMethod.setAccessible(true);
                 setMobileDataEnabledMethod.invoke(iConnectivityManager, on);*/
 
-                //Cursor cursor = context.getContentResolver().query(Settings.System.CONTENT_URI, null, null,null, null);
+                    //Cursor cursor = context.getContentResolver().query(Settings.System.CONTENT_URI, null, null,null, null);
                 /*Cursor cursor = context.getContentResolver().query(Settings.System.CONTENT_URI, null, null,null, null);
 
                 ContentQueryMap mQueryMap = new ContentQueryMap(cursor, BaseColumns._ID, true, null);
                 Map<String,ContentValues> map = mQueryMap.getRows();
                 ContentValues values = map.get(Settings.Secure.DATA_ROAMING);*/
 
-                ConnectivityManager dataManager = (ConnectivityManager) mContext.getSystemService(Context.CONNECTIVITY_SERVICE);
-                Method setMobileDataEnabledMethod = ConnectivityManager.class.getDeclaredMethod("setMobileDataEnabled", boolean.class);
-                setMobileDataEnabledMethod.setAccessible(true);
-                setMobileDataEnabledMethod.invoke(dataManager, on);
+                    ConnectivityManager dataManager = (ConnectivityManager) mContext.getSystemService(Context.CONNECTIVITY_SERVICE);
+                    Method setMobileDataEnabledMethod = ConnectivityManager.class.getDeclaredMethod("setMobileDataEnabled", boolean.class);
+                    setMobileDataEnabledMethod.setAccessible(true);
+                    setMobileDataEnabledMethod.invoke(dataManager, on);
 
-                // context.startActivity(new Intent(Settings.ACTION_WIRELESS_SETTINGS));
+                    // context.startActivity(new Intent(Settings.ACTION_WIRELESS_SETTINGS));
 
                 /*Intent intent=new Intent(Settings.ACTION_DATA_ROAMING_SETTINGS);
                 ComponentName cn = new ComponentName("com.android.phone","com.android.phone.Settings");
                 intent.setComponent(cn);
                 context.startActivity(intent);*/
 
-                //Global.getInt(context.getContentResolver(), "mobile_data");
+                    //Global.getInt(context.getContentResolver(), "mobile_data");
 
-                //((Activity) context).startActivityForResult(new Intent(android.provider.Settings.ACTION_DATA_ROAMING_SETTINGS), 0);
+                    //((Activity) context).startActivityForResult(new Intent(android.provider.Settings.ACTION_DATA_ROAMING_SETTINGS), 0);
 
-                //final  Intent intent=new Intent(Settings.ACTION_WIRELESS_SETTINGS);
-                //intent.addCategory(Intent.CATEGORY_LAUNCHER);
-                //final ComponentName cn = new ComponentName("com.android.phone","com.android.phone.Settings");
-                //intent.setComponent(cn);
-                //intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                //context.startActivity(intent);
-            } else {
-                ConnectivityManager dataManager = (ConnectivityManager) mContext.getSystemService(Context.CONNECTIVITY_SERVICE);
+                    //final  Intent intent=new Intent(Settings.ACTION_WIRELESS_SETTINGS);
+                    //intent.addCategory(Intent.CATEGORY_LAUNCHER);
+                    //final ComponentName cn = new ComponentName("com.android.phone","com.android.phone.Settings");
+                    //intent.setComponent(cn);
+                    //intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                    //context.startActivity(intent);
+                } else {
+                    ConnectivityManager dataManager = (ConnectivityManager) mContext.getSystemService(Context.CONNECTIVITY_SERVICE);
                  /*final Method setMobileDataEnabledMethod = ConnectivityManager.class.getDeclaredMethod("setMobileDataEnabled", Boolean.TYPE);
                 //Method[] setMobileDataEnabledMethod = ConnectivityManager.class.getDeclaredMethods("setMobileDataEnabled");
                 setMobileDataEnabledMethod.setAccessible(on);
                 setMobileDataEnabledMethod.invoke(dataManager, on);*/
 
-                Method dataMtd = null;
-                try {
-                    dataMtd = ConnectivityManager.class.getDeclaredMethod("setMobileDataEnabled", boolean.class);
-                } catch (SecurityException | NoSuchMethodException e) {
-                    e.printStackTrace();
-                }
+                    Method dataMtd = null;
+                    try {
+                        dataMtd = ConnectivityManager.class.getDeclaredMethod("setMobileDataEnabled", boolean.class);
+                    } catch (SecurityException | NoSuchMethodException e) {
+                        e.printStackTrace();
+                    }
 
-                assert dataMtd != null;
-                dataMtd.setAccessible(true);
-                try {
-                    dataMtd.invoke(dataManager, on);
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
+                    assert dataMtd != null;
+                    dataMtd.setAccessible(true);
+                    try {
+                        dataMtd.invoke(dataManager, on);
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
 
 
                 /*TelephonyManager tm = (TelephonyManager)context.getSystemService(Context.TELEPHONY_SERVICE);
@@ -225,12 +230,14 @@ public class Internet {
                 pArg[1] = true;
                 setMobileDataEnabledMethod.setAccessible(true);
                 setMobileDataEnabledMethod.invoke(iConnectivityManager, pArg);*/
+                }
+                return true;
+            } catch (Exception ignored) {
+                Log.e("hhh", "error turning on/off data");
+                return false;
             }
-            return true;
-        } catch (Exception ignored) {
-            Log.e("hhh", "error turning on/off data");
-            return false;
         }
+        return false;
     }
 
     /**

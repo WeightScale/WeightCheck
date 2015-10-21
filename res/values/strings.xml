@@ -55,7 +55,7 @@
     <string name="weight">Вес</string>
     <string name="sum_weight">Предел авто ноля</string>
     <string name="Settings">Настройки</string>
-    <string name="Timer_off">Время бездействия:</string>
+    <string name="Timer_off">Время бездействия минут:</string>
     <string name="measuring_step">Шаг взвешивания:</string>
     <string name="auto_capture">Автозахват:</string>
     <string name="removing_checks">Удалять чеки через:</string>

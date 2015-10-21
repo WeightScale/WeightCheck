@@ -17,20 +17,20 @@
                                             android:key="@string/KEY_MAX_NULL" android:inputType="number"/>
                     </PreferenceCategory>
                 </PreferenceScreen>
-                <com.victjava.scales.DialogTimerOff android:title="@string/Timer_off" android:key="@string/KEY_TIMER" android:inputType="number"/>
-                <com.victjava.scales.DialogStepWeight android:title="@string/measuring_step" android:key="@string/KEY_STEP"
+                <com.victjava.scales.settings.DialogTimerOff android:title="@string/Timer_off" android:key="@string/KEY_TIMER" android:inputType="number"/>
+                <com.victjava.scales.settings.DialogStepWeight android:title="@string/measuring_step" android:key="@string/KEY_STEP"
                                     android:inputType="number"/>
                 <EditTextPreference android:title="@string/auto_capture" android:key="@string/KEY_AUTO_CAPTURE"
                                     android:inputType="number"/>
                 <EditTextPreference android:title="@string/removing_checks"
                                     android:summary="@string/sum_removing_checks" android:key="@string/KEY_DAY_CHECK_DELETE"
-                                    android:inputType="number"/>
+                                    android:inputType="number" android:defaultValue="5"/>
                 <EditTextPreference android:title="@string/closed_checks" android:summary="@string/sum_closed_checks"
-                                    android:key="@string/KEY_DAY_CLOSED_CHECK" android:inputType="number"/>
+                                    android:key="@string/KEY_DAY_CLOSED_CHECK" android:inputType="number" android:defaultValue="5"/>
                 <Preference android:title="@string/checkbox_empty" android:summary="@string/checkbox_empty_summary" android:key="@string/KEY_EMPTY_CHECKBOX" />
             </PreferenceCategory>
         </PreferenceScreen>
-        <com.victjava.scales.DialogFilterADC android:title="@string/filter_adc" android:summary="@string/sum_filter_adc"
+        <com.victjava.scales.settings.DialogFilterADC android:title="@string/filter_adc" android:summary="@string/sum_filter_adc"
                             android:key="@string/KEY_FILTER" android:inputType="number"/>
         <Preference android:title="Для администратора" android:key="@string/KEY_ADMIN"/>
     </PreferenceCategory>

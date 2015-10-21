@@ -1,29 +1,36 @@
-package com.victjava.scales;
+package com.victjava.scales.settings;
 
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.preference.DialogPreference;
 import android.util.AttributeSet;
 import android.view.View;
+import com.victjava.scales.Main;
+import com.victjava.scales.NumberPicker;
+import com.victjava.scales.R;
+
+import java.util.Arrays;
 
 /**
- * @author Kostya
+ * Created by Kostya on 30.09.2015.
  */
-class DialogStepWeight extends DialogPreference /*implements ActivityPreferences.InterfacePreference*/ {
+public class DialogSpeedPort extends DialogPreference {
+    Main main;
     private int mNumber;
-    private final String[] intArray;
+    private final String[] speedPortArray;
     private NumberPicker numberPicker;
     final int minValue;
     final int maxValue;
 
-    public DialogStepWeight(Context context, AttributeSet attrs) {
+    public DialogSpeedPort(Context context, AttributeSet attrs) {
         super(context, attrs);
-        intArray = context.getResources().getStringArray(R.array.array_step_kg);
-        minValue = 0;
-        if(intArray.length > 0)
-            maxValue = intArray.length-1;
-        else
-            maxValue = 0;
+        speedPortArray = context.getResources().getStringArray(R.array.array_speed_port);
+        minValue = 1;
+        maxValue = speedPortArray.length > 0 ? speedPortArray.length : 1;
+        main = (Main)context.getApplicationContext();
+        int speed = main.getScaleModule().isAttach()?((Main)context.getApplicationContext()).getScaleModule().getSpeedPort():0;
+        if(speed >= minValue && speed <= maxValue)
+            mNumber = speed;
         setPersistent(true);
         setDialogLayoutResource(R.layout.number_picker);
     }
@@ -33,7 +40,7 @@ class DialogStepWeight extends DialogPreference /*implements ActivityPreferences
         numberPicker = (NumberPicker) view.findViewById(R.id.numberPicker);
         numberPicker.setMaxValue(maxValue);
         numberPicker.setMinValue(minValue);
-        numberPicker.setDisplayedValues(intArray);
+        numberPicker.setDisplayedValues(speedPortArray);
         numberPicker.setValue(mNumber);
         super.onBindDialogView(view);
     }
@@ -60,7 +67,7 @@ class DialogStepWeight extends DialogPreference /*implements ActivityPreferences
         if (value != mNumber) {
             mNumber = value;
             notifyChanged();
-            callChangeListener(Integer.valueOf(intArray[value]));
+            callChangeListener(value);
         }
     }
 
@@ -68,6 +75,7 @@ class DialogStepWeight extends DialogPreference /*implements ActivityPreferences
     protected Object onGetDefaultValue(TypedArray a, int index) {
         return a.getInt(index, 0);
     }
+
 
 
 }

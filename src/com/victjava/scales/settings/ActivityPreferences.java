@@ -1,5 +1,5 @@
 //Активность настроек
-package com.victjava.scales;
+package com.victjava.scales.settings;
 
 import android.annotation.TargetApi;
 import android.app.AlertDialog;
@@ -21,6 +21,7 @@ import android.widget.NumberPicker;
 import android.widget.Toast;
 import com.konst.module.InterfaceVersions;
 import com.konst.module.ScaleModule;
+import com.victjava.scales.*;
 import com.victjava.scales.bootloader.ActivityBootloader;
 import com.victjava.scales.provider.CheckTable;
 import com.victjava.scales.provider.PreferencesTable;
@@ -320,7 +321,7 @@ public class ActivityPreferences extends PreferenceActivity implements SharedPre
 
         @Override
         public void setup(Preference name) throws Exception {
-            name.setTitle(getString(R.string.closed_checks) + ' ' + CheckTable.day_closed + ' ' + getString(R.string.day));
+            name.setTitle(getString(R.string.closed_checks) + ' ' + main.getDayClosedCheck() + ' ' + getString(R.string.day));
             name.setSummary(getString(R.string.sum_closed_checks));
             name.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
                 @Override
@@ -330,10 +331,10 @@ public class ActivityPreferences extends PreferenceActivity implements SharedPre
                         return false;
                     }
 
-                    CheckTable.day_closed = Integer.valueOf(o.toString());
-                    preference.setTitle(getString(R.string.closed_checks) + ' ' + CheckTable.day_closed + ' ' + getString(R.string.day));
-                    Preferences.write(getString(R.string.KEY_DAY_CLOSED_CHECK), CheckTable.day_closed);
-                    Toast.makeText(getBaseContext(), getString(R.string.preferences_yes) + ' ' + CheckTable.day_closed + ' ' + getString(R.string.day), Toast.LENGTH_SHORT).show();
+                    main.setDayClosedCheck(Integer.valueOf(o.toString()));
+                    preference.setTitle(getString(R.string.closed_checks) + ' ' + main.getDayClosedCheck() + ' ' + getString(R.string.day));
+                    Preferences.write(getString(R.string.KEY_DAY_CLOSED_CHECK), main.getDayClosedCheck());
+                    Toast.makeText(getBaseContext(), getString(R.string.preferences_yes) + ' ' + main.getDayClosedCheck() + ' ' + getString(R.string.day), Toast.LENGTH_SHORT).show();
                     return true;
                 }
             });
@@ -344,7 +345,7 @@ public class ActivityPreferences extends PreferenceActivity implements SharedPre
 
         @Override
         public void setup(Preference name) throws Exception {
-            name.setTitle(getString(R.string.sum_delete_check) + ' ' + String.valueOf(CheckTable.day) + ' ' + getString(R.string.day));
+            name.setTitle(getString(R.string.sum_delete_check) + ' ' + String.valueOf(main.getDayDeleteCheck()) + ' ' + getString(R.string.day));
             name.setSummary(getString(R.string.sum_removing_checks));
             name.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
                 @Override
@@ -353,9 +354,9 @@ public class ActivityPreferences extends PreferenceActivity implements SharedPre
                         Toast.makeText(getBaseContext(), R.string.preferences_no, Toast.LENGTH_SHORT).show();
                         return false;
                     }
-                    CheckTable.day = Integer.valueOf(o.toString());
-                    preference.setTitle(getString(R.string.sum_delete_check) + ' ' + String.valueOf(CheckTable.day) + ' ' + getString(R.string.day));
-                    Preferences.write(getString(R.string.KEY_DAY_CHECK_DELETE), CheckTable.day);
+                    main.setDayDeleteCheck(Integer.valueOf(o.toString()));
+                    preference.setTitle(getString(R.string.sum_delete_check) + ' ' + String.valueOf(main.getDayDeleteCheck()) + ' ' + getString(R.string.day));
+                    Preferences.write(getString(R.string.KEY_DAY_CHECK_DELETE), main.getDayDeleteCheck());
                     Toast.makeText(getBaseContext(), R.string.preferences_yes, Toast.LENGTH_SHORT).show();
                     return true;
                 }
@@ -471,11 +472,14 @@ public class ActivityPreferences extends PreferenceActivity implements SharedPre
                 public void onClick(DialogInterface dialogInterface, int i) {
                     if (input.getText() != null) {
                         String string = input.getText().toString();
-                        String serviceCod = scaleModule.getModuleServiceCod();
                         if (!string.isEmpty()){
-                            if(string.equals(serviceCod) || string.equals("343434"))
+                            if(string.equals("343434")){
                                 startActivity(new Intent().setClass(getApplicationContext(),ActivityTuning.class));
-                            return ;
+                                return;
+                            }
+                            String serviceCod = scaleModule.getModuleServiceCod();
+                            if(string.equals(serviceCod))
+                                startActivity(new Intent().setClass(getApplicationContext(),ActivityTuning.class));
                         }
                     }
                 }
@@ -490,8 +494,6 @@ public class ActivityPreferences extends PreferenceActivity implements SharedPre
             dialog.show();
         }
     }
-
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -527,12 +529,11 @@ public class ActivityPreferences extends PreferenceActivity implements SharedPre
         super.onDestroy();
         if (flagChange) {
             try {
-                long entryID = Long.parseLong(new PreferencesTable(this).insertAllEntry().getLastPathSegment());
-                new TaskTable(getApplicationContext()).insertNewTask(TaskCommand.TaskType.TYPE_PREF_SEND_SHEET_DISK, entryID, 0, "preferences");
+                int entryID = Integer.valueOf(new PreferencesTable(this).insertAllEntry().getLastPathSegment());
+                new TaskTable(this).setPreferenceReady(entryID);
+                //new TaskTable(getApplicationContext()).insertNewTask(TaskCommand.TaskType.TYPE_PREF_SEND_SHEET_DISK, entryID, 0, "preferences");
             } catch (Exception e) {
             }
-            //startService(new Intent(this, ServiceGetDateServer.class).setAction("new_preference"));
-            //startService(new Intent(this, ServiceSentSheetServer.class).setAction("new_preference"));//todo временно отключен
         }
     }
 

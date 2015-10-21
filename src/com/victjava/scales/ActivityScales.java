@@ -7,8 +7,6 @@ import android.app.ProgressDialog;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.content.*;
-import android.content.pm.PackageInfo;
-import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
@@ -24,9 +22,10 @@ import com.konst.module.ScaleModule;
 import com.konst.module.ScaleModule.*;
 import com.victjava.scales.provider.CheckTable;
 import com.victjava.scales.provider.CommandTable;
-import com.victjava.scales.provider.ErrorTable;
 import com.victjava.scales.provider.TaskTable;
 import com.victjava.scales.service.ServiceProcessTask;
+import com.victjava.scales.settings.ActivityPreferences;
+import com.victjava.scales.settings.ActivityTuning;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -127,7 +126,8 @@ public class ActivityScales extends Activity implements View.OnClickListener, Vi
     @Override
     protected void onResume() {
         super.onResume();
-        scaleModule.startMeasuringBatteryTemperature();
+        if(scaleModule.isAttach())
+            scaleModule.startMeasuringBatteryTemperature();
         namesAdapter.changeCursor(checkTable.getAllNoReadyCheck());
     }
 

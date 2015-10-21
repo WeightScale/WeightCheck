@@ -53,7 +53,7 @@
     <string name="weight">Weight</string>
     <string name="sum_weight">Limit auto zero</string>
     <string name="Settings">Settings</string>
-    <string name="Timer_off">Off timer</string>
+    <string name="Timer_off">Off timer minute</string>
     <string name="measuring_step">Measuring step</string>
     <string name="auto_capture">Auto capture</string>
     <string name="removing_checks">Removing checks</string>

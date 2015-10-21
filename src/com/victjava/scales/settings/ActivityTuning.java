@@ -1,5 +1,5 @@
 //Активность для стартовой настройки весов
-package com.victjava.scales;
+package com.victjava.scales.settings;
 
 //import android.content.SharedPreferences;
 
@@ -20,6 +20,9 @@ import android.view.Window;
 import android.widget.*;
 import com.konst.module.InterfaceVersions;
 import com.konst.module.ScaleModule;
+import com.victjava.scales.Main;
+import com.victjava.scales.Preferences;
+import com.victjava.scales.R;
 import com.victjava.scales.bootloader.ActivityBootloader;
 import com.victjava.scales.provider.SenderTable;
 
@@ -49,6 +52,8 @@ public class ActivityTuning extends PreferenceActivity {
         main = (Main)getApplication();
         scaleModule = main.getScaleModule();
 
+        mapTuning.put(getString(R.string.KEY_NAME), new Name());
+        mapTuning.put(getString(R.string.KEY_SPEED_PORT), new SpeedPort());
         mapTuning.put(getString(R.string.KEY_POINT1), new Point1());
         mapTuning.put(getString(R.string.KEY_POINT2), new Point2());
         mapTuning.put(getString(R.string.KEY_WEIGHT_MAX), new WeightMax());
@@ -63,7 +68,7 @@ public class ActivityTuning extends PreferenceActivity {
         mapTuning.put(getString(R.string.KEY_UPDATE), new Update());
 
         PreferenceManager preferenceManager = getPreferenceManager();
-        preferenceManager.setSharedPreferencesName("my_preferences");
+        preferenceManager.setSharedPreferencesName(Preferences.PREFERENCES);
         preferenceManager.setSharedPreferencesMode(MODE_PRIVATE);
         addPreferencesFromResource(R.xml.tuning);
 
@@ -82,6 +87,58 @@ public class ActivityTuning extends PreferenceActivity {
                     e.printStackTrace();
                 }
             }
+        }
+    }
+
+    class Name implements InterfacePreference{
+
+        @Override
+        public void setup(Preference name) throws Exception {
+            name.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
+                @Override
+                public boolean onPreferenceChange(Preference preference, Object newValue) {
+                    if (newValue.toString().isEmpty()) {
+                        Toast.makeText(getApplicationContext(), R.string.preferences_no, Toast.LENGTH_SHORT).show();
+                        return false;
+                    }
+
+                    if(scaleModule.setModuleName(newValue.toString())){
+                        preference.setSummary("Имя модуля: " + newValue);
+                        Toast.makeText(getApplicationContext(), R.string.preferences_yes, Toast.LENGTH_SHORT).show();
+                        return true;
+                    }
+                    return false;
+                }
+            });
+        }
+    }
+
+    class SpeedPort implements InterfacePreference{
+
+        @Override
+        public void setup(Preference name) throws Exception {
+            name.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
+                @Override
+                public boolean onPreferenceChange(Preference preference, Object newValue) {
+                    if (newValue.toString().isEmpty()) {
+                        Toast.makeText(getApplicationContext(), R.string.preferences_no, Toast.LENGTH_SHORT).show();
+                        return false;
+                    }
+
+                    int temp = Integer.valueOf(newValue.toString());
+
+                    if (scaleModule.setModuleSpeedPort(temp) ){
+                        preference.setSummary("Скорость порта: " + newValue);
+                        //scaleModule.setPhone(o.toString());
+                        Toast.makeText(getApplicationContext(), R.string.preferences_yes, Toast.LENGTH_SHORT).show();
+                        return true;
+                    }
+                    preference.setSummary("Скорость порта: ???");
+                    Toast.makeText(getApplicationContext(), R.string.preferences_no, Toast.LENGTH_SHORT).show();
+
+                    return false;
+                }
+            });
         }
     }
 
@@ -497,8 +554,8 @@ public class ActivityTuning extends PreferenceActivity {
                         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
                     else
                         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                    //intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                    intent.putExtra(getString(R.string.KEY_ADDRESS), scaleModule.getAddressBluetoothDevice());
+                    intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                    intent.putExtra(getString(R.string.KEY_ADDRESS), scaleModule.isAttach()? scaleModule.getAddressBluetoothDevice():"");
                     intent.putExtra(InterfaceVersions.CMD_HARDWARE, hardware);
                     intent.putExtra(InterfaceVersions.CMD_VERSION, scaleModule.getNumVersion());
                     startActivity(intent);

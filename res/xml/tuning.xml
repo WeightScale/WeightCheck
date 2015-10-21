@@ -2,7 +2,7 @@
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
     <PreferenceCategory android:title="@string/information">
         <EditTextPreference android:title="@string/name_scales" android:key="@string/KEY_NAME"/>
-        <com.victjava.scales.DialogSpeedPort android:title="Скорость порта" android:summary="Скорость передачи данных порта bluetooth модуля"
+        <com.victjava.scales.settings.DialogSpeedPort android:title="Скорость порта" android:summary="Скорость передачи данных порта bluetooth модуля"
                                              android:key="@string/KEY_SPEED_PORT" android:inputType="number"/>
     </PreferenceCategory>
     <PreferenceCategory android:title="Калибровка">
@@ -53,6 +53,7 @@
                                 android:inputType="phone"/>
         </PreferenceScreen>
         <Preference android:title="Настройка отсылателя" android:summary="Выбор куда отсылать весовой чек" android:key="@string/KEY_SENDER"/>
+        <CheckBoxPreference android:enabled="true" android:title="Мобильный интернет" android:summary="Использовать мобильный интернет" android:key="@string/KEY_MOBIL_INTERNET" android:defaultValue="false"/>
     </PreferenceCategory>
     <PreferenceCategory>
         <EditTextPreference android:key="@string/KEY_SERVICE_COD" android:inputType="numberPassword" android:title="Сервис код" android:summary="Сервис код для доступа к административным настройкам"/>
