@@ -5,15 +5,18 @@ package com.victjava.scales.settings;
 
 import android.app.Dialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.Point;
 import android.os.Build;
 import android.os.Bundle;
+import android.preference.DialogPreference;
 import android.preference.Preference;
 import android.preference.PreferenceActivity;
 import android.preference.PreferenceManager;
 import android.provider.BaseColumns;
+import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.Window;
@@ -166,8 +169,12 @@ public class ActivityTuning extends PreferenceActivity {
     }
 
     class Point2 implements InterfacePreference{
+        //TextView textSensor;
+        //EditText editTextPoint2;
+        //Dialog dialog;
+
         @Override
-        public void setup(Preference name) throws Exception {
+        public void setup(final Preference name) throws Exception {
             name.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
                 @Override
                 public boolean onPreferenceChange(Preference preference, Object o) {
@@ -189,7 +196,79 @@ public class ActivityTuning extends PreferenceActivity {
                     }
                 }
             });
+
+            /*name.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+                @Override
+                public boolean onPreferenceClick(Preference preference) {
+                    //scaleModule.setOnEventResultWeight(onEventResultWeight);
+                    return false;
+                }
+            });*/
+            /*name.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+                @Override
+                public boolean onPreferenceClick(Preference preference) {
+                    scaleModule.setOnEventResultWeight(onEventResultWeight);
+                    openDialog();
+                    return false;
+                }
+            });*/
         }
+
+        /*public  void openDialog(){
+            dialog = new Dialog(ActivityTuning.this);
+            dialog.setContentView(R.layout.dialog_point2);
+            dialog.setCancelable(false);
+            dialog.setTitle("Контрольный вес");
+
+            // set the custom dialog components - text, image and button
+            textSensor = (TextView) dialog.findViewById(R.id.textViewTitle);
+            editTextPoint2 = (EditText) dialog.findViewById(R.id.editTextPoint2);
+
+            Button buttonOK = (Button) dialog.findViewById(R.id.buttonOk);
+            buttonOK.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    try {
+                        String str = scaleModule.feelWeightSensor();
+                        if (str.isEmpty()) {
+                            Toast.makeText(getApplicationContext(), R.string.preferences_no, Toast.LENGTH_SHORT).show();
+                        }
+                        scaleModule.setSensorTenzo(Integer.valueOf(str));
+                        point2.x = Integer.valueOf(str);
+                        point2.y = Integer.valueOf(editTextPoint2.getText().toString());
+                        Toast.makeText(getApplicationContext(), R.string.preferences_yes, Toast.LENGTH_SHORT).show();
+                        flag_restore = true;
+                    } catch (Exception e) {
+                        Toast.makeText(getApplicationContext(), R.string.preferences_no + e.getMessage(), Toast.LENGTH_SHORT).show();
+                    }
+                    dialog.dismiss();
+                    scaleModule.stopMeasuringWeight(true);
+                }
+            });
+            Button buttonClosed = (Button) dialog.findViewById(R.id.buttonClose);
+            buttonClosed.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    dialog.dismiss();
+                    scaleModule.stopMeasuringWeight(true);
+                }
+            });
+            scaleModule.startMeasuringWeight();
+            dialog.show();
+        }*/
+
+        final ScaleModule.OnEventResultWeight onEventResultWeight = new ScaleModule.OnEventResultWeight() {
+            @Override
+            public int weight(ScaleModule.ResultWeight what, int weight, final int sensor) {
+                /*runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        textSensor.setText(String.valueOf(sensor));
+                    }
+                });*/
+                return 50;
+            }
+        };
     }
 
     class WeightMax implements InterfacePreference{

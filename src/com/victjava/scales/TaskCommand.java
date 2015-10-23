@@ -125,6 +125,7 @@ public class TaskCommand extends CheckTable {
         /*mapTasks.put(TaskType.TYPE_CHECK_SEND_MAIL_ADMIN, new CheckToMail());*/
         mapTasks.put(TaskType.TYPE_CHECK_SEND_SMS_CONTACT, new CheckToSmsContact());
         mapTasks.put(TaskType.TYPE_CHECK_SEND_SMS_ADMIN, new CheckToSmsAdmin());
+        mapTasks.put(TaskType.TYPE_PREF_SEND_HTTP_POST, new PreferenceTokHttpPost());
         mapTasks.put(TaskType.TYPE_PREF_SEND_SHEET_DISK, new PreferenceToSpreadsheet(((Main)mContext.getApplicationContext()).getVersionName()));
     }
 
@@ -197,12 +198,19 @@ public class TaskCommand extends CheckTable {
                             mHandler.sendEmptyMessage(HANDLER_FINISH_THREAD);
                             return;
                         }
-                        getSheetEntry(scaleModule.getSpreadSheet());
-                        UpdateListWorksheets();
 
                         for (Map.Entry<String, ContentValues> entry : mapChecks.entrySet()) {
                             int taskId = Integer.valueOf(entry.getKey());
                             int checkId = Integer.valueOf(entry.getValue().get(TaskTable.KEY_DOC).toString());
+
+                            try {
+                                getSheetEntry(entry.getValue().get(TaskTable.KEY_DATA0).toString());
+                                UpdateListWorksheets();
+                            }catch (Exception e){
+                                mHandler.handleNotificationError(HANDLER_NOTIFY_ERROR, 505, new MessageNotify(MessageNotify.ID_NOTIFY_NO_SHEET, e.getMessage()));
+                                continue;
+                            }
+
                             Message msg;
                             try {
                                 sendCheckToDisk(checkId);
@@ -215,6 +223,7 @@ public class TaskCommand extends CheckTable {
                             }
                             mHandler.sendMessage(msg);
                         }
+
                     } catch (Exception e) {
                         mHandler.handleNotificationError(HANDLER_NOTIFY_ERROR, 505, new MessageNotify(MessageNotify.ID_NOTIFY_NO_SHEET, e.getMessage()));
                     }
@@ -316,18 +325,15 @@ public class TaskCommand extends CheckTable {
                     for (Map.Entry<String, ContentValues> entry : map.entrySet()) {
                         int taskId = Integer.valueOf(entry.getKey());
                         int checkId = Integer.valueOf(entry.getValue().get(TaskTable.KEY_DOC).toString());
-                        int senderId = Integer.valueOf(entry.getValue().get(TaskTable.KEY_ID_DATA).toString());
-                        Cursor sender = new SenderTable(mContext).getEntryItem(senderId);
-                        String http = sender.getString(sender.getColumnIndex(SenderTable.KEY_DATA1));
-                        String[] values = sender.getString(sender.getColumnIndex(SenderTable.KEY_DATA2)).split(" ");
+                        String http = entry.getValue().get(TaskTable.KEY_DATA0).toString();
+                        String[] values = entry.getValue().get(TaskTable.KEY_DATA1).toString().split(" ");
                         Cursor check = getEntryItem(checkId);
                         List<BasicNameValuePair> results = new ArrayList<>();
                         for (String postName : values) {
                             String[] pair = postName.split("=");
                             try {
                                 results.add(new BasicNameValuePair(pair[0], check.getString(check.getColumnIndex(pair[1]))));
-                            } catch (Exception e) {
-                            }
+                            } catch (Exception e) {}
                         }
                         Message msg;
                         try {
@@ -340,7 +346,6 @@ public class TaskCommand extends CheckTable {
                             mHandler.handleError(401, e.getMessage());
                         }
                         mHandler.sendMessage(msg);
-                        sender.close();
                         check.close();
                     }
                     mHandler.sendEmptyMessage(HANDLER_FINISH_THREAD);
@@ -385,9 +390,11 @@ public class TaskCommand extends CheckTable {
                         return;
                     }
                     for (Map.Entry<String, ContentValues> entry : map.entrySet()) {
+
                         int taskId = Integer.valueOf(entry.getKey());
                         int checkId = Integer.valueOf(entry.getValue().get(TaskTable.KEY_DOC).toString());
-                        String address = entry.getValue().get(TaskTable.KEY_DATA1).toString();
+                        //String address = entry.getValue().get(TaskTable.KEY_DATA0).toString();
+                        MailSend.MailObject mailObject = new MailSend.MailObject(entry.getValue().get(TaskTable.KEY_DATA0).toString());
                         StringBuilder body = new StringBuilder(mContext.getString(R.string.WEIGHT_CHECK_N) + checkId + '\n' + '\n');
                         Cursor check = getEntryItem(checkId);
                         if (check == null) {
@@ -407,15 +414,19 @@ public class TaskCommand extends CheckTable {
                             }
                             check.close();
                         }
-
+                        mailObject.setBody(body.toString());
+                        mailObject.setSubject(mContext.getString(R.string.Check_N) + checkId);
+                        mailObject.setUser(entry.getValue().get(TaskTable.KEY_DATA1).toString());
+                        mailObject.setPassword(entry.getValue().get(TaskTable.KEY_DATA2).toString());
                         Message msg;
                         try {
-                            MailSend mail = new MailSend(mContext.getApplicationContext(), address, mContext.getString(R.string.Check_N) + checkId, body.toString());
+                            MailSend mail = new MailSend(mContext, mailObject);
+                            //MailSend mail = new MailSend(mContext.getApplicationContext(), address, mContext.getString(R.string.Check_N) + checkId, body.toString());
                             mail.sendMail();
-                            mapChecksProcessed.get(MAP_CHECKS_SEND).add(new ObjectParcel(checkId, mContext.getString(R.string.Send_to_mail) + ": " + address));
+                            mapChecksProcessed.get(MAP_CHECKS_SEND).add(new ObjectParcel(checkId, mContext.getString(R.string.Send_to_mail) + ": " + mailObject.getEmail()));
                             msg = mHandler.obtainMessage(HANDLER_NOTIFY_MAIL, checkId, taskId, mapChecksProcessed.get(MAP_CHECKS_SEND));
                         } catch (MessagingException e) {
-                            mapChecksProcessed.get(MAP_CHECKS_UNSEND).add(new ObjectParcel(checkId, "Не отправлен " + e.getMessage() + ' ' + address));
+                            mapChecksProcessed.get(MAP_CHECKS_UNSEND).add(new ObjectParcel(checkId, "Не отправлен " + e.getMessage() + ' ' + mailObject.getEmail()));
                             msg = mHandler.obtainMessage(HANDLER_NOTIFY_CHECK_UNSEND, checkId, taskId, mapChecksProcessed.get(MAP_CHECKS_UNSEND));
                             mHandler.handleError(401, e.getMessage());
                         } catch (UnsupportedEncodingException e) {
@@ -451,7 +462,7 @@ public class TaskCommand extends CheckTable {
                     for (Map.Entry<String, ContentValues> entry : map.entrySet()) {
                         int taskId = Integer.valueOf(entry.getKey());
                         int checkId = Integer.valueOf(entry.getValue().get(TaskTable.KEY_DOC).toString());
-                        String address = entry.getValue().get(TaskTable.KEY_DATA1).toString();
+                        String address = entry.getValue().get(TaskTable.KEY_DATA0).toString();
                         StringBuilder body = new StringBuilder(mContext.getString(R.string.WEIGHT_CHECK_N) + checkId + '\n' + '\n');
                         Cursor check = getEntryItem(checkId, CheckTable.COLUMNS_SMS_CONTACT);
                         if (check == null) {
@@ -511,7 +522,7 @@ public class TaskCommand extends CheckTable {
                     for (Map.Entry<String, ContentValues> entry : map.entrySet()) {
                         int taskId = Integer.valueOf(entry.getKey());
                         int checkId = Integer.valueOf(entry.getValue().get(TaskTable.KEY_DOC).toString());
-                        String address = entry.getValue().get(TaskTable.KEY_DATA1).toString();
+                        String address = entry.getValue().get(TaskTable.KEY_DATA0).toString();
                         StringBuilder body = new StringBuilder();
                         Cursor check = getEntryItem(checkId,CheckTable.COLUMNS_SMS_ADMIN);
                         if (check == null) {
@@ -596,11 +607,17 @@ public class TaskCommand extends CheckTable {
                         return;
                     }
                     try {
-                        getSheetEntry(scaleModule.getSpreadSheet());
-                        UpdateListWorksheets();
 
                         Message msg = new Message();
                         for (Map.Entry<String, ContentValues> entry : map.entrySet()) {
+                            try {
+                                getSheetEntry(entry.getValue().get(TaskTable.KEY_DATA0).toString());
+                                UpdateListWorksheets();
+                            }catch (Exception e){
+                                mHandler.handleNotificationError(HANDLER_NOTIFY_ERROR, 505, new MessageNotify(MessageNotify.ID_NOTIFY_NO_SHEET, e.getMessage()));
+                                continue;
+                            }
+
                             int taskId = Integer.valueOf(entry.getKey());
                             int prefId = Integer.valueOf(entry.getValue().get(TaskTable.KEY_DOC).toString());
                             ObjectParcel objParcel = new ObjectParcel(prefId, mContext.getString(R.string.sent_to_the_server));
@@ -643,6 +660,72 @@ public class TaskCommand extends CheckTable {
         }
 
 
+    }
+
+    /**
+     * Класс для отправки чека http post
+     */
+    public class PreferenceTokHttpPost implements InterfaceTaskCommand {
+
+        final Map<String, ArrayList<ObjectParcel>> mapPrefProcessed = new HashMap<>();
+
+        public PreferenceTokHttpPost() {
+            mapPrefProcessed.put(MAP_CHECKS_SEND, new ArrayList<ObjectParcel>());
+            mapPrefProcessed.put(MAP_CHECKS_UNSEND, new ArrayList<ObjectParcel>());
+        }
+
+        @Override
+        public void onExecuteTask(final Map<String, ContentValues> map) {
+
+            new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    if (!getConnection(10000, 10)) {
+                        mHandler.sendEmptyMessage(HANDLER_FINISH_THREAD);
+                        return;
+                    }
+                    for (Map.Entry<String, ContentValues> entry : map.entrySet()) {
+                        int taskId = Integer.valueOf(entry.getKey());
+                        int prefId = Integer.valueOf(entry.getValue().get(TaskTable.KEY_DOC).toString());
+                        String http = entry.getValue().get(TaskTable.KEY_DATA0).toString();
+                        String[] values = entry.getValue().get(TaskTable.KEY_DATA1).toString().split(" ");
+                        Cursor pref = new PreferencesTable(mContext).getEntryItem(prefId);
+                        List<BasicNameValuePair> results = new ArrayList<>();
+                        for (String postName : values) {
+                            String[] pair = postName.split("=");
+                            try {
+                                results.add(new BasicNameValuePair(pair[0], pref.getString(pref.getColumnIndex(pair[1]))));
+                            } catch (Exception e) {}
+                        }
+                        Message msg = new Message();
+                        try {
+                            submitData(http, results);
+                            mapPrefProcessed.get(MAP_CHECKS_SEND).add(new ObjectParcel(prefId, mContext.getString(R.string.sent_to_the_server)));
+                            msg = mHandler.obtainMessage(HANDLER_NOTIFY_PREF, prefId, taskId, mapPrefProcessed.get(MAP_CHECKS_SEND));
+                        } catch (Exception e) {
+                            mHandler.handleNotificationError(HANDLER_NOTIFY_ERROR, 401, new MessageNotify(MessageNotify.ID_NOTIFY_NO_SHEET, "Настройки не отправлены " + e.getMessage()));
+                        }
+                        mHandler.sendMessage(msg);
+                        pref.close();
+                    }
+                    mHandler.sendEmptyMessage(HANDLER_FINISH_THREAD);
+                }
+            }).start();
+        }
+
+        public void submitData(String http_post, List<BasicNameValuePair> results) throws Exception {
+            HttpClient client = new DefaultHttpClient();
+            HttpPost post = new HttpPost(http_post);
+            HttpParams httpParameters = new BasicHttpParams();
+            HttpConnectionParams.setConnectionTimeout(httpParameters, 15000);
+            HttpConnectionParams.setSoTimeout(httpParameters, 30000);
+            post.setParams(httpParameters);
+            post.setEntity(new UrlEncodedFormEntity(results, "UTF-8"));
+            HttpResponse httpResponse = client.execute(post);
+            if (httpResponse.getStatusLine().getStatusCode() != HttpURLConnection.HTTP_OK)
+                throw new Exception(httpResponse.toString());
+            //return httpResponse.getStatusLine().getStatusCode() == HttpURLConnection.HTTP_OK;
+        }
     }
 
     public static class MessageNotify {

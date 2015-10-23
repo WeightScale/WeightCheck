@@ -4,15 +4,15 @@ import android.content.*;
 import android.database.Cursor;
 import android.net.Uri;
 import android.provider.BaseColumns;
+import android.text.TextUtils;
 import com.konst.module.ScaleModule;
 import com.victjava.scales.Main;
 import com.victjava.scales.R;
+import org.apache.http.message.BasicNameValuePair;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.Locale;
-import java.util.Map;
+import java.util.*;
 
 public class CheckTable {
     final ScaleModule scaleModule;
@@ -20,6 +20,14 @@ public class CheckTable {
     final ContentResolver contentResolver;
     public static int day;
     public static int day_closed;
+
+    static final String GO_FORM_HTTP = "https://docs.google.com/forms/d/11C5mq1Z-Syuw7ScsMlWgSnr9yB4L_eP-NhxnDdohtrw/formResponse"; // Форма движения
+    static final String GO_DATE_HTTP = "entry.1974893725";                                  // Дата создания
+    static final String GO_BT_HTTP = "entry.1465497317";                                    // Номер весов
+    static final String GO_WEIGHT_HTTP = "entry.683315711";                                 // Вес
+    static final String GO_TYPE_HTTP = "entry.138748566";                                   // Тип
+    static final String GO_IS_READY_HTTP = "entry.1691625234";                              // Готов
+    static final String GO_TIME_HTTP = "entry.1280991625";                                  //Время
 
     public static final String TABLE = "checkTable";
 
@@ -319,5 +327,20 @@ public class CheckTable {
         } catch (Exception e) {
             return false;
         }
+    }
+
+    public static String getGoFormHttp(){
+        return GO_FORM_HTTP;
+    }
+
+    public static String geGoParamHttp(){
+        Collection<BasicNameValuePair> results = new ArrayList<>();
+        results.add(new BasicNameValuePair(GO_DATE_HTTP, KEY_DATE_CREATE));
+        results.add(new BasicNameValuePair(GO_BT_HTTP, KEY_NUMBER_BT));
+        results.add(new BasicNameValuePair(GO_WEIGHT_HTTP, KEY_WEIGHT_NETTO));
+        results.add(new BasicNameValuePair(GO_TYPE_HTTP, KEY_TYPE));
+        results.add(new BasicNameValuePair(GO_IS_READY_HTTP, KEY_IS_READY));
+        results.add(new BasicNameValuePair(GO_TIME_HTTP, KEY_TIME_CREATE));
+        return TextUtils.join(" ", results);
     }
 }

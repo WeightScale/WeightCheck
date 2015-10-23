@@ -16,12 +16,10 @@
       <excludeFolder url="file://$MODULE_DIR$/Doc" />
       <excludeFolder url="file://$MODULE_DIR$/temp" />
     </content>
-    <content url="file://$MODULE_DIR$/../../bootloader_avr/src">
-      <sourceFolder url="file://$MODULE_DIR$/../../bootloader_avr/src" isTestSource="false" />
-    </content>
     <orderEntry type="jdk" jdkName="Android API 17 Platform" jdkType="Android SDK" />
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="library" exported="" name="activation" level="project" />
     <orderEntry type="library" exported="" name="SMSCommander" level="project" />
+    <orderEntry type="library" exported="" name="bootloader_avr" level="project" />
   </component>
 </module>

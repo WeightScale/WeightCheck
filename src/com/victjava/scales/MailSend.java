@@ -15,22 +15,24 @@ import java.util.Properties;
 public class MailSend {
     protected final Context mContext;
     final ScaleModule scaleModule;
-    protected final String mEmail;
-    protected final String mSubject;
-    protected final String mBody;
+    final MailObject mailObject;
+
     //StringBuilder stringBuilderBody;
+    public MailSend(Context cxt, MailObject object){
+        mContext = cxt;
+        scaleModule = ((Main)mContext.getApplicationContext()).getScaleModule();
+        mailObject = object;
+    }
 
     public MailSend(Context cxt, String email, String subject, String messageBody) {
         mContext = cxt;
         scaleModule = ((Main)mContext.getApplicationContext()).getScaleModule();
-        mEmail = email;
-        mSubject = subject;
-        mBody = messageBody;
+        mailObject = new MailObject(email, subject, messageBody);
     }
 
     public void sendMail() throws MessagingException, UnsupportedEncodingException {
         Session session = createSessionObject();
-        Message message = createMessage(mSubject, mBody, session);
+        Message message = createMessage(mailObject.getSubject(), mailObject.getBody(), session);
         Transport.send(message);
     }
 
@@ -47,7 +49,7 @@ public class MailSend {
         return Session.getInstance(properties, new Authenticator() {
             @Override
             protected PasswordAuthentication getPasswordAuthentication() {
-                return new PasswordAuthentication(scaleModule.getUserName(), scaleModule.getPassword());
+                return new PasswordAuthentication(mailObject.getUser(), mailObject.getPassword());
             }
         });
     }
@@ -59,12 +61,71 @@ public class MailSend {
         } catch (Exception e) {
             message.setFrom(new InternetAddress("scale", mContext.getString(R.string.app_name) + " \""));
         }
-        message.addRecipient(Message.RecipientType.TO, new InternetAddress(mEmail, mEmail));
+        message.addRecipient(Message.RecipientType.TO, new InternetAddress(mailObject.getEmail(), mailObject.getEmail()));
         //message.setRecipients(Message.RecipientType.TO, InternetAddress.parse(mEmail));
         //message.addRecipients(Message.RecipientType.TO, InternetAddress.parse(builderMail.toString(),false));
         message.setSubject(subject);
         message.setText(messageBody);
         return message;
+    }
+
+    static class MailObject {
+        protected String mEmail;
+        protected String mSubject;
+        protected String mBody;
+        protected String mUser;
+        protected String mPassword;
+
+        public MailObject(String email){
+            mEmail = email;
+        }
+
+        MailObject(String email, String subject, String message){
+            mEmail = email;
+            mSubject = subject;
+            mBody = message;
+
+        }
+
+        public String getEmail() {
+            return mEmail;
+        }
+
+        public void setEmail(String mEmail) {
+            this.mEmail = mEmail;
+        }
+
+        public String getSubject() {
+            return mSubject;
+        }
+
+        public void setSubject(String mSubject) {
+            this.mSubject = mSubject;
+        }
+
+        public String getBody() {
+            return mBody;
+        }
+
+        public void setBody(String mBody) {
+            this.mBody = mBody;
+        }
+
+        public String getUser() {
+            return mUser;
+        }
+
+        public void setUser(String mUser) {
+            this.mUser = mUser;
+        }
+
+        public String getPassword() {
+            return mPassword;
+        }
+
+        public void setPassword(String mPassword) {
+            this.mPassword = mPassword;
+        }
     }
 
 }

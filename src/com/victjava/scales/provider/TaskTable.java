@@ -26,7 +26,9 @@ public class TaskTable {
     public static final String KEY_MIME_TYPE = "mime_type";
     public static final String KEY_DOC = "id_doc";
     public static final String KEY_ID_DATA = "id_contact";
+    public static final String KEY_DATA0 = "data0";
     public static final String KEY_DATA1 = "data1";
+    public static final String KEY_DATA2 = "data2";
     public static final String KEY_NUM_ERROR = "num_error";
 
     private final int COUNT_ERROR = 5;
@@ -37,7 +39,9 @@ public class TaskTable {
             + KEY_MIME_TYPE + " integer,"
             + KEY_DOC + " integer,"
             + KEY_ID_DATA + " integer,"
+            + KEY_DATA0 + " text,"
             + KEY_DATA1 + " text,"
+            + KEY_DATA2 + " text,"
             + KEY_NUM_ERROR + " integer );";
 
     public static final Uri CONTENT_URI = Uri.parse("content://" + WeightCheckBaseProvider.AUTHORITY + '/' + TABLE);
@@ -47,12 +51,42 @@ public class TaskTable {
         scaleModule = ((Main)mContext.getApplicationContext()).getScaleModule();
     }
 
-    public Uri insertNewTask(TaskCommand.TaskType mimeType, long documentId, long dataId, String data1) {
+    public Uri insertNewTask(TaskCommand.TaskType mimeType, long documentId, long dataId, String ... data) {
         ContentValues newTaskValues = new ContentValues();
         newTaskValues.put(KEY_MIME_TYPE, mimeType.ordinal());
         newTaskValues.put(KEY_DOC, documentId);
         newTaskValues.put(KEY_ID_DATA, dataId);
-        newTaskValues.put(KEY_DATA1, data1);
+        if(data.length < 4){
+            for (int i=0; i < data.length; i++){
+                newTaskValues.put("data"+i, data[i]);
+            }
+        }else {
+            for (int i=0; i < 3; i++){
+                newTaskValues.put("data"+i, data[i]);
+            }
+        }
+        newTaskValues.put(KEY_NUM_ERROR, 0);
+        return mContext.getContentResolver().insert(CONTENT_URI, newTaskValues);
+    }
+
+    public Uri insertNewTaskPhone(TaskCommand.TaskType mimeType, long documentId, long dataId, String phone) {
+        ContentValues newTaskValues = new ContentValues();
+        newTaskValues.put(KEY_MIME_TYPE, mimeType.ordinal());
+        newTaskValues.put(KEY_DOC, documentId);
+        newTaskValues.put(KEY_ID_DATA, dataId);
+        newTaskValues.put(KEY_DATA0, phone);
+        newTaskValues.put(KEY_NUM_ERROR, 0);
+        return mContext.getContentResolver().insert(CONTENT_URI, newTaskValues);
+    }
+
+    public Uri insertNewTaskEmail(TaskCommand.TaskType mimeType, long documentId, long dataId, String address) {
+        ContentValues newTaskValues = new ContentValues();
+        newTaskValues.put(KEY_MIME_TYPE, mimeType.ordinal());
+        newTaskValues.put(KEY_DOC, documentId);
+        newTaskValues.put(KEY_ID_DATA, dataId);
+        newTaskValues.put(KEY_DATA0, address);
+        newTaskValues.put(KEY_DATA1, getUser());
+        newTaskValues.put(KEY_DATA2, getPassword());
         newTaskValues.put(KEY_NUM_ERROR, 0);
         return mContext.getContentResolver().insert(CONTENT_URI, newTaskValues);
     }
@@ -125,25 +159,22 @@ public class TaskTable {
                     SenderTable.TypeSender type_sender = SenderTable.TypeSender.values()[cursor.getInt(cursor.getColumnIndex(SenderTable.KEY_TYPE))];
                     switch (type_sender) {
                         case TYPE_HTTP_POST:
-                            insertNewTask(TaskCommand.TaskType.TYPE_CHECK_SEND_HTTP_POST, _rowIndex, senderId, "");
+                            insertNewTask(TaskCommand.TaskType.TYPE_CHECK_SEND_HTTP_POST, _rowIndex, senderId, CheckTable.getGoFormHttp(), CheckTable.geGoParamHttp());
                             break;
                         case TYPE_GOOGLE_DISK:
-                            insertNewTask(TaskCommand.TaskType.TYPE_CHECK_SEND_SHEET_DISK, _rowIndex, senderId, "");
+                            insertNewTask(TaskCommand.TaskType.TYPE_CHECK_SEND_SHEET_DISK, _rowIndex, senderId, getSpreadSheet(), getUser(), getPassword());
                             break;
                         case TYPE_EMAIL:
-                            insertNewTask(TaskCommand.TaskType.TYPE_CHECK_SEND_MAIL, _rowIndex, senderId, scaleModule.getUserName());
+                            insertNewTaskEmail(TaskCommand.TaskType.TYPE_CHECK_SEND_MAIL, _rowIndex, senderId, getUser());
                             break;
                         case TYPE_SMS:
-                            insertNewTask(TaskCommand.TaskType.TYPE_CHECK_SEND_SMS_ADMIN, _rowIndex, senderId, scaleModule.getPhone());
+                            insertNewTaskPhone(TaskCommand.TaskType.TYPE_CHECK_SEND_SMS_ADMIN, _rowIndex, senderId, scaleModule.getPhone());
                             break;
                         default:
                     }
                 } while (cursor.moveToNext());
             }
-
-        } catch (Exception e) {
-
-        }
+        } catch (Exception e) {}
     }
 
     public void setPreferenceReady(int _rowIndex) {
@@ -155,11 +186,11 @@ public class TaskTable {
                     int senderId = cursor.getInt(cursor.getColumnIndex(SenderTable.KEY_ID));
                     SenderTable.TypeSender type_sender = SenderTable.TypeSender.values()[cursor.getInt(cursor.getColumnIndex(SenderTable.KEY_TYPE))];
                     switch (type_sender) {
-                        /*case TYPE_HTTP_POST:
-                            insertNewTask(TaskCommand.TaskType.TYPE_CHECK_SEND_HTTP_POST, _rowIndex, senderId, "");
-                            break;*/
+                        case TYPE_HTTP_POST:
+                            insertNewTask(TaskCommand.TaskType.TYPE_PREF_SEND_HTTP_POST, _rowIndex, senderId, PreferencesTable.getPrefFormHttp(), PreferencesTable.getPrefParamHttp());
+                            break;
                         case TYPE_GOOGLE_DISK:
-                            insertNewTask(TaskCommand.TaskType.TYPE_PREF_SEND_SHEET_DISK, _rowIndex, senderId, "preferences");
+                            insertNewTask(TaskCommand.TaskType.TYPE_PREF_SEND_SHEET_DISK, _rowIndex, senderId, getSpreadSheet(), getUser(), getPassword());
                             break;
                         /*case TYPE_EMAIL:
                             insertNewTask(TaskCommand.TaskType.TYPE_CHECK_SEND_MAIL, _rowIndex, senderId, scaleModule.getUserName());
@@ -171,10 +202,19 @@ public class TaskTable {
                     }
                 } while (cursor.moveToNext());
             }
+        } catch (Exception e) {}
+    }
 
-        } catch (Exception e) {
+    public String getUser(){
+        return scaleModule.getUserName();
+    }
 
-        }
+    public String getPassword(){
+        return scaleModule.getPassword();
+    }
+
+    public String getSpreadSheet(){
+        return scaleModule.getSpreadSheet();
     }
 
 }

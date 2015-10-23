@@ -7,10 +7,14 @@ import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
 import android.provider.BaseColumns;
+import android.text.TextUtils;
 import com.konst.module.ScaleModule;
 import com.victjava.scales.Main;
+import org.apache.http.message.BasicNameValuePair;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Date;
 import java.util.Locale;
 
@@ -24,6 +28,19 @@ import java.util.Locale;
 public class PreferencesTable {
     private final Context context;
     final ScaleModule scaleModule;
+
+    static final String PREF_FORM_HTTP = "https://docs.google.com/forms/d/1T2Q5pEhtkNc039QrD3CMJZ15d0v-BXmGC0uQw9LxBzg/formResponse"; // Форма настроек
+    static final String PREF_DATE_PARAM_HTTP =            "entry.1036338564";     // Дата создания
+    static final String PREF_BT_PARAM_HTTP =              "entry.1127481796";     // Номер весов
+    static final String PREF_COEFF_A_PARAM_HTTP =         "entry.167414049";      // Коэфициент А
+    static final String PREF_COEFF_B_PARAM_HTTP =         "entry.1149110557";     // Коэфициент Б
+    static final String PREF_MAX_WEIGHT_PARAM_HTTP =      "entry.2120930895";     // Максимальный вес
+    //static final String PREF_FILTER_ADC_PARAM_HTTP =      "entry.947786976";      // Фильтер АЦП
+    //static final String PREF_STEP_SCALE_PARAM_HTTP =      "entry.1522652368";     // Шаг измерения
+    //static final String PREF_STEP_CAPTURE_PARAM_HTTP =    "entry.1143754554";     // Шаг захвата
+    //static final String PREF_TIME_OFF_PARAM_HTTP =        "entry.1936919325";     // Время выключения
+    static final String PREF_BT_TERMINAL_PARAM_HTTP =     "entry.152097551";      // Номер БТ терминала
+
     public static final String TABLE = "preferencesTable";
 
     public static final String KEY_ID = BaseColumns._ID;
@@ -100,6 +117,21 @@ public class PreferencesTable {
             return null;
         }
 
+    }
+
+    public static String getPrefFormHttp(){
+        return PREF_FORM_HTTP;
+    }
+
+    public static String getPrefParamHttp(){
+        Collection<BasicNameValuePair> results = new ArrayList<>();
+        results.add(new BasicNameValuePair(PREF_DATE_PARAM_HTTP, KEY_DATE_CREATE));
+        results.add(new BasicNameValuePair(PREF_BT_PARAM_HTTP, KEY_NUMBER_BT));
+        results.add(new BasicNameValuePair(PREF_COEFF_A_PARAM_HTTP, KEY_COEFFICIENT_A));
+        results.add(new BasicNameValuePair(PREF_COEFF_B_PARAM_HTTP, KEY_COEFFICIENT_B));
+        results.add(new BasicNameValuePair(PREF_MAX_WEIGHT_PARAM_HTTP, KEY_MAX_WEIGHT));
+        results.add(new BasicNameValuePair(PREF_BT_TERMINAL_PARAM_HTTP, KEY_NUMBER_BT_TERMINAL));
+        return TextUtils.join(" ", results);
     }
 
 }

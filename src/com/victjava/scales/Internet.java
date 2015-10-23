@@ -22,13 +22,9 @@ import java.net.*;
  */
 public class Internet {
     private final Context mContext;
-    /**
-     * Менеджер телефона
-     */
+    /** Менеджер телефона */
     private TelephonyManager telephonyManager;
-    /**
-     * Слушатель менеджера телефона
-     */
+    /** Слушатель менеджера телефона */
     private PhoneStateListener phoneStateListener;
 
     public static final String INTERNET_CONNECT = "internet_connect";

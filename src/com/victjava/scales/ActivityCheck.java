@@ -338,9 +338,9 @@ public class ActivityCheck extends FragmentActivity implements View.OnClickListe
                     String type = data.getString(data.getColumnIndex(Data.MIMETYPE));
                     String address = data.getString(data.getColumnIndex(Data.DATA1));
                     if(CommonDataKinds.Phone.CONTENT_ITEM_TYPE.equals(type))
-                        new TaskTable(this).insertNewTask(TaskCommand.TaskType.TYPE_CHECK_SEND_SMS_CONTACT, entryID, contactId, address);
+                        new TaskTable(this).insertNewTaskPhone(TaskCommand.TaskType.TYPE_CHECK_SEND_SMS_CONTACT, entryID, contactId, address);
                     else if(CommonDataKinds.Email.CONTENT_ITEM_TYPE.equals(type))
-                        new TaskTable(this).insertNewTask(TaskCommand.TaskType.TYPE_CHECK_SEND_MAIL, entryID, contactId, address);
+                        new TaskTable(this).insertNewTaskEmail(TaskCommand.TaskType.TYPE_CHECK_SEND_MAIL, entryID, contactId, address);
                 } while (data.moveToNext());
             }
             data.close();

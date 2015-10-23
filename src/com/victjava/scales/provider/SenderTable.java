@@ -23,14 +23,6 @@ public class SenderTable {
 
     public static final String TABLE = "sender";
 
-    static final String GO_FORM_HTTP = "https://docs.google.com/forms/d/11C5mq1Z-Syuw7ScsMlWgSnr9yB4L_eP-NhxnDdohtrw/formResponse"; // Форма движения
-    static final String GO_DATE_HTTP = "entry.1974893725";                                  // Дата создания
-    static final String GO_BT_HTTP = "entry.1465497317";                                    // Номер весов
-    static final String GO_WEIGHT_HTTP = "entry.683315711";                                 // Вес
-    static final String GO_TYPE_HTTP = "entry.138748566";                                   // Тип
-    static final String GO_IS_READY_HTTP = "entry.1691625234";                              // Готов
-    static final String GO_TIME_HTTP = "entry.1280991625";                                  //Время
-
     public static final String KEY_ID = BaseColumns._ID;
     public static final String KEY_TYPE = "type"; //TYPE_SENDER
     public static final String KEY_DATA1 = "data1";
@@ -124,9 +116,9 @@ public class SenderTable {
         ContentValues contentValues = new ContentValues();
         //Resources res = mContext.getResources();
         contentValues.put(KEY_TYPE, TypeSender.TYPE_HTTP_POST.ordinal());
-        contentValues.put(KEY_DATA1, GO_FORM_HTTP);
+        //contentValues.put(KEY_DATA1, GO_FORM_HTTP);
 
-        Collection<BasicNameValuePair> results = new ArrayList<>();
+        /*Collection<BasicNameValuePair> results = new ArrayList<>();
         results.add(new BasicNameValuePair(GO_DATE_HTTP, CheckTable.KEY_DATE_CREATE));
         results.add(new BasicNameValuePair(GO_BT_HTTP, CheckTable.KEY_NUMBER_BT));
         results.add(new BasicNameValuePair(GO_WEIGHT_HTTP, CheckTable.KEY_WEIGHT_NETTO));
@@ -134,7 +126,7 @@ public class SenderTable {
         results.add(new BasicNameValuePair(GO_IS_READY_HTTP, CheckTable.KEY_IS_READY));
         results.add(new BasicNameValuePair(GO_TIME_HTTP, CheckTable.KEY_TIME_CREATE));
         String joined = TextUtils.join(" ", results);
-        contentValues.put(KEY_DATA2, joined);
+        contentValues.put(KEY_DATA2, joined);*/
         contentValues.put(KEY_SYS, 0);
         db.insert(TABLE, null, contentValues);
     }

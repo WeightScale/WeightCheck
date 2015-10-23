@@ -11,9 +11,10 @@
             <PreferenceCategory android:title="Калибровка весов">
                 <Preference android:title="Нулевой вес"
                             android:summary="Установите нулевой вес на весах, и нажминте на поле" android:key="@string/KEY_POINT1"/>
-                <EditTextPreference android:title="Контрольный вес"
+                <com.victjava.scales.settings.DialogPoint2 android:title="Контрольный вес"
                                     android:summary=" Установите калиброваный вес на весах, и введите вес в поле"
                                     android:key="@string/KEY_POINT2" android:inputType="number"/>
+                <!--<Preference android:title="Контрольный вес" android:summary=" Установите калиброваный вес на весах, и введите вес в поле" android:key="@string/KEY_POINT2" />-->
                 <EditTextPreference android:title="Максимальный вес"
                                     android:summary="Введите в поле максимальный вес который взвешивают весы"
                                     android:key="@string/KEY_WEIGHT_MAX" android:inputType="number"/>
