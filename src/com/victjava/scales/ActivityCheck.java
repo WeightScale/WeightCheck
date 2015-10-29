@@ -14,7 +14,6 @@ import android.provider.BaseColumns;
 import android.provider.ContactsContract.*;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
-import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.view.*;
@@ -71,7 +70,7 @@ public class ActivityCheck extends FragmentActivity implements View.OnClickListe
                 } catch (InterruptedException ignored) {
                 }
                 if (!touchWeightView) {                                                                              //если не прикасаемся к индикатору тогда стабилизируем вес
-                    isStable = processStable(getWeightToStepMeasuring(moduleWeight));
+                    isStable = processStable(moduleWeight);
                     handler.obtainMessage(Action.UPDATE_PROGRESS.ordinal(), numStable, 0).sendToTarget();
                 }
             }
@@ -85,7 +84,7 @@ public class ActivityCheck extends FragmentActivity implements View.OnClickListe
 
             weightViewIsSwipe = false;
 
-            while (running && getWeightToStepMeasuring(moduleWeight) >= main.default_min_auto_capture) {
+            while (running && moduleWeight >= Main.default_min_auto_capture) {
                 try {
                     Thread.sleep(50);
                 } catch (InterruptedException ignored) {
@@ -186,7 +185,6 @@ public class ActivityCheck extends FragmentActivity implements View.OnClickListe
     public int numStable;
     protected boolean isStable;
     int moduleWeight;
-    int moduleSensorValue;
     protected int tempWeight;
 
     private boolean flagExit = true;
@@ -364,7 +362,7 @@ public class ActivityCheck extends FragmentActivity implements View.OnClickListe
      */
     public boolean isCapture() {
         boolean capture = false;
-        while (getWeightToStepMeasuring(moduleWeight) > main.getAutoCapture()) {
+        while (moduleWeight > main.getAutoCapture()) {
             if (capture) {
                 return true;
             } else {
@@ -548,12 +546,10 @@ public class ActivityCheck extends FragmentActivity implements View.OnClickListe
         private final ArrayList<TabInfo> mTabs = new ArrayList<>();
 
         private class TabInfo {
-            private final String tag;
             private final Class<?> mClass;
             private final Bundle args;
 
             TabInfo(final String _tag, final Class<?> _class, final Bundle _args) {
-                tag = _tag;
                 mClass = _class;
                 args = _args;
             }
@@ -673,26 +669,23 @@ public class ActivityCheck extends FragmentActivity implements View.OnClickListe
                 public void run() {
                     switch (what) {
                         case WEIGHT_NORMAL:
-                            moduleWeight = weight;
-                            moduleSensorValue = sensor;
+                            moduleWeight = getWeightToStepMeasuring(weight);
                             progressBarWeight.setProgress(sensor);
                             bounds = progressBarWeight.getProgressDrawable().getBounds();
-                            weightTextView.updateProgress(getWeightToStepMeasuring(weight), Color.BLACK, getResources().getDimension(R.dimen.text_big));
+                            weightTextView.updateProgress(moduleWeight, Color.BLACK, getResources().getDimension(R.dimen.text_big));
                             progressBarWeight.setProgressDrawable(dProgressWeight);
                             progressBarWeight.getProgressDrawable().setBounds(bounds);
                             break;
                         case WEIGHT_LIMIT:
-                            moduleWeight = weight;
-                            moduleSensorValue = sensor;
+                            moduleWeight = getWeightToStepMeasuring(weight);
                             progressBarWeight.setProgress(sensor);
                             bounds = progressBarWeight.getProgressDrawable().getBounds();
-                            weightTextView.updateProgress(getWeightToStepMeasuring(weight), Color.RED, getResources().getDimension(R.dimen.text_big));
+                            weightTextView.updateProgress(moduleWeight, Color.RED, getResources().getDimension(R.dimen.text_big));
                             progressBarWeight.setProgressDrawable(dWeightDanger);
                             progressBarWeight.getProgressDrawable().setBounds(bounds);
                             break;
                         case WEIGHT_MARGIN:
-                            moduleWeight = weight;
-                            moduleSensorValue = sensor;
+                            moduleWeight = getWeightToStepMeasuring(weight);
                             progressBarWeight.setProgress(sensor);
                             weightTextView.updateProgress(getString(R.string.OVER_LOAD), Color.RED, getResources().getDimension(R.dimen.text_large_xx));
                             vibrator.vibrate(100);
@@ -708,61 +701,6 @@ public class ActivityCheck extends FragmentActivity implements View.OnClickListe
             return 20; // Обновляем через милисикунды
         }
     };
-
-    /** Обработчик показаний веса
-     * Возвращяем время обновления показаний веса в милисекундах.
-     */
-    /*final HandlerWeight handlerWeight = new HandlerWeight() {
-        *//** Сообщение показаний веса.
-         * @param what Результат статуса сообщения энумератор ResultWeight.
-         * @param weight Данные веса в килограмах.
-         * @param sensor Данные показания сенсорного датчика.
-         * @return Время обновления показаний в милисекундах.
-         *//*
-        @Override
-        public int onEvent(final ScaleModule.ResultWeight what, final int weight, final int sensor) {
-            runOnUiThread(new Runnable() {
-                Rect bounds;
-
-                @Override
-                public void run() {
-                    switch (what) {
-                        case WEIGHT_NORMAL:
-                            moduleWeight = weight;
-                            moduleSensorValue = sensor;
-                            progressBarWeight.setProgress(sensor);
-                            bounds = progressBarWeight.getProgressDrawable().getBounds();
-                            weightTextView.updateProgress(getWeightToStepMeasuring(weight), Color.BLACK, getResources().getDimension(R.dimen.text_big));
-                            progressBarWeight.setProgressDrawable(dProgressWeight);
-                            progressBarWeight.getProgressDrawable().setBounds(bounds);
-                            break;
-                        case WEIGHT_LIMIT:
-                            moduleWeight = weight;
-                            moduleSensorValue = sensor;
-                            progressBarWeight.setProgress(sensor);
-                            bounds = progressBarWeight.getProgressDrawable().getBounds();
-                            weightTextView.updateProgress(getWeightToStepMeasuring(weight), Color.RED, getResources().getDimension(R.dimen.text_big));
-                            progressBarWeight.setProgressDrawable(dWeightDanger);
-                            progressBarWeight.getProgressDrawable().setBounds(bounds);
-                            break;
-                        case WEIGHT_MARGIN:
-                            moduleWeight = weight;
-                            moduleSensorValue = sensor;
-                            progressBarWeight.setProgress(sensor);
-                            weightTextView.updateProgress(getString(R.string.OVER_LOAD), Color.RED, getResources().getDimension(R.dimen.text_large_xx));
-                            vibrator.vibrate(100);
-                            break;
-                        case WEIGHT_ERROR:
-                            weightTextView.updateProgress(getString(R.string.NO_CONNECT), Color.BLACK, getResources().getDimension(R.dimen.text_large_xx));
-                            progressBarWeight.setProgress(0);
-                            break;
-                        default:
-                    }
-                }
-            });
-            return 20; // Обновляем через милисикунды
-        }
-    };*/
 
     /**
      * Обработчик сообщений.
@@ -795,7 +733,7 @@ public class ActivityCheck extends FragmentActivity implements View.OnClickListe
                     weightTextView.setSecondaryProgress(msg.arg1);
                     break;
                 case DIALOG_SAVE:
-                    if ((boolean)msg.obj){
+                    if ((Boolean)msg.obj){
                         if (dialogSave.isShowing()) {
                             dialogSave.dismiss();
                         }
@@ -817,6 +755,8 @@ public class ActivityCheck extends FragmentActivity implements View.OnClickListe
     public void startThread(){
         running = true;
         threadAutoWeight = new Thread(this);
+        threadAutoWeight.setPriority(Thread.MIN_PRIORITY);
+        threadAutoWeight.setDaemon(true);
         threadAutoWeight.start();
     }
 
@@ -825,7 +765,7 @@ public class ActivityCheck extends FragmentActivity implements View.OnClickListe
         boolean retry = true;
         while(retry){
             try {
-                threadAutoWeight.join();
+                threadAutoWeight.join(3000);
                 retry = false;
             } catch (InterruptedException e) {
                 e.printStackTrace();
