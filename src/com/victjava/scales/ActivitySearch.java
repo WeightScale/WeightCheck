@@ -68,11 +68,7 @@ public class ActivitySearch extends Activity implements View.OnClickListener {
         textViewLog = (TextView) findViewById(R.id.textLog);
 
         String action = getIntent().getAction();
-        if("bootloader".equals(action)){
-            module = ((Main)getApplication()).getBootModule();
-        }else {
-            module = ((Main)getApplication()).getScaleModule();
-        }
+        module = "bootloader".equals(action) ? ((Main) getApplication()).getBootModule() : ((Main) getApplication()).getScaleModule();
 
         //scaleModule = ((Main)getApplicationContext()).getScaleModule();
         module.setOnEventConnectResult(onEventConnectResult);
@@ -90,45 +86,43 @@ public class ActivitySearch extends Activity implements View.OnClickListener {
             public void onReceive(Context context, Intent intent) { //обработчик Bluetooth
                 String action = intent.getAction();
                 if (action != null) {
-                    switch (action) {
-                        case BluetoothAdapter.ACTION_DISCOVERY_STARTED: //поиск начался
-                            log(R.string.discovery_started);
-                            foundDevice.clear();
-                            bluetoothAdapter.notifyDataSetChanged();
-                            setTitle(getString(R.string.discovery_started)); //установить заголовок
+                    if (BluetoothAdapter.ACTION_DISCOVERY_STARTED.equals(action)) {
+                        //case BluetoothAdapter.ACTION_DISCOVERY_STARTED: //поиск начался
+                        log(R.string.discovery_started);
+                        foundDevice.clear();
+                        bluetoothAdapter.notifyDataSetChanged();
+                        setTitle(getString(R.string.discovery_started)); //установить заголовок
 
-                            setProgressBarIndeterminateVisibility(true);
-                            break;
-                        case BluetoothDevice.ACTION_FOUND:  //найдено устройство
-                            BluetoothDevice bd = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
-                            foundDevice.add(bd);
-                            bluetoothAdapter.notifyDataSetChanged();
-                            //BluetoothDevice bluetoothDevice = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
-                            String name = null;
-                            if (bd != null) {
-                                name = bd.getName();
-                            }
-                            if (name != null) {
-                                log(R.string.device_found, name);
-                            }
-                            break;
-                        case BluetoothAdapter.ACTION_DISCOVERY_FINISHED:  //поиск завершён
-                            log("Поиск завершён");
-                            setProgressBarIndeterminateVisibility(false);
-                            break;
-                        case BluetoothDevice.ACTION_ACL_CONNECTED:
-                            setProgressBarIndeterminateVisibility(false);
-                            try {
-                                setTitle(" \"" + module.getNameBluetoothDevice() + "\", v." + module.getModuleVersion()); //установить заголовок
-                            } catch (Exception e) {
-                                setTitle(" \"" + e.getMessage() + "\", v." + module.getModuleVersion()); //установить заголовок      }
-                            }
-                            break;
-                        case BluetoothDevice.ACTION_ACL_DISCONNECTED:
-                            setTitle(getString(R.string.Search_scale)); //установить заголовок
-                            break;
-                        default:
-                    }
+                        setProgressBarIndeterminateVisibility(true);
+                    }//break;
+                    else if (BluetoothDevice.ACTION_FOUND.equals(action)) {// case BluetoothDevice.ACTION_FOUND:  //найдено устройство
+                        BluetoothDevice bd = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
+                        foundDevice.add(bd);
+                        bluetoothAdapter.notifyDataSetChanged();
+                        //BluetoothDevice bluetoothDevice = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
+                        String name = null;
+                        if (bd != null) {
+                            name = bd.getName();
+                        }
+                        if (name != null) {
+                            log(R.string.device_found, name);
+                        }
+                    }//break;
+                    else if(BluetoothAdapter.ACTION_DISCOVERY_FINISHED.equals(action)) {  //case BluetoothAdapter.ACTION_DISCOVERY_FINISHED:  //поиск завершён
+                        log("Поиск завершён");
+                        setProgressBarIndeterminateVisibility(false);
+                    }//break;
+                    else if (BluetoothDevice.ACTION_ACL_CONNECTED.equals(action)) {//case BluetoothDevice.ACTION_ACL_CONNECTED:
+                        setProgressBarIndeterminateVisibility(false);
+                        try {
+                            setTitle(" \"" + module.getNameBluetoothDevice() + "\", v." + module.getModuleVersion()); //установить заголовок
+                        } catch (Exception e) {
+                            setTitle(" \"" + e.getMessage() + "\", v." + module.getModuleVersion()); //установить заголовок      }
+                        }
+                    }//break;
+                    else if (BluetoothDevice.ACTION_ACL_DISCONNECTED.equals(action)) {//case BluetoothDevice.ACTION_ACL_DISCONNECTED:
+                        setTitle(getString(R.string.Search_scale)); //установить заголовок
+                    }//break;
                 }
             }
         };
@@ -279,6 +273,10 @@ public class ActivitySearch extends Activity implements View.OnClickListener {
                     switch (result) {
                         case STATUS_LOAD_OK:
                             setResult(RESULT_OK, new Intent());
+                            if (dialogSearch.isShowing()) {
+                                dialogSearch.dismiss();
+                            }
+                            log("Result OK");
                             finish();
                             break;
                         case STATUS_VERSION_UNKNOWN:
@@ -293,7 +291,7 @@ public class ActivitySearch extends Activity implements View.OnClickListener {
                             dialogSearch.setContentView(R.layout.custom_progress_dialog);
                             TextView tv1 = (TextView) dialogSearch.findViewById(R.id.textView1);
                             tv1.setText(getString(R.string.Connecting) + '\n' + module.getNameBluetoothDevice());
-
+                            log("Start");
                             setProgressBarIndeterminateVisibility(true);
                             setTitle(getString(R.string.Connecting) + getString(R.string.app_name) + ' ' + module.getNameBluetoothDevice()); //установить заголовок
                             break;
@@ -303,8 +301,10 @@ public class ActivitySearch extends Activity implements View.OnClickListener {
                             if (dialogSearch.isShowing()) {
                                 dialogSearch.dismiss();
                             }
+                            log("Finish");
                             break;
                         default:
+                            log("default");
                     }
                 }
             });
@@ -369,6 +369,7 @@ public class ActivitySearch extends Activity implements View.OnClickListener {
                             log(getString(R.string.Error_connect) + s);
                             break;
                         default:
+                            log("error default");
                     }
                 }
             });

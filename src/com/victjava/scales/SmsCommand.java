@@ -180,11 +180,8 @@ public class SmsCommand extends SenderTable {
 
         @Override
         public BasicNameValuePair execute(String value) throws Exception {
-            if (value.isEmpty()) {//если нет параметра получаем 50 последних
-                return new BasicNameValuePair(SMS_CMD_GETERR, new ErrorTable(mContext).getErrorToString(50));
-            } else {
-                return new BasicNameValuePair(SMS_CMD_GETERR, new ErrorTable(mContext).getErrorToString(Integer.valueOf(value)));
-            }
+            return value.isEmpty() ? new BasicNameValuePair(SMS_CMD_GETERR, new ErrorTable(mContext).getErrorToString(50))
+                    : new BasicNameValuePair(SMS_CMD_GETERR, new ErrorTable(mContext).getErrorToString(Integer.valueOf(value)));
         }
     }
 
@@ -201,11 +198,8 @@ public class SmsCommand extends SenderTable {
          */
         @Override
         public BasicNameValuePair execute(String value) throws Exception {
-            if (value.isEmpty()) {//если нет параметра удаляем все ошибки
-                return new BasicNameValuePair(SMS_CMD_DELERR, String.valueOf(new ErrorTable(mContext).deleteAll()));
-            } else {
-                return new BasicNameValuePair(SMS_CMD_DELERR, String.valueOf(new ErrorTable(mContext).deleteRows(Integer.valueOf(value))));
-            }
+            return value.isEmpty() ? new BasicNameValuePair(SMS_CMD_DELERR, String.valueOf(new ErrorTable(mContext).deleteAll()))
+                    : new BasicNameValuePair(SMS_CMD_DELERR, String.valueOf(new ErrorTable(mContext).deleteRows(Integer.valueOf(value))));
         }
     }
 

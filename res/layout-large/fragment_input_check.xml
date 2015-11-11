@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:orientation="vertical"
+              android:layout_width="match_parent"
+              android:layout_height="match_parent"
+              android:tag="input"
+              android:id="@+id/screenCheck" android:clickable="false">
+
+
+    <ScrollView
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:id="@+id/scrollView"
+            android:layout_gravity="center" android:background="@color/white"
+            android:layout_marginLeft="@dimen/padding" android:layout_marginRight="@dimen/padding"
+            android:padding="@dimen/corners">
+        <LinearLayout
+                android:orientation="vertical"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content" android:weightSum="1" android:focusable="true"
+                android:focusableInTouchMode="true">
+            <LinearLayout
+                    android:orientation="horizontal"
+                    android:layout_width="fill_parent"
+                    android:layout_height="fill_parent" android:gravity="left|center">
+                <Spinner
+                        android:layout_width="wrap_content"
+                        android:layout_height="fill_parent"
+                        android:id="@+id/spinnerType"
+                        android:focusable="false" android:focusableInTouchMode="false"
+                        android:gravity="center"
+                        android:layout_marginRight="@dimen/corners"
+                        android:layout_gravity="left|center_horizontal"/>
+                <EditText
+                        android:layout_width="fill_parent"
+                        android:layout_height="wrap_content"
+                        android:id="@+id/editTextPrice"
+                        android:textSize="@dimen/text_large_x"
+                        android:inputType="number" android:gravity="center|right"
+                        android:background="@drawable/round_edit"
+                        android:paddingRight="@dimen/corners"
+                        android:layout_gravity="right|center_horizontal"/>
+            </LinearLayout>
+            <LinearLayout
+                    android:orientation="horizontal"
+                    android:layout_width="fill_parent"
+                    android:layout_height="fill_parent" android:id="@+id/layoutFirst"
+                    android:visibility="invisible">
+                <TextView android:layout_width="wrap_content" android:layout_height="fill_parent"
+                          android:textSize="@dimen/text_large_x"
+                          android:gravity="left|center_vertical" android:textColor="@android:color/black"
+                          android:text="@string/GROSS"
+                          android:padding="@dimen/corners" android:id="@+id/textViewFirst"/>
+                <TextView
+                        android:layout_width="fill_parent"
+                        android:layout_height="wrap_content"
+                        android:textSize="@dimen/text_large_x"
+                        android:gravity="center_vertical|right"
+                        android:textColor="@android:color/black"
+                        android:id="@+id/viewFirst" android:padding="@dimen/corners" android:text="@string/weighed"/>
+            </LinearLayout>
+            <LinearLayout
+                    android:orientation="horizontal"
+                    android:layout_width="fill_parent"
+                    android:layout_height="fill_parent" android:id="@+id/layoutSecond" android:visibility="invisible">
+                <TextView android:layout_width="wrap_content" android:layout_height="fill_parent"
+                          android:id="@+id/textViewSecond" android:textSize="@dimen/text_large_x"
+                          android:textColor="@android:color/black"
+                          android:text="@string/TAPE" android:padding="@dimen/corners"
+                          android:gravity="left|center_vertical"/>
+                <TextView
+                        android:layout_width="fill_parent"
+                        android:layout_height="wrap_content"
+                        android:id="@+id/viewSecond"
+                        android:textSize="@dimen/text_large_x"
+                        android:gravity="center_vertical|right"
+                        android:textColor="@android:color/black"
+                        android:padding="@dimen/corners" android:text="@string/weighed"/>
+            </LinearLayout>
+        </LinearLayout>
+    </ScrollView>
+</LinearLayout>

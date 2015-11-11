@@ -1986,7 +1986,7 @@ public class NumberPicker extends LinearLayout {
                 String result = String.valueOf(dest.subSequence(0, dstart)) + filtered
                         + dest.subSequence(dend, dest.length());
 
-                if (result != null && result.isEmpty()) {
+                if (result.isEmpty()) {
                     return result;
                 }
                 int val = getSelectedPos(result);

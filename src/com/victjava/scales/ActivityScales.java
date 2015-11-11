@@ -74,8 +74,8 @@ public class ActivityScales extends Activity implements View.OnClickListener, Vi
             try {
                 scaleModule = new ScaleModule(main.getPackageInfo().versionName, onEventConnectResult);
                 main.setScaleModule(scaleModule);
-                scaleModule.setTimerNull(Preferences.read(getString(R.string.KEY_TIMER_NULL), main.default_max_time_auto_null));
-                scaleModule.setWeightError(Preferences.read(getString(R.string.KEY_MAX_NULL), main.default_limit_auto_null));
+                scaleModule.setTimerNull(Preferences.read(getString(R.string.KEY_TIMER_NULL), Main.default_max_time_auto_null));
+                scaleModule.setWeightError(Preferences.read(getString(R.string.KEY_MAX_NULL), Main.default_limit_auto_null));
                 Toast.makeText(getBaseContext(), R.string.bluetooth_off, Toast.LENGTH_SHORT).show();
                 setupScale();
             } catch (Exception e) {
@@ -224,6 +224,9 @@ public class ActivityScales extends Activity implements View.OnClickListener, Vi
         return true;
     }
 
+    /**
+     * Установка настроек весов.
+     */
     private void setupScale() {
         requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
         //requestWindowFeature(Window.FEATURE_CUSTOM_TITLE);
@@ -258,8 +261,8 @@ public class ActivityScales extends Activity implements View.OnClickListener, Vi
             public void onReceive(Context context, Intent intent) { //обработчик Bluetooth
                 String action = intent.getAction();
                 if (action != null) {
-                    switch (action) {
-                        case BluetoothAdapter.ACTION_STATE_CHANGED:
+                    //switch (action) {
+                        if (BluetoothAdapter.ACTION_STATE_CHANGED.equals(action)) {//case BluetoothAdapter.ACTION_STATE_CHANGED:
                             switch (scaleModule.getAdapter().getState()) {
                                 case BluetoothAdapter.STATE_OFF:
                                     dialog = new ProgressDialog(context);
@@ -285,25 +288,23 @@ public class ActivityScales extends Activity implements View.OnClickListener, Vi
                                 default:
                                     break;
                             }
-                            break;
-                        case BluetoothDevice.ACTION_ACL_DISCONNECTED://устройство отсоеденено
+                        }//break;
+                        else if (BluetoothDevice.ACTION_ACL_DISCONNECTED.equals(action)) {//case BluetoothDevice.ACTION_ACL_DISCONNECTED://устройство отсоеденено
                             vibrator.vibrate(200);
                             listView.setOnItemClickListener(null);
                             linearBatteryTemp.setVisibility(View.INVISIBLE);
                             imageViewRemote.setImageDrawable(getResources().getDrawable(R.drawable.rss_off));
                             imageNewCheck.setEnabled(false);
                             isScaleConnect = false;
-                            break;
-                        case BluetoothDevice.ACTION_ACL_CONNECTED://найдено соеденено
+                        }//break;
+                        else if (BluetoothDevice.ACTION_ACL_CONNECTED.equals(action)) {//case BluetoothDevice.ACTION_ACL_CONNECTED://найдено соеденено
                             vibrator.vibrate(200);
                             listView.setOnItemClickListener(onItemClickListener);
                             linearBatteryTemp.setVisibility(View.VISIBLE);
                             imageViewRemote.setImageDrawable(getResources().getDrawable(R.drawable.rss_on));
                             imageNewCheck.setEnabled(true);
                             isScaleConnect = true;
-                            break;
-                        default:
-                    }
+                        }//break;
                 }
             }
         };
@@ -336,6 +337,9 @@ public class ActivityScales extends Activity implements View.OnClickListener, Vi
 
     }
 
+    /**
+     * Настройка листа весовых чеков.
+     */
     private void listCheckSetup() {
         listView = (ListView) findViewById(R.id.listViewWeights);
         try {
@@ -392,6 +396,9 @@ public class ActivityScales extends Activity implements View.OnClickListener, Vi
 
     }
 
+    /**
+     * Выход.
+     */
     private void exit() {
         if (broadcastReceiver != null)
             unregisterReceiver(broadcastReceiver);
@@ -535,7 +542,6 @@ public class ActivityScales extends Activity implements View.OnClickListener, Vi
                             Preferences.write(getString(R.string.KEY_LAST_USER), scaleModule.getUserName());
                             listView.setEnabled(true);
                             scaleModule.startMeasuringBatteryTemperature();
-                            //handlerBatteryTemperature.start();
                             getSettingPostponed();
                         break;
                         case STATUS_VERSION_UNKNOWN:
@@ -637,6 +643,9 @@ public class ActivityScales extends Activity implements View.OnClickListener, Vi
 
     };
 
+    /** Получаем отложеные настройки.
+     * Смс команды которые пришли но не были отработаны.
+     */
     void getSettingPostponed(){
         Cursor cursor = new CommandTable(this).getAllEntries();
         ContentQueryMap mQueryMap = new ContentQueryMap(cursor, BaseColumns._ID, true, null);
@@ -653,33 +662,12 @@ public class ActivityScales extends Activity implements View.OnClickListener, Vi
      * Возвращяет время обновления в секундах.
      */
     final OnEventResultBatteryTemperature onEventResultBatteryTemperature = new OnEventResultBatteryTemperature() {
-    /** Сообщение
-     * @param battery Заряд батареи в процентах.
-     * @param temperature Температура в градусах.
-     * @return Время обновления показаний заряда батареи и температуры в секундах.*/
-    @Override
-    public int batteryTemperature(final int battery, final int temperature) {
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                progressBarBattery.updateProgress(battery);
-                temperatureProgressBar.updateProgress(temperature);
-            }
-        });
-        return 5; //Обновляется через секунд
-    }
-};
-
-    /** Обработчик показаний заряда батареи и температуры.
-     * Возвращяет время обновления в секундах.
-     */
-    /*private final HandlerBatteryTemperature handlerBatteryTemperature = new HandlerBatteryTemperature() {
-        *//** Сообщение
+        /** Сообщение
          * @param battery Заряд батареи в процентах.
          * @param temperature Температура в градусах.
-         * @return Время обновления показаний заряда батареи и температуры в секундах.*//*
+         * @return Время обновления показаний заряда батареи и температуры в секундах.*/
         @Override
-        public int onEvent(final int battery, final int temperature) {
+        public int batteryTemperature(final int battery, final int temperature) {
             runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
@@ -689,6 +677,5 @@ public class ActivityScales extends Activity implements View.OnClickListener, Vi
             });
             return 5; //Обновляется через секунд
         }
-    };*/
-
+    };
 }

@@ -1,7 +1,6 @@
 //Активность настроек
 package com.victjava.scales.settings;
 
-import android.annotation.TargetApi;
 import android.app.AlertDialog;
 import android.content.*;
 import android.database.Cursor;
@@ -15,15 +14,12 @@ import android.provider.BaseColumns;
 import android.provider.ContactsContract;
 import android.text.InputType;
 import android.text.method.PasswordTransformationMethod;
-import android.util.AttributeSet;
 import android.widget.EditText;
-import android.widget.NumberPicker;
 import android.widget.Toast;
-import com.konst.module.InterfaceVersions;
+import com.konst.module.Commands;
 import com.konst.module.ScaleModule;
 import com.victjava.scales.*;
 import com.victjava.scales.bootloader.ActivityBootloader;
-import com.victjava.scales.provider.CheckTable;
 import com.victjava.scales.provider.PreferencesTable;
 import com.victjava.scales.provider.TaskTable;
 
@@ -43,8 +39,35 @@ public class ActivityPreferences extends PreferenceActivity implements SharedPre
     interface InterfacePreference {
         void setup(Preference name) throws Exception;
     }
+    public enum PreferencesEnum{
+        NAME("key_name", PreferenceName.class);
+
+        final String key;
+        final Class preference;
+        PreferencesEnum(String key, Class p){
+            this.key = key;
+            preference = p;
+        }
+
+        public String getKey() { return key; }
+        public Class getPreference() { return preference; }
+    }
 
     final Map<String, InterfacePreference> mapPreferences = new HashMap<>();
+
+    /*void process1(){
+        for (PreferencesEnum p : PreferencesEnum.values()){
+            Preference name = findPreference(p.getKey());
+            if (name != null) {
+                try {
+                    ((InterfacePreference)p.getPreference().getConstructor().newInstance()).setup(name);
+
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+    }*/
 
     void process() {
         for (Map.Entry<String, InterfacePreference> preferenceEntry : mapPreferences.entrySet()) {
@@ -123,11 +146,11 @@ public class ActivityPreferences extends PreferenceActivity implements SharedPre
         @Override
         public void setup(Preference name) throws Exception {
             name.setTitle(getString(R.string.filter_adc) + ' ' + String.valueOf(scaleModule.getFilterADC()));
-            name.setSummary(getString(R.string.sum_filter_adc) + ' ' + getString(R.string.The_range_is_from_0_to) + main.default_adc_filter);
+            name.setSummary(getString(R.string.sum_filter_adc) + ' ' + getString(R.string.The_range_is_from_0_to) + Main.default_adc_filter);
             name.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
                 @Override
                 public boolean onPreferenceChange(Preference preference, Object o) {
-                    if (o.toString().isEmpty() || Integer.valueOf(o.toString()) > main.default_adc_filter) {
+                    if (o.toString().isEmpty() || Integer.valueOf(o.toString()) > Main.default_adc_filter) {
                         Toast.makeText(getBaseContext(), R.string.preferences_no, Toast.LENGTH_SHORT).show();
                         return false;
                     }
@@ -176,8 +199,8 @@ public class ActivityPreferences extends PreferenceActivity implements SharedPre
                             intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
                         //intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                         intent.putExtra(getString(R.string.KEY_ADDRESS), scaleModule.getAddressBluetoothDevice());
-                        intent.putExtra(InterfaceVersions.CMD_HARDWARE, hardware);
-                        intent.putExtra(InterfaceVersions.CMD_VERSION, scaleModule.getNumVersion());
+                        intent.putExtra(Commands.CMD_HARDWARE.getName(), hardware);
+                        intent.putExtra(Commands.CMD_VERSION.getName(), scaleModule.getNumVersion());
                         startActivity(intent);
                         return false;
                     }
@@ -191,13 +214,13 @@ public class ActivityPreferences extends PreferenceActivity implements SharedPre
         @Override
         public void setup(Preference name) throws Exception {
             name.setTitle(getString(R.string.Timer_off) + ' ' + scaleModule.getTimeOff() + ' ' + getString(R.string.minute));
-            name.setSummary(getString(R.string.sum_timer) + ' ' + getString(R.string.range) + main.default_min_time_off + getString(R.string.to) + main.default_max_time_off);
+            name.setSummary(getString(R.string.sum_timer) + ' ' + getString(R.string.range) + Main.default_min_time_off + getString(R.string.to) + Main.default_max_time_off);
             name.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
                 @Override
                 public boolean onPreferenceChange(Preference preference, Object o) {
                     if (o.toString().isEmpty() || "0".equals(o.toString())
-                            || Integer.valueOf(o.toString()) < main.default_min_time_off
-                            || Integer.valueOf(o.toString()) > main.default_max_time_off) {
+                            || Integer.valueOf(o.toString()) < Main.default_min_time_off
+                            || Integer.valueOf(o.toString()) > Main.default_max_time_off) {
                         Toast.makeText(getBaseContext(), R.string.preferences_no, Toast.LENGTH_SHORT).show();
                         return false;
                     }
@@ -222,11 +245,11 @@ public class ActivityPreferences extends PreferenceActivity implements SharedPre
         @Override
         public void setup(Preference name) throws Exception {
             name.setTitle(getString(R.string.Time) + ' ' + scaleModule.getTimerNull() + ' ' + getString(R.string.second));
-            name.setSummary(getString(R.string.sum_time_auto_zero) + ' ' + main.default_max_time_auto_null + ' ' + getString(R.string.second));
+            name.setSummary(getString(R.string.sum_time_auto_zero) + ' ' + Main.default_max_time_auto_null + ' ' + getString(R.string.second));
             name.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
                 @Override
                 public boolean onPreferenceChange(Preference preference, Object o) {
-                    if (o.toString().isEmpty() || "0".equals(o.toString()) || Integer.valueOf(o.toString()) > main.default_max_time_auto_null) {
+                    if (o.toString().isEmpty() || "0".equals(o.toString()) || Integer.valueOf(o.toString()) > Main.default_max_time_auto_null) {
                         Toast.makeText(getBaseContext(), R.string.preferences_no, Toast.LENGTH_SHORT).show();
                         return false;
                     }
@@ -246,11 +269,11 @@ public class ActivityPreferences extends PreferenceActivity implements SharedPre
         @Override
         public void setup(Preference name) throws Exception {
             name.setTitle(getString(R.string.sum_weight) + ' ' + scaleModule.getWeightError() + ' ' + getString(R.string.scales_kg));
-            name.setSummary(getString(R.string.sum_max_null) + ' ' + main.default_limit_auto_null + ' ' + getString(R.string.scales_kg));
+            name.setSummary(getString(R.string.sum_max_null) + ' ' + Main.default_limit_auto_null + ' ' + getString(R.string.scales_kg));
             name.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
                 @Override
                 public boolean onPreferenceChange(Preference preference, Object o) {
-                    if (o.toString().isEmpty() || "0".equals(o.toString()) || Integer.valueOf(o.toString()) > main.default_limit_auto_null) {
+                    if (o.toString().isEmpty() || "0".equals(o.toString()) || Integer.valueOf(o.toString()) > Main.default_limit_auto_null) {
                         Toast.makeText(getBaseContext(), R.string.preferences_no, Toast.LENGTH_SHORT).show();
                         return false;
                     }
@@ -270,11 +293,11 @@ public class ActivityPreferences extends PreferenceActivity implements SharedPre
         @Override
         public void setup(Preference name) throws Exception {
             name.setTitle(getString(R.string.measuring_step) + ' ' + main.getStepMeasuring() + ' ' + getString(R.string.scales_kg));
-            name.setSummary(getString(R.string.The_range_is_from_1_to) + main.default_max_step_scale + ' ' + getString(R.string.scales_kg));
+            name.setSummary(getString(R.string.The_range_is_from_1_to) + Main.default_max_step_scale + ' ' + getString(R.string.scales_kg));
             name.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
                 @Override
                 public boolean onPreferenceChange(Preference preference, Object o) {
-                    if (o.toString().isEmpty() || "0".equals(o.toString()) || Integer.valueOf(o.toString()) > main.default_max_step_scale) {
+                    if (o.toString().isEmpty() || "0".equals(o.toString()) || Integer.valueOf(o.toString()) > Main.default_max_step_scale) {
                         Toast.makeText(getBaseContext(), R.string.preferences_no, Toast.LENGTH_SHORT).show();
                         return false;
                     }
@@ -294,17 +317,17 @@ public class ActivityPreferences extends PreferenceActivity implements SharedPre
         @Override
         public void setup(Preference name) throws Exception {
             name.setTitle(getString(R.string.auto_capture) + ' ' + main.getAutoCapture() + ' ' + getString(R.string.scales_kg));
-            name.setSummary(getString(R.string.Range_between) + (main.default_min_auto_capture + main.default_delta_auto_capture) + ' ' + getString(R.string.scales_kg) +
-                    getString(R.string.and) + main.default_max_auto_capture + ' ' + getString(R.string.scales_kg));
+            name.setSummary(getString(R.string.Range_between) + (Main.default_min_auto_capture + Main.default_delta_auto_capture) + ' ' + getString(R.string.scales_kg) +
+                    getString(R.string.and) + Main.default_max_auto_capture + ' ' + getString(R.string.scales_kg));
             name.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
                 @Override
                 public boolean onPreferenceChange(Preference preference, Object o) {
-                    if (o.toString().isEmpty() || Integer.valueOf(o.toString()) < main.default_min_auto_capture || Integer.valueOf(o.toString()) > main.default_max_auto_capture) {
+                    if (o.toString().isEmpty() || Integer.valueOf(o.toString()) < Main.default_min_auto_capture || Integer.valueOf(o.toString()) > Main.default_max_auto_capture) {
                         Toast.makeText(getBaseContext(), R.string.preferences_no, Toast.LENGTH_SHORT).show();
                         return false;
                     }
                     main.setAutoCapture(Integer.valueOf(o.toString()));
-                    if (main.getAutoCapture() < main.default_min_auto_capture + main.default_delta_auto_capture) {
+                    if (main.getAutoCapture() < Main.default_min_auto_capture + Main.default_delta_auto_capture) {
                         Toast.makeText(getBaseContext(), R.string.preferences_no, Toast.LENGTH_SHORT).show();
                         return false;
                     }
@@ -326,7 +349,7 @@ public class ActivityPreferences extends PreferenceActivity implements SharedPre
             name.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
                 @Override
                 public boolean onPreferenceChange(Preference preference, Object o) {
-                    if (o.toString().isEmpty() || "0".equals(o.toString()) || Integer.valueOf(o.toString()) > main.default_day_close_check) {
+                    if (o.toString().isEmpty() || "0".equals(o.toString()) || Integer.valueOf(o.toString()) > Main.default_day_close_check) {
                         Toast.makeText(getBaseContext(), R.string.preferences_no, Toast.LENGTH_SHORT).show();
                         return false;
                     }
@@ -350,7 +373,7 @@ public class ActivityPreferences extends PreferenceActivity implements SharedPre
             name.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
                 @Override
                 public boolean onPreferenceChange(Preference preference, Object o) {
-                    if (o.toString().isEmpty() || "0".equals(o.toString()) || Integer.valueOf(o.toString()) > main.default_day_delete_check) {
+                    if (o.toString().isEmpty() || "0".equals(o.toString()) || Integer.valueOf(o.toString()) > Main.default_day_delete_check) {
                         Toast.makeText(getBaseContext(), R.string.preferences_no, Toast.LENGTH_SHORT).show();
                         return false;
                     }
@@ -521,6 +544,7 @@ public class ActivityPreferences extends PreferenceActivity implements SharedPre
         addPreferencesFromResource(R.xml.preferences);
 
         PreferenceManager.getDefaultSharedPreferences(this).registerOnSharedPreferenceChangeListener(this);
+        //process1();
         process();
     }
 
@@ -542,7 +566,7 @@ public class ActivityPreferences extends PreferenceActivity implements SharedPre
         flagChange = true;
     }
 
-    @TargetApi(Build.VERSION_CODES.HONEYCOMB)
+    /*@TargetApi(Build.VERSION_CODES.HONEYCOMB)
     class NumberPickerDialogADC extends NumberPicker {
 
         @TargetApi(Build.VERSION_CODES.HONEYCOMB)
@@ -557,5 +581,5 @@ public class ActivityPreferences extends PreferenceActivity implements SharedPre
             setMinValue(attrs.getAttributeIntValue(null, "min", 0));
             setMaxValue(attrs.getAttributeIntValue(null, "max", 0));
         }
-    }
+    }*/
 }

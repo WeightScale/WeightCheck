@@ -14,7 +14,7 @@ import android.widget.ProgressBar;
 public class WeightTextView extends ProgressBar {
     private String text = "";
     private int textColor = Color.BLACK;
-    private float textSize = getResources().getDimension(R.dimen.text_big);
+    private float textSize = getResources().getDimension( R.dimen.text_big);
     private final Paint textPaint;
     private final Rect bounds;
 

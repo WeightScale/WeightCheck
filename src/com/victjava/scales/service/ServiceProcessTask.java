@@ -95,7 +95,7 @@ public class ServiceProcessTask extends Service {
         /**Экземпляр команд задач*/
         TaskCommand taskCommand = new TaskCommand(this, msgHandler);
         /**Сообщение на обработчик запущен процесс задач*/
-        msgHandler.obtainMessage(TaskCommand.HANDLER_TASK_START, TaskType.values().length, 0).sendToTarget();
+        msgHandler.obtainMessage(NotifyType.HANDLER_TASK_START.ordinal(), TaskType.values().length, 0).sendToTarget();
         for (TaskType taskType : TaskType.values()) {
             Cursor cursor = taskTable.getTypeEntry(taskType);
             ContentQueryMap mQueryMap = new ContentQueryMap(cursor, BaseColumns._ID, true, null);
@@ -104,7 +104,7 @@ public class ServiceProcessTask extends Service {
             try {
                 taskCommand.execute(taskType, map);
             } catch (Exception e) {
-                msgHandler.sendEmptyMessage(TaskCommand.HANDLER_FINISH_THREAD);
+                msgHandler.sendEmptyMessage(NotifyType.HANDLER_FINISH_THREAD.ordinal());
             }
         }
     }
@@ -116,7 +116,7 @@ public class ServiceProcessTask extends Service {
         /**Экземпляр команд задач*/
         TaskCommand taskCommand = new TaskCommand(this, msgHandler);
         /**Сообщение на обработчик запущен процесс задач*/
-        msgHandler.obtainMessage(TaskCommand.HANDLER_TASK_START, 1, 0).sendToTarget();
+        msgHandler.obtainMessage(NotifyType.HANDLER_TASK_START.ordinal(), 1, 0).sendToTarget();
         Cursor cursor = taskTable.getTypeEntry(taskType);
         ContentQueryMap mQueryMap = new ContentQueryMap(cursor, BaseColumns._ID, true, null);
         Map<String, ContentValues> map = mQueryMap.getRows();
@@ -124,7 +124,7 @@ public class ServiceProcessTask extends Service {
         try {
             taskCommand.execute(taskType, map);
         } catch (Exception e) {
-            msgHandler.sendEmptyMessage(TaskCommand.HANDLER_FINISH_THREAD);
+            msgHandler.sendEmptyMessage(NotifyType.HANDLER_FINISH_THREAD.ordinal());
         }
     }
 
@@ -142,8 +142,8 @@ public class ServiceProcessTask extends Service {
          */
         @Override
         public void handleRemoveEntry(int what, int arg1) {
-            switch (what) {
-                case TaskCommand.HANDLER_NOTIFY_CHECK_UNSEND:
+            switch (NotifyType.values()[what]) {
+                case HANDLER_NOTIFY_CHECK_UNSEND:
                     taskTable.removeEntryIfErrorOver(arg1);
                     break;
                 default:
@@ -170,43 +170,43 @@ public class ServiceProcessTask extends Service {
             Intent intent = new Intent();
             intent.setAction("notifyChecks");
             NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(getApplicationContext());
-            switch (msg.what) {
-                case TaskCommand.HANDLER_TASK_START:
+            switch (NotifyType.values()[msg.what]) {
+                case HANDLER_TASK_START:
                     numThread += msg.arg1;
                     return;
-                case TaskCommand.HANDLER_FINISH_THREAD:
+                case HANDLER_FINISH_THREAD:
                     if (--numThread <= 0) {
                         sendBroadcast(new Intent(Internet.INTERNET_DISCONNECT));
                     }
                     return;
-                case TaskCommand.HANDLER_NOTIFY_SHEET: //отправлено на диск sheet
+                case HANDLER_NOTIFY_SHEET: //отправлено на диск sheet
                     mBuilder.setSmallIcon(R.drawable.ic_stat_drive)
                             .setTicker(getString(R.string.Check_N) + ' ' + msg.arg1 + ' ' + getString(R.string.sent_to_the_server))
                             .setContentText(getString(R.string.Checks_send_count) + ' ' + ((ArrayList) msg.obj).size());
                     break;
-                case TaskCommand.HANDLER_NOTIFY_PREF: //отправлено на диск sheet
+                case HANDLER_NOTIFY_PREF: //отправлено на диск sheet
                     mBuilder.setSmallIcon(R.drawable.ic_stat_drive)
                             .setTicker("Настройки отправлены")
                             .setContentText("Отправлено настроек кол-во: " + ((ArrayList) msg.obj).size());
                     notificationManager.notify(msg.what, generateNotification(new Intent(), mBuilder, msg.what));
-                    handleRemoveEntry(TaskCommand.REMOVE_TASK_ENTRY, msg.arg2);
+                    handleRemoveEntry(NotifyType.REMOVE_TASK_ENTRY.ordinal(), msg.arg2);
                     return;
-                case TaskCommand.HANDLER_NOTIFY_MAIL: //отправлено на почту
+                case HANDLER_NOTIFY_MAIL: //отправлено на почту
                     mBuilder.setSmallIcon(R.drawable.ic_stat_mail)
                             .setTicker(getString(R.string.Check_N) + ' ' + msg.arg1 + ' ' + getString(R.string.Send_to_mail))
                             .setContentText(getString(R.string.Checks_send_count) + ' ' + ((ArrayList) msg.obj).size());
                     break;
-                case TaskCommand.HANDLER_NOTIFY_CHECK_UNSEND: //не отправлен чек
+                case HANDLER_NOTIFY_CHECK_UNSEND: //не отправлен чек
                     mBuilder.setSmallIcon(R.drawable.ic_stat_information)
                             .setTicker(getString(R.string.Check_N) + ' ' + msg.arg1 + ' ' + getString(R.string.Warning_Error))
                             .setContentText(getString(R.string.Checks_not_send_count) + ' ' + ((ArrayList) msg.obj).size());
                     break;
-                case TaskCommand.HANDLER_NOTIFY_MESSAGE: //отправлено сообщение на телефон
+                case HANDLER_NOTIFY_MESSAGE: //отправлено сообщение на телефон
                     mBuilder.setSmallIcon(R.drawable.ic_stat_messages)
                             .setTicker(getString(R.string.Check_N) + ' ' + msg.arg1 + ' ' + getString(R.string.Message_sent))
                             .setContentText(getString(R.string.Checks_send_count) + ' ' + ((ArrayList) msg.obj).size());
                     break;
-                case TaskCommand.HANDLER_NOTIFY_HTTP: //отправлено на http
+                case HANDLER_NOTIFY_HTTP: //отправлено на http
                     mBuilder.setSmallIcon(R.drawable.ic_stat_cloud_comment)
                             .setTicker(getString(R.string.Check_N) + ' ' + msg.arg1 + ' ' + getString(R.string.sent_to_the_server))
                             .setContentText(getString(R.string.Checks_send_count) + ' ' + ((ArrayList) msg.obj).size());

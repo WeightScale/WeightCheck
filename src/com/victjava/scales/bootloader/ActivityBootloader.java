@@ -7,7 +7,6 @@ import android.bluetooth.BluetoothAdapter;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.*;
-import android.util.SparseArray;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -40,17 +39,41 @@ public class ActivityBootloader extends Activity implements View.OnClickListener
     private static final String dirBootFiles = "bootfiles";
 
     protected boolean flagProgramsFinish = true;
-    protected boolean flagAutoPrograming = false;
+    protected boolean flagAutoPrograming;
 
     static final int REQUEST_CONNECT_BOOT = 1;
     static final int REQUEST_CONNECT_SCALE = 2;
 
-    private static final SparseArray<String> mapCodeDevice = new SparseArray<>();
+    /*private static final SparseArray<String> mapCodeDevice = new SparseArray<>();
 
     static {
-        mapCodeDevice.put(0x9514, "atmega328.xml"); //38164
-        mapCodeDevice.put(0x9406, "atmega168.xml"); //37894
-        mapCodeDevice.put(0x930a, "atmega88.xml");  //37642
+        mapCodeDevice.put(0x9514, "atmega328.xml");
+        mapCodeDevice.put(0x9406, "atmega168.xml");
+        mapCodeDevice.put(0x930a, "atmega88.xml");
+    }*/
+
+    enum CodeDevice{
+        ATMEGA88("atmega88.xml",0x930a),    /* 37642 */
+        ATMEGA168("atmega168.xml", 0x9406), /* 37894 */
+        ATMEGA328("atmega328.xml", 0x9514); /* 38164 */
+
+        final String device;
+        final int code;
+
+        CodeDevice(String d, int c){
+            device = d;
+            code = c;
+        }
+
+        public String getDevice() {return device;}
+        public int getCode() {return code;}
+
+        public static CodeDevice contains(int c){
+            for(CodeDevice choice : values())
+                if (choice.code == c)
+                    return choice;
+            return null;
+        }
     }
 
     private class ThreadDoDeviceDependent extends AsyncTask<Void, Void, Boolean> {
@@ -124,7 +147,7 @@ public class ActivityBootloader extends Activity implements View.OnClickListener
         setContentView(R.layout.bootloder);
 
         addressDevice = getIntent().getStringExtra(getString(R.string.KEY_ADDRESS));
-        hardware = getIntent().getStringExtra(InterfaceVersions.CMD_HARDWARE);
+        hardware = getIntent().getStringExtra(Commands.CMD_HARDWARE.getName());
         powerOff = getIntent().getBooleanExtra("power_off", false);
 
         //Spinner spinnerField = (Spinner) findViewById(R.id.spinnerField);
@@ -163,11 +186,10 @@ public class ActivityBootloader extends Activity implements View.OnClickListener
                 exit();
             }
         });
-        if(!powerOff)
-            dialog.setMessage(getString(R.string.TEXT_MESSAGE));
-        else
+        if (powerOff)
             dialog.setMessage("На весах нажмите кнопку включения и не отпускайте пока индикатор не погаснет. После этого нажмите ОК");
-        dialog.show();
+        else dialog.setMessage(getString(R.string.TEXT_MESSAGE));
+            dialog.show();
 
         try {
             bootModule = new BootModule("BOOT", onEventConnectResult);
@@ -350,7 +372,7 @@ public class ActivityBootloader extends Activity implements View.OnClickListener
         return vrs.startsWith("BOOT");
     }
 
-    final private AVRProgrammer programmer = new AVRProgrammer(handlerProgrammed) {
+    private final AVRProgrammer programmer = new AVRProgrammer(handlerProgrammed) {
         @Override
         public void sendByte(byte b) {
             bootModule.sendByte(b);
@@ -372,13 +394,20 @@ public class ActivityBootloader extends Activity implements View.OnClickListener
         log(getString(R.string.Programmer_defined));
         try {
 
-            int desc = programmer.getDescriptor();
+            int descriptor = programmer.getDescriptor();
 
-            if (mapCodeDevice.get(desc) == null) {
-                throw new Exception("Фаил с дескриптором " + desc + " не найден! ");
+            CodeDevice codeDevice = CodeDevice.contains(descriptor);
+
+            if(codeDevice == null){
+                throw new Exception("Фаил с дескриптором " + descriptor + " не найден! ");
             }
 
-            String deviceFileName = mapCodeDevice.get(desc);
+            /*if (mapCodeDevice.get(desc) == null) {
+                throw new Exception("Фаил с дескриптором " + desc + " не найден! ");
+            }*/
+
+            //String deviceFileName = mapCodeDevice.get(desc);
+            String deviceFileName = codeDevice.getDevice();
             if (deviceFileName.isEmpty()) {
                 throw new Exception("Device name not specified!");
             }
@@ -390,7 +419,7 @@ public class ActivityBootloader extends Activity implements View.OnClickListener
                                         hardware- это версия платы              mbc04.36.2
                                         version- этоверсия программы платы      4                   */
             String constructBootFile = new StringBuilder()
-                    .append(desc).append('_')               //дескриптор сигнатура 1 и сигнатура 2
+                    .append(descriptor).append('_')               //дескриптор сигнатура 1 и сигнатура 2
                     .append(hardware.toLowerCase())         //hardware- это версия платы
                     .append('_')
                     .append(((Main)getApplication()).microSoftware)             //version- этоверсия программы платы

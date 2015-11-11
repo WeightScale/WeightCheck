@@ -8,11 +8,6 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
 import android.provider.BaseColumns;
-import android.text.TextUtils;
-import org.apache.http.message.BasicNameValuePair;
-
-import java.util.ArrayList;
-import java.util.Collection;
 
 /*
  * Created by Kostya on 11.04.2015.
@@ -31,30 +26,15 @@ public class SenderTable {
     public static final String KEY_SYS = "system"; //  0 или 1
 
     public enum TypeSender {
-        TYPE_GOOGLE_DISK{
-            @Override
-            public String toString() {
-                return "GOOGLE DISK";
-            }
-        },       //для google disk
-        TYPE_HTTP_POST{
-            @Override
-            public String toString() {
-                return "HTTP POST";
-            }
-        },         //на облако
-        TYPE_SMS{
-            @Override
-            public String toString() {
-                return "SMS";
-            }
-        },               //для смс отправки боссу
-        TYPE_EMAIL{
-            @Override
-            public String toString() {
-                return "EMAIL";
-            }
-        }              //для електронной почты
+        TYPE_GOOGLE_DISK("GOOGLE DISK"),        /*для google disk*/
+        TYPE_HTTP_POST("HTTP POST"),            /*на облако*/
+        TYPE_SMS("SMS"),                        /*для смс отправки боссу*/
+        TYPE_EMAIL("EMAIL");                    /*для електронной почты*/
+
+        private final String type;
+        TypeSender(String type){ this.type = type; }
+
+        public String toString() { return type; }
     }
 
     public static final String TABLE_CREATE = "create table "

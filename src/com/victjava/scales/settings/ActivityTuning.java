@@ -5,23 +5,20 @@ package com.victjava.scales.settings;
 
 import android.app.Dialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.Point;
 import android.os.Build;
 import android.os.Bundle;
-import android.preference.DialogPreference;
 import android.preference.Preference;
 import android.preference.PreferenceActivity;
 import android.preference.PreferenceManager;
 import android.provider.BaseColumns;
-import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.Window;
 import android.widget.*;
-import com.konst.module.InterfaceVersions;
+import com.konst.module.Commands;
 import com.konst.module.ScaleModule;
 import com.victjava.scales.Main;
 import com.victjava.scales.Preferences;
@@ -278,7 +275,7 @@ public class ActivityTuning extends PreferenceActivity {
             name.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
                 @Override
                 public boolean onPreferenceChange(Preference preference, Object o) {
-                    if (o.toString().isEmpty() || Integer.valueOf(o.toString()) < main.default_max_weight) {
+                    if (o.toString().isEmpty() || Integer.valueOf(o.toString()) < Main.default_max_weight) {
                         Toast.makeText(getApplicationContext(), R.string.preferences_no, Toast.LENGTH_SHORT).show();
                         return false;
                     }
@@ -323,7 +320,7 @@ public class ActivityTuning extends PreferenceActivity {
             name.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
                 @Override
                 public boolean onPreferenceChange(Preference preference, Object o) {
-                    if (o.toString().isEmpty() || "0".equals(o.toString()) || Integer.valueOf(o.toString()) > main.default_max_battery) {
+                    if (o.toString().isEmpty() || "0".equals(o.toString()) || Integer.valueOf(o.toString()) > Main.default_max_battery) {
                         Toast.makeText(getApplicationContext(), R.string.preferences_no, Toast.LENGTH_SHORT).show();
                         return false;
                     }
@@ -635,8 +632,8 @@ public class ActivityTuning extends PreferenceActivity {
                         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
                     intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                     intent.putExtra(getString(R.string.KEY_ADDRESS), scaleModule.isAttach()? scaleModule.getAddressBluetoothDevice():"");
-                    intent.putExtra(InterfaceVersions.CMD_HARDWARE, hardware);
-                    intent.putExtra(InterfaceVersions.CMD_VERSION, scaleModule.getNumVersion());
+                    intent.putExtra(Commands.CMD_HARDWARE.getName(), hardware);
+                    intent.putExtra(Commands.CMD_VERSION.getName(), scaleModule.getNumVersion());
                     startActivity(intent);
                     return false;
                 }

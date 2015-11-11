@@ -15,7 +15,7 @@ import java.util.Arrays;
  * @author Kostya
  */
 class DialogTimerOff extends DialogPreference /*implements ActivityPreferences.InterfacePreference*/ {
-    Main main;
+    final Main main;
     private int mNumber;
     private final String[] timeArray;
     private NumberPicker numberPicker;

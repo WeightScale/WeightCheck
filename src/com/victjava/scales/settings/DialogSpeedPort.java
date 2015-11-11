@@ -9,13 +9,11 @@ import com.victjava.scales.Main;
 import com.victjava.scales.NumberPicker;
 import com.victjava.scales.R;
 
-import java.util.Arrays;
-
 /**
- * Created by Kostya on 30.09.2015.
+ * @author Kostya
  */
 public class DialogSpeedPort extends DialogPreference {
-    Main main;
+    final Main main;
     private int mNumber;
     private final String[] speedPortArray;
     private NumberPicker numberPicker;

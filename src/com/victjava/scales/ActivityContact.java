@@ -203,15 +203,13 @@ public class ActivityContact extends ListActivity implements View.OnClickListene
 
             String action = getIntent().getAction();
             if (action != null) {
-                switch (action) {
-                    case "check":
+                //switch (action) {
+                    if ("check".equals(action)) {//case "check":
                         insertNewCheck((int) id);
-                    break;
-                    case "contact":
-                        openActivityContactMessage((int)id);
-                    break;
-                    default:
-                }
+                    }//break;
+                    else if ("contact".equals(action)) {//case "contact":
+                        openActivityContactMessage((int) id);
+                    }//break;
             }
 
         }

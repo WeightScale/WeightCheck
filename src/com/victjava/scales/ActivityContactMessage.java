@@ -4,7 +4,6 @@ import android.app.Activity;
 import android.content.*;
 import android.database.Cursor;
 import android.os.Bundle;
-import android.os.RemoteException;
 import android.provider.BaseColumns;
 import android.provider.ContactsContract;
 import android.provider.ContactsContract.CommonDataKinds.*;
@@ -87,7 +86,7 @@ public class ActivityContactMessage extends Activity implements View.OnClickList
                 new String[] {String.valueOf(id)}, null);
     }
 
-    private class ListMessageBinder implements SimpleCursorAdapter.ViewBinder {
+    private static class ListMessageBinder implements SimpleCursorAdapter.ViewBinder {
         int enable;
         String text;
 
@@ -137,7 +136,7 @@ public class ActivityContactMessage extends Activity implements View.OnClickList
                 .build());
         try {
             getContentResolver().applyBatch(ContactsContract.AUTHORITY, ops);
-        } catch (RemoteException | OperationApplicationException e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }

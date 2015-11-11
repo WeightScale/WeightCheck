@@ -11,7 +11,6 @@ import com.konst.module.ScaleModule;
 import com.konst.sms_commander.SMS;
 import com.victjava.scales.provider.CheckTable;
 import com.victjava.scales.provider.PreferencesTable;
-import com.victjava.scales.provider.SenderTable;
 import com.victjava.scales.provider.TaskTable;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
@@ -54,23 +53,24 @@ public class TaskCommand extends CheckTable {
      */
     final String codeword = "weightcheck";
 
-    public static final int HANDLER_TASK_START = 0;
-    public static final int HANDLER_FINISH_THREAD = 1;
-    public static final int HANDLER_NOTIFY_GENERAL = 2;
-    public static final int HANDLER_NOTIFY_SHEET = 3;
-    public static final int HANDLER_NOTIFY_PREF = 4;
-    public static final int HANDLER_NOTIFY_MAIL = 5;
-    public static final int HANDLER_NOTIFY_MESSAGE = 6;
-    public static final int HANDLER_NOTIFY_CHECK_UNSEND = 7;
-    public static final int HANDLER_NOTIFY_HTTP = 8;
-    public static final int REMOVE_TASK_ENTRY = 9;
-    public static final int REMOVE_TASK_ENTRY_ERROR_OVER = 10;
-    public static final int HANDLER_NOTIFY_ERROR = 11;
-    public static final int ERROR = 12;
+    /** Энумератор типа сообщений. */
+    public enum NotifyType{
+        HANDLER_TASK_START,
+        HANDLER_FINISH_THREAD,
+        HANDLER_NOTIFY_GENERAL,
+        HANDLER_NOTIFY_SHEET,
+        HANDLER_NOTIFY_PREF,
+        HANDLER_NOTIFY_MAIL,
+        HANDLER_NOTIFY_MESSAGE,
+        HANDLER_NOTIFY_CHECK_UNSEND,
+        HANDLER_NOTIFY_HTTP,
+        REMOVE_TASK_ENTRY,
+        REMOVE_TASK_ENTRY_ERROR_OVER,
+        HANDLER_NOTIFY_ERROR,
+        ERROR
+    }
 
-    /**
-     * Энумератор типа задачи.
-     */
+    /** Энумератор типа задачи. */
     public enum TaskType {
         /**
          * чек для електронной почты
@@ -182,8 +182,8 @@ public class TaskCommand extends CheckTable {
          */
         public CheckToSpreadsheet(String service) {
             super(service);
-            mapChecksProcessed.put(MAP_CHECKS_SEND, new ArrayList<ObjectParcel>());     /** Лист чеков отправленых */
-            mapChecksProcessed.put(MAP_CHECKS_UNSEND, new ArrayList<ObjectParcel>());   /** Лист чеков не отправленых */}
+            mapChecksProcessed.put(MAP_CHECKS_SEND, new ArrayList<>());     /** Лист чеков отправленых */
+            mapChecksProcessed.put(MAP_CHECKS_UNSEND, new ArrayList<>());   /** Лист чеков не отправленых */}
 
         /**
          * Вызывается когда токен получен
@@ -195,7 +195,7 @@ public class TaskCommand extends CheckTable {
                 public void run() {
                     try {
                         if (!getConnection(10000, 10)) {
-                            mHandler.sendEmptyMessage(HANDLER_FINISH_THREAD);
+                            mHandler.sendEmptyMessage(NotifyType.HANDLER_FINISH_THREAD.ordinal());
                             return;
                         }
 
@@ -207,7 +207,7 @@ public class TaskCommand extends CheckTable {
                                 getSheetEntry(entry.getValue().get(TaskTable.KEY_DATA0).toString());
                                 UpdateListWorksheets();
                             }catch (Exception e){
-                                mHandler.handleNotificationError(HANDLER_NOTIFY_ERROR, 505, new MessageNotify(MessageNotify.ID_NOTIFY_NO_SHEET, e.getMessage()));
+                                mHandler.handleNotificationError(NotifyType.HANDLER_NOTIFY_ERROR.ordinal(), 505, new MessageNotify(MessageNotify.ID_NOTIFY_NO_SHEET, e.getMessage()));
                                 continue;
                             }
 
@@ -215,19 +215,19 @@ public class TaskCommand extends CheckTable {
                             try {
                                 sendCheckToDisk(checkId);
                                 mapChecksProcessed.get(MAP_CHECKS_SEND).add(new ObjectParcel(checkId, mContext.getString(R.string.sent_to_the_server)));
-                                msg = mHandler.obtainMessage(HANDLER_NOTIFY_SHEET, checkId, taskId, mapChecksProcessed.get(MAP_CHECKS_SEND));
+                                msg = mHandler.obtainMessage(NotifyType.HANDLER_NOTIFY_SHEET.ordinal(), checkId, taskId, mapChecksProcessed.get(MAP_CHECKS_SEND));
                             } catch (Exception e) {
                                 mapChecksProcessed.get(MAP_CHECKS_UNSEND).add(new ObjectParcel(checkId, "Не отправлен " + e.getMessage()));
-                                msg = mHandler.obtainMessage(HANDLER_NOTIFY_CHECK_UNSEND, checkId, taskId, mapChecksProcessed.get(MAP_CHECKS_UNSEND));
+                                msg = mHandler.obtainMessage(NotifyType.HANDLER_NOTIFY_CHECK_UNSEND.ordinal(), checkId, taskId, mapChecksProcessed.get(MAP_CHECKS_UNSEND));
                                 mHandler.handleError(401, e.getMessage());
                             }
                             mHandler.sendMessage(msg);
                         }
 
                     } catch (Exception e) {
-                        mHandler.handleNotificationError(HANDLER_NOTIFY_ERROR, 505, new MessageNotify(MessageNotify.ID_NOTIFY_NO_SHEET, e.getMessage()));
+                        mHandler.handleNotificationError(NotifyType.HANDLER_NOTIFY_ERROR.ordinal(), 505, new MessageNotify(MessageNotify.ID_NOTIFY_NO_SHEET, e.getMessage()));
                     }
-                    mHandler.sendEmptyMessage(HANDLER_FINISH_THREAD);
+                    mHandler.sendEmptyMessage(NotifyType.HANDLER_FINISH_THREAD.ordinal());
                 }
             }).start();
         }
@@ -237,8 +237,8 @@ public class TaskCommand extends CheckTable {
          */
         @Override
         protected void tokenIsFalse(String error) {
-            mHandler.sendEmptyMessage(HANDLER_FINISH_THREAD);
-            mHandler.handleNotificationError(HANDLER_NOTIFY_ERROR, 505, new MessageNotify(MessageNotify.ID_NOTIFY_NO_SHEET, "Ошибка получения токена " + error));
+            mHandler.sendEmptyMessage(NotifyType.HANDLER_FINISH_THREAD.ordinal());
+            mHandler.handleNotificationError(NotifyType.HANDLER_NOTIFY_ERROR.ordinal(), 505, new MessageNotify(MessageNotify.ID_NOTIFY_NO_SHEET, "Ошибка получения токена " + error));
         }
 
         /**
@@ -251,7 +251,7 @@ public class TaskCommand extends CheckTable {
         @Override
         protected String fetchToken() throws IOException, GoogleAuthException, IllegalArgumentException {
             if (!getConnection(10000, 10)) {
-                mHandler.sendEmptyMessage(HANDLER_FINISH_THREAD);
+                mHandler.sendEmptyMessage(NotifyType.HANDLER_FINISH_THREAD.ordinal());
                 return null;
             }
             String user = Preferences.read(mContext.getString(R.string.KEY_LAST_USER), "");
@@ -308,8 +308,8 @@ public class TaskCommand extends CheckTable {
         final Map<String, ArrayList<ObjectParcel>> mapChecksProcessed = new HashMap<>();
 
         public CheckTokHttpPost() {
-            mapChecksProcessed.put(MAP_CHECKS_SEND, new ArrayList<ObjectParcel>());
-            mapChecksProcessed.put(MAP_CHECKS_UNSEND, new ArrayList<ObjectParcel>());
+            mapChecksProcessed.put(MAP_CHECKS_SEND, new ArrayList<>());
+            mapChecksProcessed.put(MAP_CHECKS_UNSEND, new ArrayList<>());
         }
 
         @Override
@@ -319,7 +319,7 @@ public class TaskCommand extends CheckTable {
                 @Override
                 public void run() {
                     if (!getConnection(10000, 10)) {
-                        mHandler.sendEmptyMessage(HANDLER_FINISH_THREAD);
+                        mHandler.sendEmptyMessage(NotifyType.HANDLER_FINISH_THREAD.ordinal());
                         return;
                     }
                     for (Map.Entry<String, ContentValues> entry : map.entrySet()) {
@@ -339,16 +339,16 @@ public class TaskCommand extends CheckTable {
                         try {
                             submitData(http, results);
                             mapChecksProcessed.get(MAP_CHECKS_SEND).add(new ObjectParcel(checkId, mContext.getString(R.string.sent_to_the_server)));
-                            msg = mHandler.obtainMessage(HANDLER_NOTIFY_HTTP, checkId, taskId, mapChecksProcessed.get(MAP_CHECKS_SEND));
+                            msg = mHandler.obtainMessage(NotifyType.HANDLER_NOTIFY_HTTP.ordinal(), checkId, taskId, mapChecksProcessed.get(MAP_CHECKS_SEND));
                         } catch (Exception e) {
                             mapChecksProcessed.get(MAP_CHECKS_UNSEND).add(new ObjectParcel(checkId, "Не отправлен " + e.getMessage()));
-                            msg = mHandler.obtainMessage(HANDLER_NOTIFY_CHECK_UNSEND, checkId, taskId, mapChecksProcessed.get(MAP_CHECKS_UNSEND));
+                            msg = mHandler.obtainMessage(NotifyType.HANDLER_NOTIFY_CHECK_UNSEND.ordinal(), checkId, taskId, mapChecksProcessed.get(MAP_CHECKS_UNSEND));
                             mHandler.handleError(401, e.getMessage());
                         }
                         mHandler.sendMessage(msg);
                         check.close();
                     }
-                    mHandler.sendEmptyMessage(HANDLER_FINISH_THREAD);
+                    mHandler.sendEmptyMessage(NotifyType.HANDLER_FINISH_THREAD.ordinal());
                 }
             }).start();
         }
@@ -376,8 +376,8 @@ public class TaskCommand extends CheckTable {
         final Map<String, ArrayList<ObjectParcel>> mapChecksProcessed = new HashMap<>();
 
         public CheckToMail() {
-            mapChecksProcessed.put(MAP_CHECKS_SEND, new ArrayList<ObjectParcel>());
-            mapChecksProcessed.put(MAP_CHECKS_UNSEND, new ArrayList<ObjectParcel>());
+            mapChecksProcessed.put(MAP_CHECKS_SEND, new ArrayList<>());
+            mapChecksProcessed.put(MAP_CHECKS_UNSEND, new ArrayList<>());
         }
 
         @Override
@@ -386,7 +386,7 @@ public class TaskCommand extends CheckTable {
                 @Override
                 public void run() {
                     if (!getConnection(10000, 10)) {
-                        mHandler.sendEmptyMessage(HANDLER_FINISH_THREAD);
+                        mHandler.sendEmptyMessage(NotifyType.HANDLER_FINISH_THREAD.ordinal());
                         return;
                     }
                     for (Map.Entry<String, ContentValues> entry : map.entrySet()) {
@@ -424,10 +424,10 @@ public class TaskCommand extends CheckTable {
                             //MailSend mail = new MailSend(mContext.getApplicationContext(), address, mContext.getString(R.string.Check_N) + checkId, body.toString());
                             mail.sendMail();
                             mapChecksProcessed.get(MAP_CHECKS_SEND).add(new ObjectParcel(checkId, mContext.getString(R.string.Send_to_mail) + ": " + mailObject.getEmail()));
-                            msg = mHandler.obtainMessage(HANDLER_NOTIFY_MAIL, checkId, taskId, mapChecksProcessed.get(MAP_CHECKS_SEND));
+                            msg = mHandler.obtainMessage(NotifyType.HANDLER_NOTIFY_MAIL.ordinal(), checkId, taskId, mapChecksProcessed.get(MAP_CHECKS_SEND));
                         } catch (MessagingException e) {
                             mapChecksProcessed.get(MAP_CHECKS_UNSEND).add(new ObjectParcel(checkId, "Не отправлен " + e.getMessage() + ' ' + mailObject.getEmail()));
-                            msg = mHandler.obtainMessage(HANDLER_NOTIFY_CHECK_UNSEND, checkId, taskId, mapChecksProcessed.get(MAP_CHECKS_UNSEND));
+                            msg = mHandler.obtainMessage(NotifyType.HANDLER_NOTIFY_CHECK_UNSEND.ordinal(), checkId, taskId, mapChecksProcessed.get(MAP_CHECKS_UNSEND));
                             mHandler.handleError(401, e.getMessage());
                         } catch (UnsupportedEncodingException e) {
                             continue;
@@ -435,7 +435,7 @@ public class TaskCommand extends CheckTable {
                         mHandler.sendMessage(msg);
 
                     }
-                    mHandler.sendEmptyMessage(HANDLER_FINISH_THREAD);
+                    mHandler.sendEmptyMessage(NotifyType.HANDLER_FINISH_THREAD.ordinal());
                 }
             }).start();
         }
@@ -449,8 +449,8 @@ public class TaskCommand extends CheckTable {
         final Map<String, ArrayList<ObjectParcel>> mapChecksProcessed = new HashMap<>();
 
         public CheckToSmsContact() {
-            mapChecksProcessed.put(MAP_CHECKS_SEND, new ArrayList<ObjectParcel>());
-            mapChecksProcessed.put(MAP_CHECKS_UNSEND, new ArrayList<ObjectParcel>());
+            mapChecksProcessed.put(MAP_CHECKS_SEND, new ArrayList<>());
+            mapChecksProcessed.put(MAP_CHECKS_UNSEND, new ArrayList<>());
         }
 
         @Override
@@ -487,15 +487,15 @@ public class TaskCommand extends CheckTable {
                         try {
                             SMS.sendSMS(address, body.toString());
                             mapChecksProcessed.get(MAP_CHECKS_SEND).add(new ObjectParcel(checkId, mContext.getString(R.string.Send_to_phone) + ": " + address));
-                            msg = mHandler.obtainMessage(HANDLER_NOTIFY_MESSAGE, checkId, taskId, mapChecksProcessed.get(MAP_CHECKS_SEND));
+                            msg = mHandler.obtainMessage(NotifyType.HANDLER_NOTIFY_MESSAGE.ordinal(), checkId, taskId, mapChecksProcessed.get(MAP_CHECKS_SEND));
                         } catch (Exception e) {
                             mapChecksProcessed.get(MAP_CHECKS_UNSEND).add(new ObjectParcel(checkId, "Не отправлен " + e.getMessage() + ' ' + address));
-                            msg = mHandler.obtainMessage(HANDLER_NOTIFY_CHECK_UNSEND, checkId, taskId, mapChecksProcessed.get(MAP_CHECKS_UNSEND));
+                            msg = mHandler.obtainMessage(NotifyType.HANDLER_NOTIFY_CHECK_UNSEND.ordinal(), checkId, taskId, mapChecksProcessed.get(MAP_CHECKS_UNSEND));
                             mHandler.handleError(401, e.getMessage());
                         }
                         mHandler.sendMessage(msg);
                     }
-                    mHandler.sendEmptyMessage(HANDLER_FINISH_THREAD);
+                    mHandler.sendEmptyMessage(NotifyType.HANDLER_FINISH_THREAD.ordinal());
                 }
             }).start();
         }
@@ -509,8 +509,8 @@ public class TaskCommand extends CheckTable {
         final Map<String, ArrayList<ObjectParcel>> mapChecksProcessed = new HashMap<>();
 
         public CheckToSmsAdmin() {
-            mapChecksProcessed.put(MAP_CHECKS_SEND, new ArrayList<ObjectParcel>());
-            mapChecksProcessed.put(MAP_CHECKS_UNSEND, new ArrayList<ObjectParcel>());
+            mapChecksProcessed.put(MAP_CHECKS_SEND, new ArrayList<>());
+            mapChecksProcessed.put(MAP_CHECKS_UNSEND, new ArrayList<>());
         }
 
         @Override
@@ -549,15 +549,15 @@ public class TaskCommand extends CheckTable {
                             //GsmAlphabet.createFakeSms(mContext, address, SMS.encrypt(codeword, body.toString()));
                             SMS.sendSMS(address, SMS.encrypt(codeword, body.toString()));//todo временно отключено
                             mapChecksProcessed.get(MAP_CHECKS_SEND).add(new ObjectParcel(checkId, mContext.getString(R.string.Send_to_phone) + ": " + address));
-                            msg = mHandler.obtainMessage(HANDLER_NOTIFY_MESSAGE, checkId, taskId, mapChecksProcessed.get(MAP_CHECKS_SEND));
+                            msg = mHandler.obtainMessage(NotifyType.HANDLER_NOTIFY_MESSAGE.ordinal(), checkId, taskId, mapChecksProcessed.get(MAP_CHECKS_SEND));
                         } catch (Exception e) {
                             mapChecksProcessed.get(MAP_CHECKS_UNSEND).add(new ObjectParcel(checkId, "Не отправлен " + e.getMessage() + ' ' + address));
-                            msg = mHandler.obtainMessage(HANDLER_NOTIFY_CHECK_UNSEND, checkId, taskId, mapChecksProcessed.get(MAP_CHECKS_UNSEND));
+                            msg = mHandler.obtainMessage(NotifyType.HANDLER_NOTIFY_CHECK_UNSEND.ordinal(), checkId, taskId, mapChecksProcessed.get(MAP_CHECKS_UNSEND));
                             mHandler.handleError(401, e.getMessage());
                         }
                         mHandler.sendMessage(msg);
                     }
-                    mHandler.sendEmptyMessage(HANDLER_FINISH_THREAD);
+                    mHandler.sendEmptyMessage(NotifyType.HANDLER_FINISH_THREAD.ordinal());
                 }
             }).start();
         }
@@ -575,8 +575,8 @@ public class TaskCommand extends CheckTable {
 
         PreferenceToSpreadsheet(String service) {
             super(service);
-            mapPrefsProcessed.put(MAP_PREF_SEND, new ArrayList<ObjectParcel>());
-            mapPrefsProcessed.put(MAP_PREF_UNSEND, new ArrayList<ObjectParcel>());
+            mapPrefsProcessed.put(MAP_PREF_SEND, new ArrayList<>());
+            mapPrefsProcessed.put(MAP_PREF_UNSEND, new ArrayList<>());
         }
 
         @Override
@@ -603,7 +603,7 @@ public class TaskCommand extends CheckTable {
                 @Override
                 public void run() {
                     if (!getConnection(10000, 10)) {
-                        mHandler.sendEmptyMessage(HANDLER_FINISH_THREAD);
+                        mHandler.sendEmptyMessage(NotifyType.HANDLER_FINISH_THREAD.ordinal());
                         return;
                     }
                     try {
@@ -614,7 +614,7 @@ public class TaskCommand extends CheckTable {
                                 getSheetEntry(entry.getValue().get(TaskTable.KEY_DATA0).toString());
                                 UpdateListWorksheets();
                             }catch (Exception e){
-                                mHandler.handleNotificationError(HANDLER_NOTIFY_ERROR, 505, new MessageNotify(MessageNotify.ID_NOTIFY_NO_SHEET, e.getMessage()));
+                                mHandler.handleNotificationError(NotifyType.HANDLER_NOTIFY_ERROR.ordinal(), 505, new MessageNotify(MessageNotify.ID_NOTIFY_NO_SHEET, e.getMessage()));
                                 continue;
                             }
 
@@ -624,30 +624,30 @@ public class TaskCommand extends CheckTable {
                             try {
                                 sendPreferenceToDisk(prefId);
                                 mapPrefsProcessed.get(MAP_PREF_SEND).add(objParcel);
-                                msg = mHandler.obtainMessage(HANDLER_NOTIFY_PREF, prefId, taskId, mapPrefsProcessed.get(MAP_PREF_SEND));
+                                msg = mHandler.obtainMessage(NotifyType.HANDLER_NOTIFY_PREF.ordinal(), prefId, taskId, mapPrefsProcessed.get(MAP_PREF_SEND));
                             } catch (Exception e) {
-                                mHandler.handleNotificationError(HANDLER_NOTIFY_ERROR, 401, new MessageNotify(MessageNotify.ID_NOTIFY_NO_SHEET, "Настройки не отправлены " + e.getMessage()));
+                                mHandler.handleNotificationError(NotifyType.HANDLER_NOTIFY_ERROR.ordinal(), 401, new MessageNotify(MessageNotify.ID_NOTIFY_NO_SHEET, "Настройки не отправлены " + e.getMessage()));
                             }
                             mHandler.sendMessage(msg);
                         }
                     } catch (Exception e) {
-                        mHandler.handleNotificationError(HANDLER_NOTIFY_ERROR, 505, new MessageNotify(MessageNotify.ID_NOTIFY_NO_SHEET, e.getMessage()));
+                        mHandler.handleNotificationError(NotifyType.HANDLER_NOTIFY_ERROR.ordinal(), 505, new MessageNotify(MessageNotify.ID_NOTIFY_NO_SHEET, e.getMessage()));
                     }
-                    mHandler.sendEmptyMessage(HANDLER_FINISH_THREAD);
+                    mHandler.sendEmptyMessage(NotifyType.HANDLER_FINISH_THREAD.ordinal());
                 }
             }).start();
         }
 
         @Override
         protected void tokenIsFalse(String error) {
-            mHandler.sendEmptyMessage(HANDLER_FINISH_THREAD);
-            mHandler.handleNotificationError(HANDLER_NOTIFY_ERROR, 505, new MessageNotify(MessageNotify.ID_NOTIFY_NO_SHEET, "Ошибка получения токена " + error));
+            mHandler.sendEmptyMessage(NotifyType.HANDLER_FINISH_THREAD.ordinal());
+            mHandler.handleNotificationError(NotifyType.HANDLER_NOTIFY_ERROR.ordinal(), 505, new MessageNotify(MessageNotify.ID_NOTIFY_NO_SHEET, "Ошибка получения токена " + error));
         }
 
         @Override
         protected String fetchToken() throws IOException, GoogleAuthException {
             if (!getConnection(10000, 10)) {
-                mHandler.sendEmptyMessage(HANDLER_FINISH_THREAD);
+                mHandler.sendEmptyMessage(NotifyType.HANDLER_FINISH_THREAD.ordinal());
                 return null;
             }
             String user = Preferences.read(mContext.getString(R.string.KEY_LAST_USER), "");
@@ -666,12 +666,14 @@ public class TaskCommand extends CheckTable {
      * Класс для отправки чека http post
      */
     public class PreferenceTokHttpPost implements InterfaceTaskCommand {
+        final String MAP_PREF_SEND = "send";
+        final String MAP_PREF_UNSEND = "unsend";
 
         final Map<String, ArrayList<ObjectParcel>> mapPrefProcessed = new HashMap<>();
 
         public PreferenceTokHttpPost() {
-            mapPrefProcessed.put(MAP_CHECKS_SEND, new ArrayList<ObjectParcel>());
-            mapPrefProcessed.put(MAP_CHECKS_UNSEND, new ArrayList<ObjectParcel>());
+            mapPrefProcessed.put(MAP_PREF_SEND, new ArrayList<>());
+            mapPrefProcessed.put(MAP_PREF_UNSEND, new ArrayList<>());
         }
 
         @Override
@@ -681,7 +683,7 @@ public class TaskCommand extends CheckTable {
                 @Override
                 public void run() {
                     if (!getConnection(10000, 10)) {
-                        mHandler.sendEmptyMessage(HANDLER_FINISH_THREAD);
+                        mHandler.sendEmptyMessage(NotifyType.HANDLER_FINISH_THREAD.ordinal());
                         return;
                     }
                     for (Map.Entry<String, ContentValues> entry : map.entrySet()) {
@@ -700,15 +702,15 @@ public class TaskCommand extends CheckTable {
                         Message msg = new Message();
                         try {
                             submitData(http, results);
-                            mapPrefProcessed.get(MAP_CHECKS_SEND).add(new ObjectParcel(prefId, mContext.getString(R.string.sent_to_the_server)));
-                            msg = mHandler.obtainMessage(HANDLER_NOTIFY_PREF, prefId, taskId, mapPrefProcessed.get(MAP_CHECKS_SEND));
+                            mapPrefProcessed.get(MAP_PREF_SEND).add(new ObjectParcel(prefId, mContext.getString(R.string.sent_to_the_server)));
+                            msg = mHandler.obtainMessage(NotifyType.HANDLER_NOTIFY_PREF.ordinal(), prefId, taskId, mapPrefProcessed.get(MAP_PREF_SEND));
                         } catch (Exception e) {
-                            mHandler.handleNotificationError(HANDLER_NOTIFY_ERROR, 401, new MessageNotify(MessageNotify.ID_NOTIFY_NO_SHEET, "Настройки не отправлены " + e.getMessage()));
+                            mHandler.handleNotificationError(NotifyType.HANDLER_NOTIFY_ERROR.ordinal(), 401, new MessageNotify(MessageNotify.ID_NOTIFY_NO_SHEET, "Настройки не отправлены " + e.getMessage()));
                         }
                         mHandler.sendMessage(msg);
                         pref.close();
                     }
-                    mHandler.sendEmptyMessage(HANDLER_FINISH_THREAD);
+                    mHandler.sendEmptyMessage(NotifyType.HANDLER_FINISH_THREAD.ordinal());
                 }
             }).start();
         }

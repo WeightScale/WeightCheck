@@ -145,8 +145,8 @@ public class ActivityConnect extends Activity implements View.OnClickListener {
             public void onReceive(Context context, Intent intent) { //обработчик Bluetooth
                 String action = intent.getAction();
                 if (action != null) {
-                    switch (action) {
-                        case BluetoothAdapter.ACTION_STATE_CHANGED:
+                    //switch (action) {
+                        if (BluetoothAdapter.ACTION_STATE_CHANGED.equals(action)) {//case BluetoothAdapter.ACTION_STATE_CHANGED:
                             if (bootModule.getAdapter().getState() == BluetoothAdapter.STATE_OFF) {
                                 log(R.string.bluetooth_off);
                                 bootModule.getAdapter().enable();
@@ -155,22 +155,20 @@ public class ActivityConnect extends Activity implements View.OnClickListener {
                             } else if (bootModule.getAdapter().getState() == BluetoothAdapter.STATE_ON) {
                                 log(R.string.bluetooth_on, true);
                             }
-                            break;
-                        case BluetoothDevice.ACTION_ACL_DISCONNECTED:  //устройство отсоеденено
+                        }//break;
+                        else if (BluetoothDevice.ACTION_ACL_DISCONNECTED.equals(action)) {//case BluetoothDevice.ACTION_ACL_DISCONNECTED:  //устройство отсоеденено
                             vibrator.vibrate(200);
                             log(R.string.bluetooth_disconnected);
-                            break;
-                        case BluetoothDevice.ACTION_ACL_CONNECTED:  //найдено соеденено
+                        }//break;
+                        else if (BluetoothDevice.ACTION_ACL_CONNECTED.equals(action)) {//case BluetoothDevice.ACTION_ACL_CONNECTED:  //найдено соеденено
                             vibrator.vibrate(200);
                             log(R.string.bluetooth_connected);
-                            break;
-                        case BluetoothAdapter.ACTION_DISCOVERY_FINISHED:  //поиск завершён
+                        }//break;
+                        else if (BluetoothAdapter.ACTION_DISCOVERY_FINISHED.equals(action)) {//case BluetoothAdapter.ACTION_DISCOVERY_FINISHED:  //поиск завершён
                             setTitle(getString(R.string.app_name) + " \"" + versionName + "\", v." + versionNumber); //установить заголовок
 
                             setProgressBarIndeterminateVisibility(false);
-                            break;
-                        default:
-                    }
+                        }//break;
                 }
             }
         };
