@@ -158,7 +158,7 @@ public class ActivityPreferences extends PreferenceActivity implements SharedPre
                         if (scaleModule.setModuleFilterADC(Integer.valueOf(o.toString()))) {
                             scaleModule.setFilterADC(Integer.valueOf(o.toString()));
                             preference.setTitle(getString(R.string.filter_adc) + ' ' + String.valueOf(scaleModule.getFilterADC()));
-                            Toast.makeText(getBaseContext(), R.string.preferences_yes, Toast.LENGTH_SHORT).show();
+                            Toast.makeText(getBaseContext(), getString(R.string.preferences_yes) + ' ' + o.toString(), Toast.LENGTH_SHORT).show();
                             return true;
                         }
                     } catch (Exception e) {

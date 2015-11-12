@@ -95,11 +95,10 @@ public class TypeTable {
 
     public void addSystemRow(SQLiteDatabase db) {
         ContentValues contentValues = new ContentValues();
-        Resources res = context.getResources();
-        contentValues.put(KEY_TYPE, "тест");
+        contentValues.put(KEY_TYPE, context.getString(R.string.Test));
         contentValues.put(KEY_SYS, 1);
         db.insert(TABLE, null, contentValues);
-        String[] type_records = res.getStringArray(R.array.type_array);
+        String[] type_records = context.getResources().getStringArray(R.array.type_array);
         for (String type_record : type_records) {
             contentValues.put(KEY_TYPE, type_record);
             contentValues.put(KEY_SYS, 0);

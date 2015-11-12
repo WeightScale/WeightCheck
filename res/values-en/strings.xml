@@ -190,5 +190,6 @@
     <string name="send_weight_check">transfer the weight check</string>
     <string name="Off_scales">OFF SCALES</string>
     <string name="text_setting_admin">Advanced User Settings</string>
+    <string name="Test">Test</string>
 
 </resources>
