@@ -152,6 +152,7 @@ public class TaskTable {
 
     public void setCheckReady(int _rowIndex) {
         Cursor cursor = new SenderTable(mContext).geSystemItem();
+        //Main main = (Main)mContext.getApplicationContext();
         try {
             cursor.moveToFirst();
             if (!cursor.isAfterLast()) {
@@ -160,7 +161,8 @@ public class TaskTable {
                     TypeSender type_sender = TypeSender.values()[cursor.getInt(cursor.getColumnIndex(SenderTable.KEY_TYPE))];
                     switch (type_sender) {
                         case TYPE_HTTP_POST:
-                            insertNewTask(TaskType.TYPE_CHECK_SEND_HTTP_POST, _rowIndex, senderId, CheckTable.getGoFormHttp(), CheckTable.geGoParamHttp());
+                            insertNewTask(TaskType.TYPE_CHECK_SEND_HTTP_POST, _rowIndex, senderId, "forms/forms.xml", "WeightCheck");
+                            //insertNewTask(TaskType.TYPE_CHECK_SEND_HTTP_POST, _rowIndex, senderId, CheckTable.getGoFormHttp(), CheckTable.geGoParamHttp());
                             break;
                         case TYPE_GOOGLE_DISK:
                             insertNewTask(TaskType.TYPE_CHECK_SEND_SHEET_DISK, _rowIndex, senderId, getSpreadSheet(), getUser(), getPassword());
@@ -188,7 +190,8 @@ public class TaskTable {
                     TypeSender type_sender = TypeSender.values()[cursor.getInt(cursor.getColumnIndex(SenderTable.KEY_TYPE))];
                     switch (type_sender) {
                         case TYPE_HTTP_POST:
-                            insertNewTask(TaskType.TYPE_PREF_SEND_HTTP_POST, _rowIndex, senderId, PreferencesTable.getPrefFormHttp(), PreferencesTable.getPrefParamHttp());
+                            insertNewTask(TaskType.TYPE_PREF_SEND_HTTP_POST, _rowIndex, senderId, "forms/forms.xml", "Settings");
+                            //insertNewTask(TaskType.TYPE_PREF_SEND_HTTP_POST, _rowIndex, senderId, PreferencesTable.getPrefFormHttp(), PreferencesTable.getPrefParamHttp());
                             break;
                         case TYPE_GOOGLE_DISK:
                             insertNewTask(TaskType.TYPE_PREF_SEND_SHEET_DISK, _rowIndex, senderId, getSpreadSheet(), getUser(), getPassword());

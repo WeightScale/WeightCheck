@@ -191,5 +191,6 @@
     <string name="Off_scales">OFF SCALES</string>
     <string name="text_setting_admin">Advanced User Settings</string>
     <string name="Test">Test</string>
+    <string name="sent_to_the_server_settings">Settings sent to disk</string>
 
 </resources>

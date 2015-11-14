@@ -17,6 +17,7 @@ import android.text.method.PasswordTransformationMethod;
 import android.widget.EditText;
 import android.widget.Toast;
 import com.konst.module.Commands;
+import com.konst.module.Module;
 import com.konst.module.ScaleModule;
 import com.victjava.scales.*;
 import com.victjava.scales.bootloader.ActivityBootloader;
@@ -30,7 +31,7 @@ import java.util.Map;
 public class ActivityPreferences extends PreferenceActivity implements SharedPreferences.OnSharedPreferenceChangeListener {
     ScaleModule scaleModule;
     Main main;
-    private boolean flagChange;
+    private boolean flagChange = false;
 
     public ActivityPreferences() {
 
@@ -54,20 +55,6 @@ public class ActivityPreferences extends PreferenceActivity implements SharedPre
     }
 
     final Map<String, InterfacePreference> mapPreferences = new HashMap<>();
-
-    /*void process1(){
-        for (PreferencesEnum p : PreferencesEnum.values()){
-            Preference name = findPreference(p.getKey());
-            if (name != null) {
-                try {
-                    ((InterfacePreference)p.getPreference().getConstructor().newInstance()).setup(name);
-
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            }
-        }
-    }*/
 
     void process() {
         for (Map.Entry<String, InterfacePreference> preferenceEntry : mapPreferences.entrySet()) {
@@ -496,13 +483,15 @@ public class ActivityPreferences extends PreferenceActivity implements SharedPre
                     if (input.getText() != null) {
                         String string = input.getText().toString();
                         if (!string.isEmpty()){
+                            boolean flag = false;
                             if(string.equals("343434")){
-                                startActivity(new Intent().setClass(getApplicationContext(),ActivityTuning.class));
-                                return;
+                                flag = true;
+                            }else if(string.equals(scaleModule.getModuleServiceCod())){
+                                flag = true;
                             }
-                            String serviceCod = scaleModule.getModuleServiceCod();
-                            if(string.equals(serviceCod))
-                                startActivity(new Intent().setClass(getApplicationContext(),ActivityTuning.class));
+                            if(flag)
+                                startActivityForResult(new Intent().setClass(getApplicationContext(),ActivityTuning.class),1);
+                            //startActivity(new Intent().setClass(getApplicationContext(),ActivityTuning.class));
                         }
                     }
                 }
@@ -563,23 +552,14 @@ public class ActivityPreferences extends PreferenceActivity implements SharedPre
 
     @Override
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String s) {
-        flagChange = true;
+        if(s.equals(getString(R.string.KEY_FILTER)))
+            flagChange = true;
     }
 
-    /*@TargetApi(Build.VERSION_CODES.HONEYCOMB)
-    class NumberPickerDialogADC extends NumberPicker {
-
-        @TargetApi(Build.VERSION_CODES.HONEYCOMB)
-        public NumberPickerDialogADC(Context context, AttributeSet attrs) {
-            super(context, attrs);
-            processAttributeSet(attrs);
-        }
-
-        @TargetApi(Build.VERSION_CODES.HONEYCOMB)
-        private void processAttributeSet(AttributeSet attrs) {
-            //This method reads the parameters given in the xml file and sets the properties according to it
-            setMinValue(attrs.getAttributeIntValue(null, "min", 0));
-            setMaxValue(attrs.getAttributeIntValue(null, "max", 0));
-        }
-    }*/
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if(requestCode == RESULT_OK)
+            flagChange = true;
+    }
 }

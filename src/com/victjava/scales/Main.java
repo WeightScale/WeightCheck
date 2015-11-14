@@ -7,8 +7,13 @@ import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import com.konst.module.BootModule;
 import com.konst.module.ScaleModule;
+import com.victjava.scales.provider.CheckTable;
 import com.victjava.scales.provider.ErrorTable;
 import com.victjava.scales.service.ServiceSmsCommand;
+import org.xml.sax.SAXException;
+
+import javax.xml.parsers.ParserConfigurationException;
+import java.io.IOException;
 
 /**
  * @author Kostya
@@ -16,6 +21,9 @@ import com.victjava.scales.service.ServiceSmsCommand;
 public class Main extends Application {
     ScaleModule scaleModule;
     BootModule bootModule;
+    /** Класс формы для передачи данных весового чека. */
+    //private GoogleForms.Form formWeightCheck;
+    //private GoogleForms.Form formSettings;
     /**
      * Настройки для весов.
      */
@@ -206,10 +214,13 @@ public class Main extends Application {
         this.networkCountry = networkCountry;
     }
 
+    //public GoogleForms.Form getFormWeightCheck() { return formWeightCheck; }
+
+    //public GoogleForms.Form getFormSettings() { return formSettings; }
+
     @Override
     public void onCreate() {
         super.onCreate();
-
         try {
             PackageManager packageManager = getPackageManager();
             packageInfo = packageManager.getPackageInfo(getPackageName(), 0);
@@ -231,8 +242,22 @@ public class Main extends Application {
         //ScaleModule.setWeightError(Preferences.read(getString(R.string.KEY_MAX_NULL), default_limit_auto_null));
         timeDelayDetectCapture = Preferences.read(getString(R.string.KEY_TIME_DELAY_DETECT_CAPTURE), 1);
 
+
+
+        /*try {
+            GoogleForms googleForms = new GoogleForms(getApplicationContext(), R.raw.forms);
+            //GoogleForms forms = new GoogleForms(getAssets().open("forms/forms.xml"));
+            formWeightCheck =googleForms.createForm("WeightCheck");
+            formSettings = googleForms.createForm("Settings");
+            //formSettings = forms.createForm("Settings");
+            //formWeightCheck =forms.createForm("WeightCheck");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }*/
+
         /** Запускаем сервис для приемеа смс команд. */
         getApplicationContext().startService(new Intent(getApplicationContext(), ServiceSmsCommand.class));
+
     }
 
 }

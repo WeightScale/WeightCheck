@@ -1,0 +1,16 @@
+#https://docs.google.com/forms/d/117-f2NFmZxfdfOhdJ6kzGwQvpjbVRsjgmsGY6JjGBHQ/formResponse?entry.1441332821=qqq&entry.1983318826=777&&submit=Submit
+http
+https://docs.google.com/forms/d/117-f2NFmZxfdfOhdJ6kzGwQvpjbVRsjgmsGY6JjGBHQ/formResponse
+entry
+dateCreate entry.1441332821
+timeCreate entry.1983318826
+numberBt entry.1062610911
+weightFirst entry.902540249
+weightSecond entry.187366568
+weightNetto entry.1077231488
+vendor entry.1254449122
+type entry.1829921629
+price entry.705952121
+priceSum entry.388566512
+direct entry.1426959973
+checkIsReady entry.1397298110

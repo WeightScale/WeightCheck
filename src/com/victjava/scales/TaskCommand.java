@@ -304,7 +304,8 @@ public class TaskCommand extends CheckTable {
      * Класс для отправки чека http post
      */
     public class CheckTokHttpPost implements InterfaceTaskCommand {
-
+        //private String pathFile = "forms/forms.xml";
+        //private String nameForm = "WeightCheck";
         final Map<String, ArrayList<ObjectParcel>> mapChecksProcessed = new HashMap<>();
 
         public CheckTokHttpPost() {
@@ -323,25 +324,32 @@ public class TaskCommand extends CheckTable {
                         return;
                     }
                     for (Map.Entry<String, ContentValues> entry : map.entrySet()) {
+                        Message msg;
                         int taskId = Integer.valueOf(entry.getKey());
                         int checkId = Integer.valueOf(entry.getValue().get(TaskTable.KEY_DOC).toString());
-                        String http = entry.getValue().get(TaskTable.KEY_DATA0).toString();
-                        String[] values = entry.getValue().get(TaskTable.KEY_DATA1).toString().split(" ");
                         Cursor check = getEntryItem(checkId);
-                        List<BasicNameValuePair> results = new ArrayList<>();
-                        for (String postName : values) {
-                            String[] pair = postName.split("=");
-                            try {
-                                results.add(new BasicNameValuePair(pair[0], check.getString(check.getColumnIndex(pair[1]))));
-                            } catch (Exception e) {}
-                        }
-                        Message msg;
                         try {
+                            String pathFile = entry.getValue().get(TaskTable.KEY_DATA0).toString();
+                            String nameForm = entry.getValue().get(TaskTable.KEY_DATA1).toString();
+                            /** Класс формы для передачи данных весового чека. */
+                            GoogleForms.Form form = new GoogleForms(mContext.getAssets().open(pathFile)).createForm(nameForm);
+                            String http = form.getHttp();
+                            String[] values = form.getParams().split(" ");
+                            //String http = entry.getValue().get(TaskTable.KEY_DATA0).toString();
+                            //String[] values = entry.getValue().get(TaskTable.KEY_DATA1).toString().split(" ");
+
+                            List<BasicNameValuePair> results = new ArrayList<>();
+                            for (String postName : values) {
+                                String[] pair = postName.split("=");
+                                try {
+                                    results.add(new BasicNameValuePair(pair[0], check.getString(check.getColumnIndex(pair[1]))));
+                                } catch (Exception e) {}
+                            }
                             submitData(http, results);
                             mapChecksProcessed.get(MAP_CHECKS_SEND).add(new ObjectParcel(checkId, mContext.getString(R.string.sent_to_the_server)));
                             msg = mHandler.obtainMessage(NotifyType.HANDLER_NOTIFY_HTTP.ordinal(), checkId, taskId, mapChecksProcessed.get(MAP_CHECKS_SEND));
                         } catch (Exception e) {
-                            mapChecksProcessed.get(MAP_CHECKS_UNSEND).add(new ObjectParcel(checkId, "Не отправлен " + e.getMessage()));
+                            mapChecksProcessed.get(MAP_CHECKS_UNSEND).add(new ObjectParcel(checkId, "Ошибка " + e.toString()));
                             msg = mHandler.obtainMessage(NotifyType.HANDLER_NOTIFY_CHECK_UNSEND.ordinal(), checkId, taskId, mapChecksProcessed.get(MAP_CHECKS_UNSEND));
                             mHandler.handleError(401, e.getMessage());
                         }
@@ -686,21 +694,30 @@ public class TaskCommand extends CheckTable {
                         mHandler.sendEmptyMessage(NotifyType.HANDLER_FINISH_THREAD.ordinal());
                         return;
                     }
+
                     for (Map.Entry<String, ContentValues> entry : map.entrySet()) {
+                        Message msg = new Message();
                         int taskId = Integer.valueOf(entry.getKey());
                         int prefId = Integer.valueOf(entry.getValue().get(TaskTable.KEY_DOC).toString());
-                        String http = entry.getValue().get(TaskTable.KEY_DATA0).toString();
-                        String[] values = entry.getValue().get(TaskTable.KEY_DATA1).toString().split(" ");
                         Cursor pref = new PreferencesTable(mContext).getEntryItem(prefId);
-                        List<BasicNameValuePair> results = new ArrayList<>();
-                        for (String postName : values) {
-                            String[] pair = postName.split("=");
-                            try {
-                                results.add(new BasicNameValuePair(pair[0], pref.getString(pref.getColumnIndex(pair[1]))));
-                            } catch (Exception e) {}
-                        }
-                        Message msg = new Message();
                         try {
+                            String pathFile = entry.getValue().get(TaskTable.KEY_DATA0).toString();
+                            String nameForm = entry.getValue().get(TaskTable.KEY_DATA1).toString();
+                            /** Класс формы для передачи данных весового чека. */
+                            GoogleForms.Form form = new GoogleForms(mContext.getAssets().open(pathFile)).createForm(nameForm);
+                            String http = form.getHttp();
+                            String[] values = form.getParams().split(" ");
+
+                            //String http = entry.getValue().get(TaskTable.KEY_DATA0).toString();
+                            //String[] values = entry.getValue().get(TaskTable.KEY_DATA1).toString().split(" ");
+
+                            List<BasicNameValuePair> results = new ArrayList<>();
+                            for (String postName : values) {
+                                String[] pair = postName.split("=");
+                                try {
+                                    results.add(new BasicNameValuePair(pair[0], pref.getString(pref.getColumnIndex(pair[1]))));
+                                } catch (Exception e) {}
+                            }
                             submitData(http, results);
                             mapPrefProcessed.get(MAP_PREF_SEND).add(new ObjectParcel(prefId, mContext.getString(R.string.sent_to_the_server)));
                             msg = mHandler.obtainMessage(NotifyType.HANDLER_NOTIFY_PREF.ordinal(), prefId, taskId, mapPrefProcessed.get(MAP_PREF_SEND));

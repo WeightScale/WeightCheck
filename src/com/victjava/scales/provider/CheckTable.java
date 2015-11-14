@@ -9,7 +9,10 @@ import com.konst.module.ScaleModule;
 import com.victjava.scales.Main;
 import com.victjava.scales.R;
 import org.apache.http.message.BasicNameValuePair;
+import org.xmlpull.v1.XmlPullParser;
+import org.xmlpull.v1.XmlPullParserException;
 
+import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;

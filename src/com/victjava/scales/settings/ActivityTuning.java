@@ -660,6 +660,12 @@ public class ActivityTuning extends PreferenceActivity {
                 Toast.makeText(getApplicationContext(), R.string.preferences_no, Toast.LENGTH_SHORT).show();
             }
         }
+    }
 
+    @Override
+    public void onBackPressed() {
+        if(flag_restore)
+            setResult(RESULT_OK, new Intent());
+        super.onBackPressed();
     }
 }

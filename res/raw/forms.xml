@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<GoogleForms>>
+    <WeightCheck http="https://docs.google.com/forms/d/117-f2NFmZxfdfOhdJ6kzGwQvpjbVRsjgmsGY6JjGBHQ/formResponse">
+        <Entrys >
+            <Table name="checkTable">
+                <Columns entry.1441332821="dateCreate"
+                         entry.1983318826="timeCreate"
+                         entry.1062610911="numberBt"
+                         entry.902540249="weightFirst"
+                         entry.187366568="weightSecond"
+                         entry.1077231488="weightNetto"
+                         entry.1254449122="vendor"
+                         entry.1829921629="type"
+                         entry.705952121="price"
+                         entry.388566512="priceSum"
+                         entry.1426959973="direct"
+                         entry.1397298110="checkIsReady"/>
+            </Table>
+        </Entrys>
+    </WeightCheck>
+    <Settings http="https://docs.google.com/forms/d/1OgkOpa7gQ_YZ_F3M_Acmi9pfEkZx3iBIbWVndXPMtIg/formResponse">
+        <Entrys>
+            <Table name="preferencesTable">
+                <Columns entry.1498535599="dateCreate"
+                         entry.56569624="timeCreate"
+                         entry.1590463236="numberBt"
+                         entry.1721238491="coefficientA"
+                         entry.1965274353="maxWeight"
+                         entry.1353741028="filterADC"
+                         entry.1853590043="numberBtTerminal"/>
+            </Table>
+            <Phone entry.1628949848="numberPhone"/>
+        </Entrys>
+    </Settings>
+</GoogleForms>
