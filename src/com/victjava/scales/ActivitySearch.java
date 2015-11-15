@@ -25,14 +25,6 @@ public class ActivitySearch extends Activity implements View.OnClickListener {
     private ListView listView; //список весов
     private TextView textViewLog; //лог событий
     private Module module;
-
-    //private LinearLayout linearScreen;//лайаут для экрана показывать когда загрузились настройки
-
-    //public static int versionNumber;
-    //public static String versionName = "";
-    //static boolean flag_connect = false;
-
-    //private boolean doubleBackToExitPressedOnce;
     //==================================================================================================================
     private final AdapterView.OnItemClickListener onItemClickListener = new AdapterView.OnItemClickListener() {
         @Override
@@ -56,6 +48,7 @@ public class ActivitySearch extends Activity implements View.OnClickListener {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
+
         setContentView(R.layout.search);
 
         setTitle(getString(R.string.Search_scale)); //установить заголовок
@@ -63,7 +56,7 @@ public class ActivitySearch extends Activity implements View.OnClickListener {
         WindowManager.LayoutParams lp = getWindow().getAttributes();
         lp.screenBrightness = 1.0f;
         getWindow().setAttributes(lp);
-
+        setProgressBarIndeterminateVisibility(false);
         //Vibrator vibrator = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
         textViewLog = (TextView) findViewById(R.id.textLog);
 
@@ -111,6 +104,7 @@ public class ActivitySearch extends Activity implements View.OnClickListener {
                     else if(BluetoothAdapter.ACTION_DISCOVERY_FINISHED.equals(action)) {  //case BluetoothAdapter.ACTION_DISCOVERY_FINISHED:  //поиск завершён
                         log("Поиск завершён");
                         setProgressBarIndeterminateVisibility(false);
+                        setTitle(getString(R.string.Search_scale)); //установить заголовок
                     }//break;
                     else if (BluetoothDevice.ACTION_ACL_CONNECTED.equals(action)) {//case BluetoothDevice.ACTION_ACL_CONNECTED:
                         setProgressBarIndeterminateVisibility(false);
@@ -291,7 +285,6 @@ public class ActivitySearch extends Activity implements View.OnClickListener {
                             dialogSearch.setContentView(R.layout.custom_progress_dialog);
                             TextView tv1 = (TextView) dialogSearch.findViewById(R.id.textView1);
                             tv1.setText(getString(R.string.Connecting) + '\n' + module.getNameBluetoothDevice());
-                            log("Start");
                             setProgressBarIndeterminateVisibility(true);
                             setTitle(getString(R.string.Connecting) + getString(R.string.app_name) + ' ' + module.getNameBluetoothDevice()); //установить заголовок
                             break;
@@ -301,10 +294,8 @@ public class ActivitySearch extends Activity implements View.OnClickListener {
                             if (dialogSearch.isShowing()) {
                                 dialogSearch.dismiss();
                             }
-                            log("Finish");
                             break;
                         default:
-                            log("default");
                     }
                 }
             });
@@ -369,7 +360,6 @@ public class ActivitySearch extends Activity implements View.OnClickListener {
                             log(getString(R.string.Error_connect) + s);
                             break;
                         default:
-                            log("error default");
                     }
                 }
             });

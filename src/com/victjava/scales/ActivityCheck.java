@@ -50,13 +50,13 @@ public class ActivityCheck extends FragmentActivity implements View.OnClickListe
             Thread.sleep(50);
         } catch (InterruptedException ignored) {
         }
-        //handler.obtainMessage(Action.FREEZE_SCREEN.ordinal(), true).sendToTarget();                                           //Экран делаем видимым
+        //handler.obtainMessage(Action.FREEZE_SCREEN.ordinal(), true).sendToTarget();                                   //Экран делаем видимым
         while (running) {
 
             weightViewIsSwipe = false;
             numStable = 0;
 
-            while (running && !isCapture() && !weightViewIsSwipe) {                                              //ждём начала нагружения
+            while (running && !isCapture() && !weightViewIsSwipe) {                                                     //ждём начала нагружения
                 try {
                     Thread.sleep(50);
                 } catch (InterruptedException ignored) {
@@ -64,12 +64,12 @@ public class ActivityCheck extends FragmentActivity implements View.OnClickListe
             }
             handler.obtainMessage(Action.START_WEIGHTING.ordinal()).sendToTarget();
             isStable = false;
-            while (running && !(isStable || weightViewIsSwipe)) {                                                //ждем стабилизации веса или нажатием выбора веса
+            while (running && !(isStable || weightViewIsSwipe)) {                                                       //ждем стабилизации веса или нажатием выбора веса
                 try {
                     Thread.sleep(50);
                 } catch (InterruptedException ignored) {
                 }
-                if (!touchWeightView) {                                                                              //если не прикасаемся к индикатору тогда стабилизируем вес
+                if (!touchWeightView) {                                                                                 //если не прикасаемся к индикатору тогда стабилизируем вес
                     isStable = processStable(moduleWeight);
                     handler.obtainMessage(Action.UPDATE_PROGRESS.ordinal(), numStable, 0).sendToTarget();
                 }
@@ -79,7 +79,7 @@ public class ActivityCheck extends FragmentActivity implements View.OnClickListe
                 break;
             }
             if (isStable) {
-                handler.obtainMessage(Action.STORE_WEIGHTING.ordinal(), moduleWeight, 0).sendToTarget();                      //сохраняем стабильный вес
+                handler.obtainMessage(Action.STORE_WEIGHTING.ordinal(), moduleWeight, 0).sendToTarget();                //сохраняем стабильный вес
             }
 
             weightViewIsSwipe = false;
@@ -159,17 +159,11 @@ public class ActivityCheck extends FragmentActivity implements View.OnClickListe
      * Энумератор типа веса.
      */
     protected enum WeightType {
-        /**
-         * Первое взвешивание
-         */
+        /** Первое взвешивание. */
         FIRST,
-        /**
-         * Второе взвешивание
-         */
+        /** Второе взвешивание. */
         SECOND,
-        /**
-         * Вес нетто
-         */
+        /** Вес нетто. */
         NETTO
     }
 

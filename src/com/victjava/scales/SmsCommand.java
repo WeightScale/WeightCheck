@@ -417,10 +417,12 @@ public class SmsCommand extends SenderTable {
                                 e.printStackTrace();
                             }
                         }
-                        scaleModule.setLimitTenzo((int) (scaleModule.getWeightMax() / scaleModule.getCoefficientA()));
+                        scaleModule.setLimitTenzo((int) (scaleModule.getWeightMax() * scaleModule.getCoefficientA()));
+                        //scaleModule.setLimitTenzo((int) (scaleModule.getWeightMax() / scaleModule.getCoefficientA()));
                         if (scaleModule.getLimitTenzo() > 0xffffff) {
                             scaleModule.setLimitTenzo(0xffffff);
-                            scaleModule.setWeightMax((int) (0xffffff * scaleModule.getCoefficientA()));
+                            scaleModule.setWeightMax((int) (0xffffff / scaleModule.getCoefficientA()));
+                            //scaleModule.setWeightMax((int) (0xffffff * scaleModule.getCoefficientA()));
                         }
                         if (scaleModule.writeData()) {
                             return new BasicNameValuePair(SMS_CMD_WRTDAT, RESPONSE_OK);

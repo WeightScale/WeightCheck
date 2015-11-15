@@ -42,7 +42,7 @@ public class GoogleForms {
         Form form = new Form();
         Node node = document.getElementsByTagName(name).item(0);
         if(node == null)
-            throw new Exception("Нет формы с именем " + name + " в файле forms.xml");
+            throw new Exception("Нет формы с именем " + name + " в файле disk.xml");
         form.setHttp(node.getAttributes().getNamedItem("http").getNodeValue());
         for (int i=0; i < node.getChildNodes().getLength() ; i++){
             Node entrys = node.getChildNodes().item(i);

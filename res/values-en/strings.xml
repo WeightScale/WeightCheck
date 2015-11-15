@@ -96,8 +96,8 @@
     <string name="terminal">Terminal:</string>
     <string name="Scale">Scale:</string>
     <string name="Version_scale">Firmware Version weights: v.</string>
-    <string name="Name_module_bluetooth">"Name bluetooth module: "</string>
-    <string name="Address_bluetooth">"Address bluetooth module: "</string>
+    <string name="Name_module_bluetooth">"Name bluetooth: "</string>
+    <string name="Address_bluetooth">"Address bluetooth: "</string>
     <string name="Operator">"Telecommunications operator: "</string>
     <string name="Number_phone">"Phone number: "</string>
     <string name="Battery">"Battery: "</string>
@@ -177,7 +177,7 @@
     <string name="Send_to_mail">Sent to the mail</string>
     <string name="Send_to_phone">Sent to phone</string>
     <string name="Message_sent">Message sent</string>
-    <string name="Phone_for_sms">Phone for sms</string>
+    <string name="Phone_for_sms">"Phone for sms: "</string>
     <string name="incoming">incoming</string>
     <string name="outgo">outgo</string>
     <string name="Scale_off">Power off</string>

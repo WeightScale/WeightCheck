@@ -1,7 +1,12 @@
 package com.victjava.scales;
 
 import android.app.Activity;
+import android.graphics.Typeface;
 import android.os.Bundle;
+import android.text.SpannableStringBuilder;
+import android.text.Spanned;
+import android.text.style.StyleSpan;
+import android.text.style.TextAppearanceSpan;
 import android.view.WindowManager;
 import android.widget.TextView;
 import com.konst.module.ScaleModule;
@@ -10,8 +15,132 @@ import com.konst.module.ScaleModule;
  * Created by Kostya on 26.04.14.
  */
 public class ActivityAbout extends Activity {
-    ScaleModule scaleModule;
-    Main main;
+    static ScaleModule scaleModule;
+    static Main main;
+    enum StrokeSettings{
+        VERSION(R.string.Version_scale){
+            @Override
+            String getValue() {
+                return String.valueOf(scaleModule.getNumVersion()); }
+
+            @Override
+            int getMeasure() { return -1; }
+        },
+        NAME_BLUETOOTH(R.string.Name_module_bluetooth) {
+            @Override
+            String getValue() {return scaleModule.getNameBluetoothDevice().toString(); }
+
+            @Override
+            int getMeasure() { return -1;}
+        },
+        ADDRESS_BLUETOOTH(R.string.Address_bluetooth) {
+            @Override
+            String getValue() { return scaleModule.getAddressBluetoothDevice() + "\n"; }
+
+            @Override
+            int getMeasure() { return -1; }
+        },
+        OPERATOR(R.string.Operator){
+            @Override
+            String getValue() {return main.getNetworkOperatorName(); }
+
+            @Override
+            int getMeasure() { return -1; }
+        },
+        PHONE(R.string.Number_phone){
+            @Override
+            String getValue() { return  main.getTelephoneNumber() + "\n"; }
+
+            @Override
+            int getMeasure() {  return -1;  }
+        },
+        SPREADSHEET(R.string.Table_google_disk) {
+            @Override
+            String getValue() { return scaleModule.getSpreadSheet(); }
+
+            @Override
+            int getMeasure() { return -1; }
+        },
+        USER_NAME(R.string.User_google_disk) {
+            @Override
+            String getValue() { return scaleModule.getUserName(); }
+
+            @Override
+            int getMeasure() { return -1;}
+        },
+        ADDRESS_SMS(R.string.Phone_for_sms) {
+            @Override
+            String getValue() { return scaleModule.getPhone() + "\n"; }
+
+            @Override
+            int getMeasure() {  return -1;  }
+        },
+        BATTERY(R.string.Battery) {
+            @Override
+            String getValue() { return scaleModule.getBattery() + " %"; }
+
+            @Override
+            int getMeasure() { return -1; }
+        },
+        TEMPERATURE(R.string.Temperature) {
+            @Override
+            String getValue() {
+                return scaleModule.isAttach()?scaleModule.getModuleTemperature() + "°" + "C":"error"+"\n";
+            }
+
+            @Override
+            int getMeasure() { return -1; }
+        },
+        COEFFICIENT_A(R.string.Coefficient) {
+            @Override
+            String getValue() {  return String.valueOf(scaleModule.getCoefficientA()); }
+
+            @Override
+            int getMeasure() { return -1; }
+        },
+        WEIGHT_MAX(R.string.MLW) {
+            int resIdKg = R.string.scales_kg;
+            @Override
+            String getValue() {  return scaleModule.getWeightMax() + " "; }
+
+            @Override
+            int getMeasure() { return resIdKg; }
+        },
+        TIME_OFF(R.string.Off_timer) {
+            int reIdMinute = R.string.minute;
+            @Override
+            String getValue() { return scaleModule.getTimeOff() + " "; }
+
+            @Override
+            int getMeasure() { return reIdMinute; }
+        },
+        STEP(R.string.Step_capacity_scale){
+            int resIdKg = R.string.scales_kg;
+            @Override
+            String getValue() { return main.getStepMeasuring() + " "; }
+
+            @Override
+            int getMeasure() {  return resIdKg; }
+        },
+        CAPTURE(R.string.Capture_weight){
+            int resIdKg = R.string.scales_kg;
+            @Override
+            String getValue() {  return main.getAutoCapture() + " "; }
+
+            @Override
+            int getMeasure() {   return resIdKg;  }
+        };
+
+        private int resId;
+        abstract String getValue();
+        abstract int getMeasure();
+
+        StrokeSettings(int res){
+            resId = res;
+        }
+
+        public int getResId() {return resId;}
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -30,40 +159,31 @@ public class ActivityAbout extends Activity {
         textSoftVersion.setText(main.getVersionName() + ' ' + String.valueOf(main.getVersionNumber()));
 
         TextView textSettings = (TextView) findViewById(R.id.textSettings);
-        textSettings.append(getString(R.string.Version_scale) + scaleModule.getNumVersion() + '\n');
-        try {
-            textSettings.append(getString(R.string.Name_module_bluetooth) + scaleModule.getNameBluetoothDevice() + '\n');
-        } catch (Exception e) {
-            textSettings.append(getString(R.string.Name_module_bluetooth) + '\n');
-        }
-        try {
-            textSettings.append(getString(R.string.Address_bluetooth) + scaleModule.getAddressBluetoothDevice() + '\n');
-        } catch (Exception e) {
-            textSettings.append(getString(R.string.Address_bluetooth) + '\n');
-        }
-
-        textSettings.append("\n");
-        textSettings.append(getString(R.string.Operator) + main.getNetworkOperatorName() + '\n');
-        textSettings.append(getString(R.string.Number_phone) + main.getTelephoneNumber() + '\n');
-        textSettings.append("\n");
-        textSettings.append(getString(R.string.Battery) + scaleModule.getBattery() + " %" + '\n');
-        if (scaleModule.isAttach()) {
-            textSettings.append(getString(R.string.Temperature) + scaleModule.getModuleTemperature() + '°' + 'C' + '\n');
-        }
-        textSettings.append(getString(R.string.Coefficient) + scaleModule.getCoefficientA() + '\n');
-        textSettings.append(getString(R.string.MLW) + scaleModule.getWeightMax() + ' ' + getString(R.string.scales_kg) + '\n');
-        textSettings.append("\n");
-        textSettings.append(getString(R.string.Table_google_disk) + scaleModule.getSpreadSheet() + '\n');
-        textSettings.append(getString(R.string.User_google_disk) + scaleModule.getUserName() + '\n');
-        textSettings.append(getString(R.string.Phone_for_sms) + scaleModule.getPhone() + '\n');
-        textSettings.append("\n");
-        textSettings.append(getString(R.string.Off_timer) + scaleModule.getTimeOff() + ' ' + getString(R.string.minute) + '\n');
-        textSettings.append(getString(R.string.Step_capacity_scale) + main.getStepMeasuring() + ' ' + getString(R.string.scales_kg) + '\n');
-        textSettings.append(getString(R.string.Capture_weight) + main.getAutoCapture() + ' ' + getString(R.string.scales_kg) + '\n');
+        parserTextSettings(textSettings);
         textSettings.append("\n");
 
         TextView textAuthority = (TextView) findViewById(R.id.textAuthority);
         textAuthority.append(getString(R.string.Copyright) + '\n');
         textAuthority.append(getString(R.string.Reserved) + '\n');
+    }
+
+    void parserTextSettings(TextView textView){
+        for (StrokeSettings s : StrokeSettings.values()){
+            try {
+                SpannableStringBuilder text = new SpannableStringBuilder(getString(s.getResId()));
+                text.setSpan(new StyleSpan(Typeface.NORMAL), 0, text.length(), Spanned.SPAN_MARK_MARK);
+                //text.setSpan(new TextAppearanceSpan(this, R.style.SpanTextAboutText), 0, text.length(), Spanned.SPAN_INCLUSIVE_INCLUSIVE);
+                textView.append(text);
+                SpannableStringBuilder value = new SpannableStringBuilder(s.getValue());
+                value.setSpan(new StyleSpan(Typeface.BOLD_ITALIC),0,value.length(), Spanned.SPAN_MARK_MARK);
+                //value.setSpan(new TextAppearanceSpan(this, R.style.SpanTextAboutValue),0,value.length(), Spanned.SPAN_INCLUSIVE_INCLUSIVE);
+                textView.append(value);
+                textView.append((s.getMeasure() == -1 ? "" : getString(s.getMeasure())) + "\n");
+                //textView.append(getString(s.getResId()) + value /*s.getValue()*/ + (s.getMeasure() == -1 ? "" : getString(s.getMeasure())) + "\n");
+            }catch (Exception e){
+                textView.append("\n");
+            }
+
+        }
     }
 }

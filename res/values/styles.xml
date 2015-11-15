@@ -244,4 +244,12 @@
         <item name="maxFilterADC">15</item>
     </style>
 
+    <style name="SpanTextAboutValue" parent="@android:style/TextAppearance">
+        <item name="android:textStyle">bold</item>
+    </style>
+
+    <style name="SpanTextAboutText" parent="@android:style/TextAppearance">
+        <item name="android:textStyle">normal</item>
+    </style>
+
 </resources>

@@ -1,14 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!--
-  ~ Copyright (c) 2015. Lorem ipsum dolor sit amet, consectetur adipiscing elit.
-  ~ Morbi non lorem porttitor neque feugiat blandit. Ut vitae ipsum eget quam lacinia accumsan.
-  ~ Etiam sed turpis ac ipsum condimentum fringilla. Maecenas magna.
-  ~ Proin dapibus sapien vel ante. Aliquam erat volutpat. Pellentesque sagittis ligula eget metus.
-  ~ Vestibulum commodo. Ut rhoncus gravida arcu.
-  -->
-
-<GoogleForms>>
-    <WeightCheck http="https://docs.google.com/forms/d/117-f2NFmZxfdfOhdJ6kzGwQvpjbVRsjgmsGY6JjGBHQ/formResponse">
+<GoogleDisk mail="weight.check.ua@gmail.com" password="htcehc24">
+    <WeightCheckForm http="https://docs.google.com/forms/d/117-f2NFmZxfdfOhdJ6kzGwQvpjbVRsjgmsGY6JjGBHQ/formResponse">
         <Entrys >
             <Table name="checkTable">
                 <Columns entry.1441332821="dateCreate"
@@ -25,8 +17,8 @@
                          entry.1397298110="checkIsReady"/>
             </Table>
         </Entrys>
-    </WeightCheck>
-    <Settings http="https://docs.google.com/forms/d/1OgkOpa7gQ_YZ_F3M_Acmi9pfEkZx3iBIbWVndXPMtIg/formResponse">
+    </WeightCheckForm>
+    <SettingsForm http="https://docs.google.com/forms/d/1OgkOpa7gQ_YZ_F3M_Acmi9pfEkZx3iBIbWVndXPMtIg/formResponse">
         <Entrys>
             <Table name="preferencesTable">
                 <Columns entry.1498535599="dateCreate"
@@ -39,5 +31,5 @@
             </Table>
             <Phone entry.1628949848="numberPhone"/>
         </Entrys>
-    </Settings>
-</GoogleForms>
+    </SettingsForm>
+</GoogleDisk>

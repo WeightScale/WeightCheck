@@ -646,13 +646,17 @@ public class ActivityTuning extends PreferenceActivity {
         super.onDestroy();
         if (flag_restore) {
             if (point1.x != Integer.MIN_VALUE && point2.x != Integer.MIN_VALUE) {
+                //scaleModule.setCoefficientA((float) (point1.x - point2.x)/(point1.y - point2.y));
                 scaleModule.setCoefficientA((float) (point1.y - point2.y) / (point1.x - point2.x));
+                //scaleModule.setCoefficientB(point1.y - point1.x/scaleModule.getCoefficientA() );
                 scaleModule.setCoefficientB(point1.y - scaleModule.getCoefficientA() * point1.x);
             }
+            //scaleModule.setLimitTenzo((int) (scaleModule.getWeightMax() * scaleModule.getCoefficientA()));
             scaleModule.setLimitTenzo((int) (scaleModule.getWeightMax() / scaleModule.getCoefficientA()));
             if (scaleModule.getLimitTenzo() > 0xffffff) {
                 scaleModule.setLimitTenzo(0xffffff);
-                scaleModule.setWeightMax((int) (0xffffff * scaleModule.getCoefficientA()));
+                scaleModule.setWeightMax((int) (0xffffff / scaleModule.getCoefficientA()));
+                //scaleModule.setWeightMax((int) (0xffffff * scaleModule.getCoefficientA()));
             }
             if (scaleModule.writeData()) {
                 Toast.makeText(getApplicationContext(), R.string.preferences_yes, Toast.LENGTH_SHORT).show();
