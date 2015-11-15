@@ -17,7 +17,6 @@ import android.text.method.PasswordTransformationMethod;
 import android.widget.EditText;
 import android.widget.Toast;
 import com.konst.module.Commands;
-import com.konst.module.Module;
 import com.konst.module.ScaleModule;
 import com.victjava.scales.*;
 import com.victjava.scales.bootloader.ActivityBootloader;
@@ -31,16 +30,12 @@ import java.util.Map;
 public class ActivityPreferences extends PreferenceActivity implements SharedPreferences.OnSharedPreferenceChangeListener {
     ScaleModule scaleModule;
     Main main;
-    private boolean flagChange = false;
-
-    public ActivityPreferences() {
-
-    }
+    private boolean flagChange;
 
     interface InterfacePreference {
         void setup(Preference name) throws Exception;
     }
-    public enum PreferencesEnum{
+    /*public enum PreferencesEnum{
         NAME("key_name", PreferenceName.class);
 
         final String key;
@@ -52,7 +47,7 @@ public class ActivityPreferences extends PreferenceActivity implements SharedPre
 
         public String getKey() { return key; }
         public Class getPreference() { return preference; }
-    }
+    }*/
 
     final Map<String, InterfacePreference> mapPreferences = new HashMap<>();
 
@@ -483,15 +478,9 @@ public class ActivityPreferences extends PreferenceActivity implements SharedPre
                     if (input.getText() != null) {
                         String string = input.getText().toString();
                         if (!string.isEmpty()){
-                            boolean flag = false;
-                            if(string.equals("343434")){
-                                flag = true;
-                            }else if(string.equals(scaleModule.getModuleServiceCod())){
-                                flag = true;
-                            }
-                            if(flag)
+                            if("343434".equals(string) || string.equals(scaleModule.getModuleServiceCod())){
                                 startActivityForResult(new Intent().setClass(getApplicationContext(),ActivityTuning.class),1);
-                            //startActivity(new Intent().setClass(getApplicationContext(),ActivityTuning.class));
+                            }
                         }
                     }
                 }

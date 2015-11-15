@@ -519,7 +519,7 @@ public class ActivityScales extends Activity implements View.OnClickListener, Vi
      */
     final OnEventConnectResult onEventConnectResult = new OnEventConnectResult() {
         AlertDialog.Builder dialog;
-        ProgressDialog dialogSearch;
+        //ProgressDialog dialogSearch;
 
         /** Сообщение о результате соединения
          * @param result Результат соединения энкмератор ResultConnect.

@@ -26,7 +26,7 @@ import java.util.Collection;
  * @author Kostya
  */
 public class GoogleForms {
-    private Document document;
+    private final Document document;
 
     GoogleForms(Context context, int xmlRawResource) throws IOException, SAXException, ParserConfigurationException {
         DocumentBuilder documentBuilder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
@@ -46,14 +46,14 @@ public class GoogleForms {
         form.setHttp(node.getAttributes().getNamedItem("http").getNodeValue());
         for (int i=0; i < node.getChildNodes().getLength() ; i++){
             Node entrys = node.getChildNodes().item(i);
-            if(entrys.getNodeName().equals("Entrys")){
+            if("Entrys".equals(entrys.getNodeName())){
                 for (int e=0; e < entrys.getChildNodes().getLength(); e++){
                     Node table = entrys.getChildNodes().item(e);
-                    if(table.getNodeName().equals("Table")){
+                    if("Table".equals(table.getNodeName())){
                         form.setTable(table.getAttributes().getNamedItem("name").getNodeValue());
                         for (int t=0; t < table.getChildNodes().getLength(); t++){
                             Node columns = table.getChildNodes().item(t);
-                            if(columns.getNodeName().equals("Columns")){
+                            if("Columns".equals(columns.getNodeName())){
                                 NamedNodeMap map = columns.getAttributes();
                                 Collection<BasicNameValuePair> collection = new ArrayList<>();
                                 for (int m=0; m < map.getLength(); m++){
@@ -70,7 +70,7 @@ public class GoogleForms {
         return form;
     }
 
-    public class Form{
+    public static class Form{
         String http = "";
         String table = "";
         Collection<BasicNameValuePair> entrys = new ArrayList<>();

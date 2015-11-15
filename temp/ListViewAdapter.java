@@ -39,7 +39,6 @@ class Component {
     private String subtitle;
 
     public Component(String t, String sub) {
-        // TODO Auto-generated constructor stub
         title = t;
         subtitle = sub;
 

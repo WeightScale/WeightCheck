@@ -254,18 +254,18 @@ public class ActivityTuning extends PreferenceActivity {
             dialog.show();
         }*/
 
-        final ScaleModule.OnEventResultWeight onEventResultWeight = new ScaleModule.OnEventResultWeight() {
+        /*final ScaleModule.OnEventResultWeight onEventResultWeight = new ScaleModule.OnEventResultWeight() {
             @Override
             public int weight(ScaleModule.ResultWeight what, int weight, final int sensor) {
-                /*runOnUiThread(new Runnable() {
+                *//*runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
                         textSensor.setText(String.valueOf(sensor));
                     }
-                });*/
+                });*//*
                 return 50;
             }
-        };
+        };*/
     }
 
     class WeightMax implements InterfacePreference{

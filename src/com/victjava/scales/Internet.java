@@ -241,7 +241,7 @@ public class Internet {
      * @param url Ссылка.
      * @return true - ответ ОК.
      */
-    protected static boolean send(URL url) {
+    /*protected static boolean send(URL url) {
         try {
             URLConnection urlConnection = url.openConnection();
             if (!(urlConnection instanceof HttpURLConnection)) {
@@ -259,13 +259,13 @@ public class Internet {
         } catch (IOException ignored) {
             return false;
         }
-    }
+    }*/
 
-    void sendIntentOnDataConnection(){
-        /*Intent intent=new Intent(Settings.ACTION_DATA_ROAMING_SETTINGS);
+    /*void sendIntentOnDataConnection(){
+        *//*Intent intent=new Intent(Settings.ACTION_DATA_ROAMING_SETTINGS);
         ComponentName cn = new ComponentName("com.android.phone","com.android.phone.Settings");
         intent.setComponent(cn);
-        mContext.startActivity(intent);*/
+        mContext.startActivity(intent);*//*
 
         Intent intent = new Intent();
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
@@ -273,17 +273,17 @@ public class Internet {
         intent.setAction(Settings.ACTION_QUICK_LAUNCH_SETTINGS);
         mContext.startActivity(intent);
 
-        /*final  Intent intent=new Intent(Settings.ACTION_DATA_ROAMING_SETTINGS);
+        *//*final  Intent intent=new Intent(Settings.ACTION_DATA_ROAMING_SETTINGS);
         intent.addCategory(Intent.CATEGORY_LAUNCHER);
         final ComponentName cn = new ComponentName("com.android.phone","com.android.phone.Settings");
         intent.setComponent(cn);
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        startActivity(intent);*/
+        startActivity(intent);*//*
 
-        /*Intent intent = new Intent(Intent.ACTION_MAIN);
+        *//*Intent intent = new Intent(Intent.ACTION_MAIN);
         intent.setClassName("com.android.phone", "com.android.phone.NetworkSetting");
         startActivity(intent);
-        */
-    }
+        *//*
+    }*/
 
 }

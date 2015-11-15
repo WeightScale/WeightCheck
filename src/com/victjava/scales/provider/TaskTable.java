@@ -92,7 +92,7 @@ public class TaskTable {
         return mContext.getContentResolver().insert(CONTENT_URI, newTaskValues);
     }
 
-    public boolean isTaskReady() {
+    /*public boolean isTaskReady() {
         try {
             boolean flag = false;
             Cursor result = mContext.getContentResolver().query(CONTENT_URI, null, null, null, null);
@@ -104,7 +104,7 @@ public class TaskTable {
         } catch (Exception e) {
             return false;
         }
-    }
+    }*/
 
     public Cursor getAllEntries() {
         return mContext.getContentResolver().query(CONTENT_URI, null, null, null, null);

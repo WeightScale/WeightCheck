@@ -161,7 +161,7 @@ public class ServiceSmsCommand extends Service {
      */
     public class ProcessingSmsThread extends Thread {
         private boolean start;
-        private boolean cancelled;
+        //private boolean cancelled;
         private final SMS sms;
         private final List<SMS.SmsObject> smsInboxList;
         private final Context mContext;
@@ -178,13 +178,13 @@ public class ServiceSmsCommand extends Service {
             start = true;
         }
 
-        private void cancel() {
+        /*private void cancel() {
             cancelled = true;
-        }
+        }*/
 
-        public boolean isStart() {
+        /*public boolean isStart() {
             return start;
-        }
+        }*/
 
         @Override
         public void run() {

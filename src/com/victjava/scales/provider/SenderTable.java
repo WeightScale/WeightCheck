@@ -57,7 +57,7 @@ public class SenderTable {
         return contentResolver.query(CONTENT_URI, null, null, null, null);
     }
 
-    public Cursor getEntryItem(int _rowIndex) {
+    /*public Cursor getEntryItem(int _rowIndex) {
         Uri uri = ContentUris.withAppendedId(CONTENT_URI, _rowIndex);
         try {
             Cursor result = contentResolver.query(uri, null, null, null, null);
@@ -66,7 +66,7 @@ public class SenderTable {
         } catch (Exception e) {
             return null;
         }
-    }
+    }*/
 
     public Cursor geSystemItem() {
         return contentResolver.query(CONTENT_URI, null, KEY_SYS + "= 1", null, null);
@@ -76,10 +76,10 @@ public class SenderTable {
         return contentResolver.query(CONTENT_URI, null, KEY_TYPE + "= " + type, null, null);
     }
 
-    public boolean removeEntry(int _rowIndex) {
+    /*public boolean removeEntry(int _rowIndex) {
         Uri uri = ContentUris.withAppendedId(CONTENT_URI, _rowIndex);
         return uri != null && contentResolver.delete(uri, null, null) > 0;
-    }
+    }*/
 
     public boolean updateEntry(int _rowIndex, String key, int in) {
         Uri uri = ContentUris.withAppendedId(CONTENT_URI, _rowIndex);

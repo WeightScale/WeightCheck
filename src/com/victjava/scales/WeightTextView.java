@@ -67,9 +67,9 @@ public class WeightTextView extends ProgressBar {
         postInvalidate();
     }
 
-    private void setTextColor(int color) {
+    /*private void setTextColor(int color) {
         textColor = color;
         postInvalidate();
-    }
+    }*/
 
 }

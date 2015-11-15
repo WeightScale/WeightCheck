@@ -543,7 +543,7 @@ public class ActivityCheck extends FragmentActivity implements View.OnClickListe
             private final Class<?> mClass;
             private final Bundle args;
 
-            TabInfo(final String _tag, final Class<?> _class, final Bundle _args) {
+            TabInfo(final Class<?> _class, final Bundle _args) {
                 mClass = _class;
                 args = _args;
             }
@@ -589,7 +589,7 @@ public class ActivityCheck extends FragmentActivity implements View.OnClickListe
 
             tabSpec.setContent(new DummyTabFactory(mContext));
             String tag = tabSpec.getTag();
-            TabInfo info = new TabInfo(tag, _class, null);
+            TabInfo info = new TabInfo(_class, null);
 
             mTabs.add(info);
             mTabHost.addTab(tabSpec);

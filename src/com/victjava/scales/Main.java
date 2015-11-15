@@ -7,13 +7,8 @@ import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import com.konst.module.BootModule;
 import com.konst.module.ScaleModule;
-import com.victjava.scales.provider.CheckTable;
 import com.victjava.scales.provider.ErrorTable;
 import com.victjava.scales.service.ServiceSmsCommand;
-import org.xml.sax.SAXException;
-
-import javax.xml.parsers.ParserConfigurationException;
-import java.io.IOException;
 
 /**
  * @author Kostya
@@ -182,13 +177,13 @@ public class Main extends Application {
         this.telephoneNumber = telephoneNumber;
     }
 
-    public String getNetworkCountry() {
+    /*public String getNetworkCountry() {
         return networkCountry;
-    }
+    }*/
 
-    public String getSimNumber() {
+    /*public String getSimNumber() {
         return simNumber;
-    }
+    }*/
 
     public int getDayClosedCheck() {
         return dayClosedCheck;

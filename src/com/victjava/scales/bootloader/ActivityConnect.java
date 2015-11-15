@@ -109,9 +109,9 @@ public class ActivityConnect extends Activity implements View.OnClickListener {
     }
 
     //==================================================================================================================
-    void log(int resource, String str) { //для ресурсов с текстовым дополнением
+    /*void log(int resource, String str) { //для ресурсов с текстовым дополнением
         textViewLog.setText(getString(resource) + ' ' + str + '\n' + textViewLog.getText());
-    }
+    }*/
 
     void setupScale() {
         /*Window window = getWindow();

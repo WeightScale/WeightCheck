@@ -81,8 +81,8 @@ public class TemperatureProgressBar extends ProgressBar {
         postInvalidate();
     }
 
-    void setMinusOffset(int offset) {
+    /*void setMinusOffset(int offset) {
         mMinus = offset;
-    }
+    }*/
 
 }

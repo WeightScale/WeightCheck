@@ -2475,6 +2475,7 @@ public class NumberPicker extends LinearLayout {
                             && text.toLowerCase().contains(searchedLowerCase)) {
                         outResult.add(createAccessibilityNodeInfo(VIRTUAL_VIEW_ID_INCREMENT));
                     }
+                    break;
                 default:
             }
         }

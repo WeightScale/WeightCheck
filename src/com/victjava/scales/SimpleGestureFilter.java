@@ -64,17 +64,17 @@ public class SimpleGestureFilter extends SimpleOnGestureListener {
         //else just do nothing, it's Transparent
     }
 
-    public void setMode(int m) {
+    /*public void setMode(int m) {
         mode = m;
-    }
+    }*/
 
-    public int getMode() {
+    /*public int getMode() {
         return mode;
-    }
+    }*/
 
-    public void setEnabled(boolean status) {
+    /*public void setEnabled(boolean status) {
         running = status;
-    }
+    }*/
 
     public void setSwipeMaxDistance(int distance) {
         swipe_Max_Distance = distance;
@@ -92,13 +92,13 @@ public class SimpleGestureFilter extends SimpleOnGestureListener {
         return swipe_Max_Distance;
     }
 
-    public int getSwipeMinDistance() {
+    /*public int getSwipeMinDistance() {
         return swipe_Min_Distance;
-    }
+    }*/
 
-    public int getSwipeMinVelocity() {
+    /*public int getSwipeMinVelocity() {
         return swipe_Min_Velocity;
-    }
+    }*/
 
     @Override
     public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {

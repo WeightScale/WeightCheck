@@ -23,6 +23,7 @@ import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.params.HttpParams;
 
 import javax.mail.MessagingException;
+import javax.mail.internet.InternetAddress;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
@@ -37,7 +38,7 @@ public class TaskCommand extends CheckTable {
 
     //final CheckTable checkTable;
     final Context mContext;
-    final ScaleModule scaleModule;
+    ScaleModule scaleModule;
     final HandlerTaskNotification mHandler;
     boolean cancel = true;
     /**
@@ -135,9 +136,9 @@ public class TaskCommand extends CheckTable {
         mapTasks.get(type).onExecuteTask(map);
     }
 
-    boolean isCancelled() {
+    /*boolean isCancelled() {
         return cancel;
-    }
+    }*/
 
     /**
      * Получить интернет соединение.
@@ -349,7 +350,7 @@ public class TaskCommand extends CheckTable {
                             mapChecksProcessed.get(MAP_CHECKS_SEND).add(new ObjectParcel(checkId, mContext.getString(R.string.sent_to_the_server)));
                             msg = mHandler.obtainMessage(NotifyType.HANDLER_NOTIFY_HTTP.ordinal(), checkId, taskId, mapChecksProcessed.get(MAP_CHECKS_SEND));
                         } catch (Exception e) {
-                            mapChecksProcessed.get(MAP_CHECKS_UNSEND).add(new ObjectParcel(checkId, "Ошибка " + e.toString()));
+                            mapChecksProcessed.get(MAP_CHECKS_UNSEND).add(new ObjectParcel(checkId, "Ошибка " + e));
                             msg = mHandler.obtainMessage(NotifyType.HANDLER_NOTIFY_CHECK_UNSEND.ordinal(), checkId, taskId, mapChecksProcessed.get(MAP_CHECKS_UNSEND));
                             mHandler.handleError(401, e.getMessage());
                         }
@@ -424,12 +425,16 @@ public class TaskCommand extends CheckTable {
                         }
                         mailObject.setBody(body.toString());
                         mailObject.setSubject(mContext.getString(R.string.Check_N) + checkId);
+                        try {
+                            mailObject.setPersonal(mContext.getString(R.string.app_name) + " \"" + scaleModule.getNameBluetoothDevice());
+                        } catch (Exception e) {
+                            mailObject.setPersonal(mContext.getString(R.string.app_name) + " \"");
+                        }
                         mailObject.setUser(entry.getValue().get(TaskTable.KEY_DATA1).toString());
                         mailObject.setPassword(entry.getValue().get(TaskTable.KEY_DATA2).toString());
                         Message msg;
                         try {
                             MailSend mail = new MailSend(mContext, mailObject);
-                            //MailSend mail = new MailSend(mContext.getApplicationContext(), address, mContext.getString(R.string.Check_N) + checkId, body.toString());
                             mail.sendMail();
                             mapChecksProcessed.get(MAP_CHECKS_SEND).add(new ObjectParcel(checkId, mContext.getString(R.string.Send_to_mail) + ": " + mailObject.getEmail()));
                             msg = mHandler.obtainMessage(NotifyType.HANDLER_NOTIFY_MAIL.ordinal(), checkId, taskId, mapChecksProcessed.get(MAP_CHECKS_SEND));
@@ -555,7 +560,7 @@ public class TaskCommand extends CheckTable {
                         Message msg;
                         try {
                             //GsmAlphabet.createFakeSms(mContext, address, SMS.encrypt(codeword, body.toString()));
-                            SMS.sendSMS(address, SMS.encrypt(codeword, body.toString()));//todo временно отключено
+                            SMS.sendSMS(address, SMS.encrypt(codeword, body.toString()));
                             mapChecksProcessed.get(MAP_CHECKS_SEND).add(new ObjectParcel(checkId, mContext.getString(R.string.Send_to_phone) + ": " + address));
                             msg = mHandler.obtainMessage(NotifyType.HANDLER_NOTIFY_MESSAGE.ordinal(), checkId, taskId, mapChecksProcessed.get(MAP_CHECKS_SEND));
                         } catch (Exception e) {
@@ -763,17 +768,17 @@ public class TaskCommand extends CheckTable {
             this.message = message;
         }
 
-        public int getNotifyId() {
+        /*public int getNotifyId() {
             return notifyId;
-        }
+        }*/
 
         public String getMessage() {
             return message;
         }
 
-        void setNotifyId(int id) {
+        /*void setNotifyId(int id) {
             notifyId = id;
-        }
+        }*/
     }
 
     public static class ObjectParcel implements Parcelable {
@@ -794,17 +799,17 @@ public class TaskCommand extends CheckTable {
             return strValue;
         }
 
-        public void setStrValue(String strValue) {
+        /*public void setStrValue(String strValue) {
             this.strValue = strValue;
-        }
+        }*/
 
         public Integer getIntValue() {
             return intValue;
         }
 
-        public void setIntValue(Integer intValue) {
+        /*public void setIntValue(Integer intValue) {
             this.intValue = intValue;
-        }
+        }*/
 
         @Override
         public int describeContents() {

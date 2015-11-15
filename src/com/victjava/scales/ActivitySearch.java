@@ -224,12 +224,12 @@ public class ActivitySearch extends Activity implements View.OnClickListener {
     }
 
     //==================================================================================================================
-    void log(int resource, boolean toast) { //для текста
+    /*void log(int resource, boolean toast) { //для текста
         textViewLog.setText(getString(resource) + '\n' + textViewLog.getText());
         if (toast) {
             Toast.makeText(getBaseContext(), resource, Toast.LENGTH_SHORT).show();
         }
-    }
+    }*/
 
     //==================================================================================================================
     void log(int resource, String str) { //для ресурсов с текстовым дополнением

@@ -196,7 +196,7 @@ public class TaskMessageDialog extends TaskTable {
                     if (result != null) {
                         if (result.moveToFirst()) {
                             String phone = result.getString(result.getColumnIndex(CommonDataKinds.Phone.DATA));
-                            insertNewTaskPhone(TaskCommand.TaskType.TYPE_CHECK_SEND_SMS_CONTACT, mCheckId, mContactId, phone);//todo после отладки разкоментировать
+                            insertNewTaskPhone(TaskCommand.TaskType.TYPE_CHECK_SEND_SMS_CONTACT, mCheckId, mContactId, phone);
                         }
                         result.close();
                     }

@@ -6,7 +6,6 @@ import android.os.Bundle;
 import android.text.SpannableStringBuilder;
 import android.text.Spanned;
 import android.text.style.StyleSpan;
-import android.text.style.TextAppearanceSpan;
 import android.view.WindowManager;
 import android.widget.TextView;
 import com.konst.module.ScaleModule;
@@ -35,7 +34,7 @@ public class ActivityAbout extends Activity {
         },
         ADDRESS_BLUETOOTH(R.string.Address_bluetooth) {
             @Override
-            String getValue() { return scaleModule.getAddressBluetoothDevice() + "\n"; }
+            String getValue() { return scaleModule.getAddressBluetoothDevice() + '\n'; }
 
             @Override
             int getMeasure() { return -1; }
@@ -49,7 +48,7 @@ public class ActivityAbout extends Activity {
         },
         PHONE(R.string.Number_phone){
             @Override
-            String getValue() { return  main.getTelephoneNumber() + "\n"; }
+            String getValue() { return  main.getTelephoneNumber() + '\n'; }
 
             @Override
             int getMeasure() {  return -1;  }
@@ -70,7 +69,7 @@ public class ActivityAbout extends Activity {
         },
         ADDRESS_SMS(R.string.Phone_for_sms) {
             @Override
-            String getValue() { return scaleModule.getPhone() + "\n"; }
+            String getValue() { return scaleModule.getPhone() + '\n'; }
 
             @Override
             int getMeasure() {  return -1;  }
@@ -85,7 +84,7 @@ public class ActivityAbout extends Activity {
         TEMPERATURE(R.string.Temperature) {
             @Override
             String getValue() {
-                return scaleModule.isAttach()?scaleModule.getModuleTemperature() + "°" + "C":"error"+"\n";
+                return scaleModule.isAttach()?scaleModule.getModuleTemperature() + "°" + 'C' :"error"+ '\n';
             }
 
             @Override
@@ -99,7 +98,7 @@ public class ActivityAbout extends Activity {
             int getMeasure() { return -1; }
         },
         WEIGHT_MAX(R.string.MLW) {
-            int resIdKg = R.string.scales_kg;
+            final int resIdKg = R.string.scales_kg;
             @Override
             String getValue() {  return scaleModule.getWeightMax() + " "; }
 
@@ -107,7 +106,7 @@ public class ActivityAbout extends Activity {
             int getMeasure() { return resIdKg; }
         },
         TIME_OFF(R.string.Off_timer) {
-            int reIdMinute = R.string.minute;
+            final int reIdMinute = R.string.minute;
             @Override
             String getValue() { return scaleModule.getTimeOff() + " "; }
 
@@ -115,7 +114,7 @@ public class ActivityAbout extends Activity {
             int getMeasure() { return reIdMinute; }
         },
         STEP(R.string.Step_capacity_scale){
-            int resIdKg = R.string.scales_kg;
+            final int resIdKg = R.string.scales_kg;
             @Override
             String getValue() { return main.getStepMeasuring() + " "; }
 
@@ -123,7 +122,7 @@ public class ActivityAbout extends Activity {
             int getMeasure() {  return resIdKg; }
         },
         CAPTURE(R.string.Capture_weight){
-            int resIdKg = R.string.scales_kg;
+            final int resIdKg = R.string.scales_kg;
             @Override
             String getValue() {  return main.getAutoCapture() + " "; }
 
@@ -131,7 +130,7 @@ public class ActivityAbout extends Activity {
             int getMeasure() {   return resIdKg;  }
         };
 
-        private int resId;
+        private final int resId;
         abstract String getValue();
         abstract int getMeasure();
 
@@ -178,7 +177,7 @@ public class ActivityAbout extends Activity {
                 value.setSpan(new StyleSpan(Typeface.BOLD_ITALIC),0,value.length(), Spanned.SPAN_MARK_MARK);
                 //value.setSpan(new TextAppearanceSpan(this, R.style.SpanTextAboutValue),0,value.length(), Spanned.SPAN_INCLUSIVE_INCLUSIVE);
                 textView.append(value);
-                textView.append((s.getMeasure() == -1 ? "" : getString(s.getMeasure())) + "\n");
+                textView.append((s.getMeasure() == -1 ? "" : getString(s.getMeasure())) + '\n');
                 //textView.append(getString(s.getResId()) + value /*s.getValue()*/ + (s.getMeasure() == -1 ? "" : getString(s.getMeasure())) + "\n");
             }catch (Exception e){
                 textView.append("\n");

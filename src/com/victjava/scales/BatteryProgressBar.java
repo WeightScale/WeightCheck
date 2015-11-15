@@ -84,9 +84,9 @@ public class BatteryProgressBar extends ProgressBar {
         postInvalidate();
     }
 
-    public synchronized void setTextSize(float textSize) {
+    /*public synchronized void setTextSize(float textSize) {
         this.textSize = textSize;
         postInvalidate();
-    }
+    }*/
 
 }

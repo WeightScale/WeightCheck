@@ -88,13 +88,13 @@ public class ErrorTable {
         return context.getContentResolver().delete(CONTENT_URI, null, null);
     }
 
-    public Cursor getAllEntries() {
+    /*public Cursor getAllEntries() {
         return context.getContentResolver().query(CONTENT_URI, All_COLUMN_TABLE, null, null, null);
-    }
+    }*/
 
-    public Cursor getErrorCodeCounts(int count) {
+    /*public Cursor getErrorCodeCounts(int count) {
         return context.getContentResolver().query(CONTENT_URI, new String[]{KEY_ID, KEY_NUMBER_ERROR}, null, null, KEY_ID + " DESC " + " LIMIT " + count);
-    }
+    }*/
 
     public String getErrorToString(int count) {
         try {
@@ -115,23 +115,23 @@ public class ErrorTable {
         }
     }
 
-    public boolean updateEntry(long _rowIndex, String key, int in) {
+    /*public boolean updateEntry(long _rowIndex, String key, int in) {
         //boolean b;
         ContentValues newValues = new ContentValues();
         newValues.put(key, in);
         return context.getContentResolver().update(ContentUris.withAppendedId(CONTENT_URI, _rowIndex), newValues, null, null) > 0;
-    }
+    }*/
 
-    public boolean updateEntry(long _rowIndex, String key, float fl) {
+   /* public boolean updateEntry(long _rowIndex, String key, float fl) {
         ContentValues newValues = new ContentValues();
         newValues.put(key, fl);
         return context.getContentResolver().update(ContentUris.withAppendedId(CONTENT_URI, _rowIndex), newValues, null, null) > 0;
-    }
+    }*/
 
-    public boolean updateEntry(long _rowIndex, String key, String st) {
+    /*public boolean updateEntry(long _rowIndex, String key, String st) {
         ContentValues newValues = new ContentValues();
         newValues.put(key, st);
         return context.getContentResolver().update(ContentUris.withAppendedId(CONTENT_URI, _rowIndex), newValues, null, null) > 0;
-    }
+    }*/
 
 }

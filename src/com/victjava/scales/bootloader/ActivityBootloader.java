@@ -66,7 +66,7 @@ public class ActivityBootloader extends Activity implements View.OnClickListener
         }
 
         public String getDevice() {return device;}
-        public int getCode() {return code;}
+        //public int getCode() {return code;}
 
         public static CodeDevice contains(int c){
             for(CodeDevice choice : values())
@@ -367,10 +367,10 @@ public class ActivityBootloader extends Activity implements View.OnClickListener
         }
     }
 
-    boolean isBootloader() { //Является ли весами и какой версии
+    /*boolean isBootloader() { //Является ли весами и какой версии
         String vrs = bootModule.getModuleVersion(); //Получаем версию загрузчика
         return vrs.startsWith("BOOT");
-    }
+    }*/
 
     private final AVRProgrammer programmer = new AVRProgrammer(handlerProgrammed) {
         @Override

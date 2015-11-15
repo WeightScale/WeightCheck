@@ -9,10 +9,7 @@ import com.konst.module.ScaleModule;
 import com.victjava.scales.Main;
 import com.victjava.scales.R;
 import org.apache.http.message.BasicNameValuePair;
-import org.xmlpull.v1.XmlPullParser;
-import org.xmlpull.v1.XmlPullParserException;
 
-import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -21,8 +18,8 @@ public class CheckTable {
     final ScaleModule scaleModule;
     private final Context mContext;
     final ContentResolver contentResolver;
-    public static int day;
-    public static int day_closed;
+    //public static int day;
+    //public static int day_closed;
 
     static final String GO_FORM_HTTP = "https://docs.google.com/forms/d/11C5mq1Z-Syuw7ScsMlWgSnr9yB4L_eP-NhxnDdohtrw/formResponse"; // Форма движения
     static final String GO_DATE_HTTP = "entry.1974893725";                                  // Дата создания
@@ -145,12 +142,12 @@ public class CheckTable {
         contentResolver = mContext.getContentResolver();
     }
 
-    public CheckTable(Context context, int d) {
+    /*public CheckTable(Context context, int d) {
         mContext = context;
         scaleModule = ((Main)mContext.getApplicationContext()).getScaleModule();
         contentResolver = mContext.getContentResolver();
         day = d;
-    }
+    }*/
 
     public Uri insertNewEntry(String vendor, int vendorId, int direct) {
         ContentValues newTaskValues = new ContentValues();
@@ -229,7 +226,7 @@ public class CheckTable {
         return day1 - day2;
     }
 
-    private String getKeyString(int _rowIndex, String key) {
+    /*private String getKeyString(int _rowIndex, String key) {
         Uri uri = ContentUris.withAppendedId(CONTENT_URI, _rowIndex);
         try {
             Cursor result = contentResolver.query(uri, new String[]{KEY_ID, key}, null, null, null);
@@ -240,7 +237,7 @@ public class CheckTable {
         } catch (Exception e) {
             return "";
         }
-    }
+    }*/
 
     public Cursor getAllEntries(int view) {
         return contentResolver.query(CONTENT_URI, All_COLUMN_TABLE, KEY_IS_READY + "= 1" + " and " + KEY_VISIBILITY + "= " + view, null, null);
@@ -311,7 +308,7 @@ public class CheckTable {
         }
     }
 
-    public void updateEntry(int _rowIndex, String key, float fl) {
+    /*public void updateEntry(int _rowIndex, String key, float fl) {
         Uri uri = ContentUris.withAppendedId(CONTENT_URI, _rowIndex);
         try {
             ContentValues newValues = new ContentValues();
@@ -319,9 +316,9 @@ public class CheckTable {
             contentResolver.update(uri, newValues, null, null);
         } catch (Exception e) {
         }
-    }
+    }*/
 
-    public boolean updateEntry(int _rowIndex, String key, String st) {
+    /*public boolean updateEntry(int _rowIndex, String key, String st) {
         Uri uri = ContentUris.withAppendedId(CONTENT_URI, _rowIndex);
         try {
             ContentValues newValues = new ContentValues();
@@ -330,13 +327,13 @@ public class CheckTable {
         } catch (Exception e) {
             return false;
         }
-    }
+    }*/
 
-    public static String getGoFormHttp(){
+    /*public static String getGoFormHttp(){
         return GO_FORM_HTTP;
-    }
+    }*/
 
-    public static String geGoParamHttp(){
+    /*public static String geGoParamHttp(){
         Collection<BasicNameValuePair> results = new ArrayList<>();
         results.add(new BasicNameValuePair(GO_DATE_HTTP, KEY_DATE_CREATE));
         results.add(new BasicNameValuePair(GO_BT_HTTP, KEY_NUMBER_BT));
@@ -345,5 +342,5 @@ public class CheckTable {
         results.add(new BasicNameValuePair(GO_IS_READY_HTTP, KEY_IS_READY));
         results.add(new BasicNameValuePair(GO_TIME_HTTP, KEY_TIME_CREATE));
         return TextUtils.join(" ", results);
-    }
+    }*/
 }
