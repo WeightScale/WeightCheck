@@ -1,4 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <integer name="google_play_services_version">7327000</integer>
+
+    <integer name="default_max_weight">1000</integer>           <!--Вес максимальный по умолчанию килограммы.-->
+    <integer name="default_max_battery">100</integer>           <!--Максимальный заряд батареи проценты.-->
+    <integer name="default_max_time_off">60</integer>           <!--Минимальное время бездействия весов в минутах.-->
+    <integer name="default_min_time_off">10</integer>           <!--Минимальное время бездействия весов в минутах.-->
+    <integer name="default_max_time_auto_null">120</integer>    <!--Максимальное время срабатывания авто ноль секундах.-->
+    <integer name="default_limit_auto_null">50</integer>        <!--Предел ошибки при котором срабатывает авто ноль килограммы.-->
+    <integer name="default_max_step_scale">20</integer>         <!--Максимальный шаг измерения весов килограммы.-->
+    <integer name="default_max_auto_capture">100</integer>      <!--Максимальный значение авто захвата веса килограммы.-->
+    <integer name="default_delta_auto_capture">10</integer>     <!--Дельта значение авто захвата веса килограммы.-->
+    <integer name="default_min_auto_capture">20</integer>       <!--Минимальное значение авто захвата веса килограммы.-->
+    <integer name="default_day_close_check">10</integer>        <!--Максимальное количество дней для закрытия не закрытых чеков дней.-->
+    <integer name="default_day_delete_check">10</integer>       <!--Максимальное количество дней для удвления чеков дней.-->
+    <integer name="default_adc_filter">15</integer>             <!--Максимальное значение фильтра ацп.-->
 </resources>

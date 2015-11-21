@@ -18,8 +18,8 @@ import android.view.Window;
 import android.widget.*;
 import com.victjava.scales.provider.TaskTable;
 
-/*
- * Created by Kostya on 09.01.2015.
+/**
+ * @author Kostya
  */
 public class TaskMessageDialog extends TaskTable {
     //final TaskTable taskTable;
@@ -38,12 +38,10 @@ public class TaskMessageDialog extends TaskTable {
         dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
         dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
         contentResolver = mContext.getContentResolver();
-        //taskTable = new TaskTable(context);
     }
 
     public void openListEmailDialog() {
         final Cursor emails = getDataContact(mContactId, CommonDataKinds.Email.CONTENT_ITEM_TYPE);
-        //final Cursor emails = contentResolver.query(CommonDataKinds.Email.CONTENT_URI, null,CommonDataKinds.Email.CONTACT_ID + " = " + mContactId, null, null);
         if (emails == null) {
             return;
         }
@@ -171,8 +169,6 @@ public class TaskMessageDialog extends TaskTable {
     }
 
     public void openListPhoneDialog() {
-        /*final Cursor phones = contentResolver.query(CommonDataKinds.Phone.CONTENT_URI, null,
-                CommonDataKinds.Phone.CONTACT_ID + " = " + mContactId, null, null);*/
         final Cursor phones = getDataContact(mContactId, CommonDataKinds.Phone.CONTENT_ITEM_TYPE);
         if (phones == null) {
             return;

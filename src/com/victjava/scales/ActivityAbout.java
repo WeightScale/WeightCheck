@@ -182,7 +182,6 @@ public class ActivityAbout extends Activity {
             }catch (Exception e){
                 textView.append("\n");
             }
-
         }
     }
 }

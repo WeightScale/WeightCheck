@@ -112,7 +112,7 @@ public class Internet {
      */
     private boolean turnOnDataConnection(boolean on) {
         /** Настройки администратора мобильный интернет */
-        if(Preferences.read(mContext.getString(R.string.KEY_MOBIL_INTERNET), false)){
+        if(((Main)mContext.getApplicationContext()).preferencesScale.read(mContext.getString(R.string.KEY_MOBIL_INTERNET), false)){
             try {
                 int bv = Build.VERSION.SDK_INT;
                 //int bv = Build.VERSION_CODES.FROYO;

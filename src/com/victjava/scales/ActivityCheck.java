@@ -21,6 +21,7 @@ import android.widget.*;
 import com.konst.module.ScaleModule;
 import com.victjava.scales.provider.CheckTable;
 import com.victjava.scales.provider.TaskTable;
+import com.victjava.scales.service.TakeService;
 
 
 import java.util.ArrayList;
@@ -62,6 +63,9 @@ public class ActivityCheck extends FragmentActivity implements View.OnClickListe
                 } catch (InterruptedException ignored) {
                 }
             }
+            if (!running) {
+                break;
+            }
             handler.obtainMessage(Action.START_WEIGHTING.ordinal()).sendToTarget();
             isStable = false;
             while (running && !(isStable || weightViewIsSwipe)) {                                                       //ждем стабилизации веса или нажатием выбора веса
@@ -84,7 +88,7 @@ public class ActivityCheck extends FragmentActivity implements View.OnClickListe
 
             weightViewIsSwipe = false;
 
-            while (running && moduleWeight >= Main.default_min_auto_capture) {
+            while (running && moduleWeight >= getResources().getInteger(R.integer.default_min_auto_capture)) {
                 try {
                     Thread.sleep(50);
                 } catch (InterruptedException ignored) {
@@ -722,6 +726,10 @@ public class ActivityCheck extends FragmentActivity implements View.OnClickListe
                     buttonFinish.setEnabled(false);
                     buttonFinish.setAlpha(100);
                     flagExit = false;
+                    if(Main.preferencesCamera.read(getString(R.string.KEY_PHOTO_CHECK), false)){
+                        /** Запускаем сервис сделать фото. */
+                        startService(new Intent(getApplicationContext(), TakeService.class).setAction("take"));
+                    }
                     break;
                 case UPDATE_PROGRESS:
                     weightTextView.setSecondaryProgress(msg.arg1);
@@ -749,7 +757,7 @@ public class ActivityCheck extends FragmentActivity implements View.OnClickListe
     public void startThread(){
         running = true;
         threadAutoWeight = new Thread(this);
-        threadAutoWeight.setPriority(Thread.MIN_PRIORITY);
+        //threadAutoWeight.setPriority(Thread.MIN_PRIORITY);
         threadAutoWeight.setDaemon(true);
         threadAutoWeight.start();
     }

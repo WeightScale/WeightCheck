@@ -3,19 +3,21 @@ package com.victjava.scales.settings;
 
 //import android.content.SharedPreferences;
 
+import android.annotation.TargetApi;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
+import android.graphics.Color;
 import android.graphics.Point;
+import android.hardware.Camera;
 import android.os.Build;
 import android.os.Bundle;
-import android.preference.Preference;
-import android.preference.PreferenceActivity;
-import android.preference.PreferenceManager;
+import android.preference.*;
 import android.provider.BaseColumns;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.Window;
 import android.widget.*;
 import com.konst.module.Commands;
@@ -26,12 +28,15 @@ import com.victjava.scales.R;
 import com.victjava.scales.bootloader.ActivityBootloader;
 import com.victjava.scales.provider.SenderTable;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 //import android.preference.PreferenceManager;
 
 public class ActivityTuning extends PreferenceActivity {
+    public static Preferences preferencesCamera;
     protected Dialog dialog;
     ScaleModule scaleModule;
     Main main;
@@ -43,6 +48,289 @@ public class ActivityTuning extends PreferenceActivity {
 
     interface InterfacePreference {
         void setup(Preference name) throws Exception;
+    }
+
+    enum CameraPreferences{
+        COLOR_EFFECT(R.string.key_color_effect) {
+            @Override
+            void setup( Preference listPreference) {
+                listPreference.setSummary(preferencesCamera.read(listPreference.getKey(),""));
+                List<String> parameters = Main.parameters.getSupportedColorEffects();
+                if (parameters != null) {
+                    CharSequence[] entries = new CharSequence[0];
+                    entries = parameters.toArray(entries);
+                    ((ListPreference)listPreference).setEntries(entries);
+                    ((ListPreference)listPreference).setEntryValues(entries);
+                    listPreference.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
+                        @Override
+                        public boolean onPreferenceChange(Preference preference, Object o) {
+                            preference.getEditor().putString(preference.getKey(), o.toString());
+                            preference.setSummary(o.toString());
+                            Main.parameters.setColorEffect(o.toString());
+                            return true;
+                        }
+                    });
+                } else {
+                    listPreference.setEnabled(false);
+                    listPreference.setSummary("Неподдерживает");
+                }
+            }
+        },
+        ANTI_BANDING(R.string.key_anti_banding) {
+            @Override
+            void setup(Preference listPreference) {
+                listPreference.setSummary(((ListPreference)listPreference).getValue());
+                List<String> parameters = Main.parameters.getSupportedAntibanding();
+                if(parameters != null){
+                    CharSequence[] entries = new CharSequence[0];
+                    entries = parameters.toArray(entries);
+                    ((ListPreference)listPreference).setEntries(entries);
+                    ((ListPreference)listPreference).setEntryValues(entries);
+                    listPreference.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
+                        @Override
+                        public boolean onPreferenceChange(Preference preference, Object o) {
+                            preference.getEditor().putString(preference.getKey(), o.toString());
+                            preference.setSummary(o.toString());
+                            Main.parameters.setAntibanding(o.toString());
+                            return true;
+                        }
+                    });
+                }else {
+                    listPreference.setEnabled(false);
+                    listPreference.setSummary("Неподдерживает");
+                }
+            }
+        },
+        FLASH_MODE(R.string.key_flash_mode) {
+            @Override
+            void setup(Preference listPreference) {
+                listPreference.setSummary(((ListPreference)listPreference).getValue());
+                List<String> parameters = Main.parameters.getSupportedFlashModes();
+                if(parameters != null){
+                    CharSequence[] entries = new CharSequence[0];
+                    entries = parameters.toArray(entries);
+                    ((ListPreference)listPreference).setEntries(entries);
+                    ((ListPreference)listPreference).setEntryValues(entries);
+                    listPreference.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
+                        @Override
+                        public boolean onPreferenceChange(Preference preference, Object o) {
+                            preference.getEditor().putString(preference.getKey(), o.toString());
+                            preference.setSummary(o.toString());
+                            Main.parameters.setFlashMode(o.toString());
+                            return true;
+                        }
+                    });
+                }else {
+                    listPreference.setEnabled(false);
+                    listPreference.setSummary("Неподдерживает");
+                }
+            }
+        },
+        FOCUS_MODE(R.string.key_focus_mode) {
+            @Override
+            void setup(Preference listPreference) {
+                listPreference.setSummary(((ListPreference)listPreference).getValue());
+                List<String> parameters = Main.parameters.getSupportedFocusModes();
+                if(parameters != null){
+                    CharSequence[] entries = new CharSequence[0];
+                    entries = parameters.toArray(entries);
+                    ((ListPreference)listPreference).setEntries(entries);
+                    ((ListPreference)listPreference).setEntryValues(entries);
+                    listPreference.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
+                        @Override
+                        public boolean onPreferenceChange(Preference preference, Object o) {
+                            preference.getEditor().putString(preference.getKey(), o.toString());
+                            preference.setSummary(o.toString());
+                            Main.parameters.setFocusMode(o.toString());
+                            return true;
+                        }
+                    });
+                }else {
+                    listPreference.setEnabled(false);
+                    listPreference.setSummary("Неподдерживает");
+                }
+            }
+        },
+        SCENE_MODE(R.string.key_scene_mode) {
+            @Override
+            void setup(Preference listPreference) {
+                listPreference.setSummary(((ListPreference)listPreference).getValue());
+                List<String> parameters = Main.parameters.getSupportedSceneModes();
+                if(parameters != null){
+                    CharSequence[] entries = new CharSequence[0];
+                    entries = parameters.toArray(entries);
+                    ((ListPreference)listPreference).setEntries(entries);
+                    ((ListPreference)listPreference).setEntryValues(entries);
+                    listPreference.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
+                        @Override
+                        public boolean onPreferenceChange(Preference preference, Object o) {
+                            preference.getEditor().putString(preference.getKey(), o.toString());
+                            preference.setSummary(o.toString());
+                            Main.parameters.setSceneMode(o.toString());
+                            return true;
+                        }
+                    });
+                }else {
+                    listPreference.setEnabled(false);
+                    listPreference.setSummary("Неподдерживает");
+                }
+            }
+        },
+        WHITE_MODE(R.string.key_white_mode) {
+            @Override
+            void setup(Preference listPreference) {
+                listPreference.setSummary(((ListPreference)listPreference).getValue());
+                List<String> parameters = Main.parameters.getSupportedWhiteBalance();
+                if(parameters != null){
+                    CharSequence[] entries = new CharSequence[0];
+                    entries = parameters.toArray(entries);
+                    ((ListPreference)listPreference).setEntries(entries);
+                    ((ListPreference)listPreference).setEntryValues(entries);
+                    listPreference.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
+                        @Override
+                        public boolean onPreferenceChange(Preference preference, Object o) {
+                            preference.getEditor().putString(preference.getKey(), o.toString());
+                            preference.setSummary(o.toString());
+                            Main.parameters.setWhiteBalance(o.toString());
+                            return true;
+                        }
+                    });
+                }else {
+                    listPreference.setEnabled(false);
+                    listPreference.setSummary("Неподдерживает");
+                }
+            }
+        },
+        EXPOSURE(R.string.key_exposure) {
+            @Override
+            void setup(Preference listPreference) {
+                listPreference.setSummary(((ListPreference)listPreference).getValue());
+                int max = Main.parameters.getMaxExposureCompensation();
+                int min = Main.parameters.getMinExposureCompensation();
+                int step = (int) Main.parameters.getExposureCompensationStep();
+                List<String> exposure = new ArrayList<>();
+                for (; max >= min; max -= step) {
+                    exposure.add(String.valueOf(max));
+                }
+                if (exposure != null) {
+                    CharSequence[] entries = new CharSequence[0];
+                    entries = exposure.toArray(entries);
+                    ((ListPreference)listPreference).setEntries(entries);
+                    ((ListPreference)listPreference).setEntryValues(entries);
+                    listPreference.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
+                        @Override
+                        public boolean onPreferenceChange(Preference preference, Object o) {
+                            preference.getEditor().putString(preference.getKey(), o.toString());
+                            preference.setSummary(o.toString());
+                            Main.parameters.setExposureCompensation(Integer.parseInt(o.toString()));
+                            return true;
+                        }
+                    });
+                } else {
+                    listPreference.setEnabled(false);
+                    listPreference.setSummary("Неподдерживает");
+                }
+            }
+        },
+        PIC_SIZE(R.string.key_pic_size) {
+            @Override
+            void setup(Preference listPreference) {
+                listPreference.setSummary(((ListPreference)listPreference).getValue());
+                List<Camera.Size> pictureSizes = Main.parameters.getSupportedPictureSizes();
+                if (pictureSizes != null) {
+                    CharSequence[] entries = new CharSequence[0];
+                    List<String> sizeList = new ArrayList<>();
+                    for (Camera.Size size : pictureSizes) {
+                        int w = size.width;
+                        int h = size.height;
+                        sizeList.add(w + "x" + h);
+                    }
+                    entries = sizeList.toArray(entries);
+                    ((ListPreference)listPreference).setEntries(entries);
+                    ((ListPreference)listPreference).setEntryValues(entries);
+                    listPreference.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
+                        @Override
+                        public boolean onPreferenceChange(Preference preference, Object o) {
+                            preference.getEditor().putString(preference.getKey(), o.toString());
+                            String[] str = o.toString().split("x");
+                            /*preferences.write(getString(R.string.key_pic_size_width), str[0]);
+                            preferences.write(getString(R.string.key_pic_size_height), str[1]);
+                            findPreference(getString(R.string.key_pic_size_width)).setSummary(str[0]);
+                            findPreference(getString(R.string.key_pic_size_height)).setSummary(str[1]);*/
+                            preference.setSummary(o.toString());
+                            Main.parameters.setPictureSize(Integer.parseInt(str[0]), Integer.parseInt(str[1]));
+                            return true;
+                        }
+                    });
+                    listPreference.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+                        @Override
+                        public boolean onPreferenceClick(Preference preference) {
+                            return false;
+                        }
+
+                    });
+                } else {
+                    listPreference.setEnabled(false);
+                    listPreference.setSummary("Неподдерживает");
+                }
+            }
+        },
+        ROTATION(R.string.key_rotation) {
+            @Override
+            void setup(Preference listPreference) {
+                listPreference.setSummary(listPreference.getSharedPreferences().getString(listPreference.getKey(), "0"));
+                listPreference.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
+                    @Override
+                    public boolean onPreferenceChange(Preference preference, Object o) {
+                        int rotation = Integer.parseInt(o.toString());
+                        if (rotation >= 0 && rotation <= 270) {
+                            preference.getEditor().putString(preference.getKey(), o.toString());
+                            preference.setSummary(o.toString());
+                            Main.parameters.setRotation(rotation);
+                            return true;
+                        }
+                        return false;
+                    }
+                });
+            }
+        },
+        PIC_QUALITY(R.string.key_quality_pic) {
+            @Override
+            void setup(Preference quality) {
+                quality.setSummary("Качество фото: " + quality.getSharedPreferences().getString(quality.getKey(), ""));
+                quality.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
+                    @Override
+                    public boolean onPreferenceChange(Preference preference, Object o) {
+                        int time = Integer.parseInt(o.toString());
+                        if (time > 0 && time <= 100) {
+                            preference.setSummary("Качество фото: " + o);
+                            preference.getEditor().putString(preference.getKey(), o.toString());
+                            return true;
+                        }
+                        return false;
+                    }
+                });
+            }
+        };
+
+        private final int resId;
+        abstract void setup(Preference listPreference);
+
+        CameraPreferences(int key){
+            resId = key;
+        }
+
+        public int getResId() { return resId; }
+    }
+
+    public void initCameraPreferences(){
+        PreferenceManager preferenceManager = getPreferenceManager();
+        preferenceManager.setSharedPreferencesName(Preferences.PREF_CAMERA);
+        preferenceManager.setSharedPreferencesMode(MODE_PRIVATE);
+        for (CameraPreferences cameraPreferences : CameraPreferences.values()){
+            Preference preference = preferenceManager.findPreference(getString(cameraPreferences.getResId()));
+            cameraPreferences.setup(preference);
+        }
     }
 
     @Override
@@ -67,14 +355,28 @@ public class ActivityTuning extends PreferenceActivity {
         mapTuning.put(getString(R.string.KEY_SERVICE_COD), new ServiceCod());
         mapTuning.put(getString(R.string.KEY_UPDATE), new Update());
 
-        PreferenceManager preferenceManager = getPreferenceManager();
-        preferenceManager.setSharedPreferencesName(Preferences.PREFERENCES);
-        preferenceManager.setSharedPreferencesMode(MODE_PRIVATE);
+        //PreferenceManager preferenceManager = getPreferenceManager();
+        //preferenceManager.setSharedPreferencesName(Preferences.PREFERENCES);
+        //preferenceManager.setSharedPreferencesMode(MODE_PRIVATE);
         addPreferencesFromResource(R.xml.tuning);
+        getPreferenceManager().setSharedPreferencesName(Preferences.PREFERENCES);
+
+        preferencesCamera = new Preferences(getApplicationContext(), Preferences.PREF_CAMERA);
+        PreferenceManager.setDefaultValues(this, R.xml.camera, false);
 
         dialog = new Dialog(this);
         dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
         process();
+        //initCameraPreferences();
+        Preference camera = findPreference(getString(R.string.key_camera_settings));
+        camera.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+            @TargetApi(Build.VERSION_CODES.HONEYCOMB)
+            @Override
+            public boolean onPreferenceClick(Preference preference) {
+                getFragmentManager().beginTransaction().replace(android.R.id.content, new SettingsCamera()).commit();
+                return true;
+            }
+        });
     }
 
     void process() {
@@ -166,10 +468,6 @@ public class ActivityTuning extends PreferenceActivity {
     }
 
     class Point2 implements InterfacePreference{
-        //TextView textSensor;
-        //EditText editTextPoint2;
-        //Dialog dialog;
-
         @Override
         public void setup(final Preference name) throws Exception {
             name.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
@@ -210,62 +508,6 @@ public class ActivityTuning extends PreferenceActivity {
                 }
             });*/
         }
-
-        /*public  void openDialog(){
-            dialog = new Dialog(ActivityTuning.this);
-            dialog.setContentView(R.layout.dialog_point2);
-            dialog.setCancelable(false);
-            dialog.setTitle("Контрольный вес");
-
-            // set the custom dialog components - text, image and button
-            textSensor = (TextView) dialog.findViewById(R.id.textViewTitle);
-            editTextPoint2 = (EditText) dialog.findViewById(R.id.editTextPoint2);
-
-            Button buttonOK = (Button) dialog.findViewById(R.id.buttonOk);
-            buttonOK.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    try {
-                        String str = scaleModule.feelWeightSensor();
-                        if (str.isEmpty()) {
-                            Toast.makeText(getApplicationContext(), R.string.preferences_no, Toast.LENGTH_SHORT).show();
-                        }
-                        scaleModule.setSensorTenzo(Integer.valueOf(str));
-                        point2.x = Integer.valueOf(str);
-                        point2.y = Integer.valueOf(editTextPoint2.getText().toString());
-                        Toast.makeText(getApplicationContext(), R.string.preferences_yes, Toast.LENGTH_SHORT).show();
-                        flag_restore = true;
-                    } catch (Exception e) {
-                        Toast.makeText(getApplicationContext(), R.string.preferences_no + e.getMessage(), Toast.LENGTH_SHORT).show();
-                    }
-                    dialog.dismiss();
-                    scaleModule.stopMeasuringWeight(true);
-                }
-            });
-            Button buttonClosed = (Button) dialog.findViewById(R.id.buttonClose);
-            buttonClosed.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    dialog.dismiss();
-                    scaleModule.stopMeasuringWeight(true);
-                }
-            });
-            scaleModule.startMeasuringWeight();
-            dialog.show();
-        }*/
-
-        /*final ScaleModule.OnEventResultWeight onEventResultWeight = new ScaleModule.OnEventResultWeight() {
-            @Override
-            public int weight(ScaleModule.ResultWeight what, int weight, final int sensor) {
-                *//*runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        textSensor.setText(String.valueOf(sensor));
-                    }
-                });*//*
-                return 50;
-            }
-        };*/
     }
 
     class WeightMax implements InterfacePreference{
@@ -275,7 +517,7 @@ public class ActivityTuning extends PreferenceActivity {
             name.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
                 @Override
                 public boolean onPreferenceChange(Preference preference, Object o) {
-                    if (o.toString().isEmpty() || Integer.valueOf(o.toString()) < Main.default_max_weight) {
+                    if (o.toString().isEmpty() || Integer.valueOf(o.toString()) < getResources().getInteger(R.integer.default_max_weight)) {
                         Toast.makeText(getApplicationContext(), R.string.preferences_no, Toast.LENGTH_SHORT).show();
                         return false;
                     }
@@ -320,7 +562,7 @@ public class ActivityTuning extends PreferenceActivity {
             name.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
                 @Override
                 public boolean onPreferenceChange(Preference preference, Object o) {
-                    if (o.toString().isEmpty() || "0".equals(o.toString()) || Integer.valueOf(o.toString()) > Main.default_max_battery) {
+                    if (o.toString().isEmpty() || "0".equals(o.toString()) || Integer.valueOf(o.toString()) > getResources().getInteger(R.integer.default_max_battery)) {
                         Toast.makeText(getApplicationContext(), R.string.preferences_no, Toast.LENGTH_SHORT).show();
                         return false;
                     }
@@ -671,5 +913,313 @@ public class ActivityTuning extends PreferenceActivity {
         if(flag_restore)
             setResult(RESULT_OK, new Intent());
         super.onBackPressed();
+    }
+
+    @TargetApi(Build.VERSION_CODES.HONEYCOMB)
+    public static class SettingsCamera extends PreferenceFragment {
+        public static Preferences preferencesCamera;
+        enum CameraPreferences{
+            COLOR_EFFECT(R.string.key_color_effect) {
+                @Override
+                void setup( Preference listPreference) {
+                    listPreference.setSummary(preferencesCamera.read(listPreference.getKey(),""));
+                    List<String> parameters = Main.parameters.getSupportedColorEffects();
+                    if (parameters != null) {
+                        CharSequence[] entries = new CharSequence[0];
+                        entries = parameters.toArray(entries);
+                        ((ListPreference)listPreference).setEntries(entries);
+                        ((ListPreference)listPreference).setEntryValues(entries);
+                        listPreference.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
+                            @Override
+                            public boolean onPreferenceChange(Preference preference, Object o) {
+                                preference.getEditor().putString(preference.getKey(), o.toString());
+                                preference.setSummary(o.toString());
+                                Main.parameters.setColorEffect(o.toString());
+                                return true;
+                            }
+                        });
+                    } else {
+                        listPreference.setEnabled(false);
+                        listPreference.setSummary("Неподдерживает");
+                    }
+                }
+            },
+            ANTI_BANDING(R.string.key_anti_banding) {
+                @Override
+                void setup(Preference listPreference) {
+                    listPreference.setSummary(((ListPreference)listPreference).getValue());
+                    List<String> parameters = Main.parameters.getSupportedAntibanding();
+                    if(parameters != null){
+                        CharSequence[] entries = new CharSequence[0];
+                        entries = parameters.toArray(entries);
+                        ((ListPreference)listPreference).setEntries(entries);
+                        ((ListPreference)listPreference).setEntryValues(entries);
+                        listPreference.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
+                            @Override
+                            public boolean onPreferenceChange(Preference preference, Object o) {
+                                preference.getEditor().putString(preference.getKey(), o.toString());
+                                preference.setSummary(o.toString());
+                                Main.parameters.setAntibanding(o.toString());
+                                return true;
+                            }
+                        });
+                    }else {
+                        listPreference.setEnabled(false);
+                        listPreference.setSummary("Неподдерживает");
+                    }
+                }
+            },
+            FLASH_MODE(R.string.key_flash_mode) {
+                @Override
+                void setup(Preference listPreference) {
+                    listPreference.setSummary(((ListPreference)listPreference).getValue());
+                    List<String> parameters = Main.parameters.getSupportedFlashModes();
+                    if(parameters != null){
+                        CharSequence[] entries = new CharSequence[0];
+                        entries = parameters.toArray(entries);
+                        ((ListPreference)listPreference).setEntries(entries);
+                        ((ListPreference)listPreference).setEntryValues(entries);
+                        listPreference.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
+                            @Override
+                            public boolean onPreferenceChange(Preference preference, Object o) {
+                                preference.getEditor().putString(preference.getKey(), o.toString());
+                                preference.setSummary(o.toString());
+                                Main.parameters.setFlashMode(o.toString());
+                                return true;
+                            }
+                        });
+                    }else {
+                        listPreference.setEnabled(false);
+                        listPreference.setSummary("Неподдерживает");
+                    }
+                }
+            },
+            FOCUS_MODE(R.string.key_focus_mode) {
+                @Override
+                void setup(Preference listPreference) {
+                    listPreference.setSummary(((ListPreference)listPreference).getValue());
+                    List<String> parameters = Main.parameters.getSupportedFocusModes();
+                    if(parameters != null){
+                        CharSequence[] entries = new CharSequence[0];
+                        entries = parameters.toArray(entries);
+                        ((ListPreference)listPreference).setEntries(entries);
+                        ((ListPreference)listPreference).setEntryValues(entries);
+                        listPreference.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
+                            @Override
+                            public boolean onPreferenceChange(Preference preference, Object o) {
+                                preference.getEditor().putString(preference.getKey(), o.toString());
+                                preference.setSummary(o.toString());
+                                Main.parameters.setFocusMode(o.toString());
+                                return true;
+                            }
+                        });
+                    }else {
+                        listPreference.setEnabled(false);
+                        listPreference.setSummary("Неподдерживает");
+                    }
+                }
+            },
+            SCENE_MODE(R.string.key_scene_mode) {
+                @Override
+                void setup(Preference listPreference) {
+                    listPreference.setSummary(((ListPreference)listPreference).getValue());
+                    List<String> parameters = Main.parameters.getSupportedSceneModes();
+                    if(parameters != null){
+                        CharSequence[] entries = new CharSequence[0];
+                        entries = parameters.toArray(entries);
+                        ((ListPreference)listPreference).setEntries(entries);
+                        ((ListPreference)listPreference).setEntryValues(entries);
+                        listPreference.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
+                            @Override
+                            public boolean onPreferenceChange(Preference preference, Object o) {
+                                preference.getEditor().putString(preference.getKey(), o.toString());
+                                preference.setSummary(o.toString());
+                                Main.parameters.setSceneMode(o.toString());
+                                return true;
+                            }
+                        });
+                    }else {
+                        listPreference.setEnabled(false);
+                        listPreference.setSummary("Неподдерживает");
+                    }
+                }
+            },
+            WHITE_MODE(R.string.key_white_mode) {
+                @Override
+                void setup(Preference listPreference) {
+                    listPreference.setSummary(((ListPreference)listPreference).getValue());
+                    List<String> parameters = Main.parameters.getSupportedWhiteBalance();
+                    if(parameters != null){
+                        CharSequence[] entries = new CharSequence[0];
+                        entries = parameters.toArray(entries);
+                        ((ListPreference)listPreference).setEntries(entries);
+                        ((ListPreference)listPreference).setEntryValues(entries);
+                        listPreference.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
+                            @Override
+                            public boolean onPreferenceChange(Preference preference, Object o) {
+                                preference.getEditor().putString(preference.getKey(), o.toString());
+                                preference.setSummary(o.toString());
+                                Main.parameters.setWhiteBalance(o.toString());
+                                return true;
+                            }
+                        });
+                    }else {
+                        listPreference.setEnabled(false);
+                        listPreference.setSummary("Неподдерживает");
+                    }
+                }
+            },
+            EXPOSURE(R.string.key_exposure) {
+                @Override
+                void setup(Preference listPreference) {
+                    listPreference.setSummary(((ListPreference)listPreference).getValue());
+                    int max = Main.parameters.getMaxExposureCompensation();
+                    int min = Main.parameters.getMinExposureCompensation();
+                    int step = (int) Main.parameters.getExposureCompensationStep();
+                    List<String> exposure = new ArrayList<>();
+                    for (; max >= min; max -= step) {
+                        exposure.add(String.valueOf(max));
+                    }
+                    if (exposure != null) {
+                        CharSequence[] entries = new CharSequence[0];
+                        entries = exposure.toArray(entries);
+                        ((ListPreference)listPreference).setEntries(entries);
+                        ((ListPreference)listPreference).setEntryValues(entries);
+                        listPreference.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
+                            @Override
+                            public boolean onPreferenceChange(Preference preference, Object o) {
+                                preference.getEditor().putString(preference.getKey(), o.toString());
+                                preference.setSummary(o.toString());
+                                Main.parameters.setExposureCompensation(Integer.parseInt(o.toString()));
+                                return true;
+                            }
+                        });
+                    } else {
+                        listPreference.setEnabled(false);
+                        listPreference.setSummary("Неподдерживает");
+                    }
+                }
+            },
+            PIC_SIZE(R.string.key_pic_size) {
+                @Override
+                void setup(Preference listPreference) {
+                    listPreference.setSummary(((ListPreference)listPreference).getValue());
+                    List<Camera.Size> pictureSizes = Main.parameters.getSupportedPictureSizes();
+                    if (pictureSizes != null) {
+                        CharSequence[] entries = new CharSequence[0];
+                        List<String> sizeList = new ArrayList<>();
+                        for (Camera.Size size : pictureSizes) {
+                            int w = size.width;
+                            int h = size.height;
+                            sizeList.add(w + "x" + h);
+                        }
+                        entries = sizeList.toArray(entries);
+                        ((ListPreference)listPreference).setEntries(entries);
+                        ((ListPreference)listPreference).setEntryValues(entries);
+                        listPreference.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
+                            @Override
+                            public boolean onPreferenceChange(Preference preference, Object o) {
+                                preference.getEditor().putString(preference.getKey(), o.toString());
+                                String[] str = o.toString().split("x");
+                            /*preferences.write(getString(R.string.key_pic_size_width), str[0]);
+                            preferences.write(getString(R.string.key_pic_size_height), str[1]);
+                            findPreference(getString(R.string.key_pic_size_width)).setSummary(str[0]);
+                            findPreference(getString(R.string.key_pic_size_height)).setSummary(str[1]);*/
+                                preference.setSummary(o.toString());
+                                Main.parameters.setPictureSize(Integer.parseInt(str[0]), Integer.parseInt(str[1]));
+                                return true;
+                            }
+                        });
+                        listPreference.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+                            @Override
+                            public boolean onPreferenceClick(Preference preference) {
+                                return false;
+                            }
+
+                        });
+                    } else {
+                        listPreference.setEnabled(false);
+                        listPreference.setSummary("Неподдерживает");
+                    }
+                }
+            },
+            ROTATION(R.string.key_rotation) {
+                @Override
+                void setup(Preference listPreference) {
+                    listPreference.setSummary(listPreference.getSharedPreferences().getString(listPreference.getKey(), "0"));
+                    listPreference.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
+                        @Override
+                        public boolean onPreferenceChange(Preference preference, Object o) {
+                            int rotation = Integer.parseInt(o.toString());
+                            if (rotation >= 0 && rotation <= 270) {
+                                preference.getEditor().putString(preference.getKey(), o.toString());
+                                preference.setSummary(o.toString());
+                                Main.parameters.setRotation(rotation);
+                                return true;
+                            }
+                            return false;
+                        }
+                    });
+                }
+            },
+            PIC_QUALITY(R.string.key_quality_pic) {
+                @Override
+                void setup(Preference quality) {
+                    quality.setSummary("Качество фото: " + quality.getSharedPreferences().getString(quality.getKey(), ""));
+                    quality.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
+                        @Override
+                        public boolean onPreferenceChange(Preference preference, Object o) {
+                            int time = Integer.parseInt(o.toString());
+                            if (time > 0 && time <= 100) {
+                                preference.setSummary("Качество фото: " + o);
+                                preference.getEditor().putString(preference.getKey(), o.toString());
+                                return true;
+                            }
+                            return false;
+                        }
+                    });
+                }
+            };
+
+            private final int resId;
+            abstract void setup(Preference listPreference);
+
+            CameraPreferences(int key){
+                resId = key;
+            }
+
+            public int getResId() { return resId; }
+        }
+
+        public void initCameraPreferences(){
+            PreferenceManager preferenceManager = getPreferenceManager();
+            preferenceManager.setSharedPreferencesName(Preferences.PREF_CAMERA);
+            preferenceManager.setSharedPreferencesMode(MODE_PRIVATE);
+            for (CameraPreferences cameraPreferences : CameraPreferences.values()){
+                Preference preference = preferenceManager.findPreference(getString(cameraPreferences.getResId()));
+                cameraPreferences.setup(preference);
+            }
+        }
+
+        @Override
+        public void onCreate(Bundle savedInstanceState) {
+            super.onCreate(savedInstanceState);
+
+            // Load the preferences from an XML resource
+
+            getPreferenceManager().setSharedPreferencesName(Preferences.PREF_CAMERA);
+            getPreferenceManager().setSharedPreferencesMode(Context.MODE_PRIVATE);
+            addPreferencesFromResource(R.xml.camera);
+            preferencesCamera = Main.preferencesCamera;
+            //PreferenceManager.setDefaultValues(this, R.xml.camera, false);
+            initCameraPreferences();
+        }
+
+        @Override
+        public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+            View view = super.onCreateView(inflater, container, savedInstanceState);
+            view.setBackgroundColor(Color.WHITE);
+            return view;
+        }
     }
 }

@@ -89,7 +89,7 @@ public class ActivityListChecks extends ListActivity implements View.OnClickList
         /**
         *    Устанавливаем флаг не показывать старые чеки
         */
-        checkTable.invisibleCheckIsReady(Preferences.read(getString(R.string.KEY_DAY_CHECK_DELETE), Main.default_day_delete_check));
+        checkTable.invisibleCheckIsReady(((Main)getApplication()).preferencesScale.read(getString(R.string.KEY_DAY_CHECK_DELETE), getResources().getInteger(R.integer.default_day_delete_check)));
         /*
             Удаляем чеки отправленые на сервер через n дней
         */

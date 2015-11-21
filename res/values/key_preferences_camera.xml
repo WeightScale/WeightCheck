@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="key_quality_pic">quality_pic</string>
+    <string name="key_color_effect">key_color_effect</string>
+    <string name="key_anti_banding">key_anti_banding</string>
+    <string name="key_flash_mode">key_flash_mode</string>
+    <string name="key_focus_mode">key_focus_mode</string>
+    <string name="key_scene_mode">key_scene_mode</string>
+    <string name="key_white_mode">key_white_mode</string>
+    <string name="key_exposure">key_exposure</string>
+    <string name="key_pic_size_width">key_pic_size_width</string>
+    <string name="key_pic_size_height">key_pic_size_height</string>
+    <string name="key_rotation">key_rotation</string>
+    <string name="KEY_PHOTO_CHECK">key_photo_check</string>
+    <string name="key_camera_screen">key_camera_screen</string>
+    <string name="key_category_picture_size">key_category_picture_size</string>
+    <string name="key_pic_size">key_pic_size</string>
+    <string name="key_camera_settings">key_camera_settings</string>
+
+    <string-array name="date_rotate">
+        <item>"0"</item>
+        <item>"90"</item>
+        <item>"180"</item>
+        <item>"270"</item>
+    </string-array>
+</resources>

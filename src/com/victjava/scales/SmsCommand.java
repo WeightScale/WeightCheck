@@ -26,54 +26,34 @@ public class SmsCommand extends SenderTable {
     Map<String, String> mapCommand;
     //final SenderTable senderTable;
 
-    /**
-     * Получить ошибки параметр количество.
-     */
+    /** Получить ошибки параметр количество. */
     static final String SMS_CMD_GETERR = "geterr";
 
-    /**
-     * Удалить ошибки параметр количество.
-     */
+    /** Удалить ошибки параметр количество. */
     static final String SMS_CMD_DELERR = "delerr";
 
-    /**
-     * Номер телефона межд. формат для отправки чеков для босса.
-     */
+    /** Номер телефона межд. формат для отправки чеков для босса. */
     static final String SMS_CMD_NUMSMS = "numsms";
 
-    /**
-     * Максимальный вес.
-     */
+    /** Максимальный вес. */
     static final String SMS_CMD_WGHMAX = "wghmax";
 
-    /**
-     * Коэфициент вес.
-     */
+    /** Коэфициент вес. */
     static final String SMS_CMD_COFFA = "coffa";
 
-    /**
-     * Коэфициент офсет.
-     */
+    /** Коэфициент офсет. */
     static final String SMS_CMD_COFFB = "coffb";
 
-    /**
-     * Учетнное имя google account.
-     */
+    /** Учетнное имя google account. */
     static final String SMS_CMD_GOGUSR = "gogusr";
 
-    /**
-     * Пароль google account.
-     */
+    /** Пароль google account. */
     static final String SMS_CMD_GOGPSW = "gogpsw";
 
-    /**
-     * Телефон для отправки смс.
-     */
+    /** Телефон для отправки смс. */
     static final String SMS_CMD_PHNSMS = "phnsms";
 
-    /**
-     * Записать данные в весы функция writeDataScale() wrtdat=wgm_5000|cfa_0.00019.
-     */
+    /** Записать данные в весы функция writeDataScale() wrtdat=wgm_5000|cfa_0.00019. */
     static final String SMS_CMD_WRTDAT = "wrtdat";
 
     /** Условия отправки чеков sndchk=0-1,1-1,2-1,3-1.
@@ -82,9 +62,8 @@ public class SmsCommand extends SenderTable {
     static final String SMS_CMD_SNDCHK = "sndchk";
 
     static final String RESPONSE_OK = "ok";
-    /**
-     * Отложено.
-     */
+
+    /** Отложено. */
     static final String POSTPONED = "postponed";
 
     /**
@@ -216,7 +195,7 @@ public class SmsCommand extends SenderTable {
         @Override
         public BasicNameValuePair execute(String value) throws Exception {
             if (value.isEmpty()) {
-                return new BasicNameValuePair(SMS_CMD_NUMSMS, Preferences.read(Preferences.KEY_NUMBER_SMS, ""));
+                return new BasicNameValuePair(SMS_CMD_NUMSMS, ((Main)mContext.getApplicationContext()).preferencesScale.read(Preferences.KEY_NUMBER_SMS, ""));
             }
             if (ActivityScales.isScaleConnect) {
                 if (scaleModule.setModulePhone(value)) {

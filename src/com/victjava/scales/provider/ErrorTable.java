@@ -53,7 +53,7 @@ public class ErrorTable {
         String bt_number = mngr.getDeviceId();
         newTaskValues.put(KEY_DATE_CREATE, sdf.format(date));
         if (bt_number != null) {
-            newTaskValues.put(KEY_NUMBER_BT, bt_number + ' ' + scaleModule.getAddressBluetoothDevice());
+            newTaskValues.put(KEY_NUMBER_BT, bt_number /*+ ' ' + scaleModule.getAddressBluetoothDevice()*/);
         }
         newTaskValues.put(KEY_NUMBER_ERROR, number);
         newTaskValues.put(KEY_DESCRIPTION, des);

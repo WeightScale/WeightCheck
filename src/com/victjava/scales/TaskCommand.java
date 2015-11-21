@@ -36,22 +36,15 @@ import java.util.*;
  */
 public class TaskCommand extends CheckTable {
 
-    //final CheckTable checkTable;
     final Context mContext;
     ScaleModule scaleModule;
     final HandlerTaskNotification mHandler;
     boolean cancel = true;
-    /**
-     * Чек отправлен
-     */
+    /** Чек отправлен. */
     static final String MAP_CHECKS_SEND = "send";
-    /**
-     * Чек не отправлен
-     */
+    /** Чек не отправлен. */
     static final String MAP_CHECKS_UNSEND = "unsend";
-    /**
-     * Кодовое слово для дешифрации сообщения
-     */
+    /** Кодовое слово для дешифрации сообщения. */
     final String codeword = "weightcheck";
 
     /** Энумератор типа сообщений. */
@@ -73,33 +66,19 @@ public class TaskCommand extends CheckTable {
 
     /** Энумератор типа задачи. */
     public enum TaskType {
-        /**
-         * чек для електронной почты
-         */
+        /** чек для електронной почты. */
         TYPE_CHECK_SEND_MAIL,
-        /**
-         * чек для облака
-         */
+        /** чек для облака. */
         TYPE_CHECK_SEND_HTTP_POST,
-        /**
-         * настройки для для облака
-         */
+        /** настройки для для облака. */
         TYPE_PREF_SEND_HTTP_POST,
-        /**
-         * чек для google disk
-         */
+        /** чек для google disk. */
         TYPE_CHECK_SEND_SHEET_DISK,
-        /**
-         * настройки для google disk
-         */
+        /** настройки для google disk. */
         TYPE_PREF_SEND_SHEET_DISK,
-        /**
-         * чек для смс отправки контакту
-         */
+        /** чек для смс отправки контакту. */
         TYPE_CHECK_SEND_SMS_CONTACT,
-        /**
-         * чек для смс отправки администратору
-         */
+        /** чек для смс отправки администратору. */
         TYPE_CHECK_SEND_SMS_ADMIN
     }
 
@@ -118,7 +97,6 @@ public class TaskCommand extends CheckTable {
         scaleModule = ((Main)mContext.getApplicationContext()).getScaleModule();
         mHandler = handler;
         cancel = false;
-        //checkTable = new CheckTable(mContext);
 
         mapTasks.put(TaskType.TYPE_CHECK_SEND_HTTP_POST, new CheckTokHttpPost());
         mapTasks.put(TaskType.TYPE_CHECK_SEND_SHEET_DISK, new CheckToSpreadsheet(((Main)mContext.getApplicationContext()).getVersionName()));
@@ -135,10 +113,6 @@ public class TaskCommand extends CheckTable {
             throw new Exception("map is empty");
         mapTasks.get(type).onExecuteTask(map);
     }
-
-    /*boolean isCancelled() {
-        return cancel;
-    }*/
 
     /**
      * Получить интернет соединение.
@@ -255,7 +229,7 @@ public class TaskCommand extends CheckTable {
                 mHandler.sendEmptyMessage(NotifyType.HANDLER_FINISH_THREAD.ordinal());
                 return null;
             }
-            String user = Preferences.read(mContext.getString(R.string.KEY_LAST_USER), "");
+            String user = ((Main)mContext.getApplicationContext()).preferencesScale.read(mContext.getString(R.string.KEY_LAST_USER), "");
             return GoogleAuthUtil.getTokenWithNotification(mContext, user /*ScaleModule.getUserName()*/, "oauth2:" + SCOPE, null, makeCallback());
         }
 
@@ -305,8 +279,6 @@ public class TaskCommand extends CheckTable {
      * Класс для отправки чека http post
      */
     public class CheckTokHttpPost implements InterfaceTaskCommand {
-        //private String pathFile = "forms/forms.xml";
-        //private String nameForm = "WeightCheck";
         final Map<String, ArrayList<ObjectParcel>> mapChecksProcessed = new HashMap<>();
 
         public CheckTokHttpPost() {
@@ -336,8 +308,6 @@ public class TaskCommand extends CheckTable {
                             GoogleForms.Form form = new GoogleForms(mContext.getAssets().open(pathFile)).createForm(nameForm);
                             String http = form.getHttp();
                             String[] values = form.getParams().split(" ");
-                            //String http = entry.getValue().get(TaskTable.KEY_DATA0).toString();
-                            //String[] values = entry.getValue().get(TaskTable.KEY_DATA1).toString().split(" ");
 
                             List<BasicNameValuePair> results = new ArrayList<>();
                             for (String postName : values) {
@@ -373,7 +343,6 @@ public class TaskCommand extends CheckTable {
             HttpResponse httpResponse = client.execute(post);
             if (httpResponse.getStatusLine().getStatusCode() != HttpURLConnection.HTTP_OK)
                 throw new Exception(httpResponse.toString());
-            //return httpResponse.getStatusLine().getStatusCode() == HttpURLConnection.HTTP_OK;
         }
     }
 
@@ -402,7 +371,6 @@ public class TaskCommand extends CheckTable {
 
                         int taskId = Integer.valueOf(entry.getKey());
                         int checkId = Integer.valueOf(entry.getValue().get(TaskTable.KEY_DOC).toString());
-                        //String address = entry.getValue().get(TaskTable.KEY_DATA0).toString();
                         MailSend.MailObject mailObject = new MailSend.MailObject(entry.getValue().get(TaskTable.KEY_DATA0).toString());
                         StringBuilder body = new StringBuilder(mContext.getString(R.string.WEIGHT_CHECK_N) + checkId + '\n' + '\n');
                         Cursor check = getEntryItem(checkId);
@@ -548,7 +516,6 @@ public class TaskCommand extends CheckTable {
                                     try {
                                         body.append(column).append('=').append(check.getString(check.getColumnIndex(column)).replaceAll(" ","")).append(' ');
                                     }catch (NullPointerException e){}
-
                                 }
                                 body.append(')');
                             } else {
@@ -559,7 +526,6 @@ public class TaskCommand extends CheckTable {
 
                         Message msg;
                         try {
-                            //GsmAlphabet.createFakeSms(mContext, address, SMS.encrypt(codeword, body.toString()));
                             SMS.sendSMS(address, SMS.encrypt(codeword, body.toString()));
                             mapChecksProcessed.get(MAP_CHECKS_SEND).add(new ObjectParcel(checkId, mContext.getString(R.string.Send_to_phone) + ": " + address));
                             msg = mHandler.obtainMessage(NotifyType.HANDLER_NOTIFY_MESSAGE.ordinal(), checkId, taskId, mapChecksProcessed.get(MAP_CHECKS_SEND));
@@ -663,7 +629,7 @@ public class TaskCommand extends CheckTable {
                 mHandler.sendEmptyMessage(NotifyType.HANDLER_FINISH_THREAD.ordinal());
                 return null;
             }
-            String user = Preferences.read(mContext.getString(R.string.KEY_LAST_USER), "");
+            String user = ((Main)mContext.getApplicationContext()).preferencesScale.read(mContext.getString(R.string.KEY_LAST_USER), "");
             return GoogleAuthUtil.getTokenWithNotification(mContext, user /*ScaleModule.getUserName()*/, "oauth2:" + SCOPE, null, makeCallback());
         }
 
@@ -712,10 +678,6 @@ public class TaskCommand extends CheckTable {
                             GoogleForms.Form form = new GoogleForms(mContext.getAssets().open(pathFile)).createForm(nameForm);
                             String http = form.getHttp();
                             String[] values = form.getParams().split(" ");
-
-                            //String http = entry.getValue().get(TaskTable.KEY_DATA0).toString();
-                            //String[] values = entry.getValue().get(TaskTable.KEY_DATA1).toString().split(" ");
-
                             List<BasicNameValuePair> results = new ArrayList<>();
                             for (String postName : values) {
                                 String[] pair = postName.split("=");

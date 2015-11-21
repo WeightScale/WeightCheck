@@ -1,0 +1,18 @@
+<preference-headers xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <header android:fragment="com.victjava.scales.settings.ActivityPreferences$PrefsFragmentPreferences"
+            android:title="настройки общии"
+            android:summary="Общии настройки пользователя" >
+
+    </header>
+    <header
+            android:fragment="com.victjava.scales.settings.ActivityPreferences$PrefFragmentAdmin"
+            android:title="Для администратора"
+            android:summary="Настройки для опытного пользователя">
+    </header>
+    <!--<header
+            android:fragment="it.gmariotti.android.examples.preference.NotifyPreferenceFragment"
+            android:title="@string/settings_notify">
+    </header>-->
+
+</preference-headers>

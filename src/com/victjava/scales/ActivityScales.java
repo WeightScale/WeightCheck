@@ -11,6 +11,7 @@ import android.database.Cursor;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.*;
+import android.preference.PreferenceManager;
 import android.provider.BaseColumns;
 import android.provider.Settings;
 import android.telephony.TelephonyManager;
@@ -74,8 +75,8 @@ public class ActivityScales extends Activity implements View.OnClickListener, Vi
             try {
                 scaleModule = new ScaleModule(main.getPackageInfo().versionName, onEventConnectResult);
                 main.setScaleModule(scaleModule);
-                scaleModule.setTimerNull(Preferences.read(getString(R.string.KEY_TIMER_NULL), Main.default_max_time_auto_null));
-                scaleModule.setWeightError(Preferences.read(getString(R.string.KEY_MAX_NULL), Main.default_limit_auto_null));
+                scaleModule.setTimerNull(main.preferencesScale.read(getString(R.string.KEY_TIMER_NULL), getResources().getInteger(R.integer.default_max_time_auto_null)));
+                scaleModule.setWeightError(main.preferencesScale.read(getString(R.string.KEY_MAX_NULL), getResources().getInteger(R.integer.default_limit_auto_null)));
                 Toast.makeText(getBaseContext(), R.string.bluetooth_off, Toast.LENGTH_SHORT).show();
                 setupScale();
             } catch (Exception e) {
@@ -176,15 +177,6 @@ public class ActivityScales extends Activity implements View.OnClickListener, Vi
             case R.id.preferences:
                 startActivity(new Intent(this, ActivityPreferences.class));
                 break;
-            /*case R.id.tuning:
-                startActivity(new Intent(this, ActivityTuning.class));
-            break;*/
-            /*case R.id.search:
-                openSearch();
-                break;*/
-            /*case R.id.exit:
-                closeOptionsMenu();
-                break;*/
             case R.id.type:
                 startActivity(new Intent(getBaseContext(), ActivityType.class));
                 break;
@@ -333,7 +325,7 @@ public class ActivityScales extends Activity implements View.OnClickListener, Vi
         temperatureProgressBar.updateProgress(0);
 
         listCheckSetup();
-        connectScaleModule(Preferences.read(getString(R.string.KEY_LAST_SCALES), ""));
+        connectScaleModule(Main.preferencesScale.read(getString(R.string.KEY_LAST_SCALES), ""));
 
     }
 
@@ -486,7 +478,7 @@ public class ActivityScales extends Activity implements View.OnClickListener, Vi
                     String date = cursor.getString(cursor.getColumnIndex(CheckTable.KEY_DATE_CREATE));
                     try {
                         long day = dayDiff(new Date(), new SimpleDateFormat("dd.MM.yy",Locale.getDefault()).parse(date));
-                        if (day > Preferences.read(getString(R.string.KEY_DAY_CLOSED_CHECK), 5)) {
+                        if (day > ((Main)getApplication()).preferencesScale.read(getString(R.string.KEY_DAY_CLOSED_CHECK), 5)) {
                             int id = cursor.getInt(cursor.getColumnIndex(CheckTable.KEY_ID));
                             checkTable.updateEntry(id, CheckTable.KEY_IS_READY, 1);
                             new TaskTable(this).setCheckReady(id);
@@ -538,8 +530,8 @@ public class ActivityScales extends Activity implements View.OnClickListener, Vi
                             } catch (Exception e) {
                                 setTitle(getString(R.string.app_name) + " , v." + scaleModule.getNumVersion()); //установить заголовок
                             }
-                            Preferences.write(getString(R.string.KEY_LAST_SCALES), scaleModule.getAddressBluetoothDevice());
-                            Preferences.write(getString(R.string.KEY_LAST_USER), scaleModule.getUserName());
+                            main.preferencesScale.write(getString(R.string.KEY_LAST_SCALES), scaleModule.getAddressBluetoothDevice());
+                            main.preferencesScale.write(getString(R.string.KEY_LAST_USER), scaleModule.getUserName());
                             listView.setEnabled(true);
                             scaleModule.startMeasuringBatteryTemperature();
                             getSettingPostponed();

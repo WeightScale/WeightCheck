@@ -359,7 +359,7 @@ public class ActivityBootloader extends Activity implements View.OnClickListener
     void exit() {
         if (flagProgramsFinish) {
             //Preferences.load(getSharedPreferences(Preferences.PREFERENCES, Context.MODE_PRIVATE));
-            Preferences.write(getString(R.string.KEY_FLAG_UPDATE), true);
+            Main.preferencesUpdate.write(getString(R.string.KEY_FLAG_UPDATE), true);
             bootModule.dettach();
             BluetoothAdapter.getDefaultAdapter().disable();
             while (BluetoothAdapter.getDefaultAdapter().isEnabled()) ;

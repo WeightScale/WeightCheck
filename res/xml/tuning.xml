@@ -6,8 +6,7 @@
                                              android:key="@string/KEY_SPEED_PORT" android:inputType="number"/>
     </PreferenceCategory>
     <PreferenceCategory android:title="Калибровка">
-        <PreferenceScreen android:title="Калибровка весов"
-                          android:summary="Калибровка весов с ипользыванием калиброваного веса">
+        <PreferenceScreen android:title="Калибровка весов" android:summary="Калибровка весов с ипользыванием калиброваного веса">
             <PreferenceCategory android:title="Калибровка весов">
                 <Preference android:title="Нулевой вес"
                             android:summary="Установите нулевой вес на весах, и нажминте на поле" android:key="@string/KEY_POINT1"/>
@@ -26,8 +25,7 @@
                                     android:key="@string/KEY_CALL_BATTERY" android:inputType="number"/>
             </PreferenceCategory>
         </PreferenceScreen>
-        <PreferenceScreen android:title="Ввод калибровочных данных"
-                          android:summary="Ввод в ручную калибровочных данных которые известны">
+        <PreferenceScreen android:title="Ввод калибровочных данных" android:summary="Ввод в ручную калибровочных данных которые известны">
             <PreferenceCategory android:title="Ввод калибровочных данных">
                 <EditTextPreference android:title="Константа А"
                                     android:summary="Введите константу А которая была вычеслена при калибровке весов"
@@ -55,7 +53,27 @@
         </PreferenceScreen>
         <Preference android:title="Настройка отсылателя" android:summary="Выбор куда отсылать весовой чек" android:key="@string/KEY_SENDER"/>
         <CheckBoxPreference android:enabled="true" android:title="Мобильный интернет" android:summary="Использовать мобильный интернет" android:key="@string/KEY_MOBIL_INTERNET" android:defaultValue="false"/>
+        <CheckBoxPreference android:enabled="true" android:title="Фото взвешивания" android:summary="Делать фото при взвешивании" android:key="@string/KEY_PHOTO_CHECK" android:defaultValue="false"/>
     </PreferenceCategory>
+    <Preference android:title="НАСТРОЙКИ КАМЕРЫ" android:summary="установка свойств камеры" android:key="@string/key_camera_settings"/>
+    <!--<PreferenceCategory android:title="НАСТРОЙКИ КАМЕРЫ" android:summary="установка свойств камеры">
+        <PreferenceScreen android:key="@string/key_camera_screen" android:title="НАСТРОЙКИ КАМЕРЫ" android:summary="настройки камеры разрешение, фокус ...">
+            <ListPreference android:title="ЦВЕТ" android:summary="Цветовой эфект" android:key="@string/key_color_effect"/>
+            <ListPreference android:title="УДАЛЕНИЕ ПОЛОС" android:summary="Полосы" android:key="@string/key_anti_banding"/>
+            <ListPreference android:title="ВСПЫШКА" android:summary="Вспышка" android:key="@string/key_flash_mode"/>
+            <ListPreference android:title="ФОКУС" android:summary="Установка фокуса" android:key="@string/key_focus_mode"/>
+            <ListPreference android:title="СЦЕНА" android:summary="Установка сцены" android:key="@string/key_scene_mode"/>
+            <ListPreference android:title="БАЛАНС БЕЛОГО" android:summary="Установка баланса белого" android:key="@string/key_white_mode"/>
+            <ListPreference android:title="ЭКСПОЗИЦИЯ" android:summary="Установка экспозициии" android:key="@string/key_exposure"/>
+            <PreferenceScreen android:title="РАЗМЕР КАРТИНКИ" android:summary="Выбор размера разрешения картинки" android:key="@string/key_category_picture_size">
+                <ListPreference android:title="РАЗМЕР КАРТИНКИ" android:summary="Установка размера картинки" android:key="@string/key_pic_size"/>
+                <Preference android:key="@string/key_pic_size_width" android:title="Ширина" android:enabled="false"/>
+                <Preference android:key="@string/key_pic_size_height" android:title="Высота" android:enabled="false"/>
+            </PreferenceScreen>
+            <ListPreference android:key="@string/key_rotation" android:title="ПОВОРОТ" android:entries="@array/date_rotate" android:entryValues="@array/date_rotate"/>
+            <EditTextPreference android:title="КАЧЕСТВО ФОТО" android:gravity="right" android:dialogTitle="качество в процентах" android:summary="Качество" android:key="@string/key_quality_pic" android:inputType="number"/>
+        </PreferenceScreen>
+    </PreferenceCategory>-->
     <PreferenceCategory>
         <EditTextPreference android:key="@string/KEY_SERVICE_COD" android:inputType="numberPassword" android:title="Сервис код" android:summary="Сервис код для доступа к административным настройкам"/>
         <Preference android:title="@string/Update_scale" android:summary="@string/TEXT_MESSAGE14" android:key="@string/KEY_UPDATE"/>
