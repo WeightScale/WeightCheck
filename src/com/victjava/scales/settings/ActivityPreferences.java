@@ -520,7 +520,7 @@ public class ActivityPreferences extends PreferenceActivity implements SharedPre
 
         //addPreferencesFromResource(R.xml.preferences);
 
-        //PreferenceManager.getDefaultSharedPreferences(this).registerOnSharedPreferenceChangeListener(this);
+        PreferenceManager.getDefaultSharedPreferences(this).registerOnSharedPreferenceChangeListener(this);
         //getPreferenceManager().setSharedPreferencesName(Preferences.PREFERENCES);
         //process1();
         //process();
