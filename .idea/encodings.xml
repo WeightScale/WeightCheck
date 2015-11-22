@@ -3,5 +3,6 @@
   <component name="Encoding">
     <file url="file://$PROJECT_DIR$/src/com/victjava/scales/GoogleForms.java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/src/com/victjava/scales/service/TakeService.java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/src/com/victjava/scales/settings/DialogStepWeight.java" charset="UTF-8" />
   </component>
 </project>

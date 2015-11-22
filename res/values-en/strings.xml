@@ -44,7 +44,7 @@
     <string name="name_scales">Name scales</string>
     <string name="address_scales">Address scales</string>
     <string name="information">Bluetooth</string>
-    <string name="setting_auto_zero">Setting auto zero</string>
+    <string name="setting_auto_zero">Auto zero</string>
     <string name="Auto_zero">Auto zero</string>
     <string name="sum_setting_auto_zero">Auto zero setting time, weight …</string>
     <string name="sum_auto_zero">Settings determine the zero time</string>
@@ -53,7 +53,7 @@
     <string name="weight">Weight</string>
     <string name="sum_weight">Limit auto zero</string>
     <string name="Settings">Settings</string>
-    <string name="Timer_off">Off timer minute</string>
+    <string name="Timer_off">Off timer</string>
     <string name="measuring_step">Measuring step</string>
     <string name="auto_capture">Auto capture</string>
     <string name="removing_checks">Removing checks</string>

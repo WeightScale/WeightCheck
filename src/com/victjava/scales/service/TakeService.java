@@ -99,7 +99,7 @@ public class TakeService extends Service {
     public void onCreate() {
         super.onCreate();
         /** Экземпляр настроек камеры */
-        preferences = new Preferences(getApplicationContext(),Preferences.PREF_CAMERA);
+        preferences = new Preferences(getApplicationContext());
         /** Время задержки между кадрами */
         //int temp = Integer.parseInt(preferences.read(getString(R.string.key_period_take), "10"));
         /** Должно быть в диапазоне в секундах */
@@ -125,7 +125,7 @@ public class TakeService extends Service {
      */
     void loadParametersToCamera() {
 
-        Preferences preferences = new Preferences(getApplicationContext(), Preferences.PREF_CAMERA);
+        Preferences preferences = new Preferences(getApplicationContext());
 
         List<String> colorEffects = Main.parameters.getSupportedColorEffects();
         if (colorEffects != null) {

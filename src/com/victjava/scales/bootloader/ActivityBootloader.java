@@ -316,7 +316,7 @@ public class ActivityBootloader extends Activity implements View.OnClickListener
                     //Intent intent = new Intent(getBaseContext(), ActivityConnect.class);
                     Intent intent = new Intent(getBaseContext(), ActivitySearch.class);
                     intent.putExtra("address", addressDevice);
-                    intent.setAction("bootloader");
+                    intent.setAction("com.victjava.scales.BOOTLOADER");
                     startActivityForResult(intent, REQUEST_CONNECT_BOOT);
                     break;
                 default:

@@ -62,14 +62,20 @@
             </intent-filter>
         </activity>
         <activity android:name=".settings.ActivityPreferences"
-
                   android:screenOrientation="portrait"
                   android:configChanges="orientation">
+            <intent-filter>
+                <action android:name="com.victjava.scales.settings.GENERAL"/>
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
         </activity>
         <activity android:name=".settings.ActivityTuning"
-
                   android:screenOrientation="portrait"
                   android:configChanges="orientation">
+            <intent-filter>
+                <action android:name="com.victjava.scales.settings.ADMIN"/>
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
         </activity>
         <activity android:name=".ActivityCheck"
                   android:label="@string/input_check"
@@ -104,6 +110,10 @@
         <activity android:name=".ActivityAbout"
                   android:screenOrientation="portrait"
                   android:configChanges="orientation">
+            <intent-filter>
+                <action android:name="com.victjava.scales.settings.ABOUT"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+            </intent-filter>
         </activity>
         <activity android:name=".bootloader.ActivityBootloader"
                   android:screenOrientation="portrait"

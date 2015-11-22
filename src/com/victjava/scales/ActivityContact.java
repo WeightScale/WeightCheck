@@ -40,7 +40,7 @@ public class ActivityContact extends ListActivity implements View.OnClickListene
 
         setContentView(R.layout.contact);
         String action = getIntent().getAction();
-        if ("check".equals(action))
+        if ("com.victjava.scales.CHECK".equals(action))
             setTitle("Выберите контакт для чека");
         else
             setTitle(getString(R.string.Contacts));
@@ -203,15 +203,12 @@ public class ActivityContact extends ListActivity implements View.OnClickListene
 
             String action = getIntent().getAction();
             if (action != null) {
-                //switch (action) {
-                    if ("check".equals(action)) {//case "check":
-                        insertNewCheck((int) id);
-                    }//break;
-                    else if ("contact".equals(action)) {//case "contact":
-                        openActivityContactMessage((int) id);
-                    }//break;
+                if ("com.victjava.scales.CHECK".equals(action)) {
+                    insertNewCheck((int) id);
+                }else if ("com.victjava.scales.CONTACT".equals(action)) {
+                    openActivityContactMessage((int) id);
+                }
             }
-
         }
     };
 

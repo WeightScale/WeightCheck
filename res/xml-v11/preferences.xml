@@ -1,64 +1,50 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
-    <!--<PreferenceCategory android:title="@string/information">
-        <EditTextPreference android:title="@string/name_scales" android:key="@string/KEY_NAME"/>
-        <Preference android:title="@string/address_scales" android:key="@string/KEY_ADDRESS" android:enabled="false"/>
-    </PreferenceCategory>-->
     <PreferenceCategory android:title="@string/Settings">
         <PreferenceScreen android:title="@string/Set_values" android:summary="@string/TEXT_MESSAGES13">
-            <PreferenceCategory android:title="@string/Settings">
-                <PreferenceScreen android:title="@string/setting_auto_zero" android:summary="@string/sum_setting_auto_zero">
-                    <PreferenceCategory android:title="@string/Auto_zero" android:summary="@string/sum_auto_zero">
-                        <EditTextPreference android:title="@string/Time"
-                                            android:summary="@string/sum_time_auto_zero"
-                                            android:key="@string/KEY_TIMER_NULL"
-                                            android:numeric="integer"
-                                            android:defaultValue="@integer/default_max_time_auto_null"
-                                            android:inputType="number"/>
-                        <EditTextPreference android:title="@string/weight"
-                                            android:summary="@string/sum_weight"
-                                            android:key="@string/KEY_MAX_NULL"
-                                            android:numeric="integer"
-                                            android:defaultValue="@integer/default_limit_auto_null"
-                                            android:inputType="number"/>
-                    </PreferenceCategory>
-                </PreferenceScreen>
-                <com.victjava.scales.settings.DialogTimerOff android:title="@string/Timer_off"
-                        android:key="@string/KEY_TIMER"
-                        android:inputType="number"/>
-                <com.victjava.scales.settings.DialogStepWeight android:title="@string/measuring_step"
-                        android:key="@string/KEY_STEP"
-                        android:inputType="number"/>
-                <EditTextPreference android:title="@string/auto_capture"
-                        android:key="@string/KEY_AUTO_CAPTURE"
-                        android:inputType="number"/>
-                <EditTextPreference android:title="@string/removing_checks"
-                        android:summary="@string/sum_removing_checks"
-                        android:key="@string/KEY_DAY_CHECK_DELETE"
-                        android:numeric="integer"
-                        android:inputType="number"
-                        android:defaultValue="@integer/default_day_delete_check"/>
-                <EditTextPreference android:title="@string/closed_checks"
-                                    android:summary="@string/sum_closed_checks"
-                                    android:numeric="integer"
-                                    android:key="@string/KEY_DAY_CLOSED_CHECK"
-                                    android:inputType="number"
-                                    android:defaultValue="@integer/default_day_close_check"/>
-                <Preference android:title="@string/checkbox_empty"
-                            android:summary="@string/checkbox_empty_summary"
-                            android:key="@string/KEY_EMPTY_CHECKBOX" />
+            <PreferenceCategory android:title="@string/Set_values">
+                    <PreferenceScreen android:title="@string/setting_auto_zero" android:summary="@string/sum_setting_auto_zero">
+                        <PreferenceCategory android:title="@string/Auto_zero" android:summary="@string/sum_auto_zero">
+                            <com.victjava.scales.settings.IntegerEditPreference android:title="@string/Time" android:summary="@string/sum_time_auto_zero"
+                                                                                android:key="@string/KEY_TIMER_NULL" android:numeric="integer"
+                                                                                android:defaultValue="@integer/default_max_time_auto_null" android:gravity="right" android:inputType="number"/>
+                            <com.victjava.scales.settings.IntegerEditPreference android:title="@string/weight" android:summary="@string/sum_weight"
+                                                                                android:key="@string/KEY_MAX_NULL" android:numeric="integer"
+                                                                                android:defaultValue="@integer/default_limit_auto_null" android:gravity="right" android:inputType="number"/>
+                        </PreferenceCategory>
+                    </PreferenceScreen>
+                    <com.victjava.scales.settings.DialogStepWeight android:title="@string/measuring_step"
+                                                                   android:key="@string/KEY_STEP"
+                                                                   android:numeric="integer"
+                                                                   android:defaultValue="@integer/default_step_scale"
+                                                                   android:inputType="number"/>
+                    <com.victjava.scales.settings.IntegerEditPreference android:title="@string/auto_capture"
+                                                                        android:key="@string/KEY_AUTO_CAPTURE" android:defaultValue="@integer/default_max_auto_capture"
+                                                                        android:numeric="integer" android:gravity="right" android:inputType="number"/>
+                    <com.victjava.scales.settings.IntegerEditPreference android:title="@string/removing_checks"
+                                                                        android:summary="@string/sum_removing_checks" android:key="@string/KEY_DAY_CHECK_DELETE"
+                                                                        android:numeric="integer" android:gravity="right" android:inputType="number"
+                                                                        android:defaultValue="@integer/default_day_delete_check"/>
+                    <com.victjava.scales.settings.IntegerEditPreference android:title="@string/closed_checks"
+                                                                        android:summary="@string/sum_closed_checks" android:numeric="integer"
+                                                                        android:key="@string/KEY_DAY_CLOSED_CHECK" android:inputType="number" android:gravity="right"
+                                                                        android:defaultValue="@integer/default_day_close_check"/>
+                    <Preference android:title="@string/checkbox_empty"
+                                android:summary="@string/checkbox_empty_summary"
+                                android:key="@string/KEY_EMPTY_CHECKBOX" />
             </PreferenceCategory>
         </PreferenceScreen>
         <com.victjava.scales.settings.DialogFilterADC android:title="@string/filter_adc"
                                                       android:summary="@string/sum_filter_adc"
                                                       android:key="@string/KEY_FILTER"
                                                       android:inputType="number"/>
-        <Preference android:title="Для администратора" android:key="@string/KEY_ADMIN"/>
+        <com.victjava.scales.settings.DialogTimerOff android:title="@string/Timer_off"
+                                                     android:key="@string/KEY_TIMER"
+                                                     android:inputType="number"/>
     </PreferenceCategory>
-    <PreferenceCategory>
-        <Preference android:title="@string/zeroing" android:key="@string/KEY_NULL" android:inputType="number"/>
+    <!--<PreferenceCategory>-->
+        <Preference android:title="@string/zeroing" android:key="@string/KEY_NULL" />
         <Preference android:title="@string/Update_scale" android:summary="@string/TEXT_MESSAGE14" android:key="@string/KEY_UPDATE" android:enabled="false"/>
-        <Preference android:title="@string/about" android:key="@string/KEY_ABOUT"/>
-    </PreferenceCategory>
+    <!--</PreferenceCategory>-->
 </PreferenceScreen>

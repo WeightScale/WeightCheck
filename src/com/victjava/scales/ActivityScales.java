@@ -113,7 +113,7 @@ public class ActivityScales extends Activity implements View.OnClickListener, Vi
                 vibrator.vibrate(100);
                 /** сбрасываем в ноль счетчик автоноль*/
                 scaleModule.resetAutoNull();
-                startActivity(new Intent(getBaseContext(), ActivityContact.class).setAction("check"));
+                startActivity(new Intent(getBaseContext(), ActivityContact.class).setAction("com.victjava.scales.CHECK"));
                 break;
             case R.id.imageViewRemote:
                 vibrator.vibrate(100);
@@ -175,7 +175,7 @@ public class ActivityScales extends Activity implements View.OnClickListener, Vi
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.preferences:
-                startActivity(new Intent(this, ActivityPreferences.class));
+                startActivity(new Intent(this, ActivityPreferences.class).setAction("com.victjava.scales.settings.PREFERENCE"));
                 break;
             case R.id.type:
                 startActivity(new Intent(getBaseContext(), ActivityType.class));
@@ -184,7 +184,7 @@ public class ActivityScales extends Activity implements View.OnClickListener, Vi
                 startActivity(new Intent(getBaseContext(), ActivityListChecks.class));
                 break;
             case R.id.contact:
-                startActivity(new Intent(getBaseContext(), ActivityContact.class).setAction("contact"));
+                startActivity(new Intent(getBaseContext(), ActivityContact.class).setAction("com.victjava.scales.CONTACT"));
                 break;
             case R.id.power_off:
                 AlertDialog.Builder dialog = new AlertDialog.Builder(this);

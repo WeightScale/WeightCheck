@@ -3,6 +3,7 @@ package com.victjava.scales.settings;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.preference.DialogPreference;
+import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.view.View;
 import com.victjava.scales.Main;
@@ -55,12 +56,13 @@ class DialogStepWeight extends DialogPreference /*implements ActivityPreferences
 
     @Override
     protected void onSetInitialValue(boolean restoreValue, Object defaultValue) {
-        setValue(restoreValue ? getPersistedInt(mNumber) : (Integer) defaultValue);
+        int value = restoreValue? getPersistedInt(mNumber) : (Integer) defaultValue;
+        setValue(Arrays.asList(stepArray).indexOf(String.valueOf(value)));
     }
 
     public void setValue(int value) {
         if (shouldPersist()) {
-            persistInt(value);
+            persistInt(Integer.valueOf(stepArray[value]));
         }
 
         if (value != mNumber) {
@@ -74,6 +76,4 @@ class DialogStepWeight extends DialogPreference /*implements ActivityPreferences
     protected Object onGetDefaultValue(TypedArray a, int index) {
         return a.getInt(index, 0);
     }
-
-
 }

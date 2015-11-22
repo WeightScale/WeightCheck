@@ -13,9 +13,9 @@ public class Preferences {
     private static SharedPreferences sharedPreferences;
     private static SharedPreferences.Editor editor;
 
-    public static final String PREFERENCES = "preferences"; //настройки общии для весов
-    public static final String PREF_UPDATE = "pref_update";    //настройки сохраненные при обновлении прошивки
-    public static final String PREF_CAMERA = "pref_camera"; //настройки для камеры.
+    //public static final String PREFERENCES = "preferences"; //настройки общии для весов
+    //public static final String PREF_UPDATE = "pref_update";    //настройки сохраненные при обновлении прошивки
+    //public static final String PREF_CAMERA = "pref_camera"; //настройки для камеры.
 
     public static final String KEY_NUMBER_SMS = "number_sms";
     //public static final String KEY_SENT_SERVICE = "sent_service";
@@ -24,7 +24,7 @@ public class Preferences {
         load(context.getSharedPreferences(name, Context.MODE_PRIVATE)); //загрузить настройки
     }
 
-    Preferences(Context context) {
+    public Preferences(Context context) {
         sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
         editor = sharedPreferences.edit();
         editor.apply();

@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <PreferenceCategory  android:title="Настройки общии" >
+        <Preference android:title="Для пользователя" android:summary="Настройки для пользователя">
+            <intent android:action="com.victjava.scales.settings.GENERAL"/>
+        </Preference>
+    </PreferenceCategory>
+
+    <PreferenceCategory android:title="Настройки админ">
+        <Preference android:title="Для администратора" android:summary="Настройки для опытного пользователя">
+            <intent android:action="com.victjava.scales.settings.ADMIN"/>
+        </Preference>
+    </PreferenceCategory>
+
+    <PreferenceCategory android:title="О программе" >
+        <Preference android:title="О программе" android:summary="Информация о программе">
+            <intent android:action="com.victjava.scales.settings.ABOUT"/>
+        </Preference>
+    </PreferenceCategory>
+
+</PreferenceScreen>

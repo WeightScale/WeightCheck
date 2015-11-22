@@ -24,9 +24,6 @@
                                             android:inputType="number"/>
                     </PreferenceCategory>
                 </PreferenceScreen>
-                <com.victjava.scales.settings.DialogTimerOff android:title="@string/Timer_off"
-                        android:key="@string/KEY_TIMER"
-                        android:inputType="number"/>
                 <com.victjava.scales.settings.DialogStepWeight android:title="@string/measuring_step"
                         android:key="@string/KEY_STEP"
                         android:inputType="number"/>
@@ -54,11 +51,14 @@
                                                       android:summary="@string/sum_filter_adc"
                                                       android:key="@string/KEY_FILTER"
                                                       android:inputType="number"/>
-        <Preference android:title="Для администратора" android:key="@string/KEY_ADMIN"/>
+        <com.victjava.scales.settings.DialogTimerOff android:title="@string/Timer_off"
+                                                     android:key="@string/KEY_TIMER"
+                                                     android:inputType="number"/>
+        <!--<Preference android:title="Для администратора" android:key="@string/KEY_ADMIN"/>-->
     </PreferenceCategory>
     <PreferenceCategory>
         <Preference android:title="@string/zeroing" android:key="@string/KEY_NULL" android:inputType="number"/>
         <Preference android:title="@string/Update_scale" android:summary="@string/TEXT_MESSAGE14" android:key="@string/KEY_UPDATE" android:enabled="false"/>
-        <Preference android:title="@string/about" android:key="@string/KEY_ABOUT"/>
+        <!--<Preference android:title="@string/about" android:key="@string/KEY_ABOUT"/>-->
     </PreferenceCategory>
 </PreferenceScreen>

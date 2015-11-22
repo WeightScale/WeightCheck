@@ -36,10 +36,9 @@ public class Main extends Application {
 
     PackageInfo packageInfo;
 
-    /**
-     * Версия пограммы весового модуля.
-     */
+    /** Версия пограммы весового модуля. */
     public final int microSoftware = 4;
+
     protected String networkOperatorName;
     protected String simNumber;
     protected String telephoneNumber;
@@ -138,10 +137,6 @@ public class Main extends Application {
         this.networkCountry = networkCountry;
     }
 
-    //public GoogleForms.Form getFormWeightCheck() { return formWeightCheck; }
-
-    //public GoogleForms.Form getFormSettings() { return formSettings; }
-
     @Override
     public void onCreate() {
         super.onCreate();
@@ -154,18 +149,15 @@ public class Main extends Application {
             new ErrorTable(this).insertNewEntry("100", e.getMessage());
         }
 
-        preferencesScale = new Preferences(getApplicationContext());
-        //preferencesUpdate = new Preferences(getApplicationContext(), Preferences.PREF_UPDATE);
-        //preferencesCamera = new Preferences(getApplicationContext(), Preferences.PREF_CAMERA);
-        //Preferences.load(getSharedPreferences(Preferences.PREFERENCES, Context.MODE_PRIVATE)); //загрузить настройки
+        preferencesScale = new Preferences(getApplicationContext()); //загрузить настройки
 
-        stepMeasuring = preferencesScale.read(getString(R.string.KEY_STEP), getResources().getInteger(R.integer.default_max_step_scale));
+        stepMeasuring = preferencesScale.read(getString(R.string.KEY_STEP), getResources().getInteger(R.integer.default_step_scale));
         autoCapture = preferencesScale.read(getString(R.string.KEY_AUTO_CAPTURE), getResources().getInteger(R.integer.default_max_auto_capture));
         dayDeleteCheck = preferencesScale.read(getString(R.string.KEY_DAY_CHECK_DELETE), getResources().getInteger(R.integer.default_day_delete_check));
         dayClosedCheck = preferencesScale.read(getString(R.string.KEY_DAY_CLOSED_CHECK), getResources().getInteger(R.integer.default_day_close_check));
         //ScaleModule.setTimerNull(Preferences.read(getString(R.string.KEY_TIMER_NULL), default_max_time_auto_null));
         //ScaleModule.setWeightError(Preferences.read(getString(R.string.KEY_MAX_NULL), default_limit_auto_null));
-        timeDelayDetectCapture = preferencesScale.read(getString(R.string.KEY_TIME_DELAY_DETECT_CAPTURE), 1);
+        timeDelayDetectCapture = getResources().getInteger(R.integer.time_delay_detect_capture);
 
         /** Создаем путь к временной папке для для хранения файлов */
         path = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES) + File.separator + FOLDER_LOCAL);
@@ -181,7 +173,7 @@ public class Main extends Application {
         /** Получаем параметры камеры */
         parameters = camera.getParameters();
         camera.release();
-        //loadParametersToCamera();
+        loadParametersToCamera();
         /** Запускаем сервис для приемеа смс команд. */
         getApplicationContext().startService(new Intent(getApplicationContext(), ServiceSmsCommand.class));
 
@@ -192,7 +184,7 @@ public class Main extends Application {
      */
     public void loadParametersToCamera() {
 
-        //Preferences preferences = new Preferences(getSharedPreferences(getString(R.string.pref_settings), Context.MODE_PRIVATE));
+        preferencesCamera = new Preferences(getApplicationContext());
 
         List<String> colorEffects = parameters.getSupportedColorEffects();
         if (colorEffects != null) {

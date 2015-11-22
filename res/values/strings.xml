@@ -46,7 +46,7 @@
     <string name="name_scales">Имя весов</string>
     <string name="address_scales">Адрес весов</string>
     <string name="information">Bluetooth</string>
-    <string name="setting_auto_zero">Настройки авто ноль</string>
+    <string name="setting_auto_zero">Авто ноль</string>
     <string name="Auto_zero">Авто ноль</string>
     <string name="sum_setting_auto_zero">Настройки авто ноль время, вес …</string>
     <string name="sum_auto_zero">Настройки определения сброса на ноль</string>
@@ -55,7 +55,7 @@
     <string name="weight">Вес</string>
     <string name="sum_weight">Предел авто ноля</string>
     <string name="Settings">Настройки</string>
-    <string name="Timer_off">Время бездействия минут:</string>
+    <string name="Timer_off">Время выключения:</string>
     <string name="measuring_step">Шаг взвешивания:</string>
     <string name="auto_capture">Автозахват:</string>
     <string name="removing_checks">Удалять чеки через:</string>
@@ -171,7 +171,7 @@
     <string name="TEXT_MESSAGE11">Email не сохранен. Нет контакта</string>
     <string name="Enter_phone">Введите телефон?</string>
     <string name="TEXT_MESSAGE12">Phone не сохранен. Нет контакта</string>
-    <string name="Set_values">Установки значений</string>
+    <string name="Set_values">Значения</string>
     <string name="TEXT_MESSAGES13">Ограничения, лимиты, прочее</string>
     <string name="Update_scale">Обновление весов</string>
     <string name="TEXT_MESSAGE14">Обновление весов до последней версии</string>

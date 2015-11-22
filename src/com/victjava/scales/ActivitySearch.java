@@ -61,7 +61,7 @@ public class ActivitySearch extends Activity implements View.OnClickListener {
         textViewLog = (TextView) findViewById(R.id.textLog);
 
         String action = getIntent().getAction();
-        module = "bootloader".equals(action) ? ((Main) getApplication()).getBootModule() : ((Main) getApplication()).getScaleModule();
+        module = "com.victjava.scales.BOOTLOADER".equals(action) ? ((Main) getApplication()).getBootModule() : ((Main) getApplication()).getScaleModule();
         module.setOnEventConnectResult(onEventConnectResult);
         broadcastReceiver = new BroadcastReceiver() {
 

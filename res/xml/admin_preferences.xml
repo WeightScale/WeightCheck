@@ -9,31 +9,19 @@
     <PreferenceCategory android:title="Калибровка">
         <PreferenceScreen android:title="Калибровка весов" android:summary="Калибровка весов с ипользыванием калиброваного веса">
             <PreferenceCategory android:title="Калибровка весов">
-                <Preference android:title="Нулевой вес"
-                            android:summary="Установите нулевой вес на весах, и нажминте на поле" android:key="@string/KEY_POINT1"/>
-                <com.victjava.scales.settings.DialogPoint2 android:title="Контрольный вес"
-                                                           android:summary=" Установите калиброваный вес на весах, и введите вес в поле"
-                                                           android:key="@string/KEY_POINT2" android:inputType="number"/>
-                <!--<Preference android:title="Контрольный вес" android:summary=" Установите калиброваный вес на весах, и введите вес в поле" android:key="@string/KEY_POINT2" />-->
-                <EditTextPreference android:title="Максимальный вес"
-                                    android:summary="Введите в поле максимальный вес который взвешивают весы"
-                                    android:key="@string/KEY_WEIGHT_MAX" android:inputType="number"/>
-                <EditTextPreference android:title="Установить температуру"
-                                    android:summary="Введите в поле текущую температуру" android:key="@string/KEY_CALL_TEMP"
-                                    android:inputType="number"/>
-                <EditTextPreference android:title="Батарея"
-                                    android:summary="Введите в поле текущий заряд батареи в процентах"
-                                    android:key="@string/KEY_CALL_BATTERY" android:inputType="number"/>
+                <Preference android:title="Нулевой вес" android:summary="Установите нулевой вес на весах, и нажминте на поле" android:key="@string/KEY_POINT1"/>
+                <com.victjava.scales.settings.DialogPoint2 android:title="Контрольный вес" android:summary=" Установите калиброваный вес на весах, и введите вес в поле"
+                                                           android:key="@string/KEY_POINT2" android:gravity="right" android:inputType="number"/>
+                <EditTextPreference android:title="Максимальный вес" android:summary="Введите в поле максимальный вес который взвешивают весы"
+                                    android:key="@string/KEY_WEIGHT_MAX" android:gravity="right" android:inputType="number"/>
+                <EditTextPreference android:title="Батарея" android:summary="Введите в поле текущий заряд батареи в процентах"
+                                    android:key="@string/KEY_CALL_BATTERY" android:gravity="right" android:inputType="number"/>
             </PreferenceCategory>
         </PreferenceScreen>
         <PreferenceScreen android:title="Ввод калибровочных данных" android:summary="Ввод в ручную калибровочных данных которые известны">
             <PreferenceCategory android:title="Ввод калибровочных данных">
-                <EditTextPreference android:title="Константа А"
-                                    android:summary="Введите константу А которая была вычеслена при калибровке весов"
-                                    android:key="@string/KEY_COEFFICIENT_A" android:inputType="numberDecimal"/>
-                <EditTextPreference android:title="Константа B"
-                                    android:summary="Введите константу В которая была вычеслена при калибровке весов"
-                                    android:key="@string/KEY_COEFFICIENT_B" android:inputType="numberDecimal"/>
+                <EditTextPreference android:title="Константа А" android:summary="Введите константу А которая была вычеслена при калибровке весов"
+                                    android:key="@string/KEY_COEFFICIENT_A" android:gravity="right" android:inputType="numberDecimal"/>
             </PreferenceCategory>
         </PreferenceScreen>
     </PreferenceCategory>
@@ -41,24 +29,43 @@
         <PreferenceScreen android:title="Настройки для облака" android:summary="Настройки для отправки данных через интернет на google disk">
             <PreferenceCategory android:title="Настройки для облака">
                 <EditTextPreference android:title="Таблица" android:summary="Имя таблици spreadsheet в Google drive "
-                                    android:key="@string/KEY_SHEET" android:inputType="text"/>
-                <EditTextPreference android:title="Пользователь" android:summary="Account Google" android:key="@string/KEY_USER"
+                                    android:key="@string/KEY_SHEET" android:gravity="right" android:inputType="text"/>
+                <EditTextPreference android:title="Пользователь" android:summary="Account Google" android:key="@string/KEY_USER" android:gravity="right"
                                     android:inputType="textEmailAddress"/>
-                <EditTextPreference android:title="Пароль" android:summary="Password account Google"
+                <EditTextPreference android:title="Пароль" android:summary="Password account Google" android:gravity="right"
                                     android:key="@string/KEY_PASSWORD" android:inputType="textPassword"/>
             </PreferenceCategory>
         </PreferenceScreen>
         <PreferenceScreen android:title="Настройки для сообщений" android:summary="Настройки для отправки весового чека сообщением через смс">
             <EditTextPreference android:title="Телефон" android:summary="Номер телефона для смс" android:key="@string/KEY_PHONE"
-                                android:inputType="phone"/>
+                                android:gravity="right" android:inputType="phone"/>
         </PreferenceScreen>
         <Preference android:title="Настройка отсылателя" android:summary="Выбор куда отсылать весовой чек" android:key="@string/KEY_SENDER"/>
         <CheckBoxPreference android:enabled="true" android:title="Мобильный интернет" android:summary="Использовать мобильный интернет" android:key="@string/KEY_MOBIL_INTERNET" android:defaultValue="false"/>
         <CheckBoxPreference android:enabled="true" android:title="Фото взвешивания" android:summary="Делать фото при взвешивании" android:key="@string/KEY_PHOTO_CHECK" android:defaultValue="false"/>
     </PreferenceCategory>
-    <Preference android:title="НАСТРОЙКИ КАМЕРЫ" android:summary="установка свойств камеры" android:key="@string/key_camera_settings"/>
+    <PreferenceScreen android:title="НАСТРОЙКИ КАМЕРЫ" android:summary="установка свойств камеры" android:key="@string/key_camera_settings">
+        <PreferenceCategory android:title="НАСТРОЙКИ КАМЕРЫ" android:summary="установка свойств камеры">
+            <!--<PreferenceScreen android:key="@string/key_camera_screen" android:title="НАСТРОЙКИ КАМЕРЫ" android:summary="настройки камеры разрешение, фокус ...">-->
+            <ListPreference android:title="Цвет" android:summary="Цветовой эфект" android:key="@string/key_color_effect"/>
+            <ListPreference android:title="Удаление полос" android:summary="Полосы" android:key="@string/key_anti_banding"/>
+            <ListPreference android:title="Вспышка" android:summary="Вспышка" android:key="@string/key_flash_mode"/>
+            <ListPreference android:title="Фокус" android:summary="Установка фокуса" android:key="@string/key_focus_mode"/>
+            <ListPreference android:title="Сцена" android:summary="Установка сцены" android:key="@string/key_scene_mode"/>
+            <ListPreference android:title="Баланс белого" android:summary="Установка баланса белого" android:key="@string/key_white_mode"/>
+            <ListPreference android:title="Экспозиция" android:summary="Установка экспозициии" android:key="@string/key_exposure"/>
+            <PreferenceScreen android:title="Размер картинки" android:summary="Выбор размера разрешения картинки" android:key="@string/key_category_picture_size">
+                <ListPreference android:title="Размер картинки" android:summary="Установка размера картинки" android:key="@string/key_pic_size"/>
+                <Preference android:key="@string/key_pic_size_width" android:title="Ширина" android:enabled="false"/>
+                <Preference android:key="@string/key_pic_size_height" android:title="Высота" android:enabled="false"/>
+            </PreferenceScreen>
+            <ListPreference android:key="@string/key_rotation" android:title="Поворот" android:entries="@array/date_rotate" android:entryValues="@array/date_rotate"/>
+            <EditTextPreference android:title="Качество фото" android:gravity="right" android:dialogTitle="качество в процентах" android:summary="Качество" android:key="@string/key_quality_pic" android:inputType="number"/>
+            <!--</PreferenceScreen>-->
+        </PreferenceCategory>
+    </PreferenceScreen>
     <PreferenceCategory>
-        <EditTextPreference android:key="@string/KEY_SERVICE_COD" android:inputType="numberPassword" android:title="Сервис код" android:summary="Сервис код для доступа к административным настройкам"/>
+        <EditTextPreference android:key="@string/KEY_SERVICE_COD" android:gravity="right" android:inputType="numberPassword" android:title="Сервис код" android:summary="Сервис код для доступа к административным настройкам"/>
         <Preference android:title="@string/Update_scale" android:summary="@string/TEXT_MESSAGE14" android:key="@string/KEY_UPDATE"/>
     </PreferenceCategory>
 </PreferenceScreen>
