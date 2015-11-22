@@ -213,7 +213,7 @@ public class TakeService extends Service {
             /** Создаем битовую карту из входящих данных */
             //original = BitmapFactory.decodeByteArray(input, 0, input.length);
             original = BitmapFactory.decodeByteArray(input, 0, input.length, options);
-            original.recycle();
+            //original.recycle();
             /** Исключение если память выходит за пределы */
         } catch (OutOfMemoryError e) {
             /** Создаем опции битовой карты */
@@ -248,6 +248,7 @@ public class TakeService extends Service {
             Bitmap bitmapRotate = Bitmap.createBitmap(original, 0, 0, original.getWidth(), original.getHeight(), matrix, true);
             bitmapRotate.compress(Bitmap.CompressFormat.JPEG, Integer.parseInt(preferences.read(getString(R.string.key_quality_pic), "50")), blob);
             bitmapRotate.recycle();
+            bitmapRotate = null;
         } catch (OutOfMemoryError e) {
             e.printStackTrace();
         }
