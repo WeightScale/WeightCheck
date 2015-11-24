@@ -82,9 +82,7 @@ public class TaskCommand extends CheckTable {
         TYPE_CHECK_SEND_SMS_ADMIN
     }
 
-    /**
-     * Контейнер команд
-     */
+    /** Контейнер команд. */
     public final Map<TaskType, InterfaceTaskCommand> mapTasks = new EnumMap<>(TaskType.class);
 
     public interface InterfaceTaskCommand {
@@ -114,8 +112,7 @@ public class TaskCommand extends CheckTable {
         mapTasks.get(type).onExecuteTask(map);
     }
 
-    /**
-     * Получить интернет соединение.
+    /** Получить интернет соединение.
      *
      * @param timeout      Задержка между попытками.
      * @param countAttempt Количество попыток.
@@ -135,9 +132,7 @@ public class TaskCommand extends CheckTable {
         return false;
     }
 
-    /**
-     * Отправляем весовой чек Google disk spreadsheet таблицу.
-     */
+    /** Отправляем весовой чек Google disk spreadsheet таблицу. */
     public class CheckToSpreadsheet extends GoogleSpreadsheets implements TaskCommand.InterfaceTaskCommand {
         /**
          * Контейнер для обратных сообщений
@@ -275,9 +270,7 @@ public class TaskCommand extends CheckTable {
 
     }
 
-    /**
-     * Класс для отправки чека http post
-     */
+    /** Класс для отправки чека http post. */
     public class CheckTokHttpPost implements InterfaceTaskCommand {
         final Map<String, ArrayList<ObjectParcel>> mapChecksProcessed = new HashMap<>();
 
@@ -307,13 +300,11 @@ public class TaskCommand extends CheckTable {
                             /** Класс формы для передачи данных весового чека. */
                             GoogleForms.Form form = new GoogleForms(mContext.getAssets().open(pathFile)).createForm(nameForm);
                             String http = form.getHttp();
-                            String[] values = form.getParams().split(" ");
-
+                            Collection<BasicNameValuePair> values = form.getEntrys();
                             List<BasicNameValuePair> results = new ArrayList<>();
-                            for (String postName : values) {
-                                String[] pair = postName.split("=");
+                            for (BasicNameValuePair valuePair : values){
                                 try {
-                                    results.add(new BasicNameValuePair(pair[0], check.getString(check.getColumnIndex(pair[1]))));
+                                    results.add(new BasicNameValuePair(valuePair.getName(), check.getString(check.getColumnIndex(valuePair.getValue()))));
                                 } catch (Exception e) {}
                             }
                             submitData(http, results);
@@ -346,9 +337,7 @@ public class TaskCommand extends CheckTable {
         }
     }
 
-    /**
-     * Класс для отправки чека email почтой
-     */
+    /** Класс для отправки чека email почтой. */
     public class CheckToMail implements InterfaceTaskCommand {
 
         final Map<String, ArrayList<ObjectParcel>> mapChecksProcessed = new HashMap<>();
@@ -422,9 +411,7 @@ public class TaskCommand extends CheckTable {
         }
     }
 
-    /**
-     * Класс для отправки чека смс сообщением
-     */
+    /** Класс для отправки чека смс сообщением. */
     public class CheckToSmsContact implements InterfaceTaskCommand {
 
         final Map<String, ArrayList<ObjectParcel>> mapChecksProcessed = new HashMap<>();
@@ -482,9 +469,7 @@ public class TaskCommand extends CheckTable {
         }
     }
 
-    /**
-     * Класс для отправки чека смс сообщением
-     */
+    /** Класс для отправки чека смс сообщением.  */
     public class CheckToSmsAdmin implements InterfaceTaskCommand {
 
         final Map<String, ArrayList<ObjectParcel>> mapChecksProcessed = new HashMap<>();
@@ -542,9 +527,7 @@ public class TaskCommand extends CheckTable {
         }
     }
 
-    /**
-     * Отправляем настройки Google disk spreadsheet таблицу
-     */
+    /** Отправляем настройки Google disk spreadsheet таблицу.  */
     public class PreferenceToSpreadsheet extends GoogleSpreadsheets implements InterfaceTaskCommand {
 
         final String MAP_PREF_SEND = "send";
@@ -641,9 +624,7 @@ public class TaskCommand extends CheckTable {
 
     }
 
-    /**
-     * Класс для отправки чека http post
-     */
+    /** Класс для отправки чека http post. */
     public class PreferenceTokHttpPost implements InterfaceTaskCommand {
         final String MAP_PREF_SEND = "send";
         final String MAP_PREF_UNSEND = "unsend";
@@ -677,15 +658,17 @@ public class TaskCommand extends CheckTable {
                             /** Класс формы для передачи данных весового чека. */
                             GoogleForms.Form form = new GoogleForms(mContext.getAssets().open(pathFile)).createForm(nameForm);
                             String http = form.getHttp();
-                            String[] values = form.getParams().split(" ");
+                            Collection<BasicNameValuePair> values = form.getEntrys();
                             List<BasicNameValuePair> results = new ArrayList<>();
-                            for (String postName : values) {
-                                String[] pair = postName.split("=");
+                            for (BasicNameValuePair valuePair : values){
                                 try {
-                                    results.add(new BasicNameValuePair(pair[0], pref.getString(pref.getColumnIndex(pair[1]))));
+                                    results.add(new BasicNameValuePair(valuePair.getName(), pref.getString(pref.getColumnIndex(valuePair.getValue()))));
                                 } catch (Exception e) {}
                             }
+                            /** Отправляем данные на сервер. */
                             submitData(http, results);
+                            /** Удаляем запить в базе если отправили на сервер. */
+                            new PreferencesTable(mContext).removeEntry(prefId);
                             mapPrefProcessed.get(MAP_PREF_SEND).add(new ObjectParcel(prefId, mContext.getString(R.string.sent_to_the_server)));
                             msg = mHandler.obtainMessage(NotifyType.HANDLER_NOTIFY_PREF.ordinal(), prefId, taskId, mapPrefProcessed.get(MAP_PREF_SEND));
                         } catch (Exception e) {

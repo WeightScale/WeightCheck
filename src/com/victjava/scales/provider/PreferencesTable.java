@@ -118,20 +118,4 @@ public class PreferencesTable {
         }
 
     }
-
-    /*public static String getPrefFormHttp(){
-        return PREF_FORM_HTTP;
-    }*/
-
-    /*public static String getPrefParamHttp(){
-        Collection<BasicNameValuePair> results = new ArrayList<>();
-        results.add(new BasicNameValuePair(PREF_DATE_PARAM_HTTP,        KEY_DATE_CREATE));
-        results.add(new BasicNameValuePair(PREF_BT_PARAM_HTTP,          KEY_NUMBER_BT));
-        results.add(new BasicNameValuePair(PREF_COEFF_A_PARAM_HTTP,     KEY_COEFFICIENT_A));
-        results.add(new BasicNameValuePair(PREF_COEFF_B_PARAM_HTTP,     KEY_COEFFICIENT_B));
-        results.add(new BasicNameValuePair(PREF_MAX_WEIGHT_PARAM_HTTP,  KEY_MAX_WEIGHT));
-        results.add(new BasicNameValuePair(PREF_BT_TERMINAL_PARAM_HTTP, KEY_NUMBER_BT_TERMINAL));
-        return TextUtils.join(" ", results);
-    }*/
-
 }

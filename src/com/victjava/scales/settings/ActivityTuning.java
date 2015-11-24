@@ -27,7 +27,9 @@ import com.victjava.scales.Main;
 import com.victjava.scales.Preferences;
 import com.victjava.scales.R;
 import com.victjava.scales.bootloader.ActivityBootloader;
+import com.victjava.scales.provider.PreferencesTable;
 import com.victjava.scales.provider.SenderTable;
+import com.victjava.scales.provider.TaskTable;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -918,34 +920,19 @@ public class ActivityTuning extends PreferenceActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
+        flag_restore = false;
         main = (Main)getApplication();
         scaleModule = main.getScaleModule();
         dialog = new Dialog(this);
         dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
         startDialog();
-        //addPreferencesFromResource(R.xml.tuning);
-
         preferencesCamera = new Preferences(getApplicationContext());
-        //PreferenceManager.setDefaultValues(this, R.xml.camera, false);
-
-        /*process();
-        //initCameraPreferences();
-        Preference camera = findPreference(getString(R.string.key_camera_settings));
-        camera.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
-            @TargetApi(Build.VERSION_CODES.HONEYCOMB)
-            @Override
-            public boolean onPreferenceClick(Preference preference) {
-                getFragmentManager().beginTransaction().replace(android.R.id.content, new SettingsCamera()).commit();
-                return true;
-            }
-        });*/
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        /*if (flag_restore) {
+        if (flag_restore) {
             if (point1.x != Integer.MIN_VALUE && point2.x != Integer.MIN_VALUE) {
                 //scaleModule.setCoefficientA((float) (point1.x - point2.x)/(point1.y - point2.y));
                 scaleModule.setCoefficientA((float) (point1.y - point2.y) / (point1.x - point2.x));
@@ -964,14 +951,12 @@ public class ActivityTuning extends PreferenceActivity {
             } else {
                 Toast.makeText(getApplicationContext(), R.string.preferences_no, Toast.LENGTH_SHORT).show();
             }
-        }*/
-    }
-
-    @Override
-    public void onBackPressed() {
-        if(flag_restore)
-            setResult(RESULT_OK, new Intent());
-        super.onBackPressed();
+            try {
+                int entryID = Integer.valueOf(new PreferencesTable(this).insertAllEntry().getLastPathSegment());
+                new TaskTable(this).setPreferenceReady(entryID);
+            } catch (Exception e) {
+            }
+        }
     }
 
     @TargetApi(Build.VERSION_CODES.HONEYCOMB)
@@ -1011,30 +996,6 @@ public class ActivityTuning extends PreferenceActivity {
             }
         }
 
-        @Override
-        public void onDestroy() {
-            super.onDestroy();
-            if (flag_restore) {
-                if (point1.x != Integer.MIN_VALUE && point2.x != Integer.MIN_VALUE) {
-                    //scaleModule.setCoefficientA((float) (point1.x - point2.x)/(point1.y - point2.y));
-                    scaleModule.setCoefficientA((float) (point1.y - point2.y) / (point1.x - point2.x));
-                    //scaleModule.setCoefficientB(point1.y - point1.x/scaleModule.getCoefficientA() );
-                    scaleModule.setCoefficientB(point1.y - scaleModule.getCoefficientA() * point1.x);
-                }
-                //scaleModule.setLimitTenzo((int) (scaleModule.getWeightMax() * scaleModule.getCoefficientA()));
-                scaleModule.setLimitTenzo((int) (scaleModule.getWeightMax() / scaleModule.getCoefficientA()));
-                if (scaleModule.getLimitTenzo() > 0xffffff) {
-                    scaleModule.setLimitTenzo(0xffffff);
-                    scaleModule.setWeightMax((int) (0xffffff / scaleModule.getCoefficientA()));
-                    //scaleModule.setWeightMax((int) (0xffffff * scaleModule.getCoefficientA()));
-                }
-                if (scaleModule.writeData()) {
-                    Toast.makeText(getActivity().getApplicationContext(), R.string.preferences_yes, Toast.LENGTH_SHORT).show();
-                } else {
-                    Toast.makeText(getActivity().getApplicationContext(), R.string.preferences_no, Toast.LENGTH_SHORT).show();
-                }
-            }
-        }
     }
 
     @TargetApi(Build.VERSION_CODES.HONEYCOMB)

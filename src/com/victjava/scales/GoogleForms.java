@@ -27,6 +27,7 @@ import java.util.Collection;
  */
 public class GoogleForms {
     private final Document document;
+    private Form form;
 
     GoogleForms(Context context, int xmlRawResource) throws IOException, SAXException, ParserConfigurationException {
         DocumentBuilder documentBuilder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
@@ -71,9 +72,9 @@ public class GoogleForms {
     }
 
     public static class Form{
-        String http = "";
-        String table = "";
-        Collection<BasicNameValuePair> entrys = new ArrayList<>();
+        private String http = "";
+        private String table = "";
+        private Collection<BasicNameValuePair> entrys = new ArrayList<>();
 
         public String getHttp() {
             return http;
@@ -102,5 +103,11 @@ public class GoogleForms {
         public String getParams(){
             return TextUtils.join(" ", entrys);
         }
+
+        public String[] getArrayParams(){
+            String text = getParams();
+            return text.split(" ");
+        }
+
     }
 }

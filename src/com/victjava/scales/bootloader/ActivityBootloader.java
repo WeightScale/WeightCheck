@@ -44,14 +44,6 @@ public class ActivityBootloader extends Activity implements View.OnClickListener
     static final int REQUEST_CONNECT_BOOT = 1;
     static final int REQUEST_CONNECT_SCALE = 2;
 
-    /*private static final SparseArray<String> mapCodeDevice = new SparseArray<>();
-
-    static {
-        mapCodeDevice.put(0x9514, "atmega328.xml");
-        mapCodeDevice.put(0x9406, "atmega168.xml");
-        mapCodeDevice.put(0x930a, "atmega88.xml");
-    }*/
-
     enum CodeDevice{
         ATMEGA88("atmega88.xml",0x930a),    /* 37642 */
         ATMEGA168("atmega168.xml", 0x9406), /* 37894 */
@@ -169,6 +161,14 @@ public class ActivityBootloader extends Activity implements View.OnClickListener
                 switch (i) {
                     case DialogInterface.BUTTON_POSITIVE:
                         try {
+                            bootModule = new BootModule("BOOT", onEventConnectResult);
+                            log(getString(R.string.bluetooth_off));
+                        } catch (Exception e) {
+                            log(e.getMessage());
+                            finish();
+                        }
+                        try {
+                            ((Main)getApplication()).setBootModule(bootModule);
                             bootModule.init(addressDevice);
                             bootModule.attach();
                         } catch (Exception e) {
@@ -188,17 +188,10 @@ public class ActivityBootloader extends Activity implements View.OnClickListener
         });
         if (powerOff)
             dialog.setMessage("На весах нажмите кнопку включения и не отпускайте пока индикатор не погаснет. После этого нажмите ОК");
-        else dialog.setMessage(getString(R.string.TEXT_MESSAGE));
-            dialog.show();
+        else
+            dialog.setMessage(getString(R.string.TEXT_MESSAGE));
+        dialog.show();
 
-        try {
-            bootModule = new BootModule("BOOT", onEventConnectResult);
-            ((Main)getApplication()).setBootModule(bootModule);
-            log(getString(R.string.bluetooth_off));
-        } catch (Exception e) {
-            log(e.getMessage());
-            finish();
-        }
     }
 
     @Override
@@ -360,7 +353,8 @@ public class ActivityBootloader extends Activity implements View.OnClickListener
         if (flagProgramsFinish) {
             //Preferences.load(getSharedPreferences(Preferences.PREFERENCES, Context.MODE_PRIVATE));
             Main.preferencesUpdate.write(getString(R.string.KEY_FLAG_UPDATE), true);
-            bootModule.dettach();
+            if(bootModule != null)
+                bootModule.dettach();
             BluetoothAdapter.getDefaultAdapter().disable();
             while (BluetoothAdapter.getDefaultAdapter().isEnabled()) ;
             finish();

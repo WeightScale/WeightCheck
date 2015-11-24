@@ -1,11 +1,19 @@
 package com.victjava.scales.service;
 
+import android.annotation.TargetApi;
 import android.app.Service;
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
 import android.hardware.Camera;
+import android.media.AudioManager;
+import android.media.MediaActionSound;
+import android.media.MediaPlayer;
+import android.media.SoundPool;
+import android.net.Uri;
+import android.os.Build;
 import android.os.IBinder;
 import com.victjava.scales.Main;
 import com.victjava.scales.Preferences;
@@ -14,6 +22,7 @@ import com.victjava.scales.R;
 import java.io.*;
 import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Сервис сьемки фото.
@@ -57,20 +66,21 @@ public class TakeService extends Service {
                 /** Действие цели сделать одно фото */
                 if ("take".equals(intent.getAction())) {
                     /** Цель имеет параметры */
-                    //if (intent.getExtras() != null) {
-                        /** Флаг одиночная сьемка */
-                        //boolean flag = intent.getBooleanExtra("single_take", true);
+                    if (intent.getExtras() != null) {
+                        /** Номер весового чека. */
+                        int checkId = intent.getIntExtra("check_id", -1);
                         /** Запомнить флаг в настройках*/
                         //preferences.write(getString(R.string.key_flag_take_single), flag);
                         /** Новый экземпляр таймера периода сьемки */
-                        if (timer != null) {
+                        /*if (timer != null) {
                             timer.cancel();
                         }
-                        /** Новый экземпляр таймера периода сьемки */
+                        *//** Новый экземпляр таймера периода сьемки *//*
                         timer = new Timer();
-                        /** Запустить процесс сьемки через 10 милисекунд*/
-                        timer.schedule(new TimerTakeTask(), 10);
-                    //}
+                        *//** Запустить процесс сьемки через 10 милисекунд*//*
+                        timer.schedule(new TimerTakeTask(), 10);*/
+                        new Thread(new TakePicture(checkId)).start();
+                    }
 
                     /** Действие цели запустить процесс сьемки по периоду таймера*/
                 } /*else if ("start".equals(intent.getAction())) {
@@ -183,7 +193,6 @@ public class TakeService extends Service {
         int rotation = Integer.parseInt(preferences.read(getString(R.string.key_rotation), "90"));
         if (rotation >= 0 && rotation <= 270)
             Main.parameters.setRotation(rotation);
-
     }
 
     /**
@@ -247,9 +256,13 @@ public class TakeService extends Service {
         try {
             Bitmap bitmapRotate = Bitmap.createBitmap(original, 0, 0, original.getWidth(), original.getHeight(), matrix, true);
             bitmapRotate.compress(Bitmap.CompressFormat.JPEG, Integer.parseInt(preferences.read(getString(R.string.key_quality_pic), "50")), blob);
+            original.recycle();
+            original = null;
             bitmapRotate.recycle();
             bitmapRotate = null;
         } catch (OutOfMemoryError e) {
+            original.recycle();
+            original = null;
             e.printStackTrace();
         }
         return blob.toByteArray();
@@ -278,43 +291,112 @@ public class TakeService extends Service {
     /**
      * Сделать фотографию.
      */
-    private void takeImage() {
-        /** Пока обрабатывается фото */
+    private void takeImage(int id) {
+        /** Пока обрабатывается фото. */
         while (flagWaitTake) ;
-        /** Экземпляр камеры существует */
+        /** Экземпляр камеры существует. */
         if (camera != null) {
-            /** Сбрасываем настройки */
+            /** Сбрасываем настройки. */
             camera.release();
         }
-        /** Открываем главную камеру */
+        /** Открываем главную камеру. */
         camera = Camera.open(Camera.CameraInfo.CAMERA_FACING_BACK);
-        /** Загружаем настройки из программы */
+        /** Загружаем настройки из программы. */
         camera.setParameters(Main.parameters);
-        /** Начать сьемку изображения */
+        /** Начать сьемку изображения. */
         camera.startPreview();
-        /** Задержка  2 секунды для стабилизации камеры */
+        /** Задержка  2 секунды для стабилизации камеры. */
+        try {TimeUnit.SECONDS.sleep(2);} catch (InterruptedException e) {}
         try {
-            Thread.sleep(2000);
-        } catch (Exception e) {
-        }
-        /** Установливаем флаг делаем фото */
-        flagWaitTake = true;
-
-        try {
-            /** Сделать сьемку изображения */
-            camera.takePicture(null, null, null, jpegCallback);
+            /** Сделать сьемку изображения. */
+            camera.takePicture(null, null, null, new TakePictureCallback(id));
+            shootSound();
+            /** Установливаем флаг делаем фото. */
+            flagWaitTake = true;
         } catch (Exception e) {
             try {
-                /** При ошибке сделать пересоединение */
+                /** При ошибке сделать пересоединение. */
                 camera.reconnect();
             } catch (IOException e1) {
                 e1.printStackTrace();
             }
-            /** Остановить сьемку */
+            /** Остановить сьемку. */
             camera.stopPreview();
-            /** Сбросить настройки */
+            /** Сбросить настройки. */
             camera.release();
         }
+    }
+
+    public void shootSound() {
+        /*AudioManager meng = (AudioManager) getApplicationContext().getSystemService(Context.AUDIO_SERVICE);
+        int volume = meng.getStreamVolume( AudioManager.STREAM_NOTIFICATION);
+        MediaPlayer _shootMP=null;
+
+        if (volume != 0) {
+            if (_shootMP == null)
+                _shootMP = MediaPlayer.create(getApplicationContext(), Uri.parse("file:///system/media/audio/ui/camera_click.ogg"));
+            if (_shootMP != null)
+                _shootMP.start();
+        }*/
+
+        SoundPool soundPool = new SoundPool(1, AudioManager.STREAM_NOTIFICATION, 0);
+        int shutterSound = soundPool.load(this, R.raw.camera_click, 0);
+        soundPool.play(shutterSound, 1f, 1f, 0, 0, 1);
+    }
+
+    class TakePictureCallback implements Camera.PictureCallback {
+        final int check_id;
+
+        TakePictureCallback(int id){
+            check_id = id;
+        }
+
+        /** Фото сделано.
+         * @param data Данные изображения.
+         * @param camera Камера которая сделала изображение.
+         */
+        @Override
+        public void onPictureTaken(final byte[] data, final Camera camera) {
+            /** Процесс обработки сделаного фото */
+            new Thread(new Runnable() {
+                @Override
+                public synchronized void run() {
+                    try {
+                        /** Сжимаем данные изображения */
+                        byte[] compressImage = compressImage(data, camera);
+                        /** Создаем штамп времени */
+                        String timeStamp = new SimpleDateFormat("HH-mm-ss", Locale.getDefault()).format(new Date());
+                        /** Создаем имя папки по дате */
+                        String folderStamp = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(new Date());
+                        /** Создаем папку с именем штампа даты */
+                        File folderPath = new File(Main.path.getAbsolutePath() + File.separator + folderStamp);
+                        /** Делаем папку */
+                        folderPath.mkdirs();
+                        /** Создаем фаил с именем штампа времени */
+                        tempFileTake = new File(folderPath.getPath(), "№" + String.valueOf(check_id) + "(" + timeStamp + ").jpg");
+                        /** Создаем поток для записи фаила в папку временного хранения */
+                        FileOutputStream fileOutputStream = new FileOutputStream(tempFileTake.getPath());
+                        /** Записываем фаил в папку */
+                        fileOutputStream.write(compressImage);
+                        /** Закрываем поток */
+                        fileOutputStream.close();
+                    } catch (FileNotFoundException e) {
+                        e.printStackTrace();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                    /** Закрываем камеру */
+                    camera.stopPreview();
+                    /** Сбрасываем настройки */
+                    camera.release();
+                    /** Сбрасываем флаг фото сделано */
+                    flagWaitTake = false;
+                }
+            }).start();
+        }
+
     }
 
     /**
@@ -421,13 +503,34 @@ public class TakeService extends Service {
         }
     };
 
-    public class TimerTakeTask extends TimerTask {
+    /*Runnable runnableTakePicture = new Runnable() {
+        @Override
+        public void run() {
+            takeImage();
+        }
+    };*/
+
+    class TakePicture implements Runnable {
+        final int checkId;
+
+        TakePicture(int id){
+            checkId = id;
+        }
 
         @Override
         public void run() {
             /** Сделать фото*/
-            takeImage();
+            takeImage(checkId);
         }
     }
+
+    /*public class TimerTakeTask extends TimerTask {
+
+        @Override
+        public void run() {
+            *//** Сделать фото*//*
+            takeImage();
+        }
+    }*/
 
 }

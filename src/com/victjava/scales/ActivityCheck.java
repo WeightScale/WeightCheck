@@ -728,7 +728,7 @@ public class ActivityCheck extends FragmentActivity implements View.OnClickListe
                     flagExit = false;
                     if(Main.preferencesCamera.read(getString(R.string.KEY_PHOTO_CHECK), false)){
                         /** Запускаем сервис сделать фото. */
-                        startService(new Intent(getApplicationContext(), TakeService.class).setAction("take"));
+                        startService(new Intent(getApplicationContext(), TakeService.class).setAction("take").putExtra("check_id", entryID));
                     }
                     break;
                 case UPDATE_PROGRESS:

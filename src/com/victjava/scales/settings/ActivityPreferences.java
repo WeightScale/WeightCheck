@@ -412,14 +412,14 @@ public class ActivityPreferences extends PreferenceActivity implements SharedPre
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        if (flagChange) {
+        /*if (flagChange) {
             try {
                 int entryID = Integer.valueOf(new PreferencesTable(this).insertAllEntry().getLastPathSegment());
                 new TaskTable(this).setPreferenceReady(entryID);
                 //new TaskTable(getApplicationContext()).insertNewTask(TaskCommand.TaskType.TYPE_PREF_SEND_SHEET_DISK, entryID, 0, "preferences");
             } catch (Exception e) {
             }
-        }
+        }*/
     }
 
     @Override
