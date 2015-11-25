@@ -235,6 +235,7 @@ public class Main extends Application {
             parameters.setExposureCompensation(exposure);
 
         List<Camera.Size> pictureSizes = parameters.getSupportedPictureSizes();
+        String str = preferencesCamera.read(getString(R.string.key_pic_size), " ");
         int width = Integer.parseInt(preferencesCamera.read(getString(R.string.key_pic_size_width), String.valueOf(parameters.getPictureSize().width)));
         int height = Integer.parseInt(preferencesCamera.read(getString(R.string.key_pic_size_height), String.valueOf(parameters.getPictureSize().height)));
         parameters.setPictureSize(width, height);

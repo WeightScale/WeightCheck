@@ -9,6 +9,7 @@ import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.graphics.Color;
 import android.graphics.Point;
@@ -743,6 +744,7 @@ public class ActivityTuning extends PreferenceActivity {
         PIC_SIZE(R.string.key_pic_size) {
             @Override
             void setup(Preference listPreference) {
+                Context context = listPreference.getContext();
                 listPreference.setSummary(((ListPreference)listPreference).getValue());
                 List<Camera.Size> pictureSizes = Main.parameters.getSupportedPictureSizes();
                 if (pictureSizes != null) {
@@ -759,12 +761,14 @@ public class ActivityTuning extends PreferenceActivity {
                     listPreference.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
                         @Override
                         public boolean onPreferenceChange(Preference preference, Object o) {
-                            preference.getEditor().putString(preference.getKey(), o.toString());
+                            //preference.getEditor().putString(preference.getKey(), o.toString());
                             String[] str = o.toString().split("x");
-                            /*preferences.write(getString(R.string.key_pic_size_width), str[0]);
-                            preferences.write(getString(R.string.key_pic_size_height), str[1]);
-                            findPreference(getString(R.string.key_pic_size_width)).setSummary(str[0]);
-                            findPreference(getString(R.string.key_pic_size_height)).setSummary(str[1]);*/
+                            SharedPreferences.Editor editor = preference.getEditor();
+                            editor.putString(preference.getContext().getString(R.string.key_pic_size_width), str[0]);
+                            editor.putString(preference.getContext().getString(R.string.key_pic_size_height), str[1]);
+                            editor.commit();
+                            preference.getPreferenceManager().findPreference(preference.getContext().getString(R.string.key_pic_size_width)).setSummary(str[0]);
+                            preference.getPreferenceManager().findPreference(preference.getContext().getString(R.string.key_pic_size_height)).setSummary(str[1]);
                             preference.setSummary(o.toString());
                             Main.parameters.setPictureSize(Integer.parseInt(str[0]), Integer.parseInt(str[1]));
                             return true;
@@ -998,7 +1002,7 @@ public class ActivityTuning extends PreferenceActivity {
 
     }
 
-    @TargetApi(Build.VERSION_CODES.HONEYCOMB)
+    /*@TargetApi(Build.VERSION_CODES.HONEYCOMB)
     public static class SettingsCamera extends PreferenceFragment {
         public static Preferences preferencesCamera;
         enum CameraPreferences{
@@ -1204,10 +1208,10 @@ public class ActivityTuning extends PreferenceActivity {
                             public boolean onPreferenceChange(Preference preference, Object o) {
                                 preference.getEditor().putString(preference.getKey(), o.toString());
                                 String[] str = o.toString().split("x");
-                            /*preferences.write(getString(R.string.key_pic_size_width), str[0]);
+                            *//*preferences.write(getString(R.string.key_pic_size_width), str[0]);
                             preferences.write(getString(R.string.key_pic_size_height), str[1]);
                             findPreference(getString(R.string.key_pic_size_width)).setSummary(str[0]);
-                            findPreference(getString(R.string.key_pic_size_height)).setSummary(str[1]);*/
+                            findPreference(getString(R.string.key_pic_size_height)).setSummary(str[1]);*//*
                                 preference.setSummary(o.toString());
                                 Main.parameters.setPictureSize(Integer.parseInt(str[0]), Integer.parseInt(str[1]));
                                 return true;
@@ -1305,5 +1309,5 @@ public class ActivityTuning extends PreferenceActivity {
             view.setBackgroundColor(Color.WHITE);
             return view;
         }
-    }
+    }*/
 }

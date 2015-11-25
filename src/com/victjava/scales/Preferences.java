@@ -66,7 +66,7 @@ public class Preferences {
         return sharedPreferences.getString(key, def);
     }
 
-    static boolean read(String key, boolean def) {
+    public static boolean read(String key, boolean def) {
         return sharedPreferences.getBoolean(key, def);
     }
 

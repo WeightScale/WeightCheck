@@ -294,6 +294,8 @@ public class TakeService extends Service {
     private void takeImage(int id) {
         /** Пока обрабатывается фото. */
         while (flagWaitTake) ;
+        /** Установливаем флаг делаем фото. */
+        flagWaitTake = true;
         /** Экземпляр камеры существует. */
         if (camera != null) {
             /** Сбрасываем настройки. */
@@ -311,8 +313,6 @@ public class TakeService extends Service {
             /** Сделать сьемку изображения. */
             camera.takePicture(null, null, null, new TakePictureCallback(id));
             shootSound();
-            /** Установливаем флаг делаем фото. */
-            flagWaitTake = true;
         } catch (Exception e) {
             try {
                 /** При ошибке сделать пересоединение. */
@@ -324,6 +324,7 @@ public class TakeService extends Service {
             camera.stopPreview();
             /** Сбросить настройки. */
             camera.release();
+            flagWaitTake = false;
         }
     }
 
@@ -368,18 +369,26 @@ public class TakeService extends Service {
                         String timeStamp = new SimpleDateFormat("HH-mm-ss", Locale.getDefault()).format(new Date());
                         /** Создаем имя папки по дате */
                         String folderStamp = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(new Date());
-                        /** Создаем папку с именем штампа даты */
-                        File folderPath = new File(Main.path.getAbsolutePath() + File.separator + folderStamp);
-                        /** Делаем папку */
+                        /** Сохраняем фаил. */
+                        saveExternal(Main.path.getAbsolutePath() + File.separator + folderStamp, "№" + String.valueOf(check_id) + "(" + timeStamp + ").jpg", compressImage);
+                        saveInternal(folderStamp, "№" + String.valueOf(check_id) + "(" + timeStamp + ").jpg", compressImage);
+                        /** Создаем папку с именем штампа даты *//*
+                        //File folderPath = new File(Main.path.getAbsolutePath() + File.separator + folderStamp);
+                        File folderPath = getDir(folderStamp, Context.MODE_PRIVATE);
+                        *//** Делаем папку *//*
                         folderPath.mkdirs();
-                        /** Создаем фаил с именем штампа времени */
-                        tempFileTake = new File(folderPath.getPath(), "№" + String.valueOf(check_id) + "(" + timeStamp + ").jpg");
-                        /** Создаем поток для записи фаила в папку временного хранения */
-                        FileOutputStream fileOutputStream = new FileOutputStream(tempFileTake.getPath());
-                        /** Записываем фаил в папку */
+                        *//** Создаем фаил с именем штампа времени *//*
+                        //tempFileTake = new File(folderPath.getPath(), "№" + String.valueOf(check_id) + "(" + timeStamp + ").jpg");
+                        tempFileTake = new File(folderPath, "№" + String.valueOf(check_id) + "(" + timeStamp + ").jpg");
+                        *//** Создаем поток для записи фаила в папку временного хранения *//*
+                        //FileOutputStream fileOutputStream = new FileOutputStream(tempFileTake.getPath());
+                        *//** Используем внутренее место для хранения файлов.*//*
+                        //FileOutputStream fileOutputStream = openFileOutput(tempFileTake.getPath(), Context.MODE_PRIVATE);
+                        FileOutputStream fileOutputStream = new FileOutputStream(tempFileTake);
+                        *//** Записываем фаил в папку *//*
                         fileOutputStream.write(compressImage);
-                        /** Закрываем поток */
-                        fileOutputStream.close();
+                        *//** Закрываем поток *//*
+                        fileOutputStream.close();*/
                     } catch (FileNotFoundException e) {
                         e.printStackTrace();
                     } catch (IOException e) {
@@ -395,6 +404,36 @@ public class TakeService extends Service {
                     flagWaitTake = false;
                 }
             }).start();
+        }
+
+        void saveInternal(String folderStamp, String file, byte[] data) throws IOException {
+            /** Создаем папку с именем штампа даты */
+            File folderPath = getDir(folderStamp, Context.MODE_PRIVATE);
+            /** Делаем папку */
+            folderPath.mkdirs();
+            /** Создаем фаил с именем штампа времени */
+            File fileTake = new File(folderPath, file);
+            /** Создаем поток для записи фаила в папку временного хранения */
+            FileOutputStream fileOutputStream = new FileOutputStream(fileTake);
+            /** Записываем фаил в папку */
+            fileOutputStream.write(data);
+            /** Закрываем поток */
+            fileOutputStream.close();
+        }
+
+        void saveExternal(String folder, String file, byte[] data) throws IOException {
+            /** Создаем папку с именем штампа даты */
+            File folderPath = new File(folder);
+            /** Делаем папку */
+            folderPath.mkdirs();
+            /** Создаем фаил с именем штампа времени */
+            File fileTake = new File(folderPath.getPath(), file);
+            /** Создаем поток для записи фаила в папку временного хранения */
+            FileOutputStream fileOutputStream = new FileOutputStream(fileTake.getPath());
+            /** Записываем фаил в папку */
+            fileOutputStream.write(data);
+            /** Закрываем поток */
+            fileOutputStream.close();
         }
 
     }

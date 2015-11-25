@@ -700,9 +700,7 @@ public class ActivityCheck extends FragmentActivity implements View.OnClickListe
         }
     };
 
-    /**
-     * Обработчик сообщений.
-     */
+    /** Обработчик сообщений. */
     final Handler handler = new Handler() {
         private ProgressDialog dialogSave;
         /** Сообщение от обработчика авто сохранения.
@@ -756,10 +754,17 @@ public class ActivityCheck extends FragmentActivity implements View.OnClickListe
 
     public void startThread(){
         running = true;
-        threadAutoWeight = new Thread(this);
-        //threadAutoWeight.setPriority(Thread.MIN_PRIORITY);
-        threadAutoWeight.setDaemon(true);
-        threadAutoWeight.start();
+        if(threadAutoWeight == null){
+            threadAutoWeight = new Thread(this);
+            //threadAutoWeight.setPriority(Thread.MIN_PRIORITY);
+            //threadAutoWeight.setDaemon(true);
+            threadAutoWeight.start();
+
+        }else {
+            if(!threadAutoWeight.isAlive()){
+                threadAutoWeight.start();
+            }
+        }
     }
 
     public void stopThread(){
