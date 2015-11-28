@@ -1,6 +1,7 @@
 package com.victjava.scales.service;
 
 import android.annotation.TargetApi;
+import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
@@ -15,6 +16,7 @@ import android.media.SoundPool;
 import android.net.Uri;
 import android.os.Build;
 import android.os.IBinder;
+import com.victjava.scales.ActivityCheck;
 import com.victjava.scales.Main;
 import com.victjava.scales.Preferences;
 import com.victjava.scales.R;
@@ -64,42 +66,16 @@ public class TakeService extends Service {
             /** Есть действие цели */
             if (intent.getAction() != null) {
                 /** Действие цели сделать одно фото */
-                if ("take".equals(intent.getAction())) {
+                if ("com.victjava.scales.TAKE".equals(intent.getAction())) {
                     /** Цель имеет параметры */
                     if (intent.getExtras() != null) {
                         /** Номер весового чека. */
-                        int checkId = intent.getIntExtra("check_id", -1);
-                        /** Запомнить флаг в настройках*/
-                        //preferences.write(getString(R.string.key_flag_take_single), flag);
-                        /** Новый экземпляр таймера периода сьемки */
-                        /*if (timer != null) {
-                            timer.cancel();
-                        }
-                        *//** Новый экземпляр таймера периода сьемки *//*
-                        timer = new Timer();
-                        *//** Запустить процесс сьемки через 10 милисекунд*//*
-                        timer.schedule(new TimerTakeTask(), 10);*/
-                        new Thread(new TakePicture(checkId)).start();
+                        int checkId = intent.getIntExtra("com.victjava.scales.CHECK_ID", -1);
+                        PendingIntent pi = intent.getParcelableExtra(ActivityCheck.PENDING_TAKE);
+                        /** Запустить процесс сьемки. */
+                        new Thread(new TakePicture(checkId, pi)).start();
                     }
-
-                    /** Действие цели запустить процесс сьемки по периоду таймера*/
-                } /*else if ("start".equals(intent.getAction())) {
-                    *//** Если экземпляр таймера созданый сбросить таймер*//*
-                    if (timer != null) {
-                        timer.cancel();
-                    }
-                    *//** Новый экземпляр таймера периода сьемки *//*
-                    timer = new Timer();
-                    *//** Запускать процесс сьемки через установленый период милисекунд.
-                     *  Добавляется погрешность для синхронизации периода сьемки и периода передачи в милисекундах*//*
-                    timer.schedule(new TimerTakeTask(), 0, Long.parseLong(preferences.read(getString(R.string.key_period_take), "10")) * 1000 + Main.timePeriodSendToDisc);
-                    *//** Действте цели запустить процесс сьемка-передача-сьемка итд...*//*
-                } else if ("continuous".equals(intent.getAction())) {
-                    *//** Если экземпляр таймера созданый сбросить таймер *//*
-                    if (timer != null) {
-                        timer.cancel();
-                    }
-                }*/
+                }
             }
         }
         return START_STICKY;
@@ -110,11 +86,6 @@ public class TakeService extends Service {
         super.onCreate();
         /** Экземпляр настроек камеры */
         preferences = new Preferences(getApplicationContext());
-        /** Время задержки между кадрами */
-        //int temp = Integer.parseInt(preferences.read(getString(R.string.key_period_take), "10"));
-        /** Должно быть в диапазоне в секундах */
-        /*if (temp <= 0 || temp > 600)
-            preferences.write(getString(R.string.key_period_take), String.valueOf(10));*/
         /** Качество фото в процентах*/
         int temp = Integer.parseInt(preferences.read(getString(R.string.key_quality_pic), "50"));
         /** Должно быть в диапазоне в процентах */
@@ -126,13 +97,11 @@ public class TakeService extends Service {
         Main.parameters = camera.getParameters();
         /** Сбрасываем настройки */
         camera.release();
-        /** Загружаем новые настройки */
+        /** Загружаем сохраненные настройки. */
         loadParametersToCamera();
     }
 
-    /**
-     * Загружаем параметры камеры в настройки программы.
-     */
+    /** Загружаем параметры камеры в настройки программы.  */
     void loadParametersToCamera() {
 
         Preferences preferences = new Preferences(getApplicationContext());
@@ -195,11 +164,11 @@ public class TakeService extends Service {
             Main.parameters.setRotation(rotation);
     }
 
-    /**
-     * Сжатие и поворот изибражения
-     *
+    /** Сжатие и поворот изибражения.
      * @param input Входящии данные.
+     * @param camera Экземпляр камеры.
      * @return Сжатые данные.
+     * @throws Exception Исключение при ошибки преобразования данных.
      */
     byte[] compressImage(byte[] input, Camera camera) throws Exception{
         //Preferences preferences = new Preferences(getSharedPreferences(Preferences.PREF_SETTINGS,Context.MODE_PRIVATE));
@@ -223,7 +192,7 @@ public class TakeService extends Service {
             //original = BitmapFactory.decodeByteArray(input, 0, input.length);
             original = BitmapFactory.decodeByteArray(input, 0, input.length, options);
             //original.recycle();
-            /** Исключение если память выходит за пределы */
+            /** Исключение если память выходит за пределы. */
         } catch (OutOfMemoryError e) {
             /** Создаем опции битовой карты */
             BitmapFactory.Options bitmapOptions = new BitmapFactory.Options();
@@ -288,45 +257,6 @@ public class TakeService extends Service {
 
         return inSampleSize;
     }
-    /**
-     * Сделать фотографию.
-     */
-    private void takeImage(int id) {
-        /** Пока обрабатывается фото. */
-        while (flagWaitTake) ;
-        /** Установливаем флаг делаем фото. */
-        flagWaitTake = true;
-        /** Экземпляр камеры существует. */
-        if (camera != null) {
-            /** Сбрасываем настройки. */
-            camera.release();
-        }
-        /** Открываем главную камеру. */
-        camera = Camera.open(Camera.CameraInfo.CAMERA_FACING_BACK);
-        /** Загружаем настройки из программы. */
-        camera.setParameters(Main.parameters);
-        /** Начать сьемку изображения. */
-        camera.startPreview();
-        /** Задержка  2 секунды для стабилизации камеры. */
-        try {TimeUnit.SECONDS.sleep(2);} catch (InterruptedException e) {}
-        try {
-            /** Сделать сьемку изображения. */
-            camera.takePicture(null, null, null, new TakePictureCallback(id));
-            shootSound();
-        } catch (Exception e) {
-            try {
-                /** При ошибке сделать пересоединение. */
-                camera.reconnect();
-            } catch (IOException e1) {
-                e1.printStackTrace();
-            }
-            /** Остановить сьемку. */
-            camera.stopPreview();
-            /** Сбросить настройки. */
-            camera.release();
-            flagWaitTake = false;
-        }
-    }
 
     public void shootSound() {
         /*AudioManager meng = (AudioManager) getApplicationContext().getSystemService(Context.AUDIO_SERVICE);
@@ -345,231 +275,145 @@ public class TakeService extends Service {
         soundPool.play(shutterSound, 1f, 1f, 0, 0, 1);
     }
 
-    class TakePictureCallback implements Camera.PictureCallback {
-        final int check_id;
-
-        TakePictureCallback(int id){
-            check_id = id;
-        }
-
-        /** Фото сделано.
-         * @param data Данные изображения.
-         * @param camera Камера которая сделала изображение.
-         */
-        @Override
-        public void onPictureTaken(final byte[] data, final Camera camera) {
-            /** Процесс обработки сделаного фото */
-            new Thread(new Runnable() {
-                @Override
-                public synchronized void run() {
-                    try {
-                        /** Сжимаем данные изображения */
-                        byte[] compressImage = compressImage(data, camera);
-                        /** Создаем штамп времени */
-                        String timeStamp = new SimpleDateFormat("HH-mm-ss", Locale.getDefault()).format(new Date());
-                        /** Создаем имя папки по дате */
-                        String folderStamp = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(new Date());
-                        /** Сохраняем фаил. */
-                        saveExternal(Main.path.getAbsolutePath() + File.separator + folderStamp, "№" + String.valueOf(check_id) + "(" + timeStamp + ").jpg", compressImage);
-                        saveInternal(folderStamp, "№" + String.valueOf(check_id) + "(" + timeStamp + ").jpg", compressImage);
-                        /** Создаем папку с именем штампа даты *//*
-                        //File folderPath = new File(Main.path.getAbsolutePath() + File.separator + folderStamp);
-                        File folderPath = getDir(folderStamp, Context.MODE_PRIVATE);
-                        *//** Делаем папку *//*
-                        folderPath.mkdirs();
-                        *//** Создаем фаил с именем штампа времени *//*
-                        //tempFileTake = new File(folderPath.getPath(), "№" + String.valueOf(check_id) + "(" + timeStamp + ").jpg");
-                        tempFileTake = new File(folderPath, "№" + String.valueOf(check_id) + "(" + timeStamp + ").jpg");
-                        *//** Создаем поток для записи фаила в папку временного хранения *//*
-                        //FileOutputStream fileOutputStream = new FileOutputStream(tempFileTake.getPath());
-                        *//** Используем внутренее место для хранения файлов.*//*
-                        //FileOutputStream fileOutputStream = openFileOutput(tempFileTake.getPath(), Context.MODE_PRIVATE);
-                        FileOutputStream fileOutputStream = new FileOutputStream(tempFileTake);
-                        *//** Записываем фаил в папку *//*
-                        fileOutputStream.write(compressImage);
-                        *//** Закрываем поток *//*
-                        fileOutputStream.close();*/
-                    } catch (FileNotFoundException e) {
-                        e.printStackTrace();
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-                    /** Закрываем камеру */
-                    camera.stopPreview();
-                    /** Сбрасываем настройки */
-                    camera.release();
-                    /** Сбрасываем флаг фото сделано */
-                    flagWaitTake = false;
-                }
-            }).start();
-        }
-
-        void saveInternal(String folderStamp, String file, byte[] data) throws IOException {
-            /** Создаем папку с именем штампа даты */
-            File folderPath = getDir(folderStamp, Context.MODE_PRIVATE);
-            /** Делаем папку */
-            folderPath.mkdirs();
-            /** Создаем фаил с именем штампа времени */
-            File fileTake = new File(folderPath, file);
-            /** Создаем поток для записи фаила в папку временного хранения */
-            FileOutputStream fileOutputStream = new FileOutputStream(fileTake);
-            /** Записываем фаил в папку */
-            fileOutputStream.write(data);
-            /** Закрываем поток */
-            fileOutputStream.close();
-        }
-
-        void saveExternal(String folder, String file, byte[] data) throws IOException {
-            /** Создаем папку с именем штампа даты */
-            File folderPath = new File(folder);
-            /** Делаем папку */
-            folderPath.mkdirs();
-            /** Создаем фаил с именем штампа времени */
-            File fileTake = new File(folderPath.getPath(), file);
-            /** Создаем поток для записи фаила в папку временного хранения */
-            FileOutputStream fileOutputStream = new FileOutputStream(fileTake.getPath());
-            /** Записываем фаил в папку */
-            fileOutputStream.write(data);
-            /** Закрываем поток */
-            fileOutputStream.close();
-        }
-
-    }
-
-    /**
-     * Обратный вызов камеры
-     */
-    final Camera.PictureCallback jpegCallback = new Camera.PictureCallback() {
-        /** Фото сделано.
-         * @param data Данные изображения.
-         * @param camera Камера которая сделала изображение.
-         */
-        @Override
-        public void onPictureTaken(final byte[] data, final Camera camera) {
-            /** Процесс обработки сделаного фото */
-            new Thread(new Runnable() {
-                @Override
-                public synchronized void run() {
-                    try {
-                        /** Сжимаем данные изображения */
-                        byte[] compressImage = compressImage(data, camera);
-                        /** Создаем штамп времени */
-                        String timeStamp = new SimpleDateFormat("HH_mm_ss", Locale.getDefault()).format(new Date());
-                        /** Создаем имя папки по дате */
-                        String folderStamp = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(new Date());
-                        /** Создаем папку с именем штампа даты */
-                        File folderPath = new File(Main.path.getAbsolutePath() + File.separator + folderStamp);
-                        /** Делаем папку */
-                        folderPath.mkdirs();
-                        /** Создаем фаил с именем штампа времени */
-                        tempFileTake = new File(folderPath.getPath(), timeStamp + ".jpg");
-                        /** Создаем поток для записи фаила в папку временного хранения */
-                        FileOutputStream fileOutputStream = new FileOutputStream(tempFileTake.getPath());
-                        /** Записываем фаил в папку */
-                        fileOutputStream.write(compressImage);
-                        /** Закрываем поток */
-                        fileOutputStream.close();
-                    } catch (FileNotFoundException e) {
-                        e.printStackTrace();
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-                    /** Закрываем камеру */
-                    camera.stopPreview();
-                    /** Сбрасываем настройки */
-                    camera.release();
-                    /** Сбрасываем флаг фото сделано */
-                    flagWaitTake = false;
-                }
-            }).start();
-        }
-    };
-
-    /**
-     * Обратный вызов камеры для непрерывной сьемки
-     */
-    final Camera.PictureCallback jpegContinuousCallback = new Camera.PictureCallback() {
-        /** Фото сделано.
-         * @param data Данные изображения.
-         * @param camera Камера которая сделала изображение.
-         */
-        @Override
-        public void onPictureTaken(final byte[] data, final Camera camera) {
-            /** Процесс обработки сделаного фото */
-            new Thread(new Runnable() {
-                @Override
-                public synchronized void run() {
-                    /** Создаем штамп времени */
-                    String timeStamp = new SimpleDateFormat("HH_mm_ss", Locale.getDefault()).format(new Date());
-                    /** Создаем имя папки по дате */
-                    String folderStamp = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(new Date());
-                    try {
-                        /** Сжимаем данные изображения */
-                        byte[] compressImage = compressImage(data, camera);
-                        /** Создаем папку с именем штампа даты */
-                        File folderPath = new File(Main.path.getAbsolutePath() + File.separator + folderStamp);
-                        /** Делаем папку */
-                        folderPath.mkdirs();
-                        /** Создаем фаил с именем штампа времени */
-                        tempFileTake = new File(folderPath.getPath(), timeStamp + ".jpg");
-                        /** Создаем поток для записи фаила в папку временного хранения */
-                        FileOutputStream fileOutputStream = new FileOutputStream(tempFileTake.getPath());
-                        /** Записываем фаил в папку */
-                        fileOutputStream.write(compressImage);
-                        /** Закрываем поток */
-                        fileOutputStream.close();
-                        /** Сохранить фаил на google disk */
-                        //new UtilityDriver(getApplicationContext(), Main.account.name);
-                    } catch (FileNotFoundException e) {
-                        e.printStackTrace();
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-                    /** Закрываем камеру */
-                    camera.stopPreview();
-                    /** Сбрасываем настройки */
-                    camera.release();
-                    /** Сбрасываем флаг фото сделано */
-                    flagWaitTake = false;
-                }
-            }).start();
-        }
-    };
-
-    /*Runnable runnableTakePicture = new Runnable() {
-        @Override
-        public void run() {
-            takeImage();
-        }
-    };*/
-
+    /** Класс запуска зделать фото. */
     class TakePicture implements Runnable {
         final int checkId;
+        PendingIntent pendingIntent;
 
-        TakePicture(int id){
+        /** Конструктор класса зделать фото.
+         * @param id Номер весового чека к которому относиться фото.
+         * @param pi Намерение обратной отправки откуда запущен сервис.
+         */
+        TakePicture(int id, PendingIntent pi){
             checkId = id;
+            pendingIntent = pi;
         }
 
         @Override
         public void run() {
+            /** Пока обрабатывается фото. */
+            while (flagWaitTake) ;
             /** Сделать фото*/
-            takeImage(checkId);
-        }
-    }
-
-    /*public class TimerTakeTask extends TimerTask {
-
-        @Override
-        public void run() {
-            *//** Сделать фото*//*
             takeImage();
         }
-    }*/
+
+        /** Сделать фотографию. */
+        private void takeImage() {
+            /** Установливаем флаг делаем фото. */
+            flagWaitTake = true;
+            /** Экземпляр камеры существует. */
+            if (camera != null) {
+                /** Сбрасываем настройки. */
+                camera.release();
+            }
+            /** Открываем главную камеру. */
+            camera = Camera.open(Camera.CameraInfo.CAMERA_FACING_BACK);
+            /** Загружаем настройки из программы. */
+            camera.setParameters(Main.parameters);
+            /** Начать сьемку изображения. */
+            camera.startPreview();
+            /** Задержка  2 секунды для стабилизации камеры. */
+            try {TimeUnit.SECONDS.sleep(2);} catch (InterruptedException e) {}
+            try {
+                /** Сделать сьемку изображения. */
+                camera.takePicture(null, null, null, jpegCallback);
+                shootSound();
+            } catch (Exception e) {
+                try {
+                    /** При ошибке сделать пересоединение. */
+                    camera.reconnect();
+                } catch (IOException e1) {
+                    e1.printStackTrace();
+                }
+                /** Остановить сьемку. */
+                camera.stopPreview();
+                /** Сбросить настройки. */
+                camera.release();
+                flagWaitTake = false;
+            }
+        }
+
+        /** Обратный вызов камеры. */
+        final Camera.PictureCallback jpegCallback = new Camera.PictureCallback() {
+            /** Фото сделано.
+             * @param data Данные изображения.
+             * @param camera Камера которая сделала изображение.
+             */
+            @Override
+            public void onPictureTaken(final byte[] data, final Camera camera) {
+                /** Процесс обработки сделаного фото */
+                new Thread(new Runnable() {
+                    @Override
+                    public synchronized void run() {
+                        try {
+                            /** Сжимаем данные изображения. */
+                            byte[] compressImage = compressImage(data, camera);
+                            /** Создаем штамп времени */
+                            String timeStamp = new SimpleDateFormat("HH-mm-ss", Locale.getDefault()).format(new Date());
+                            /** Создаем имя папки по дате */
+                            String folderStamp = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(new Date());
+                            /** Сохраняем фаил. */
+                            //saveExternalMemory(Main.path.getAbsolutePath() + File.separator + folderStamp, "№" + String.valueOf(check_id) + "(" + timeStamp + ").jpg", compressImage);
+                            String path = saveInternalMemory(Main.FOLDER_LOCAL + File.separator + folderStamp, "№" + String.valueOf(checkId) + "(" + timeStamp + ").jpg", compressImage);
+                            Intent intent = new Intent();
+                            intent.putExtra("com.victjava.scales.PHOTO_PATH", path);
+                            pendingIntent.send(TakeService.this, ActivityCheck.START_TAKE, intent);
+                        } catch (FileNotFoundException e) {
+                            e.printStackTrace();
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                        /** Закрываем камеру */
+                        camera.stopPreview();
+                        /** Сбрасываем настройки */
+                        camera.release();
+                        /** Сбрасываем флаг фото сделано */
+                        flagWaitTake = false;
+                    }
+                }).start();
+            }
+        };
+
+        /** Процедура сохранения фото во внутренюю память приложения.
+         * @param folderStamp Имя папки.
+         * @param file Имя фаила.
+         * @param data Массив данных файла
+         * @throws IOException Исключение при ошибки записи данных.
+         */
+        String saveInternalMemory(String folderStamp, String file, byte[] data) throws IOException {
+            /** Создаем папку с именем штампа даты. */
+            //File folderPath = getDir(folderStamp, Context.MODE_PRIVATE);
+            File folderPath = new File(getFilesDir()+File.separator+folderStamp);
+            /** Делаем папку */
+            folderPath.mkdirs();
+            /** Создаем фаил с именем штампа времени. */
+            File fileTake = new File(folderPath, file);
+            /** Создаем поток для записи фаила в папку временного хранения. */
+            FileOutputStream fileOutputStream = new FileOutputStream(fileTake);
+            /** Записываем фаил в папку. */
+            fileOutputStream.write(data);
+            /** Закрываем поток. */
+            fileOutputStream.close();
+            /** Возвращяем путь к файлу. */
+            return fileTake.getPath();
+        }
+
+        void saveExternalMemory(String folder, String file, byte[] data) throws IOException {
+            /** Создаем папку с именем штампа даты. */
+            File folderPath = new File(folder);
+            /** Делаем папку. */
+            folderPath.mkdirs();
+            /** Создаем фаил с именем штампа времени. */
+            File fileTake = new File(folderPath.getPath(), file);
+            /** Создаем поток для записи фаила в папку временного хранения. */
+            FileOutputStream fileOutputStream = new FileOutputStream(fileTake.getPath());
+            /** Записываем фаил в папку. */
+            fileOutputStream.write(data);
+            /** Закрываем поток. */
+            fileOutputStream.close();
+        }
+    }
 
 }

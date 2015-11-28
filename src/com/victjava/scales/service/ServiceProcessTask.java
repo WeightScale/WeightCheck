@@ -56,9 +56,9 @@ public class ServiceProcessTask extends Service {
     @Override
     public void onCreate() {
         super.onCreate();
-        /**Экземпляр таблици задач*/
+        /**Экземпляр таблици задач.*/
         taskTable = new TaskTable(getApplicationContext());
-        /**Экземпляр интернет класса*/
+        /**Экземпляр интернет класса.*/
         internet = new Internet(this);
         broadcastReceiver = new BroadcastReceiver() {
             @Override
@@ -69,7 +69,7 @@ public class ServiceProcessTask extends Service {
                         internet.connect();
                     } else if (action.equals(Internet.INTERNET_DISCONNECT)) {
                         internet.disconnect();
-                        /** Останавливаем сервис */
+                        /** Останавливаем сервис. */
                         stopSelf();
                     }
                 }
@@ -89,12 +89,12 @@ public class ServiceProcessTask extends Service {
     }
 
     /**
-     * Процесс выполнения задач
+     * Процесс выполнения задач.
      */
     private void taskProcess() {
-        /**Экземпляр команд задач*/
+        /**Экземпляр команд задач.*/
         TaskCommand taskCommand = new TaskCommand(this, msgHandler);
-        /**Сообщение на обработчик запущен процесс задач*/
+        /**Сообщение на обработчик запущен процесс задач.*/
         msgHandler.obtainMessage(NotifyType.HANDLER_TASK_START.ordinal(), TaskType.values().length, 0).sendToTarget();
         for (TaskType taskType : TaskType.values()) {
             Cursor cursor = taskTable.getTypeEntry(taskType);

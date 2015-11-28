@@ -14,21 +14,13 @@ import android.preference.PreferenceFragment;
 import android.preference.PreferenceManager;
 import android.provider.BaseColumns;
 import android.provider.ContactsContract;
-import android.text.InputType;
-import android.text.method.PasswordTransformationMethod;
-import android.widget.EditText;
 import android.widget.Toast;
 import com.konst.module.Commands;
 import com.konst.module.ScaleModule;
 import com.victjava.scales.*;
 import com.victjava.scales.bootloader.ActivityBootloader;
-import com.victjava.scales.provider.PreferencesTable;
-import com.victjava.scales.provider.TaskTable;
 
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 public class ActivityPreferences extends PreferenceActivity implements SharedPreferences.OnSharedPreferenceChangeListener {
     static ScaleModule scaleModule;

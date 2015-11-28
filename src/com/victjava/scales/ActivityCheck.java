@@ -1,6 +1,7 @@
 package com.victjava.scales;
 
 
+import android.app.PendingIntent;
 import android.app.ProgressDialog;
 import android.content.ContentValues;
 import android.content.Context;
@@ -177,6 +178,9 @@ public class ActivityCheck extends FragmentActivity implements View.OnClickListe
      * Количество стабильных показаний веса для авто сохранения
      */
     public static final int COUNT_STABLE = 64;
+
+    public final static int START_TAKE = 1;
+    public final static String PENDING_TAKE = "com.victjava.scales.PENDING_TAKE";
 
     ContentValues values = new ContentValues();
     public int entryID;
@@ -725,8 +729,13 @@ public class ActivityCheck extends FragmentActivity implements View.OnClickListe
                     buttonFinish.setAlpha(100);
                     flagExit = false;
                     if(Main.preferencesCamera.read(getString(R.string.KEY_PHOTO_CHECK), false)){
+                        PendingIntent pendingIntent = createPendingResult(START_TAKE, new Intent(), 0);
+                        Intent intent = new Intent(getApplicationContext(), TakeService.class);
+                        intent.setAction("com.victjava.scales.TAKE");
+                        intent.putExtra("com.victjava.scales.CHECK_ID", entryID);
+                        intent.putExtra(PENDING_TAKE, pendingIntent);
                         /** Запускаем сервис сделать фото. */
-                        startService(new Intent(getApplicationContext(), TakeService.class).setAction("take").putExtra("check_id", entryID));
+                        startService(intent);
                     }
                     break;
                 case UPDATE_PROGRESS:
@@ -778,6 +787,18 @@ public class ActivityCheck extends FragmentActivity implements View.OnClickListe
                 e.printStackTrace();
             }
         }
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if(requestCode == START_TAKE){
+            String path = data.getStringExtra("com.victjava.scales.PHOTO_PATH");
+            if(path != null)
+                return;
+        }
+
     }
 }
 

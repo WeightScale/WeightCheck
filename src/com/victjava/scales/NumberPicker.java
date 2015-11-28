@@ -2145,9 +2145,6 @@ public class NumberPicker extends LinearLayout {
         }
     }
 
-    /**
-     * @hide
-     */
     public static class CustomEditText extends EditText {
 
         public CustomEditText(Context context, AttributeSet attrs) {
