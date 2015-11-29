@@ -212,6 +212,13 @@ public class ServiceProcessTask extends Service {
                             .setContentText(getString(R.string.Checks_send_count) + ' ' + ((ArrayList) msg.obj).size());
                     //new CheckDBAdapter(getApplicationContext()).updateEntry(msg.arg1, CheckDBAdapter.KEY_CHECK_ON_SERVER, 1);
                     break;
+                case HANDLER_NOTIFY_PHOTO: //отправлено на диск фото
+                    mBuilder.setSmallIcon(R.drawable.ic_stat_drive)
+                            .setTicker("Фото отправлено")
+                            .setContentText("Отправлено фото кол-во: " + ((ArrayList) msg.obj).size());
+                    notificationManager.notify(msg.what, generateNotification(new Intent(), mBuilder, msg.what));
+                    handleRemoveEntry(NotifyType.REMOVE_TASK_ENTRY.ordinal(), msg.arg2);
+                    return;
                 default:
                     return;
             }

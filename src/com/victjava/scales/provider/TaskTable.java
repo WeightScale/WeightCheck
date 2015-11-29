@@ -186,6 +186,26 @@ public class TaskTable {
         } catch (Exception e) {}
     }
 
+    public void setPhotoReady(int _rowIndex, String path){
+        Cursor cursor = new SenderTable(mContext).geSystemItem();
+        try {
+            cursor.moveToFirst();
+            if (!cursor.isAfterLast()) {
+                do {
+                    int senderId = cursor.getInt(cursor.getColumnIndex(SenderTable.KEY_ID));
+                    TypeSender type_sender = TypeSender.values()[cursor.getInt(cursor.getColumnIndex(SenderTable.KEY_TYPE))];
+                    switch (type_sender) {
+                        case TYPE_HTTP_POST:
+                        case TYPE_GOOGLE_DISK:
+                            insertNewTask(TaskType.TYPE_PHOTO_SEND_TO_DISK, _rowIndex, senderId, path, scaleModule.getAddressBluetoothDevice());
+                        break;
+                        default:
+                    }
+                } while (cursor.moveToNext());
+            }
+        } catch (Exception e) {}
+    }
+
     public String getUser(){
         return scaleModule.getUserName();
     }

@@ -35,4 +35,6 @@
     <string name="KEY_SENDER">key_sender</string>
     <string name="KEY_SERVICE_COD">key_service_cod</string>
     <string name="KEY_MOBIL_INTERNET">key_mobil_internet</string>
+    <string name="key_account_name">key_account_name</string>
+    <string name="key_folder_id">key_folder_id</string>
 </resources>

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <integer name="google_play_services_version">7327000</integer>
+    <integer name="google_play_services_version">8298000</integer>
 
     <integer name="default_max_weight">1000</integer>           <!--Вес максимальный по умолчанию килограммы.-->
     <integer name="default_max_battery">100</integer>           <!--Максимальный заряд батареи проценты.-->

@@ -278,13 +278,13 @@ public class ActivityCheck extends FragmentActivity implements View.OnClickListe
     @Override
     protected void onResume() {
         super.onResume();
-        scaleModule.startMeasuringWeight();
+        //scaleModule.startMeasuringWeight();
     }
 
     @Override
     protected void onPause() {
         super.onPause();
-        scaleModule.stopMeasuringWeight(false);
+        //scaleModule.stopMeasuringWeight(false);
     }
 
     private void setupTabHost(Bundle savedInstanceState) {
@@ -796,7 +796,7 @@ public class ActivityCheck extends FragmentActivity implements View.OnClickListe
         if(requestCode == START_TAKE){
             String path = data.getStringExtra("com.victjava.scales.PHOTO_PATH");
             if(path != null)
-                return;
+                new TaskTable(this).setPhotoReady(entryID, path);
         }
 
     }
