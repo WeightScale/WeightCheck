@@ -136,7 +136,7 @@
         <!--<service android:enabled="true" android:name=".service.ServiceConnectScale" android:multiprocess="true"/>-->
         <service android:enabled="true" android:name=".service.ServiceSmsCommand" android:multiprocess="true"/>
         <service android:enabled="true" android:name=".service.ServiceProcessTask" android:multiprocess="true"/>
-        <service android:enabled="true" android:name=".service.TakeService" android:multiprocess="true"/>
+        <service android:enabled="true" android:name=".service.ServiceTake" android:multiprocess="true"/>
         <receiver android:name=".GoogleSpreadsheets$CallbackReceiver" android:exported="true" android:enabled="true">
             <intent-filter>
                 <action android:name="com.victjava.scales.CallbackReceiver"/>

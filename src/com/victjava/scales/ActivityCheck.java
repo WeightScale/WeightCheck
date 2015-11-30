@@ -22,7 +22,7 @@ import android.widget.*;
 import com.konst.module.ScaleModule;
 import com.victjava.scales.provider.CheckTable;
 import com.victjava.scales.provider.TaskTable;
-import com.victjava.scales.service.TakeService;
+import com.victjava.scales.service.ServiceTake;
 
 
 import java.util.ArrayList;
@@ -310,6 +310,7 @@ public class ActivityCheck extends FragmentActivity implements View.OnClickListe
     }
 
     protected void exit() {
+        scaleModule.stopMeasuringWeight(false);
         stopThread();
         if (weightType == WeightType.NETTO) {
             values.put(CheckTable.KEY_IS_READY, 1);
@@ -487,7 +488,7 @@ public class ActivityCheck extends FragmentActivity implements View.OnClickListe
                 flag = true;
                 break;
             case NETTO:
-                scaleModule.stopMeasuringWeight(false);
+                //scaleModule.stopMeasuringWeight(false);
                 exit();
                 break;
         }
@@ -729,8 +730,8 @@ public class ActivityCheck extends FragmentActivity implements View.OnClickListe
                     buttonFinish.setAlpha(100);
                     flagExit = false;
                     if(Main.preferencesCamera.read(getString(R.string.KEY_PHOTO_CHECK), false)){
-                        PendingIntent pendingIntent = createPendingResult(START_TAKE, new Intent(), 0);
-                        Intent intent = new Intent(getApplicationContext(), TakeService.class);
+                        PendingIntent pendingIntent = createPendingResult(weightType.ordinal(), new Intent(), 0);
+                        Intent intent = new Intent(getApplicationContext(), ServiceTake.class);
                         intent.setAction("com.victjava.scales.TAKE");
                         intent.putExtra("com.victjava.scales.CHECK_ID", entryID);
                         intent.putExtra(PENDING_TAKE, pendingIntent);
@@ -793,12 +794,18 @@ public class ActivityCheck extends FragmentActivity implements View.OnClickListe
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
-        if(requestCode == START_TAKE){
-            String path = data.getStringExtra("com.victjava.scales.PHOTO_PATH");
-            if(path != null)
-                new TaskTable(this).setPhotoReady(entryID, path);
+        String path = data.getStringExtra("com.victjava.scales.PHOTO_PATH");
+        if(path != null){
+            switch (WeightType.values()[requestCode]){
+                case FIRST:
+                    values.put(CheckTable.KEY_PHOTO_FIRST, path);
+                    break;
+                case SECOND:
+                    values.put(CheckTable.KEY_PHOTO_SECOND, path);
+                    break;
+                default:
+            }
         }
-
     }
 }
 

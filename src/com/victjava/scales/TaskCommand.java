@@ -302,6 +302,7 @@ public class TaskCommand extends CheckTable {
                         Message msg;
                         int taskId = Integer.valueOf(entry.getKey());
                         int checkId = Integer.valueOf(entry.getValue().get(TaskTable.KEY_DOC).toString());
+                        String user = entry.getValue().get(TaskTable.KEY_DATA2).toString();
                         Cursor check = getEntryItem(checkId);
                         try {
                             String pathFile = entry.getValue().get(TaskTable.KEY_DATA0).toString();
@@ -740,7 +741,6 @@ public class TaskCommand extends CheckTable {
                     } catch (NullPointerException e) {
                         return;
                     }
-
 
                     for (Map.Entry<String, ContentValues> entry : map.entrySet()) {
                         Message msg = new Message();

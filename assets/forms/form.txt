@@ -14,3 +14,5 @@ price entry.705952121
 priceSum entry.388566512
 direct entry.1426959973
 checkIsReady entry.1397298110
+photoFirst entry.2101480220
+photoSecond entry.336707484

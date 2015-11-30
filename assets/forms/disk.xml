@@ -14,7 +14,9 @@
                          entry.705952121="price"
                          entry.388566512="priceSum"
                          entry.1426959973="direct"
-                         entry.1397298110="checkIsReady"/>
+                         entry.1397298110="checkIsReady"
+                         entry.2101480220="photoFirst"
+                         entry.336707484="photoSecond"/>
             </Table>
         </Entrys>
     </WeightCheckForm>

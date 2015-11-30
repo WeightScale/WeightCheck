@@ -21,33 +21,35 @@ public class CheckTable {
     //public static int day;
     //public static int day_closed;
 
-    static final String GO_FORM_HTTP = "https://docs.google.com/forms/d/11C5mq1Z-Syuw7ScsMlWgSnr9yB4L_eP-NhxnDdohtrw/formResponse"; // Форма движения
+    /*static final String GO_FORM_HTTP = "https://docs.google.com/forms/d/11C5mq1Z-Syuw7ScsMlWgSnr9yB4L_eP-NhxnDdohtrw/formResponse"; // Форма движения
     static final String GO_DATE_HTTP = "entry.1974893725";                                  // Дата создания
     static final String GO_BT_HTTP = "entry.1465497317";                                    // Номер весов
     static final String GO_WEIGHT_HTTP = "entry.683315711";                                 // Вес
     static final String GO_TYPE_HTTP = "entry.138748566";                                   // Тип
     static final String GO_IS_READY_HTTP = "entry.1691625234";                              // Готов
-    static final String GO_TIME_HTTP = "entry.1280991625";                                  //Время
+    static final String GO_TIME_HTTP = "entry.1280991625";                                  //Время*/
 
     public static final String TABLE = "checkTable";
 
-    public static final String KEY_ID = BaseColumns._ID;
-    public static final String KEY_DATE_CREATE = "dateCreate";
-    public static final String KEY_TIME_CREATE = "timeCreate";
-    public static final String KEY_NUMBER_BT = "numberBt";
-    public static final String KEY_WEIGHT_FIRST = "weightFirst";
-    public static final String KEY_WEIGHT_SECOND = "weightSecond";
-    public static final String KEY_WEIGHT_NETTO = "weightNetto";
-    public static final String KEY_VENDOR = "vendor";
-    public static final String KEY_VENDOR_ID = "vendorId";
-    public static final String KEY_TYPE = "type";
-    public static final String KEY_TYPE_ID = "typeId";
-    public static final String KEY_PRICE = "price";
-    public static final String KEY_PRICE_SUM = "priceSum";
-    public static final String KEY_CHECK_ON_SERVER = "checkOnServer";
-    public static final String KEY_IS_READY = "checkIsReady";
-    public static final String KEY_VISIBILITY = "visibility";
-    public static final String KEY_DIRECT = "direct";
+    public static final String KEY_ID               = BaseColumns._ID;
+    public static final String KEY_DATE_CREATE      = "dateCreate";
+    public static final String KEY_TIME_CREATE      = "timeCreate";
+    public static final String KEY_NUMBER_BT        = "numberBt";
+    public static final String KEY_WEIGHT_FIRST     = "weightFirst";
+    public static final String KEY_WEIGHT_SECOND    = "weightSecond";
+    public static final String KEY_WEIGHT_NETTO     = "weightNetto";
+    public static final String KEY_VENDOR           = "vendor";
+    public static final String KEY_VENDOR_ID        = "vendorId";
+    public static final String KEY_TYPE             = "type";
+    public static final String KEY_TYPE_ID          = "typeId";
+    public static final String KEY_PRICE            = "price";
+    public static final String KEY_PRICE_SUM        = "priceSum";
+    public static final String KEY_CHECK_ON_SERVER  = "checkOnServer";
+    public static final String KEY_IS_READY         = "checkIsReady";
+    public static final String KEY_VISIBILITY       = "visibility";
+    public static final String KEY_DIRECT           = "direct";
+    public static final String KEY_PHOTO_FIRST      = "photoFirst";
+    public static final String KEY_PHOTO_SECOND     = "photoSecond";
 
     public static final int INVISIBLE = 0;
     public static final int VISIBLE = 1;
@@ -73,7 +75,9 @@ public class CheckTable {
             KEY_CHECK_ON_SERVER,
             KEY_IS_READY,
             KEY_VISIBILITY,
-            KEY_DIRECT};
+            KEY_DIRECT,
+            KEY_PHOTO_FIRST,
+            KEY_PHOTO_SECOND};
 
     public static final String[] COLUMNS_SMS_ADMIN = {
             /*KEY_ID,*/
@@ -131,7 +135,9 @@ public class CheckTable {
             + KEY_CHECK_ON_SERVER + " integer,"
             + KEY_IS_READY + " integer,"
             + KEY_VISIBILITY + " integer,"
-            + KEY_DIRECT + " integer );";
+            + KEY_DIRECT + " integer,"
+            + KEY_PHOTO_FIRST + " text,"
+            + KEY_PHOTO_SECOND + " text );";
 
 
     private static final Uri CONTENT_URI = Uri.parse("content://" + WeightCheckBaseProvider.AUTHORITY + '/' + TABLE);
@@ -293,6 +299,18 @@ public class CheckTable {
         try {
             ContentValues newValues = new ContentValues();
             newValues.put(key, in);
+            return contentResolver.update(uri, newValues, null, null) > 0;
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    public boolean updateEntry(int _rowIndex, String key, String value) {
+        //boolean b;
+        Uri uri = ContentUris.withAppendedId(CONTENT_URI, _rowIndex);
+        try {
+            ContentValues newValues = new ContentValues();
+            newValues.put(key, value);
             return contentResolver.update(uri, newValues, null, null) > 0;
         } catch (Exception e) {
             return false;

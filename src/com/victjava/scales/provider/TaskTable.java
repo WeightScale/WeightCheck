@@ -23,14 +23,16 @@ public class TaskTable {
     final ScaleModule scaleModule;
     public static final String TABLE = "taskTable";
 
-    public static final String KEY_ID = BaseColumns._ID;
-    public static final String KEY_MIME_TYPE = "mime_type";
-    public static final String KEY_DOC = "id_doc";
-    public static final String KEY_ID_DATA = "id_contact";
-    public static final String KEY_DATA0 = "data0";
-    public static final String KEY_DATA1 = "data1";
-    public static final String KEY_DATA2 = "data2";
-    public static final String KEY_NUM_ERROR = "num_error";
+    public static final String KEY_ID           = BaseColumns._ID;
+    public static final String KEY_MIME_TYPE    = "mime_type";
+    public static final String KEY_DOC          = "id_doc";
+    public static final String KEY_ID_DATA      = "id_contact";
+    public static final String KEY_DATA0        = "data0";
+    public static final String KEY_DATA1        = "data1";
+    public static final String KEY_DATA2        = "data2";
+    public static final String KEY_DATA3        = "data3";
+    public static final String KEY_DATA4        = "data4";
+    public static final String KEY_NUM_ERROR    = "num_error";
 
     private final int COUNT_ERROR = 5;
 
@@ -43,6 +45,8 @@ public class TaskTable {
             + KEY_DATA0 + " text,"
             + KEY_DATA1 + " text,"
             + KEY_DATA2 + " text,"
+            + KEY_DATA3 + " text,"
+            + KEY_DATA4 + " text,"
             + KEY_NUM_ERROR + " integer );";
 
     public static final Uri CONTENT_URI = Uri.parse("content://" + WeightCheckBaseProvider.AUTHORITY + '/' + TABLE);
@@ -146,7 +150,7 @@ public class TaskTable {
                     TypeSender type_sender = TypeSender.values()[cursor.getInt(cursor.getColumnIndex(SenderTable.KEY_TYPE))];
                     switch (type_sender) {
                         case TYPE_HTTP_POST:
-                            insertNewTask(TaskType.TYPE_CHECK_SEND_HTTP_POST, _rowIndex, senderId, "forms/disk.xml", "WeightCheckForm");
+                            insertNewTask(TaskType.TYPE_CHECK_SEND_HTTP_POST, _rowIndex, senderId, "forms/disk.xml", "WeightCheckForm", getUser());
                         break;
                         case TYPE_GOOGLE_DISK:
                             insertNewTask(TaskType.TYPE_CHECK_SEND_SHEET_DISK, _rowIndex, senderId, getSpreadSheet(), getUser(), getPassword());

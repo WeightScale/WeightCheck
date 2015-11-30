@@ -2,10 +2,16 @@ package com.victjava.scales;
 
 import android.content.Context;
 
+import javax.activation.DataHandler;
+import javax.activation.DataSource;
+import javax.activation.FileDataSource;
 import javax.mail.*;
 import javax.mail.internet.InternetAddress;
+import javax.mail.internet.MimeBodyPart;
 import javax.mail.internet.MimeMessage;
+import javax.mail.internet.MimeMultipart;
 import java.io.UnsupportedEncodingException;
+import java.util.List;
 import java.util.Properties;
 
 /**
@@ -21,14 +27,56 @@ public class MailSend {
         mailObject = object;
     }
 
-    public MailSend(Context cxt, String email, String subject, String messageBody) {
+    /*public MailSend(Context cxt, String email, String subject, String messageBody) {
         mContext = cxt;
         mailObject = new MailObject(email, subject, messageBody);
-    }
+    }*/
 
+    /** Отправляем письмо.
+     * @throws MessagingException
+     * @throws UnsupportedEncodingException
+     */
     public void sendMail() throws MessagingException, UnsupportedEncodingException {
         Session session = createSessionObject();
         Message message = createMessage(mailObject.getSubject(), mailObject.getBody(), session);
+        Transport.send(message);
+    }
+
+    /** Отправляем письмо с приклепленным файлом.
+     * Добавляем путь файла при создании обьекта письма. {@link com.victjava.scales.MailSend.MailObject#addFile(String)}.
+     * @throws MessagingException Ошибка.
+     * @throws UnsupportedEncodingException Ошибка.
+     */
+    public void sendMailAttach() throws MessagingException, UnsupportedEncodingException{
+        Session session = createSessionObject();
+
+        Message message = new MimeMessage(session);
+        message.setFrom(new InternetAddress(mailObject.getUser(), mailObject.getPersonal()));
+        message.addRecipient(Message.RecipientType.TO, new InternetAddress(mailObject.getEmail(), mailObject.getEmail()));
+        message.setSubject(mailObject.getSubject());
+
+        // Create the message part
+        BodyPart messageBodyPart = new MimeBodyPart();
+        // Now set the actual message
+        messageBodyPart.setText(mailObject.getBody());
+        // Create a multipar message
+        Multipart multipart = new MimeMultipart();
+        // Set text message part
+        multipart.addBodyPart(messageBodyPart);
+        // Part two is attachment
+
+        String[] files = (String[]) mailObject.getFiles().toArray();
+        for (String file : files){
+            messageBodyPart = new MimeBodyPart();
+            DataSource source = new FileDataSource(file);
+            messageBodyPart.setDataHandler(new DataHandler(source));
+            messageBodyPart.setFileName(file);
+            multipart.addBodyPart(messageBodyPart);
+        }
+
+        // Send the complete message parts
+        message.setContent(multipart);
+
         Transport.send(message);
     }
 
@@ -60,6 +108,7 @@ public class MailSend {
     }
 
     static class MailObject {
+        List<String> files;
         protected String mEmail;
         protected String mSubject;
         protected String mBody;
@@ -100,6 +149,14 @@ public class MailSend {
         public String getPersonal() { return personal; }
 
         public void setPersonal(String personal) { this.personal = personal; }
+
+        public void addFile(String path){
+            files.add(path);
+        }
+
+        public List<String> getFiles() {
+            return files;
+        }
     }
 
 }

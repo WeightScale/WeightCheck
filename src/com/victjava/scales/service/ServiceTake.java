@@ -31,7 +31,7 @@ import java.util.concurrent.TimeUnit;
  *
  * @author Kostya
  */
-public class TakeService extends Service {
+public class ServiceTake extends Service {
     /**
      * Таймер для периода сьемки
      */
@@ -349,15 +349,15 @@ public class TakeService extends Service {
                             /** Сжимаем данные изображения. */
                             byte[] compressImage = compressImage(data, camera);
                             /** Создаем штамп времени */
-                            String timeStamp = new SimpleDateFormat("HH-mm-ss", Locale.getDefault()).format(new Date());
+                            String timeStamp = new SimpleDateFormat("HHmmss", Locale.getDefault()).format(new Date());
                             /** Создаем имя папки по дате */
-                            String folderStamp = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(new Date());
+                            String folderStamp = new SimpleDateFormat("yyyyMMdd", Locale.getDefault()).format(new Date());
                             /** Сохраняем фаил. */
                             //saveExternalMemory(Main.path.getAbsolutePath() + File.separator + folderStamp, "№" + String.valueOf(check_id) + "(" + timeStamp + ").jpg", compressImage);
-                            String path = saveInternalMemory(Main.FOLDER_LOCAL + File.separator + folderStamp, "№" + String.valueOf(checkId) + "(" + timeStamp + ").jpg", compressImage);
+                            String path = saveInternalMemory(Main.FOLDER_LOCAL /*+ File.separator + folderStamp*/, folderStamp + "_" + timeStamp + "(" + String.valueOf(checkId) + ").jpg", compressImage);
                             Intent intent = new Intent();
                             intent.putExtra("com.victjava.scales.PHOTO_PATH", path);
-                            pendingIntent.send(TakeService.this, ActivityCheck.START_TAKE, intent);
+                            pendingIntent.send(ServiceTake.this, 0, intent);
                         } catch (FileNotFoundException e) {
                             e.printStackTrace();
                         } catch (IOException e) {
