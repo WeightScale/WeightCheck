@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.os.*;
+import android.webkit.URLUtil;
 import com.google.android.gms.auth.GoogleAuthException;
 import com.google.android.gms.auth.GoogleAuthUtil;
 import com.google.android.gms.auth.UserRecoverableNotifiedException;
@@ -152,6 +153,7 @@ public class TaskCommand extends CheckTable {
          * Контейнер чеков для отправки
          */
         Map<String, ContentValues> mapChecks;
+        UtilityDriver utilityDriver = null;
 
 
         /**
@@ -178,9 +180,54 @@ public class TaskCommand extends CheckTable {
                             return;
                         }
 
+                        try {
+                            String user = ((Main)mContext.getApplicationContext()).preferencesScale.read(mContext.getString(R.string.KEY_LAST_USER), "");
+                            /** Экземпляр для работы с google drive */
+                            utilityDriver = new UtilityDriver(mContext, user);
+                        } catch (NullPointerException e) {
+                            return;
+                        }
+
                         for (Map.Entry<String, ContentValues> entry : mapChecks.entrySet()) {
                             int taskId = Integer.valueOf(entry.getKey());
                             int checkId = Integer.valueOf(entry.getValue().get(TaskTable.KEY_DOC).toString());
+
+                            Cursor cursor = getEntryItem(checkId, KEY_PHOTO_FIRST, KEY_PHOTO_SECOND);
+                            String[] columnNames = cursor.getColumnNames();
+                            int countColumns = cursor.getColumnCount();
+                            for(int i=0; i < countColumns; i++){
+                                String value = cursor.getString(i);
+                                if (value != null){
+                                    boolean b = URLUtil.isHttpsUrl(value);
+                                    if(!b){
+                                        //String path = entry.getValue().get(TaskTable.KEY_DATA0).toString();
+                                        String folder = entry.getValue().get(TaskTable.KEY_DATA1).toString();
+                                        java.io.File file = new java.io.File(value);
+
+                                        String parentId = null;
+                                        try {
+                                            /** Получаем доступ к папке рут на google drive. */
+                                            File folderRoot = utilityDriver.getFolder(folder, null);
+                                            /** Получаем индекс папки. */
+                                            parentId = folderRoot.getId();
+                                            /** Сохраняем фаил в папку на google disc. */
+                                            String link = saveFileToDrive(file, parentId);
+                                            updateEntry(checkId, columnNames[i], link);
+                                            /** Исключение если не добавлено разрешение для программы в google service play. */
+                                        } catch (UserRecoverableAuthIOException e) {
+                                            Intent intent = new Intent(mContext, ActivityGoogleDrivePreference.class).setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                                            intent.setAction("UserRecoverableAuthIOException");
+                                            intent.putExtra("request_authorization", e.getIntent());
+                                            mContext.startActivity(intent);
+                                            return;
+                                        } catch (IOException e) {
+                                            e.printStackTrace();
+                                        }
+
+
+                                    }
+                                }
+                            }
 
                             try {
                                 getSheetEntry(entry.getValue().get(TaskTable.KEY_DATA0).toString());
@@ -263,10 +310,10 @@ public class TaskCommand extends CheckTable {
          * Отослать данные чека в таблицу
          *
          * @param id Индекс чека.
-         * @throws Exception
+         * @throws Exception Ошибка отправки чека.
          */
         private void sendCheckToDisk(int id) throws Exception {
-            Cursor cursor = getEntryItem(id);
+            Cursor cursor = getEntryItem(id, COLUMNS_SHEET);
             if (cursor == null)
                 throw new Exception(mContext.getString(R.string.Check_N) + id + " null");
 
@@ -275,6 +322,43 @@ public class TaskCommand extends CheckTable {
                 updateEntry(id, CheckTable.KEY_CHECK_ON_SERVER, 1);
             }
             cursor.close();
+        }
+
+        /**
+         * Сохраняем фаил на Google drive.
+         *
+         * @param fileContent Фаил который нужно сохранить.
+         * @param parentId    Родительский индекс папки Google disk.
+         * @return string  - ссылку на загруженый фаил.
+         * @throws Exception Ошибки сохранения файла.
+         */
+        private String saveFileToDrive(final java.io.File fileContent, String parentId) throws Exception {
+
+            try {
+                /** Проверяе фаил */
+                if (!fileContent.exists())
+                    throw new Exception("Нет файла " + fileContent.getPath());
+                /** Создаем контента экземпляр файла для закрузки*/
+                FileContent mediaContent = new FileContent("image/jpeg", fileContent);
+                /**Не содержит контент */
+                if (mediaContent.getLength() == 0) {
+                    /** Фаил удаляем */
+                    if (!fileContent.delete()) {
+                        throw new Exception("Невозможно удалить медиоконтент " + fileContent.getPath());
+                    }
+                }
+                /** Загружаем фаил на диск */
+                File file = utilityDriver.uploadFile(fileContent.getName(), parentId, "image/jpeg", fileContent);
+                return file.getAlternateLink();
+            } catch (UserRecoverableAuthIOException e) {
+                Intent intent = new Intent(mContext, ActivityGoogleDrivePreference.class).setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                intent.setAction("UserRecoverableAuthIOException");
+                intent.putExtra("request_authorization", e.getIntent());
+                mContext.startActivity(intent);
+                throw new Exception(e.getMessage());
+            } catch (IOException e) {
+                throw new Exception("Возможно нужно установить Сервисы Google Play" + e.getMessage());
+            }
         }
 
     }

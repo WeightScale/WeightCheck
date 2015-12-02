@@ -50,6 +50,8 @@ public class CheckTable {
     public static final String KEY_DIRECT           = "direct";
     public static final String KEY_PHOTO_FIRST      = "photoFirst";
     public static final String KEY_PHOTO_SECOND     = "photoSecond";
+    public static final String KEY_WEB_FIRST        = "webFirst";
+    public static final String KEY_WEB_SECOND       = "webSecond";
 
     public static final int INVISIBLE = 0;
     public static final int VISIBLE = 1;
@@ -77,9 +79,38 @@ public class CheckTable {
             KEY_VISIBILITY,
             KEY_DIRECT,
             KEY_PHOTO_FIRST,
-            KEY_PHOTO_SECOND};
+            KEY_PHOTO_SECOND,
+            KEY_WEB_FIRST,
+            KEY_WEB_SECOND};
 
     public static final String[] COLUMNS_SMS_ADMIN = {
+            KEY_DATE_CREATE,
+            KEY_TIME_CREATE,
+            KEY_NUMBER_BT,
+            KEY_WEIGHT_FIRST,
+            KEY_WEIGHT_SECOND,
+            KEY_WEIGHT_NETTO,
+            KEY_VENDOR,
+            KEY_TYPE,
+            KEY_IS_READY,
+            KEY_DIRECT,
+            KEY_WEB_FIRST,
+            KEY_WEB_SECOND};
+
+    public static final String[] COLUMNS_SMS_CONTACT = {
+            KEY_DATE_CREATE,
+            KEY_TIME_CREATE,
+            KEY_WEIGHT_FIRST,
+            KEY_WEIGHT_SECOND,
+            KEY_WEIGHT_NETTO,
+            KEY_VENDOR,
+            KEY_TYPE,
+            KEY_PRICE,
+            KEY_PRICE_SUM,
+            KEY_WEB_FIRST,
+            KEY_WEB_SECOND};
+
+    public static final String[] COLUMNS_SHEET = {
             /*KEY_ID,*/
             KEY_DATE_CREATE,
             KEY_TIME_CREATE,
@@ -88,34 +119,13 @@ public class CheckTable {
             KEY_WEIGHT_SECOND,
             KEY_WEIGHT_NETTO,
             KEY_VENDOR,
-            /*KEY_VENDOR_ID,*/
             KEY_TYPE,
-            /*KEY_TYPE_ID,*/
-            /*KEY_PRICE,*/
-            /*KEY_PRICE_SUM,*/
-            /*KEY_CHECK_ON_SERVER,*/
-            KEY_IS_READY,
-            /*KEY_VISIBILITY,*/
-            KEY_DIRECT};
-
-    public static final String[] COLUMNS_SMS_CONTACT = {
-            /*KEY_ID,*/
-            KEY_DATE_CREATE,
-            KEY_TIME_CREATE,
-            /*KEY_NUMBER_BT,*/
-            KEY_WEIGHT_FIRST,
-            KEY_WEIGHT_SECOND,
-            KEY_WEIGHT_NETTO,
-            KEY_VENDOR,
-            /*KEY_VENDOR_ID,*/
-            KEY_TYPE,
-            /*KEY_TYPE_ID,*/
             KEY_PRICE,
-            KEY_PRICE_SUM
-            /*KEY_CHECK_ON_SERVER,*/
-            /*KEY_IS_READY,*/
-            /*KEY_VISIBILITY,*/
-            /*KEY_DIRECT*/};
+            KEY_PRICE_SUM,
+            KEY_IS_READY,
+            KEY_DIRECT,
+            KEY_PHOTO_FIRST,
+            KEY_PHOTO_SECOND};
 
     public static final String TABLE_CREATE = "create table "
             + TABLE + " ("
@@ -137,7 +147,9 @@ public class CheckTable {
             + KEY_VISIBILITY + " integer,"
             + KEY_DIRECT + " integer,"
             + KEY_PHOTO_FIRST + " text,"
-            + KEY_PHOTO_SECOND + " text );";
+            + KEY_PHOTO_SECOND + " text,"
+            + KEY_WEB_FIRST + " text,"
+            + KEY_WEB_SECOND + " text );";
 
 
     private static final Uri CONTENT_URI = Uri.parse("content://" + WeightCheckBaseProvider.AUTHORITY + '/' + TABLE);
