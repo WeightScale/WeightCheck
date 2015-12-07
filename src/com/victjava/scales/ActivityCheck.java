@@ -32,7 +32,9 @@ public class ActivityCheck extends FragmentActivity implements View.OnClickListe
     Thread threadAutoWeight;
     ScaleModule scaleModule;
     Main main;
+    TakingTimeout takingTimeout;
     boolean running;
+    boolean taking;
 
     public enum Action {
         /** Остановка взвешивания. */
@@ -43,6 +45,7 @@ public class ActivityCheck extends FragmentActivity implements View.OnClickListe
         STORE_WEIGHTING,
         /** Обновить данные веса. */
         UPDATE_PROGRESS,
+        /** Показать диалог сохраняем */
         DIALOG_SAVE
     }
 
@@ -97,21 +100,31 @@ public class ActivityCheck extends FragmentActivity implements View.OnClickListe
             }
             vibrator.vibrate(100);
             handler.obtainMessage(Action.UPDATE_PROGRESS.ordinal(), 0, 0).sendToTarget();
+
             if (!running) {
+                if (isStable && values.getAsInteger(CheckTable.KEY_CHECK_STATE) == CheckTable.State.CHECK_SECOND.ordinal()) { //Если тара зафоксирована и выход через кнопку назад
+                    values.put(CheckTable.KEY_CHECK_STATE, CheckTable.State.CHECK_PRELIMINARY.ordinal());
+                }
+                break;
+            }
+            /*if (!running) {
                 if (isStable && weightType == WeightType.SECOND) {                                                      //Если тара зафоксирована и выход через кнопку назад
                     weightType = WeightType.NETTO;
                 }
                 break;
-            }
-            handler.obtainMessage(Action.DIALOG_SAVE.ordinal(), false).sendToTarget();                                  // Экран делаем не видимым
+            }*/
+            handler.obtainMessage(Action.DIALOG_SAVE.ordinal(), false).sendToTarget();                                  // Диалог открываем сохраняем данные
             try {
                 TimeUnit.SECONDS.sleep(2);
             } catch (InterruptedException ignored) {
             }                            //задержка
-            handler.obtainMessage(Action.DIALOG_SAVE.ordinal(), true).sendToTarget();                                   // Экран делаем видимым
-            if (weightType == WeightType.SECOND) {
+            handler.obtainMessage(Action.DIALOG_SAVE.ordinal(), true).sendToTarget();                                   // Диалог закрываем
+            if (values.getAsInteger(CheckTable.KEY_CHECK_STATE) == CheckTable.State.CHECK_SECOND.ordinal()) {
                 stopThread(); //running = true;
             }
+            /*if (weightType == WeightType.SECOND) {
+                stopThread(); //running = true;
+            }*/
 
             handler.obtainMessage(Action.STOP_WEIGHTING.ordinal()).sendToTarget();
         }
@@ -163,16 +176,16 @@ public class ActivityCheck extends FragmentActivity implements View.OnClickListe
     /**
      * Энумератор типа веса.
      */
-    protected enum WeightType {
-        /** Первое взвешивание. */
+    /*protected enum WeightType {
+        *//** Первое взвешивание. *//*
         FIRST,
-        /** Второе взвешивание. */
+        *//** Второе взвешивание. *//*
         SECOND,
-        /** Вес нетто. */
+        *//** Вес нетто. *//*
         NETTO
-    }
+    }*/
 
-    public WeightType weightType;
+    //public WeightType weightType;
 
     /**
      * Количество стабильных показаний веса для авто сохранения
@@ -229,11 +242,11 @@ public class ActivityCheck extends FragmentActivity implements View.OnClickListe
 
         findViewById(R.id.imageViewPage).setOnClickListener(this);
 
-        if (values.getAsInteger(CheckTable.KEY_WEIGHT_FIRST) > 0) {
+        /*if (values.getAsInteger(CheckTable.KEY_WEIGHT_FIRST) > 0) {
             weightType = values.getAsInteger(CheckTable.KEY_WEIGHT_SECOND) == 0 ? WeightType.SECOND : WeightType.NETTO;
         } else {
             weightType = WeightType.FIRST;
-        }
+        }*/
 
         if (values.getAsInteger(CheckTable.KEY_WEIGHT_FIRST) == 0 || values.getAsInteger(CheckTable.KEY_WEIGHT_SECOND) == 0) {
             scaleModule.startMeasuringWeight();
@@ -278,13 +291,13 @@ public class ActivityCheck extends FragmentActivity implements View.OnClickListe
     @Override
     protected void onResume() {
         super.onResume();
-        //scaleModule.startMeasuringWeight();
+        scaleModule.startMeasuringWeight();
     }
 
     @Override
     protected void onPause() {
         super.onPause();
-        //scaleModule.stopMeasuringWeight(false);
+        scaleModule.stopMeasuringWeight(false);
     }
 
     private void setupTabHost(Bundle savedInstanceState) {
@@ -312,14 +325,29 @@ public class ActivityCheck extends FragmentActivity implements View.OnClickListe
     protected void exit() {
         scaleModule.stopMeasuringWeight(false);
         stopThread();
-        if (weightType == WeightType.NETTO) {
-            values.put(CheckTable.KEY_IS_READY, 1);
-            new TaskTable(this).setCheckReady(entryID);
-            taskToContact();
-            startActivity(new Intent(getBaseContext(), ActivityViewCheck.class).putExtra("id", entryID));
-        }
-        checkTable.updateEntry(entryID, values);
-        finish();
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                if(taking){
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            takingTimeout = new TakingTimeout(5000,5000);
+                            takingTimeout.start();
+                        }
+                    });
+                    while (taking){ try { TimeUnit.MILLISECONDS.sleep(10); } catch (InterruptedException e) { } };
+                }
+                //takingTimeout.cancel();
+                checkTable.updateEntry(entryID, values);
+                if (values.getAsInteger(CheckTable.KEY_CHECK_STATE) == CheckTable.State.CHECK_PRELIMINARY.ordinal()) {
+                    new TaskTable(ActivityCheck.this).setCheckReady(entryID);
+                    taskToContact();
+                    startActivity(new Intent(getBaseContext(), ActivityViewCheck.class).putExtra("id", entryID));
+                }
+                finish();
+            }
+        }).start();
     }
 
     /** Добавляет задачи для контакта в весовом чеке.
@@ -426,9 +454,12 @@ public class ActivityCheck extends FragmentActivity implements View.OnClickListe
                             buttonFinish.setAlpha(255);
                             flagExit = true;
                         }
-                        if (weightType == WeightType.SECOND) {
+                        if (values.getAsInteger(CheckTable.KEY_CHECK_STATE) == CheckTable.State.CHECK_SECOND.ordinal()) {
                             weightTypeUpdate();
                         }
+                        /*if (weightType == WeightType.SECOND) {
+                            weightTypeUpdate();
+                        }*/
                         break;
                     default:
                 }
@@ -472,6 +503,37 @@ public class ActivityCheck extends FragmentActivity implements View.OnClickListe
 
     private boolean saveWeight(int weight/*, WeightType type*/) {
         boolean flag = false;
+        switch (CheckTable.State.values()[values.getAsInteger(CheckTable.KEY_CHECK_STATE)]) {
+            case CHECK_FIRST:
+                if (weight > 0) {
+                    values.put(CheckTable.KEY_WEIGHT_FIRST, weight);
+                    vibrator.vibrate(100); //вибрация
+                    flag = true;
+                }
+                break;
+            case CHECK_SECOND:
+                values.put(CheckTable.KEY_WEIGHT_SECOND, weight);
+                int total = sumNetto();
+                values.put(CheckTable.KEY_PRICE_SUM, total);
+                vibrator.vibrate(100); //вибрация
+                flag = true;
+                break;
+            case CHECK_PRELIMINARY:
+                //scaleModule.stopMeasuringWeight(false);
+                exit();
+                break;
+        }
+        if (flag) {
+            ((OnCheckEventListener) mTabsAdapter.getCurrentFragment()).someEvent();
+            buttonFinish.setEnabled(true);
+            buttonFinish.setAlpha(255);
+            flagExit = true;
+        }
+        return flag;
+    }
+
+    /*private boolean saveWeight(int weight*//*, WeightType type*//*) {
+        boolean flag = false;
         switch (weightType) {
             case FIRST:
                 if (weight > 0) {
@@ -499,7 +561,7 @@ public class ActivityCheck extends FragmentActivity implements View.OnClickListe
             flagExit = true;
         }
         return flag;
-    }
+    }*/
 
     /**
      * Расчет веса нетто.
@@ -523,6 +585,22 @@ public class ActivityCheck extends FragmentActivity implements View.OnClickListe
     }
 
     private void weightTypeUpdate() {
+        switch (CheckTable.State.values()[values.getAsInteger(CheckTable.KEY_CHECK_STATE)]) {
+            case CHECK_FIRST:
+                values.put(CheckTable.KEY_CHECK_STATE, CheckTable.State.CHECK_SECOND.ordinal());
+            break;
+            case CHECK_SECOND:
+                values.put(CheckTable.KEY_CHECK_STATE, CheckTable.State.CHECK_PRELIMINARY.ordinal());
+                saveWeight(0);
+            break;
+            /*default:
+                values.put(CheckTable.KEY_CHECK_STATE, CheckTable.State.CHECK_FIRST.ordinal());*/
+        }
+        buttonFinish.setEnabled(true);
+        buttonFinish.setAlpha(255);
+        flagExit = true;
+    }
+    /*private void weightTypeUpdate() {
         switch (weightType) {
             case FIRST:
                 weightType = WeightType.SECOND;
@@ -537,7 +615,7 @@ public class ActivityCheck extends FragmentActivity implements View.OnClickListe
         buttonFinish.setEnabled(true);
         buttonFinish.setAlpha(255);
         flagExit = true;
-    }
+    }*/
 
     private class TabsAdapter extends FragmentPagerAdapter implements TabHost.OnTabChangeListener, ViewPager.OnPageChangeListener {
 
@@ -730,14 +808,25 @@ public class ActivityCheck extends FragmentActivity implements View.OnClickListe
                     buttonFinish.setAlpha(100);
                     flagExit = false;
                     if(Main.preferencesCamera.read(getString(R.string.KEY_PHOTO_CHECK), false)){
-                        PendingIntent pendingIntent = createPendingResult(weightType.ordinal(), new Intent(), 0);
-                        Intent intent = new Intent(getApplicationContext(), ServiceTake.class);
+                        PendingIntent pendingIntent = createPendingResult(values.getAsInteger(CheckTable.KEY_CHECK_STATE), new Intent(), 0);
+                        Intent intent = new Intent(getBaseContext(), ServiceTake.class);
                         intent.setAction("com.victjava.scales.TAKE");
                         intent.putExtra("com.victjava.scales.CHECK_ID", entryID);
                         intent.putExtra(PENDING_TAKE, pendingIntent);
                         /** Запускаем сервис сделать фото. */
                         startService(intent);
+                        taking = true;
                     }
+                    /*if(Main.preferencesCamera.read(getString(R.string.KEY_PHOTO_CHECK), false)){
+                        PendingIntent pendingIntent = createPendingResult(weightType.ordinal(), new Intent(), 0);
+                        Intent intent = new Intent(getApplicationContext(), ServiceTake.class);
+                        intent.setAction("com.victjava.scales.TAKE");
+                        intent.putExtra("com.victjava.scales.CHECK_ID", entryID);
+                        intent.putExtra(PENDING_TAKE, pendingIntent);
+                        *//** Запускаем сервис сделать фото. *//*
+                        startService(intent);
+                        taking = true;
+                    }*/
                     break;
                 case UPDATE_PROGRESS:
                     weightTextView.setSecondaryProgress(msg.arg1);
@@ -796,6 +885,17 @@ public class ActivityCheck extends FragmentActivity implements View.OnClickListe
 
         String path = data.getStringExtra("com.victjava.scales.PHOTO_PATH");
         if(path != null){
+            switch (CheckTable.State.values()[requestCode]){
+                case CHECK_FIRST:
+                    values.put(CheckTable.KEY_PHOTO_FIRST, path);
+                    break;
+                case CHECK_SECOND:
+                    values.put(CheckTable.KEY_PHOTO_SECOND, path);
+                    break;
+                default:
+            }
+        }
+        /*if(path != null){
             switch (WeightType.values()[requestCode]){
                 case FIRST:
                     values.put(CheckTable.KEY_PHOTO_FIRST, path);
@@ -805,6 +905,31 @@ public class ActivityCheck extends FragmentActivity implements View.OnClickListe
                     break;
                 default:
             }
+        }*/
+        taking = false;
+    }
+
+    class TakingTimeout extends CountDownTimer{
+
+        /**
+         * @param millisInFuture    The number of millis in the future from the call
+         *                          to {@link #start()} until the countdown is done and {@link #onFinish()}
+         *                          is called.
+         * @param countDownInterval The interval along the way to receive
+         *                          {@link #onTick(long)} callbacks.
+         */
+        public TakingTimeout(long millisInFuture, long countDownInterval) {
+            super(millisInFuture, countDownInterval);
+        }
+
+        @Override
+        public void onTick(long millisUntilFinished) {
+
+        }
+
+        @Override
+        public void onFinish() {
+            taking = false;
         }
     }
 }

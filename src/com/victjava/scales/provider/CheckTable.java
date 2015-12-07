@@ -18,16 +18,6 @@ public class CheckTable {
     final ScaleModule scaleModule;
     private final Context mContext;
     final ContentResolver contentResolver;
-    //public static int day;
-    //public static int day_closed;
-
-    /*static final String GO_FORM_HTTP = "https://docs.google.com/forms/d/11C5mq1Z-Syuw7ScsMlWgSnr9yB4L_eP-NhxnDdohtrw/formResponse"; // Форма движения
-    static final String GO_DATE_HTTP = "entry.1974893725";                                  // Дата создания
-    static final String GO_BT_HTTP = "entry.1465497317";                                    // Номер весов
-    static final String GO_WEIGHT_HTTP = "entry.683315711";                                 // Вес
-    static final String GO_TYPE_HTTP = "entry.138748566";                                   // Тип
-    static final String GO_IS_READY_HTTP = "entry.1691625234";                              // Готов
-    static final String GO_TIME_HTTP = "entry.1280991625";                                  //Время*/
 
     public static final String TABLE = "checkTable";
 
@@ -44,8 +34,9 @@ public class CheckTable {
     public static final String KEY_TYPE_ID          = "typeId";
     public static final String KEY_PRICE            = "price";
     public static final String KEY_PRICE_SUM        = "priceSum";
-    public static final String KEY_CHECK_ON_SERVER  = "checkOnServer";
-    public static final String KEY_IS_READY         = "checkIsReady";
+    //public static final String KEY_CHECK_ON_SERVER  = "checkOnServer";
+    public static final String KEY_CHECK_STATE      = "state";
+    //public static final String KEY_IS_READY         = "checkIsReady";
     public static final String KEY_VISIBILITY       = "visibility";
     public static final String KEY_DIRECT           = "direct";
     public static final String KEY_PHOTO_FIRST      = "photoFirst";
@@ -56,6 +47,14 @@ public class CheckTable {
     public static final int INVISIBLE = 0;
     public static final int VISIBLE = 1;
 
+    public enum State{
+        CHECK_FIRST,
+        CHECK_SECOND,
+        /*CHECK_UNCLOSED,*/
+        CHECK_PRELIMINARY,
+        CHECK_READY,
+        CHECK_ON_SERVER
+    }
 
     public static final int DIRECT_DOWN = R.drawable.ic_action_down;
     public static final int DIRECT_UP = R.drawable.ic_action_up;
@@ -74,8 +73,9 @@ public class CheckTable {
             KEY_TYPE_ID,
             KEY_PRICE,
             KEY_PRICE_SUM,
-            KEY_CHECK_ON_SERVER,
-            KEY_IS_READY,
+            //KEY_CHECK_ON_SERVER,
+            KEY_CHECK_STATE,
+            //KEY_IS_READY,
             KEY_VISIBILITY,
             KEY_DIRECT,
             KEY_PHOTO_FIRST,
@@ -92,7 +92,7 @@ public class CheckTable {
             KEY_WEIGHT_NETTO,
             KEY_VENDOR,
             KEY_TYPE,
-            KEY_IS_READY,
+            //KEY_IS_READY,
             KEY_DIRECT,
             KEY_WEB_FIRST,
             KEY_WEB_SECOND};
@@ -122,7 +122,7 @@ public class CheckTable {
             KEY_TYPE,
             KEY_PRICE,
             KEY_PRICE_SUM,
-            KEY_IS_READY,
+            //KEY_IS_READY,
             KEY_DIRECT,
             KEY_PHOTO_FIRST,
             KEY_PHOTO_SECOND};
@@ -142,8 +142,9 @@ public class CheckTable {
             + KEY_TYPE_ID + " integer,"
             + KEY_PRICE + " integer,"
             + KEY_PRICE_SUM + " real,"
-            + KEY_CHECK_ON_SERVER + " integer,"
-            + KEY_IS_READY + " integer,"
+            //+ KEY_CHECK_ON_SERVER + " integer,"
+            + KEY_CHECK_STATE + " integer,"
+            //+ KEY_IS_READY + " integer,"
             + KEY_VISIBILITY + " integer,"
             + KEY_DIRECT + " integer,"
             + KEY_PHOTO_FIRST + " text,"
@@ -175,8 +176,8 @@ public class CheckTable {
         newTaskValues.put(KEY_NUMBER_BT, scaleModule.getAddressBluetoothDevice());
         newTaskValues.put(KEY_VENDOR, vendor);
         newTaskValues.put(KEY_VENDOR_ID, vendorId);
-        newTaskValues.put(KEY_CHECK_ON_SERVER, false);
-        newTaskValues.put(KEY_IS_READY, false);
+        newTaskValues.put(KEY_CHECK_STATE, State.CHECK_FIRST.ordinal());
+        //newTaskValues.put(KEY_IS_READY, false);
         newTaskValues.put(KEY_WEIGHT_FIRST, 0);
         newTaskValues.put(KEY_WEIGHT_NETTO, 0);
         newTaskValues.put(KEY_WEIGHT_SECOND, 0);
@@ -195,7 +196,7 @@ public class CheckTable {
     public void deleteCheckIsServer(/*long  dayAfter*/) {
         try {
             Cursor result = contentResolver.query(CONTENT_URI, new String[]{KEY_ID, KEY_DATE_CREATE},
-                    KEY_CHECK_ON_SERVER + "= 1" + " and " + KEY_VISIBILITY + "= " + INVISIBLE, null, null);
+                    KEY_CHECK_STATE + "= " + State.CHECK_ON_SERVER.ordinal() + " and " + KEY_VISIBILITY + "= " + INVISIBLE, null, null);
             if (result.getCount() > 0) {
                 result.moveToFirst();
                 if (!result.isAfterLast()) {
@@ -213,7 +214,7 @@ public class CheckTable {
     public void invisibleCheckIsReady(long dayAfter) {
         try {
             Cursor result = contentResolver.query(CONTENT_URI, new String[]{KEY_ID, KEY_DATE_CREATE},
-                    KEY_IS_READY + "= 1" /*and " + KEY_VISIBILITY + "= " + VISIBLE*/, null, null);
+                    KEY_CHECK_STATE + "= " + State.CHECK_FIRST.ordinal()+ " or " + KEY_CHECK_STATE + "= " + State.CHECK_SECOND.ordinal() /*and " + KEY_VISIBILITY + "= " + VISIBLE*/, null, null);
             result.moveToFirst();
             if (!result.isAfterLast()) {
                 do {
@@ -258,15 +259,18 @@ public class CheckTable {
     }*/
 
     public Cursor getAllEntries(int view) {
-        return contentResolver.query(CONTENT_URI, All_COLUMN_TABLE, KEY_IS_READY + "= 1" + " and " + KEY_VISIBILITY + "= " + view, null, null);
+        return contentResolver.query(CONTENT_URI, All_COLUMN_TABLE,
+                "( "+KEY_CHECK_STATE + "!= " + State.CHECK_FIRST.ordinal() + " or " + KEY_CHECK_STATE + "!= " + State.CHECK_SECOND.ordinal() + " )"
+                        + " and " + KEY_VISIBILITY + "= " + view, null, null);
     }
 
-    public Cursor getAllNoReadyCheck() {
-        return contentResolver.query(CONTENT_URI, All_COLUMN_TABLE, KEY_CHECK_ON_SERVER + "= 0" + " and " + KEY_IS_READY + "= 0", null, null);
+    public Cursor getUnclosedCheck() {
+        //return contentResolver.query(CONTENT_URI, All_COLUMN_TABLE, KEY_CHECK_ON_SERVER + "= 0" + " and " + KEY_IS_READY + "= 0", null, null);
+        return contentResolver.query(CONTENT_URI, All_COLUMN_TABLE, KEY_CHECK_STATE + "= " + State.CHECK_FIRST.ordinal() + " or " + KEY_CHECK_STATE + "= " + State.CHECK_SECOND.ordinal(), null, null);
     }
 
     public Cursor getNotReady() {
-        return contentResolver.query(CONTENT_URI, All_COLUMN_TABLE, KEY_IS_READY + "= 0", null, null);
+        return contentResolver.query(CONTENT_URI, All_COLUMN_TABLE, KEY_CHECK_STATE + "= " + State.CHECK_FIRST.ordinal() + " or " + KEY_CHECK_STATE + "= " + State.CHECK_SECOND.ordinal(), null, null);
     }
 
     public Cursor getEntryItem(int _rowIndex) {

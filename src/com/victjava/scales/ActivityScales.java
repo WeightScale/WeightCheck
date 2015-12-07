@@ -129,7 +129,7 @@ public class ActivityScales extends Activity implements View.OnClickListener, Vi
         super.onResume();
         if(scaleModule.isAttach())
             scaleModule.startMeasuringBatteryTemperature();
-        namesAdapter.changeCursor(checkTable.getAllNoReadyCheck());
+        namesAdapter.changeCursor(checkTable.getUnclosedCheck());
     }
 
     @Override
@@ -355,7 +355,7 @@ public class ActivityScales extends Activity implements View.OnClickListener, Vi
     /** Обновляем данные листа непроведенных чеков.
      */
     private void updateList() {
-        Cursor cursor = checkTable.getAllNoReadyCheck();
+        Cursor cursor = checkTable.getUnclosedCheck();
         if (cursor == null) {
             return;
         }
@@ -478,9 +478,9 @@ public class ActivityScales extends Activity implements View.OnClickListener, Vi
                     String date = cursor.getString(cursor.getColumnIndex(CheckTable.KEY_DATE_CREATE));
                     try {
                         long day = dayDiff(new Date(), new SimpleDateFormat("dd.MM.yy",Locale.getDefault()).parse(date));
-                        if (day > ((Main)getApplication()).preferencesScale.read(getString(R.string.KEY_DAY_CLOSED_CHECK), 5)) {
+                        if (day > main.preferencesScale.read(getString(R.string.KEY_DAY_CLOSED_CHECK), 5)) {
                             int id = cursor.getInt(cursor.getColumnIndex(CheckTable.KEY_ID));
-                            checkTable.updateEntry(id, CheckTable.KEY_IS_READY, 1);
+                            checkTable.updateEntry(id, CheckTable.KEY_CHECK_STATE, CheckTable.State.CHECK_PRELIMINARY.ordinal());
                             new TaskTable(this).setCheckReady(id);
                         }
                     } catch (ParseException e) {
@@ -534,6 +534,7 @@ public class ActivityScales extends Activity implements View.OnClickListener, Vi
                             main.preferencesScale.write(getString(R.string.KEY_LAST_USER), scaleModule.getUserName());
                             listView.setEnabled(true);
                             scaleModule.startMeasuringBatteryTemperature();
+                            //scaleModule.startBatteryTemperature(onEventResultBatteryTemperature);
                             getSettingPostponed();
                         break;
                         case STATUS_VERSION_UNKNOWN:

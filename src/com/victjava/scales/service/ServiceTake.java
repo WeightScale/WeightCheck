@@ -60,7 +60,7 @@ public class ServiceTake extends Service {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        super.onStartCommand(intent, flags, startId);
+        //super.onStartCommand(intent, flags, startId);
         /** Есть цель */
         if (intent != null) {
             /** Есть действие цели */
@@ -317,7 +317,7 @@ public class ServiceTake extends Service {
             try {
                 /** Сделать сьемку изображения. */
                 camera.takePicture(null, null, null, jpegCallback);
-                shootSound();
+                //shootSound();
             } catch (Exception e) {
                 try {
                     /** При ошибке сделать пересоединение. */
@@ -342,9 +342,9 @@ public class ServiceTake extends Service {
             @Override
             public void onPictureTaken(final byte[] data, final Camera camera) {
                 /** Процесс обработки сделаного фото */
-                new Thread(new Runnable() {
-                    @Override
-                    public synchronized void run() {
+                //new Thread(new Runnable() {
+                    //@Override
+                    //public /*synchronized*/ void run() {
                         try {
                             /** Сжимаем данные изображения. */
                             byte[] compressImage = compressImage(data, camera);
@@ -353,8 +353,8 @@ public class ServiceTake extends Service {
                             /** Создаем имя папки по дате */
                             String folderStamp = new SimpleDateFormat("yyyyMMdd", Locale.getDefault()).format(new Date());
                             /** Сохраняем фаил. */
-                            //saveExternalMemory(Main.path.getAbsolutePath() + File.separator + folderStamp, "№" + String.valueOf(check_id) + "(" + timeStamp + ").jpg", compressImage);
-                            String path = saveInternalMemory(Main.FOLDER_LOCAL /*+ File.separator + folderStamp*/, folderStamp + "_" + timeStamp + "(" + String.valueOf(checkId) + ").jpg", compressImage);
+                            String path = saveExternalMemory(Main.path.getAbsolutePath() + File.separator + folderStamp, "№" + String.valueOf(checkId) + "(" + timeStamp + ").jpg", compressImage);
+                            //String path = saveInternalMemory(Main.FOLDER_LOCAL /*+ File.separator + folderStamp*/, folderStamp + "_" + timeStamp + "(" + String.valueOf(checkId) + ").jpg", compressImage);
                             Intent intent = new Intent();
                             intent.putExtra("com.victjava.scales.PHOTO_PATH", path);
                             pendingIntent.send(ServiceTake.this, 0, intent);
@@ -371,8 +371,8 @@ public class ServiceTake extends Service {
                         camera.release();
                         /** Сбрасываем флаг фото сделано */
                         flagWaitTake = false;
-                    }
-                }).start();
+                    //}
+                //}).start();
             }
         };
 
@@ -400,7 +400,7 @@ public class ServiceTake extends Service {
             return fileTake.getPath();
         }
 
-        void saveExternalMemory(String folder, String file, byte[] data) throws IOException {
+        String saveExternalMemory(String folder, String file, byte[] data) throws IOException {
             /** Создаем папку с именем штампа даты. */
             File folderPath = new File(folder);
             /** Делаем папку. */
@@ -413,6 +413,8 @@ public class ServiceTake extends Service {
             fileOutputStream.write(data);
             /** Закрываем поток. */
             fileOutputStream.close();
+            /** Возвращяем путь к файлу. */
+            return fileTake.getPath();
         }
     }
 

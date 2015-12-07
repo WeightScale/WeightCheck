@@ -151,7 +151,23 @@ public class InputFragment extends Fragment implements ActivityCheck.OnCheckEven
         viewFirst.setText(String.valueOf(first));
         viewSecond.setText(String.valueOf(second));
 
-        switch (((ActivityCheck) getActivity()).weightType) {
+        switch (CheckTable.State.values()[activityCheck.values.getAsInteger(CheckTable.KEY_CHECK_STATE)]) {
+            case CHECK_FIRST:
+                layoutFirst.setVisibility(View.VISIBLE);
+                if (first == 0) {
+                    viewFirst.setText(getString(R.string.weighed));
+                }
+                break;
+            case CHECK_SECOND:
+                layoutFirst.setVisibility(View.VISIBLE);
+                layoutSecond.setVisibility(View.VISIBLE);
+                if (second == 0) {
+                    viewSecond.setText(getString(R.string.weighed));
+                }
+                break;
+            default:
+        }
+        /*switch (((ActivityCheck) getActivity()).weightType) {
             case FIRST:
                 layoutFirst.setVisibility(View.VISIBLE);
                 if (first == 0) {
@@ -166,7 +182,7 @@ public class InputFragment extends Fragment implements ActivityCheck.OnCheckEven
                 }
                 break;
             default:
-        }
+        }*/
 
 
         for (int i = 0; i < spinnerType.getCount(); i++) {

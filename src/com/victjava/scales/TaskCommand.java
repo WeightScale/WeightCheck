@@ -155,7 +155,6 @@ public class TaskCommand extends CheckTable {
         Map<String, ContentValues> mapChecks;
         UtilityDriver utilityDriver = null;
 
-
         /**
          * Конструктор экземпляра класса CheckToSpreadsheet.
          *
@@ -319,7 +318,7 @@ public class TaskCommand extends CheckTable {
 
             if (cursor.moveToFirst()) {
                 addRow(cursor, CheckTable.TABLE);
-                updateEntry(id, CheckTable.KEY_CHECK_ON_SERVER, 1);
+                updateEntry(id, CheckTable.KEY_CHECK_STATE, State.CHECK_ON_SERVER.ordinal());
             }
             cursor.close();
         }

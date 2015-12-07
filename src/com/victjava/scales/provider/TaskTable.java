@@ -141,6 +141,13 @@ public class TaskTable {
     }
 
     public void setCheckReady(int _rowIndex) {
+
+        Cursor checks = new CheckTable(mContext).getEntryItem(_rowIndex, CheckTable.KEY_PHOTO_FIRST, CheckTable.KEY_PHOTO_SECOND);
+        checks.moveToFirst();
+        if(checks.isNull(checks.getColumnIndex(CheckTable.KEY_PHOTO_FIRST)) && checks.isNull(checks.getColumnIndex(CheckTable.KEY_PHOTO_SECOND))){
+            new CheckTable(mContext).updateEntry(_rowIndex, CheckTable.KEY_CHECK_STATE, CheckTable.State.CHECK_READY.ordinal());
+        }
+
         Cursor cursor = new SenderTable(mContext).geSystemItem();
         try {
             cursor.moveToFirst();

@@ -98,7 +98,23 @@ public class OutputFragment extends Fragment implements ActivityCheck.OnCheckEve
         int second = activityCheck.values.getAsInteger(CheckTable.KEY_WEIGHT_SECOND);
         viewFirst.setText(String.valueOf(first));
         viewSecond.setText(String.valueOf(second));
-        switch (activityCheck.weightType) {
+        switch (CheckTable.State.values()[activityCheck.values.getAsInteger(CheckTable.KEY_CHECK_STATE)] ) {
+            case CHECK_FIRST:
+                if (first == 0) {
+                    viewFirst.setText(getString(R.string.weighed));
+                }
+                layoutFirst.setVisibility(View.VISIBLE);
+                break;
+            case CHECK_SECOND:
+                if (second == 0) {
+                    viewSecond.setText(getString(R.string.weighed));
+                }
+                layoutFirst.setVisibility(View.VISIBLE);
+                layoutSecond.setVisibility(View.VISIBLE);
+                break;
+            default:
+        }
+        /*switch (activityCheck.weightType) {
             case FIRST:
                 if (first == 0) {
                     viewFirst.setText(getString(R.string.weighed));
@@ -113,7 +129,7 @@ public class OutputFragment extends Fragment implements ActivityCheck.OnCheckEve
                 layoutSecond.setVisibility(View.VISIBLE);
                 break;
             default:
-        }
+        }*/
 
         for (int i = 0; i < spinnerType.getCount(); i++) {
             long object = spinnerType.getItemIdAtPosition(i);

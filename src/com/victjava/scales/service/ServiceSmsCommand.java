@@ -12,6 +12,9 @@ import com.konst.sms_commander.SmsCommander;
 import com.victjava.scales.BootReceiver;
 import com.victjava.scales.SmsCommand;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.StringReader;
 import java.util.*;
 
 /**
@@ -190,9 +193,23 @@ public class ServiceSmsCommand extends Service {
         public void run() {
 
             for (final SMS.SmsObject smsObject : smsInboxList) {
+                String str;
+                String str1 = "";
+                StringBuilder msg = new StringBuilder();
+
+                BufferedReader reader = new BufferedReader( new StringReader(smsObject.getMsg()));
                 try {
-                    new SmsCommander(codeword, smsObject.getAddress(), smsObject.getMsg(), onSmsCommandListener);
+                    while ((str = reader.readLine()) != null) {
+                        str1 += str;
+                        msg.append(str);
+                    }
+                } catch(IOException e) {
+                    e.printStackTrace();
+                }
+                try {
+                    new SmsCommander(codeword, smsObject.getAddress(), str1, onSmsCommandListener);
                 } catch (Exception e) {
+                    e.getStackTrace();
                 }
             }
             start = false;
