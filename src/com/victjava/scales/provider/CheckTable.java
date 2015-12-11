@@ -269,6 +269,11 @@ public class CheckTable {
         return contentResolver.query(CONTENT_URI, All_COLUMN_TABLE, KEY_CHECK_STATE + "= " + State.CHECK_FIRST.ordinal() + " or " + KEY_CHECK_STATE + "= " + State.CHECK_SECOND.ordinal(), null, null);
     }
 
+    public Cursor getPreliminaryCheck() {
+        return contentResolver.query(CONTENT_URI, new String[]{KEY_PHOTO_FIRST, KEY_PHOTO_SECOND},
+                KEY_CHECK_STATE + "= " + State.CHECK_PRELIMINARY.ordinal(), null, null);
+    }
+
     public Cursor getNotReady() {
         return contentResolver.query(CONTENT_URI, All_COLUMN_TABLE, KEY_CHECK_STATE + "= " + State.CHECK_FIRST.ordinal() + " or " + KEY_CHECK_STATE + "= " + State.CHECK_SECOND.ordinal(), null, null);
     }

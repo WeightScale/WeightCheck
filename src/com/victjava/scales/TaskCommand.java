@@ -18,6 +18,7 @@ import com.konst.sms_commander.SMS;
 import com.victjava.scales.provider.CheckTable;
 import com.victjava.scales.provider.PreferencesTable;
 import com.victjava.scales.provider.TaskTable;
+import com.victjava.scales.provider.TaskTable.*;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
@@ -34,6 +35,8 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.util.*;
+import java.util.concurrent.Callable;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Класс задач.
@@ -65,30 +68,11 @@ public class TaskCommand extends CheckTable {
         HANDLER_NOTIFY_CHECK_UNSEND,
         HANDLER_NOTIFY_HTTP,
         HANDLER_NOTIFY_PHOTO,
+        HANDLER_NOTIFY_PROCESS,
         REMOVE_TASK_ENTRY,
         REMOVE_TASK_ENTRY_ERROR_OVER,
         HANDLER_NOTIFY_ERROR,
         ERROR
-    }
-
-    /** Энумератор типа задачи. */
-    public enum TaskType {
-        /** чек для електронной почты. */
-        TYPE_CHECK_SEND_MAIL,
-        /** чек для облака. */
-        TYPE_CHECK_SEND_HTTP_POST,
-        /** настройки для для облака. */
-        TYPE_PREF_SEND_HTTP_POST,
-        /** чек для google disk. */
-        TYPE_CHECK_SEND_SHEET_DISK,
-        /** настройки для google disk. */
-        TYPE_PREF_SEND_SHEET_DISK,
-        /** чек для смс отправки контакту. */
-        TYPE_CHECK_SEND_SMS_CONTACT,
-        /** чек для смс отправки администратору. */
-        TYPE_CHECK_SEND_SMS_ADMIN,
-        /** фото чека на google disk. */
-        TYPE_PHOTO_SEND_TO_DISK
     }
 
     /** Контейнер команд. */
@@ -108,12 +92,12 @@ public class TaskCommand extends CheckTable {
         mapTasks.put(TaskType.TYPE_CHECK_SEND_HTTP_POST, new CheckTokHttpPost());
         mapTasks.put(TaskType.TYPE_CHECK_SEND_SHEET_DISK, new CheckToSpreadsheet(((Main)mContext.getApplicationContext()).getVersionName()));
         mapTasks.put(TaskType.TYPE_CHECK_SEND_MAIL, new CheckToMail());
-        /*mapTasks.put(TaskType.TYPE_CHECK_SEND_MAIL_ADMIN, new CheckToMail());*/
+        //mapTasks.put(TaskType.TYPE_CHECK_SEND_MAIL_ADMIN, new CheckToMail());
         mapTasks.put(TaskType.TYPE_CHECK_SEND_SMS_CONTACT, new CheckToSmsContact());
         mapTasks.put(TaskType.TYPE_CHECK_SEND_SMS_ADMIN, new CheckToSmsAdmin());
         mapTasks.put(TaskType.TYPE_PREF_SEND_HTTP_POST, new PreferenceTokHttpPost());
         mapTasks.put(TaskType.TYPE_PREF_SEND_SHEET_DISK, new PreferenceToSpreadsheet(((Main)mContext.getApplicationContext()).getVersionName()));
-        mapTasks.put(TaskType.TYPE_PHOTO_SEND_TO_DISK, new PhotoToGoogleDisk());
+        mapTasks.put(TaskType.TYPE_DATA_SEND_TO_DISK, new DataToGoogleDisk());
     }
 
     public void execute(TaskType type, Map<String, ContentValues> map) throws Exception {
@@ -121,6 +105,11 @@ public class TaskCommand extends CheckTable {
             throw new Exception("map is empty");
         mapTasks.get(type).onExecuteTask(map);
     }
+
+    public InterfaceTaskCommand getTask(TaskType type){
+        return mapTasks.get(type);
+    }
+
 
     /** Получить интернет соединение.
      *
@@ -143,7 +132,7 @@ public class TaskCommand extends CheckTable {
     }
 
     /** Отправляем весовой чек Google disk spreadsheet таблицу. */
-    public class CheckToSpreadsheet extends GoogleSpreadsheets implements TaskCommand.InterfaceTaskCommand {
+    public class CheckToSpreadsheet extends GoogleSpreadsheets implements InterfaceTaskCommand{
         /**
          * Контейнер для обратных сообщений
          * какие чеки отправлены или не отправлены
@@ -179,54 +168,9 @@ public class TaskCommand extends CheckTable {
                             return;
                         }
 
-                        try {
-                            String user = ((Main)mContext.getApplicationContext()).preferencesScale.read(mContext.getString(R.string.KEY_LAST_USER), "");
-                            /** Экземпляр для работы с google drive */
-                            utilityDriver = new UtilityDriver(mContext, user);
-                        } catch (NullPointerException e) {
-                            return;
-                        }
-
                         for (Map.Entry<String, ContentValues> entry : mapChecks.entrySet()) {
                             int taskId = Integer.valueOf(entry.getKey());
                             int checkId = Integer.valueOf(entry.getValue().get(TaskTable.KEY_DOC).toString());
-
-                            Cursor cursor = getEntryItem(checkId, KEY_PHOTO_FIRST, KEY_PHOTO_SECOND);
-                            String[] columnNames = cursor.getColumnNames();
-                            int countColumns = cursor.getColumnCount();
-                            for(int i=0; i < countColumns; i++){
-                                String value = cursor.getString(i);
-                                if (value != null){
-                                    boolean b = URLUtil.isHttpsUrl(value);
-                                    if(!b){
-                                        //String path = entry.getValue().get(TaskTable.KEY_DATA0).toString();
-                                        String folder = entry.getValue().get(TaskTable.KEY_DATA1).toString();
-                                        java.io.File file = new java.io.File(value);
-
-                                        String parentId = null;
-                                        try {
-                                            /** Получаем доступ к папке рут на google drive. */
-                                            File folderRoot = utilityDriver.getFolder(folder, null);
-                                            /** Получаем индекс папки. */
-                                            parentId = folderRoot.getId();
-                                            /** Сохраняем фаил в папку на google disc. */
-                                            String link = saveFileToDrive(file, parentId);
-                                            updateEntry(checkId, columnNames[i], link);
-                                            /** Исключение если не добавлено разрешение для программы в google service play. */
-                                        } catch (UserRecoverableAuthIOException e) {
-                                            Intent intent = new Intent(mContext, ActivityGoogleDrivePreference.class).setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                                            intent.setAction("UserRecoverableAuthIOException");
-                                            intent.putExtra("request_authorization", e.getIntent());
-                                            mContext.startActivity(intent);
-                                            return;
-                                        } catch (IOException e) {
-                                            e.printStackTrace();
-                                        }
-
-
-                                    }
-                                }
-                            }
 
                             try {
                                 getSheetEntry(entry.getValue().get(TaskTable.KEY_DATA0).toString());
@@ -258,7 +202,7 @@ public class TaskCommand extends CheckTable {
         }
 
         /**
-         * Вызываем если ошибка получения токена
+         * Вызываем если ошибка получения токена.
          */
         @Override
         protected void tokenIsFalse(String error) {
@@ -281,15 +225,6 @@ public class TaskCommand extends CheckTable {
             }
             String user = ((Main)mContext.getApplicationContext()).preferencesScale.read(mContext.getString(R.string.KEY_LAST_USER), "");
             return GoogleAuthUtil.getTokenWithNotification(mContext, user /*ScaleModule.getUserName()*/, "oauth2:" + SCOPE, null, makeCallback());
-        }
-
-        /**
-         * Вызывается если разрешение для получения токена получено
-         */
-        @Override
-        protected void permissionIsObtained() {
-            /** Процесс получения доступа к SpreadsheetService */
-            super.execute();
         }
 
         /**
@@ -359,11 +294,10 @@ public class TaskCommand extends CheckTable {
                 throw new Exception("Возможно нужно установить Сервисы Google Play" + e.getMessage());
             }
         }
-
     }
 
     /** Класс для отправки чека http post. */
-    public class CheckTokHttpPost implements InterfaceTaskCommand {
+    public class CheckTokHttpPost implements InterfaceTaskCommand{
         final Map<String, ArrayList<ObjectParcel>> mapChecksProcessed = new HashMap<>();
 
         public CheckTokHttpPost() {
@@ -431,7 +365,7 @@ public class TaskCommand extends CheckTable {
     }
 
     /** Класс для отправки чека email почтой. */
-    public class CheckToMail implements InterfaceTaskCommand {
+    public class CheckToMail implements InterfaceTaskCommand{
 
         final Map<String, ArrayList<ObjectParcel>> mapChecksProcessed = new HashMap<>();
 
@@ -505,7 +439,7 @@ public class TaskCommand extends CheckTable {
     }
 
     /** Класс для отправки чека смс сообщением. */
-    public class CheckToSmsContact implements InterfaceTaskCommand {
+    public class CheckToSmsContact implements InterfaceTaskCommand{
 
         final Map<String, ArrayList<ObjectParcel>> mapChecksProcessed = new HashMap<>();
 
@@ -562,8 +496,8 @@ public class TaskCommand extends CheckTable {
         }
     }
 
-    /** Класс для отправки чека смс сообщением.  */
-    public class CheckToSmsAdmin implements InterfaceTaskCommand {
+    /** Класс для отправки чека смс сообщением. */
+    public class CheckToSmsAdmin implements InterfaceTaskCommand{
 
         final Map<String, ArrayList<ObjectParcel>> mapChecksProcessed = new HashMap<>();
 
@@ -620,7 +554,7 @@ public class TaskCommand extends CheckTable {
         }
     }
 
-    /** Отправляем настройки Google disk spreadsheet таблицу.  */
+    /** Отправляем настройки Google disk spreadsheet таблицу. */
     public class PreferenceToSpreadsheet extends GoogleSpreadsheets implements InterfaceTaskCommand {
 
         final String MAP_PREF_SEND = "send";
@@ -709,16 +643,10 @@ public class TaskCommand extends CheckTable {
             return GoogleAuthUtil.getTokenWithNotification(mContext, user /*ScaleModule.getUserName()*/, "oauth2:" + SCOPE, null, makeCallback());
         }
 
-        @Override
-        protected void permissionIsObtained() {
-            super.execute();
-        }
-
-
     }
 
     /** Класс для отправки чека http post. */
-    public class PreferenceTokHttpPost implements InterfaceTaskCommand {
+    public class PreferenceTokHttpPost implements InterfaceTaskCommand{
         final String MAP_PREF_SEND = "send";
         final String MAP_PREF_UNSEND = "unsend";
 
@@ -791,7 +719,7 @@ public class TaskCommand extends CheckTable {
     }
 
     /** Класс для отправки фото на google disk. */
-    public class PhotoToGoogleDisk implements InterfaceTaskCommand{
+    public class DataToGoogleDisk implements InterfaceTaskCommand{
         private UtilityDriver utilityDriver = null;
         final String MAP_PHOTO_SEND = "send";
         final String MAP_PHOTO_UNSEND = "unsend";
@@ -801,7 +729,7 @@ public class TaskCommand extends CheckTable {
 
         final Map<String, ArrayList<ObjectParcel>> mapPhotoProcessed = new HashMap<>();
 
-        public PhotoToGoogleDisk() {
+        public DataToGoogleDisk() {
             mapPhotoProcessed.put(MAP_PHOTO_SEND, new ArrayList<>());
             mapPhotoProcessed.put(MAP_PHOTO_UNSEND, new ArrayList<>());
         }
@@ -812,51 +740,70 @@ public class TaskCommand extends CheckTable {
             new Thread(new Runnable() {
                 @Override
                 public void run() {
-                    if (!getConnection(10000, 10)) {
-                        mHandler.sendEmptyMessage(NotifyType.HANDLER_FINISH_THREAD.ordinal());
-                        return;
-                    }
-
-                    try {
-                        String user = ((Main)mContext.getApplicationContext()).preferencesScale.read(mContext.getString(R.string.KEY_LAST_USER), "");
-                        /** Экземпляр для работы с google drive */
-                        utilityDriver = new UtilityDriver(mContext, user);
-                    } catch (NullPointerException e) {
-                        return;
-                    }
-
-                    for (Map.Entry<String, ContentValues> entry : map.entrySet()) {
-                        Message msg = new Message();
-                        int taskId = Integer.valueOf(entry.getKey());
-                        String path = entry.getValue().get(TaskTable.KEY_DATA0).toString();
-                        String folder = entry.getValue().get(TaskTable.KEY_DATA1).toString();
-                        java.io.File file = new java.io.File(path);
-
-                        String parentId = null;
-                        try {
-                            /** Получаем доступ к папке рут на google drive. */
-                            File folderRoot = utilityDriver.getFolder(folder, null);
-                            /** Получаем индекс папки. */
-                            parentId = folderRoot.getId();
-                            /** Сохраняем фаил в папку на google disc. */
-                            saveFileToDrive(file, parentId);
-                            mapPhotoProcessed.get(MAP_PHOTO_SEND).add(new ObjectParcel(0, mContext.getString(R.string.sent_to_the_server)));
-                            msg = mHandler.obtainMessage(NotifyType.HANDLER_NOTIFY_PHOTO.ordinal(), 0, taskId, mapPhotoProcessed.get(MAP_PHOTO_SEND));
-                            /** Исключение если не добавлено разрешение для программы в google service play. */
-                        } catch (UserRecoverableAuthIOException e) {
-                            Intent intent = new Intent(mContext, ActivityGoogleDrivePreference.class).setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                            intent.setAction("UserRecoverableAuthIOException");
-                            intent.putExtra("request_authorization", e.getIntent());
-                            mContext.startActivity(intent);
+                    if (!map.isEmpty()){
+                        if (!getConnection(10000, 10)) {
+                            mHandler.sendEmptyMessage(NotifyType.HANDLER_FINISH_THREAD.ordinal());
                             return;
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                        } catch (Exception e) {
-                            mHandler.handleNotificationError(NotifyType.HANDLER_NOTIFY_ERROR.ordinal(), 401, new MessageNotify(MessageNotify.ID_NOTIFY_NO_SHEET, "Настройки не отправлены " + e.getMessage()));
                         }
-                        mHandler.sendMessage(msg);//todo раскоментироввать после настройки
+
+                        try {
+                            String user = ((Main)mContext.getApplicationContext()).preferencesScale.read(mContext.getString(R.string.KEY_LAST_USER), "");
+                            /** Экземпляр для работы с google drive */
+                            utilityDriver = new UtilityDriver(mContext, user);
+                        } catch (NullPointerException e) {
+                            return;
+                        }
+
+                        for (Map.Entry<String, ContentValues> entry : map.entrySet()) {
+                            Message msg = new Message();
+                            int taskId = Integer.valueOf(entry.getKey());
+                            int checkId = Integer.valueOf(entry.getValue().get(TaskTable.KEY_DOC).toString());
+                            String folder = entry.getValue().get(TaskTable.KEY_DATA0).toString();
+
+                            Cursor cursor = getEntryItem(checkId, KEY_PHOTO_FIRST, KEY_PHOTO_SECOND);
+                            String[] columnNames = cursor.getColumnNames();
+                            for (String column : columnNames){
+                                String value = cursor.getString(cursor.getColumnIndex(column));
+                                if (value != null){
+                                    if(!URLUtil.isHttpsUrl(value)){
+                                        //String path = entry.getValue().get(TaskTable.KEY_DATA0).toString();
+                                        java.io.File file = new java.io.File(value);
+
+                                        String parentId = null;
+                                        try {
+                                            /** Получаем доступ к папке рут на google drive. */
+                                            File folderRoot = utilityDriver.getFolder(folder, null);
+                                            /** Получаем индекс папки. */
+                                            parentId = folderRoot.getId();
+                                            /** Сохраняем фаил в папку на google disc. */
+                                            String link = saveFileToDrive(file, parentId);
+                                            updateEntry(checkId, column, link);
+                                            mapPhotoProcessed.get(MAP_PHOTO_SEND).add(new ObjectParcel(0, mContext.getString(R.string.sent_to_the_server)));
+                                            msg = mHandler.obtainMessage(NotifyType.HANDLER_NOTIFY_PHOTO.ordinal(), 0, taskId, mapPhotoProcessed.get(MAP_PHOTO_SEND));
+                                            /** Исключение если не добавлено разрешение для программы в google service play. */
+                                        } catch (UserRecoverableAuthIOException e) {
+                                            Intent intent = new Intent(mContext, ActivityGoogleDrivePreference.class).setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                                            intent.setAction("UserRecoverableAuthIOException");
+                                            intent.putExtra("request_authorization", e.getIntent());
+                                            mContext.startActivity(intent);
+                                            return;
+                                        } catch (IOException e) {
+                                            e.printStackTrace();
+                                        } catch (Exception e) {
+                                            e.printStackTrace();
+                                        }
+
+                                    }else{
+                                        mapPhotoProcessed.get(MAP_PHOTO_SEND).add(new ObjectParcel(0, mContext.getString(R.string.sent_to_the_server)));
+                                        msg = mHandler.obtainMessage(NotifyType.HANDLER_NOTIFY_PHOTO.ordinal(), 0, taskId, mapPhotoProcessed.get(MAP_PHOTO_SEND));
+                                    }
+                                    mHandler.sendMessage(msg);//todo раскоментироввать после настройки
+                                }
+                            }
+                        }
                     }
-                    mHandler.sendEmptyMessage(NotifyType.HANDLER_FINISH_THREAD.ordinal());
+                    mHandler.sendEmptyMessage(NotifyType.HANDLER_NOTIFY_PROCESS.ordinal());
+                    //mHandler.sendEmptyMessage(NotifyType.HANDLER_FINISH_THREAD.ordinal());
                 }
             }).start();
         }
@@ -866,15 +813,15 @@ public class TaskCommand extends CheckTable {
          *
          * @param fileContent Фаил который нужно сохранить.
          * @param parentId    Родительский индекс папки Google disk.
-         * @return true - если файл загружен.
+         * @return string  - ссылку на загруженый фаил.
          * @throws Exception Ошибки сохранения файла.
          */
-        private boolean saveFileToDrive(final java.io.File fileContent, String parentId) throws Exception {
+        private String saveFileToDrive(final java.io.File fileContent, String parentId) throws Exception {
 
             try {
                 /** Проверяе фаил */
                 if (!fileContent.exists())
-                    return false;
+                    throw new Exception("Нет файла " + fileContent.getPath());
                 /** Создаем контента экземпляр файла для закрузки*/
                 FileContent mediaContent = new FileContent("image/jpeg", fileContent);
                 /**Не содержит контент */
@@ -883,19 +830,10 @@ public class TaskCommand extends CheckTable {
                     if (!fileContent.delete()) {
                         throw new Exception("Невозможно удалить медиоконтент " + fileContent.getPath());
                     }
-                    return false;
                 }
                 /** Загружаем фаил на диск */
                 File file = utilityDriver.uploadFile(fileContent.getName(), parentId, "image/jpeg", fileContent);
-                String alternateLink = file.getAlternateLink();
-                /** Фаил загружен на диск */
-                if (file != null) {
-                    /** Можно удалить фаил с временной папки */
-                    if (!fileContent.delete()) {
-                        throw new Exception("Невозможно удалить медиоконтент " + fileContent.getPath());
-                    }
-                    return true;
-                }
+                return file.getAlternateLink();
             } catch (UserRecoverableAuthIOException e) {
                 Intent intent = new Intent(mContext, ActivityGoogleDrivePreference.class).setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                 intent.setAction("UserRecoverableAuthIOException");
@@ -905,7 +843,6 @@ public class TaskCommand extends CheckTable {
             } catch (IOException e) {
                 throw new Exception("Возможно нужно установить Сервисы Google Play" + e.getMessage());
             }
-            return false;
         }
     }
 

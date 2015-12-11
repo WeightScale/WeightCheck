@@ -38,33 +38,22 @@ import java.util.*;
 public abstract class GoogleSpreadsheets extends AsyncTask<Void, Void, String[]> {
     Context context;
     ScaleModule scaleModule;
-    /**
-     * Экземпляр атестата
-     */
+    /** Экземпляр атестата. */
     GoogleCredential credential;
-    private final SpreadsheetService spreadsheetService;
+    protected final SpreadsheetService spreadsheetService;
     private List<WorksheetEntry> worksheets;
     private SpreadsheetEntry spreadsheetEntry;
-    //private final String spreadsheetName = "";
-    /**
-     * Client ID созданый для application в  https://console.developers.google.com/project/
-     */
+    /** Client ID созданый для application в  https://console.developers.google.com/project/ */
     final String CLIENT_ID = "104626362323-b410it7dt7gad5e1sp9v8aum9nm00biu.apps.googleusercontent.com";
-    /**
-     * Client secret созданый для application в  https://console.developers.google.com/project/
-     */
+    /** Client secret созданый для application в  https://console.developers.google.com/project/ */
     final String CLIENT_SECRET = "zLeF20E7Dl1GRlCY-Hfpf4lB";
-    /**
-     * Email address в созданом клиенте на  https://console.developers.google.com/project/
-     */
+    /** Email address в созданом клиенте на  https://console.developers.google.com/project/ */
     final String CLIENT_EMAIL = "64738785707-t6gad1u92rpbqleq42lphl13pj0i0f6f@developer.gserviceaccount.com";
     static final String[] SCOPE_ARRAY = {"https://spreadsheets.google.com/feeds ", "https://spreadsheets.google.com/feeds/spreadsheets/private/full ", "https://docs.google.com/feeds "};
     final List<String> SCOPES_LIST = Arrays.asList(SCOPE_ARRAY);
     protected static final String SCOPE = SCOPE_ARRAY[0] + SCOPE_ARRAY[1];
 
-    /**
-     * Конструктор GoogleSpreadsheets.
-     *
+    /** Конструктор GoogleSpreadsheets.
      * @param service Имя сервиса GoogleSpreadsheets.
      */
     protected GoogleSpreadsheets(String service) {
@@ -72,9 +61,7 @@ public abstract class GoogleSpreadsheets extends AsyncTask<Void, Void, String[]>
         spreadsheetService.setProtocolVersion(SpreadsheetService.Versions.V3);
     }
 
-    /**
-     * Конструктор GoogleSpreadsheets
-     *
+    /** Конструктор GoogleSpreadsheets.
      * @param service Имя сервиса GoogleSpreadsheets
      * @param p12     Ключ сгенерированый для моего приложения https://console.developers.google.com/project/
      *                в настройках API создать нового клиента Service account Generate new P12 key
@@ -98,9 +85,7 @@ public abstract class GoogleSpreadsheets extends AsyncTask<Void, Void, String[]>
         spreadsheetService.setOAuth2Credentials(credential);
     }
 
-    /**
-     * Конструктор GoogleSpreadsheets
-     *
+    /** Конструктор GoogleSpreadsheets.
      * @param context     Контекст приложения.
      * @param service     Имя сервиса GoogleSpreadsheets.
      * @param accountName Имя account в google.
@@ -133,21 +118,15 @@ public abstract class GoogleSpreadsheets extends AsyncTask<Void, Void, String[]>
             tokenIsFalse(s[1]);
     }
 
-    /**
-     * Вызываем если токен получен.
-     */
+    /** Вызываем если токен получен. */
     protected abstract void tokenIsReceived();
 
-    /**
-     * Вызываем если ошибка получения токена
-     *
+    /** Вызываем если ошибка получения токена.
      * @param error Причина ошибки получения токена
      */
     protected abstract void tokenIsFalse(String error);
 
-    /**
-     * Получить токен.
-     *
+    /** Получить токен.
      * @return Взвращяем токен.
      * @throws IOException
      * @throws GoogleAuthException
@@ -155,10 +134,8 @@ public abstract class GoogleSpreadsheets extends AsyncTask<Void, Void, String[]>
      */
     protected abstract String fetchToken() throws IOException, GoogleAuthException, IllegalArgumentException;
 
-    /**
-     * Разренеие на доступ получено
-     */
-    protected abstract void permissionIsObtained();
+    /** Разренеие на доступ получено. */
+    //protected abstract void permissionIsObtained();
 
     GoogleCredential getCredentials(String token) throws IOException, GoogleAuthException {
 
@@ -409,9 +386,7 @@ public abstract class GoogleSpreadsheets extends AsyncTask<Void, Void, String[]>
         }
     }
 
-    /**
-     * Обратный вызов при получении разрешения для токена
-     */
+    /** Обратный вызов при получении разрешения для токена. */
     public class CallbackReceiver extends BroadcastReceiver {
         //public static final String TAG = "CallbackReceiver";
 

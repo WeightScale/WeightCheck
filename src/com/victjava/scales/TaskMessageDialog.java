@@ -17,6 +17,7 @@ import android.view.View;
 import android.view.Window;
 import android.widget.*;
 import com.victjava.scales.provider.TaskTable;
+import com.victjava.scales.provider.TaskTable.*;
 
 /**
  * @author Kostya
@@ -65,7 +66,7 @@ public class TaskMessageDialog extends TaskTable {
                     if (result != null) {
                         if (result.moveToFirst()) {
                             String address = result.getString(result.getColumnIndex(CommonDataKinds.Email.DATA));
-                            insertNewTaskEmail(TaskCommand.TaskType.TYPE_CHECK_SEND_MAIL, mCheckId, mContactId, address);
+                            insertNewTaskEmail(TaskType.TYPE_CHECK_SEND_MAIL, mCheckId, mContactId, address);
                         }
                         result.close();
                     }
@@ -89,7 +90,7 @@ public class TaskMessageDialog extends TaskTable {
                     if (!emails.isAfterLast()) {
                         do {
                             String address = emails.getString(emails.getColumnIndex(CommonDataKinds.Email.DATA));
-                            insertNewTaskEmail(TaskCommand.TaskType.TYPE_CHECK_SEND_MAIL, mCheckId, mContactId, address);
+                            insertNewTaskEmail(TaskType.TYPE_CHECK_SEND_MAIL, mCheckId, mContactId, address);
                         } while (emails.moveToNext());
                     }
                     dialog.dismiss();
@@ -119,7 +120,7 @@ public class TaskMessageDialog extends TaskTable {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
                 if (!input.getText().toString().isEmpty()) {
-                    insertNewTaskEmail(TaskCommand.TaskType.TYPE_CHECK_SEND_MAIL, mCheckId, mContactId, input.getText().toString());
+                    insertNewTaskEmail(TaskType.TYPE_CHECK_SEND_MAIL, mCheckId, mContactId, input.getText().toString());
                     dialog.dismiss();
                 }
             }
@@ -192,7 +193,7 @@ public class TaskMessageDialog extends TaskTable {
                     if (result != null) {
                         if (result.moveToFirst()) {
                             String phone = result.getString(result.getColumnIndex(CommonDataKinds.Phone.DATA));
-                            insertNewTaskPhone(TaskCommand.TaskType.TYPE_CHECK_SEND_SMS_CONTACT, mCheckId, mContactId, phone);
+                            insertNewTaskPhone(TaskType.TYPE_CHECK_SEND_SMS_CONTACT, mCheckId, mContactId, phone);
                         }
                         result.close();
                     }
@@ -217,7 +218,7 @@ public class TaskMessageDialog extends TaskTable {
                     if (!phones.isAfterLast()) {
                         do {
                             String phone = phones.getString(phones.getColumnIndex(CommonDataKinds.Phone.DATA));
-                            insertNewTaskPhone(TaskCommand.TaskType.TYPE_CHECK_SEND_SMS_CONTACT, mCheckId, mContactId, phone);
+                            insertNewTaskPhone(TaskType.TYPE_CHECK_SEND_SMS_CONTACT, mCheckId, mContactId, phone);
                         } while (phones.moveToNext());
                     }
                     dialog.dismiss();
@@ -247,7 +248,7 @@ public class TaskMessageDialog extends TaskTable {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
                 if (!input.getText().toString().isEmpty()) {
-                    insertNewTaskPhone(TaskCommand.TaskType.TYPE_CHECK_SEND_SMS_CONTACT, mCheckId, mContactId, input.getText().toString());
+                    insertNewTaskPhone(TaskType.TYPE_CHECK_SEND_SMS_CONTACT, mCheckId, mContactId, input.getText().toString());
                     dialog.dismiss();
                 }
             }

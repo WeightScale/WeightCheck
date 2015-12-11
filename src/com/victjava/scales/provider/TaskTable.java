@@ -51,6 +51,26 @@ public class TaskTable {
 
     public static final Uri CONTENT_URI = Uri.parse("content://" + WeightCheckBaseProvider.AUTHORITY + '/' + TABLE);
 
+    /** Энумератор типа задачи. */
+    public enum TaskType {
+        /** чек для електронной почты. */
+        TYPE_CHECK_SEND_MAIL,
+        /** чек для облака. */
+        TYPE_CHECK_SEND_HTTP_POST,
+        /** настройки для для облака. */
+        TYPE_PREF_SEND_HTTP_POST,
+        /** чек для google disk. */
+        TYPE_CHECK_SEND_SHEET_DISK,
+        /** настройки для google disk. */
+        TYPE_PREF_SEND_SHEET_DISK,
+        /** чек для смс отправки контакту. */
+        TYPE_CHECK_SEND_SMS_CONTACT,
+        /** чек для смс отправки администратору. */
+        TYPE_CHECK_SEND_SMS_ADMIN,
+        /** фото чека на google disk. */
+        TYPE_DATA_SEND_TO_DISK
+    }
+
     public TaskTable(Context cnt) {
         mContext = cnt;
         scaleModule = ((Main)mContext.getApplicationContext()).getScaleModule();
@@ -61,6 +81,23 @@ public class TaskTable {
         newTaskValues.put(KEY_MIME_TYPE, mimeType.ordinal());
         newTaskValues.put(KEY_DOC, documentId);
         newTaskValues.put(KEY_ID_DATA, dataId);
+        if(data.length < 4){
+            for (int i=0; i < data.length; i++){
+                newTaskValues.put("data"+i, data[i]);
+            }
+        }else {
+            for (int i=0; i < 3; i++){
+                newTaskValues.put("data"+i, data[i]);
+            }
+        }
+        newTaskValues.put(KEY_NUM_ERROR, 0);
+        return mContext.getContentResolver().insert(CONTENT_URI, newTaskValues);
+    }
+
+    public Uri insertNewTask(TaskType mimeType, long documentId, String ... data) {
+        ContentValues newTaskValues = new ContentValues();
+        newTaskValues.put(KEY_MIME_TYPE, mimeType.ordinal());
+        newTaskValues.put(KEY_DOC, documentId);
         if(data.length < 4){
             for (int i=0; i < data.length; i++){
                 newTaskValues.put("data"+i, data[i]);
@@ -146,6 +183,8 @@ public class TaskTable {
         checks.moveToFirst();
         if(checks.isNull(checks.getColumnIndex(CheckTable.KEY_PHOTO_FIRST)) && checks.isNull(checks.getColumnIndex(CheckTable.KEY_PHOTO_SECOND))){
             new CheckTable(mContext).updateEntry(_rowIndex, CheckTable.KEY_CHECK_STATE, CheckTable.State.CHECK_READY.ordinal());
+        }else {
+            setDataReady(_rowIndex);
         }
 
         Cursor cursor = new SenderTable(mContext).geSystemItem();
@@ -197,7 +236,7 @@ public class TaskTable {
         } catch (Exception e) {}
     }
 
-    public void setPhotoReady(int _rowIndex, String path){
+    public void setDataReady(int _rowIndex){
         Cursor cursor = new SenderTable(mContext).geSystemItem();
         try {
             cursor.moveToFirst();
@@ -208,8 +247,8 @@ public class TaskTable {
                     switch (type_sender) {
                         case TYPE_HTTP_POST:
                         case TYPE_GOOGLE_DISK:
-                            insertNewTask(TaskType.TYPE_PHOTO_SEND_TO_DISK, _rowIndex, senderId, path, scaleModule.getAddressBluetoothDevice());
-                        break;
+                            insertNewTask(TaskType.TYPE_DATA_SEND_TO_DISK, _rowIndex, scaleModule.getAddressBluetoothDevice());
+                        return;
                         default:
                     }
                 } while (cursor.moveToNext());

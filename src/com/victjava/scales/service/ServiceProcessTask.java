@@ -9,15 +9,17 @@ import android.database.Cursor;
 import android.os.IBinder;
 import android.os.Message;
 import android.provider.BaseColumns;
+import android.support.annotation.NonNull;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.TaskStackBuilder;
 import com.victjava.scales.provider.ErrorTable;
 import com.victjava.scales.provider.TaskTable;
+import com.victjava.scales.provider.TaskTable.*;
 import com.victjava.scales.*;
 import com.victjava.scales.TaskCommand.*;
 
-import java.util.ArrayList;
-import java.util.Map;
+import java.util.*;
+import java.util.concurrent.*;
 
 /**
  * Сервис обработки задач.
@@ -31,8 +33,11 @@ public class ServiceProcessTask extends Service {
      */
     private TaskTable taskTable;
     private Internet internet;
+    TaskCommand taskCommand;
+    TaskPoolCommand taskPoolCommand;
     private BroadcastReceiver broadcastReceiver;
     private NotificationManager notificationManager;
+    ExecutorService executorService;
 
     @Override
     public IBinder onBind(Intent intent) {
@@ -44,18 +49,23 @@ public class ServiceProcessTask extends Service {
         if(intent !=null){
             String action = intent.getAction();
             if("send_sms".equals(action)){
-                taskProcess(TaskType.TYPE_CHECK_SEND_SMS_CONTACT);
-                taskProcess(TaskType.TYPE_CHECK_SEND_SMS_ADMIN);
+                //taskProcess(TaskType.TYPE_CHECK_SEND_SMS_CONTACT);
+                //taskProcess(TaskType.TYPE_CHECK_SEND_SMS_ADMIN);
+                taskSendSms();
                 return START_STICKY;
             }
         }
-        taskProcess();
+        taskSendData();
         return START_STICKY;
     }
 
     @Override
     public void onCreate() {
         super.onCreate();
+        executorService = Executors.newFixedThreadPool(5);
+        /** Экземпляр команд задач. */
+        taskCommand = new TaskCommand(this, msgHandler);
+        taskPoolCommand = new TaskPoolCommand(this, msgHandler);
         /**Экземпляр таблици задач.*/
         taskTable = new TaskTable(getApplicationContext());
         /**Экземпляр интернет класса.*/
@@ -92,17 +102,25 @@ public class ServiceProcessTask extends Service {
      * Процесс выполнения задач.
      */
     private void taskProcess() {
-        /**Экземпляр команд задач.*/
-        TaskCommand taskCommand = new TaskCommand(this, msgHandler);
-        /**Сообщение на обработчик запущен процесс задач.*/
-        msgHandler.obtainMessage(NotifyType.HANDLER_TASK_START.ordinal(), TaskType.values().length, 0).sendToTarget();
+        /** Сообщение на обработчик запущен процесс задач. */
+        msgHandler.obtainMessage(NotifyType.HANDLER_TASK_START.ordinal(), 5, 0).sendToTarget();
         for (TaskType taskType : TaskType.values()) {
             Cursor cursor = taskTable.getTypeEntry(taskType);
             ContentQueryMap mQueryMap = new ContentQueryMap(cursor, BaseColumns._ID, true, null);
             Map<String, ContentValues> map = mQueryMap.getRows();
             cursor.close();
             try {
-                taskCommand.execute(taskType, map);
+                switch (taskType){
+                    case TYPE_CHECK_SEND_HTTP_POST:
+                    case TYPE_CHECK_SEND_SHEET_DISK:
+                    case TYPE_CHECK_SEND_MAIL:
+                    case TYPE_CHECK_SEND_SMS_ADMIN:
+                    case TYPE_CHECK_SEND_SMS_CONTACT:
+                        //taskCommand.execute(taskType, map);
+                        taskCommand.getTask(taskType).onExecuteTask(map);
+                        //taskProcess(taskType);
+                    break;
+                }
             } catch (Exception e) {
                 msgHandler.sendEmptyMessage(NotifyType.HANDLER_FINISH_THREAD.ordinal());
             }
@@ -112,20 +130,104 @@ public class ServiceProcessTask extends Service {
     /** Процесс выполнить задачу.
      * @param taskType тип задачи.
      */
-    private void taskProcess(TaskType taskType) {
-        /**Экземпляр команд задач*/
-        TaskCommand taskCommand = new TaskCommand(this, msgHandler);
-        /**Сообщение на обработчик запущен процесс задач*/
+    /*private void taskProcess(TaskType taskType) {
+        if (executorService.isShutdown())
+            executorService = Executors.newFixedThreadPool(2);
+        *//** Сообщение на обработчик запущен процесс задач. *//*
         msgHandler.obtainMessage(NotifyType.HANDLER_TASK_START.ordinal(), 1, 0).sendToTarget();
         Cursor cursor = taskTable.getTypeEntry(taskType);
         ContentQueryMap mQueryMap = new ContentQueryMap(cursor, BaseColumns._ID, true, null);
         Map<String, ContentValues> map = mQueryMap.getRows();
         cursor.close();
-        try {
+        executorService.execute(new Runnable() {
+            @Override
+            public void run() {
+
+            }
+        });
+
+        Future<String> future = executorService.submit(new Callable<String>() {
+            @Override
+            public String call() throws Exception {
+                taskPoolCommand.getTask(taskType).onExecuteTask(map);
+                return taskType.toString();
+            }
+        });
+        while (!future.isDone());
+        //if(future.isDone())
+            //return;
+        //executorService.shutdown();
+
+        *//*try {
             taskCommand.execute(taskType, map);
         } catch (Exception e) {
             msgHandler.sendEmptyMessage(NotifyType.HANDLER_FINISH_THREAD.ordinal());
+        }*//*
+    }*/
+
+    private void taskSendSms(){
+        if (executorService.isShutdown())
+            executorService = Executors.newFixedThreadPool(2);
+        Set<Callable<String>> callables = new HashSet<Callable<String>>();
+        for (TaskType taskType : TaskType.values()) {
+            switch (taskType) {
+                case TYPE_CHECK_SEND_SMS_ADMIN:
+                case TYPE_CHECK_SEND_SMS_CONTACT:
+                    msgHandler.obtainMessage(NotifyType.HANDLER_TASK_START.ordinal(), 1, 0).sendToTarget();
+                    Cursor cursor = taskTable.getTypeEntry(taskType);
+                    ContentQueryMap mQueryMap = new ContentQueryMap(cursor, BaseColumns._ID, true, null);
+                    Map<String, ContentValues> map = mQueryMap.getRows();
+                    cursor.close();
+                    callables.add(new Callable<String>() {
+                        @Override
+                        public String call() throws Exception {
+                            taskPoolCommand.getTask(taskType).onExecuteTask(map);
+                            return taskType.toString();
+                        }
+                    });
+                    break;
+            }
         }
+        executorService.execute(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    List<Future<String>> futures = executorService.invokeAll(callables);
+
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+                executorService.shutdown();
+            }
+        });
+    }
+
+    /** Обрабатываем чеки PRELIMINARY.
+     * Отправляем приклепленные данные к чеку на диск.
+     */
+    private void taskSendData(){
+        /** Сообщение на обработчик запущен процесс задач. */
+        Cursor cursor = taskTable.getTypeEntry(TaskType.TYPE_DATA_SEND_TO_DISK);
+        ContentQueryMap mQueryMap = new ContentQueryMap(cursor, BaseColumns._ID, true, null);
+        Map<String, ContentValues> map = mQueryMap.getRows();
+        cursor.close();
+        executorService.execute(new Runnable() {
+            @Override
+            public void run() {
+                FutureTask<String> futureTask = new FutureTask<String>(new Callable<String>() {
+                    @Override
+                    public String call() throws Exception {
+                        taskPoolCommand.getTask(TaskType.TYPE_DATA_SEND_TO_DISK).onExecuteTask(map);
+                        return TaskType.TYPE_DATA_SEND_TO_DISK.toString();
+                    }
+                });
+                executorService.submit(futureTask);
+                while (!futureTask.isDone());
+                if (futureTask.isDone())
+                    msgHandler.sendEmptyMessage(NotifyType.HANDLER_NOTIFY_PROCESS.ordinal());
+                //executorService.shutdown();
+            }
+        });
     }
 
     /**
@@ -212,8 +314,12 @@ public class ServiceProcessTask extends Service {
                             .setContentText(getString(R.string.Checks_send_count) + ' ' + ((ArrayList) msg.obj).size());
                     //new CheckDBAdapter(getApplicationContext()).updateEntry(msg.arg1, CheckDBAdapter.KEY_CHECK_ON_SERVER, 1);
                     break;
+                case HANDLER_NOTIFY_PROCESS:
+                    //taskProcess();
+                    taskPool();
+                    return;
                 case HANDLER_NOTIFY_PHOTO: //отправлено на диск фото
-                    mBuilder.setSmallIcon(R.drawable.ic_stat_drive)
+                    mBuilder.setSmallIcon(R.drawable.ic_stat_photo)
                             .setTicker("Фото отправлено")
                             .setContentText("Отправлено фото кол-во: " + ((ArrayList) msg.obj).size());
                     notificationManager.notify(msg.what, generateNotification(new Intent(), mBuilder, msg.what));
@@ -248,5 +354,43 @@ public class ServiceProcessTask extends Service {
         return builder.build();
     }
 
+    private void taskPool(){
+        if (executorService.isShutdown())
+            executorService = Executors.newFixedThreadPool(5);
+        Set<Callable<String>> callables = new HashSet<Callable<String>>();
 
+        for (TaskType taskType : TaskType.values()){
+            switch (taskType){
+                case TYPE_CHECK_SEND_HTTP_POST:
+                case TYPE_CHECK_SEND_SHEET_DISK:
+                case TYPE_CHECK_SEND_MAIL:
+                case TYPE_CHECK_SEND_SMS_ADMIN:
+                case TYPE_CHECK_SEND_SMS_CONTACT:
+                    msgHandler.obtainMessage(NotifyType.HANDLER_TASK_START.ordinal(), 1, 0).sendToTarget();
+                    Cursor cursor = taskTable.getTypeEntry(taskType);
+                    ContentQueryMap mQueryMap = new ContentQueryMap(cursor, BaseColumns._ID, true, null);
+                    Map<String, ContentValues> map = mQueryMap.getRows();
+                    cursor.close();
+                    callables.add(new Callable<String>() {
+                        @Override
+                        public String call() throws Exception {
+                            taskPoolCommand.getTask(taskType).onExecuteTask(map);
+                            return taskType.toString();
+                        }
+                    });
+                break;
+            }
+        }
+        executorService.execute(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    List<Future<String>> futures = executorService.invokeAll(callables);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+                executorService.shutdown();
+            }
+        });
+    }
 }
