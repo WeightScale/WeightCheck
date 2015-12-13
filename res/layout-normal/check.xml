@@ -36,28 +36,44 @@
                  android:layout_width="fill_parent"
                  android:layout_height="fill_parent"
                  android:layout_marginLeft="@dimen/padding" android:layout_marginRight="@dimen/padding"
-                >
+        >
             <LinearLayout
                     android:orientation="vertical"
                     android:layout_width="fill_parent"
                     android:layout_height="fill_parent" android:id="@+id/screenWeightPager">
-                <FrameLayout
-                        android:id="@android:id/tabcontent"
-                        android:layout_width="0dp"
-                        android:layout_height="0dp"
-                        />
+
                 <TabWidget
                         android:id="@android:id/tabs"
                         android:layout_width="fill_parent"
                         android:layout_height="wrap_content"
                         android:orientation="horizontal" android:layout_marginLeft="@dimen/padding"
                         android:layout_marginRight="@dimen/padding" android:layout_marginTop="@dimen/padding"
-                        style="@style/CustomTabWidget"/>
-                <android.support.v4.view.ViewPager
-                        android:id="@+id/pager"
+                        style="@style/CustomTabWidget"
+                />
+
+                <FrameLayout
+                        android:id="@android:id/tabcontent"
+                        android:layout_width="0dp"
+                        android:layout_height="0dp" />
+                <FrameLayout
+                        android:id="@+id/camera_preview2"
                         android:layout_width="fill_parent"
                         android:layout_height="fill_parent"
-                        />
+                >
+
+                    <FrameLayout
+                            android:id="@+id/camera_preview1"
+                            android:layout_width="fill_parent"
+                            android:layout_height="fill_parent"
+                            android:layout_gravity="bottom|center"
+                            android:clickable="true"/>
+
+                    <android.support.v4.view.ViewPager
+                            android:id="@+id/pager"
+                            android:layout_width="fill_parent"
+                            android:layout_height="fill_parent" />
+                </FrameLayout>
+
             </LinearLayout>
         </TabHost>
     </LinearLayout>
@@ -73,6 +89,12 @@
                 android:contentDescription="@string/Come_back"
                 android:adjustViewBounds="false"
                 style="@style/CustomButtonImage"/>
+        <FrameLayout
+                android:id="@+id/camera_preview"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_weight="1">
+        </FrameLayout>
         <ImageView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"

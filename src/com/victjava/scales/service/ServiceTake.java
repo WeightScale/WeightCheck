@@ -297,6 +297,32 @@ public class ServiceTake extends Service {
             takeImage();
         }
 
+        private void openCamera(int cameraId, Camera.Parameters parameters){
+            /** Экземпляр камеры существует. */
+            if (camera != null) {
+                /** Сбрасываем настройки. */
+                camera.release();
+            }
+            /** Открываем главную камеру. */
+            camera = Camera.open(cameraId);
+            /** Загружаем настройки из программы. */
+            camera.setParameters(parameters);
+        }
+
+        private void closeCamera(){
+            /** Экземпляр камеры существует. */
+            if (camera != null){
+                /** Удаляем обратный вызовю. */
+                camera.setPreviewCallback(null);
+                /** Выключаем отображение картинки. */
+                camera.stopPreview();
+                /** Завершаем работу скамеро. */
+                camera.release();
+                /** Удаляем экземплярк камеры. */
+                camera = null;
+            }
+        }
+
         /** Сделать фотографию. */
         private void takeImage() {
             /** Установливаем флаг делаем фото. */
@@ -384,9 +410,8 @@ public class ServiceTake extends Service {
          */
         String saveInternalMemory(String folderStamp, String file, byte[] data) throws IOException {
             /** Создаем папку с именем штампа даты. */
-            //File folderPath = getDir(folderStamp, Context.MODE_PRIVATE);
             File folderPath = new File(getFilesDir()+File.separator+folderStamp);
-            /** Делаем папку */
+            /** Делаем папку. */
             folderPath.mkdirs();
             /** Создаем фаил с именем штампа времени. */
             File fileTake = new File(folderPath, file);
@@ -400,6 +425,13 @@ public class ServiceTake extends Service {
             return fileTake.getPath();
         }
 
+        /** Процедура сохранения файла во внешней памяти.
+         * @param folder Имя папки.
+         * @param file Имя файла.
+         * @param data Данные файла.
+         * @return Возвращяет путь к сохраненному файлу.
+         * @throws IOException Ошибка сохранения фаила.
+         */
         String saveExternalMemory(String folder, String file, byte[] data) throws IOException {
             /** Создаем папку с именем штампа даты. */
             File folderPath = new File(folder);

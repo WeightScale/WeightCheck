@@ -9,7 +9,7 @@
             android:layout_width="fill_parent"
             android:layout_height="fill_parent"
             android:id="@+id/scrollView"
-            android:background="@color/white"
+            android:background="@color/transparent"
             android:layout_marginLeft="@dimen/padding" android:layout_marginRight="@dimen/padding"
             android:layout_gravity="center" android:padding="@dimen/corners">
         <LinearLayout

@@ -70,6 +70,14 @@
                 android:contentDescription="@string/Come_back"
                 android:adjustViewBounds="false"
                 style="@style/CustomButtonImage"/>
+
+        <FrameLayout
+                android:id="@+id/camera_preview"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_weight="1">
+        </FrameLayout>
+
         <ImageView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -78,5 +86,6 @@
                 android:contentDescription="@string/Send_messages"
                 android:src="@drawable/ic_action_mail"
                 style="@style/CustomButtonImage" android:clickable="true"/>
+
     </LinearLayout>
 </LinearLayout>

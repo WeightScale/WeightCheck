@@ -481,7 +481,10 @@ public class ActivityScales extends Activity implements View.OnClickListener, Vi
                         if (day > main.preferencesScale.read(getString(R.string.KEY_DAY_CLOSED_CHECK), 5)) {
                             int id = cursor.getInt(cursor.getColumnIndex(CheckTable.KEY_ID));
                             checkTable.updateEntry(id, CheckTable.KEY_CHECK_STATE, CheckTable.State.CHECK_PRELIMINARY.ordinal());
-                            new TaskTable(this).setCheckReady(id);
+                            ContentValues values = new ContentValues();
+                            values.put(CheckTable.KEY_PHOTO_FIRST, cursor.getString(cursor.getColumnIndex(CheckTable.KEY_PHOTO_FIRST)));
+                            values.put(CheckTable.KEY_PHOTO_SECOND, cursor.getString(cursor.getColumnIndex(CheckTable.KEY_PHOTO_SECOND)));
+                            new TaskTable(this).setCheckReady(id, values);
                         }
                     } catch (ParseException e) {
                         e.printStackTrace();

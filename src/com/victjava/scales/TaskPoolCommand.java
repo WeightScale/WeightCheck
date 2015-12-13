@@ -54,7 +54,7 @@ import java.util.concurrent.*;
  */
 public class TaskPoolCommand extends CheckTable {
     final Context mContext;
-    ScaleModule scaleModule;
+    private ScaleModule scaleModule;
     final HandlerTaskNotification mHandler;
     boolean cancel = true;
     /** Чек отправлен. */
@@ -155,50 +155,60 @@ public class TaskPoolCommand extends CheckTable {
         /** Вызывается когда токен получен. */
         @Override
         protected void tokenIsReceived() {
-            List<Future<String>> futures = new ArrayList<>();
-            try {
-                if (!getConnection(10000, 10)) {
-                    mHandler.sendEmptyMessage(NotifyType.HANDLER_FINISH_THREAD.ordinal());
-                    return;
-                }
-                if (executorService.isShutdown())
-                    executorService = Executors.newFixedThreadPool(5);
+            List<Callable<Integer>> tasks = new ArrayList<>();
+            List<Future<Integer>> futures = new ArrayList<>();
+            if (!getConnection(10000, 10)) {
+                mHandler.sendEmptyMessage(NotifyType.HANDLER_FINISH_THREAD.ordinal());
+                return;
+            }
+            if (executorService.isShutdown())
+                executorService = Executors.newFixedThreadPool(5);
 
-                for (Map.Entry<String, ContentValues> entry : mapChecks.entrySet()) {
+            for (Map.Entry<String, ContentValues> entry : mapChecks.entrySet()) {
+                try {
                     int taskId = Integer.valueOf(entry.getKey());
                     int checkId = Integer.valueOf(entry.getValue().get(TaskTable.KEY_DOC).toString());
+                    getSheetEntry(entry.getValue().get(TaskTable.KEY_DATA0).toString());
+                    UpdateListWorksheets();
 
-                    try {
-                        getSheetEntry(entry.getValue().get(TaskTable.KEY_DATA0).toString());
-                        UpdateListWorksheets();
-                    }catch (Exception e){
-                        mHandler.handleNotificationError(NotifyType.HANDLER_NOTIFY_ERROR.ordinal(), 505, new MessageNotify(MessageNotify.ID_NOTIFY_NO_SHEET, e.getMessage()));
-                        continue;
-                    }
-
-                    try {
-                        futures.add(executorService.submit(new Callable<String>() {
-                            @Override
-                            public String call() throws Exception {
-                                sendCheckToDisk(checkId);
-                                mapChecksProcessed.get(MAP_CHECKS_SEND).add(new ObjectParcel(checkId, mContext.getString(R.string.sent_to_the_server)));
-                                mHandler.obtainMessage(NotifyType.HANDLER_NOTIFY_SHEET.ordinal(), checkId, taskId, mapChecksProcessed.get(MAP_CHECKS_SEND)).sendToTarget();
-                                return "";
-                            }
-                        }));
-                    } catch (Exception e) {
-                        mapChecksProcessed.get(MAP_CHECKS_UNSEND).add(new ObjectParcel(checkId, "Не отправлен " + e.getMessage()));
-                        mHandler.obtainMessage(NotifyType.HANDLER_NOTIFY_CHECK_UNSEND.ordinal(), checkId, taskId, mapChecksProcessed.get(MAP_CHECKS_UNSEND)).sendToTarget();
-                        mHandler.handleError(401, e.getMessage());
-                    }
+                    tasks.add(new Callable<Integer>() {
+                        @Override
+                        public Integer call() throws Exception {
+                            sendCheckToDisk(checkId);
+                            /** удаляем задачу которую выполнили из map */
+                            mapChecks.remove(String.valueOf(taskId));
+                            /** удаляем задачу из базы. */
+                            new TaskTable(mContext).removeEntry(taskId);
+                            mapChecksProcessed.get(MAP_CHECKS_SEND).add(new ObjectParcel(checkId, mContext.getString(R.string.sent_to_the_server)));
+                            mHandler.obtainMessage(NotifyType.HANDLER_NOTIFY_SHEET.ordinal(), checkId, taskId, mapChecksProcessed.get(MAP_CHECKS_SEND)).sendToTarget();
+                            return checkId;
+                        }
+                    });
+                } catch (Exception e) {
+                    mapChecksProcessed.get(MAP_CHECKS_UNSEND).add(new ObjectParcel(0, "Не отправлен " + e.getMessage()));
                 }
-
-            } catch (Exception e) {
-                mHandler.handleNotificationError(NotifyType.HANDLER_NOTIFY_ERROR.ordinal(), 505, new MessageNotify(MessageNotify.ID_NOTIFY_NO_SHEET, e.getMessage()));
             }
-            for (Future<String> f : futures){
-                /** ждем выполнения задачи. */
-                while (!f.isDone());
+
+            try { /** ждем выполнения задачи. */
+                futures = executorService.invokeAll(tasks);
+            } catch (InterruptedException e) {
+                return;
+            }
+            executorService.shutdown();
+            while (!executorService.isTerminated());
+            /** перебераем задачи которые вызвали ошибки */
+            for (Future<Integer> future : futures) {
+                try {
+                    future.get();
+                } catch (InterruptedException e) {
+                } catch (ExecutionException e) {
+                    mapChecksProcessed.get(MAP_CHECKS_UNSEND).add(new ObjectParcel(0, "Ошибка "+ e.getCause().getMessage()));
+                }
+            }
+            /** помечаем на удаление в очередь задачи которые вызывают ошибку */
+            for (Map.Entry<String, ContentValues> entry : mapChecks.entrySet()){
+                /** удаляем задачу из базы. */
+                new TaskTable(mContext).removeEntryIfErrorOver(Integer.valueOf(entry.getKey()));
             }
             mHandler.sendEmptyMessage(NotifyType.HANDLER_FINISH_THREAD.ordinal());
         }
@@ -236,8 +246,11 @@ public class TaskPoolCommand extends CheckTable {
             try {
                 spreadsheetService.setAuthSubToken(fetchToken());
                 tokenIsReceived();
-            } catch (Exception e) {
+            }catch (IOException | GoogleAuthException e) {
                 tokenIsFalse(e.getMessage());
+            }catch (Exception e) {
+                mHandler.sendEmptyMessage(NotifyType.HANDLER_FINISH_THREAD.ordinal());
+                mHandler.handleNotificationError(NotifyType.HANDLER_NOTIFY_ERROR.ordinal(), 505, new MessageNotify(MessageNotify.ID_NOTIFY_NO_SHEET, "Ошибка " + e.getMessage()));
             }
             //super.execute();
         }
@@ -739,16 +752,12 @@ public class TaskPoolCommand extends CheckTable {
     }
 
     /** Класс для отправки фото на google disk. */
-    public class DataToGoogleDisk implements InterfaceTaskCommand, Callable{
+    public class DataToGoogleDisk implements InterfaceTaskCommand{
         ExecutorService executorService;
         //int NUMBER_OF_CORES = Runtime.getRuntime().availableProcessors();
         private UtilityDriver utilityDriver = null;
         final String MAP_PHOTO_SEND = "send";
         final String MAP_PHOTO_UNSEND = "unsend";
-        final String[] SCOPE_ARRAY = {"https://www.googleapis.com/auth/drive.file ", "https://www.googleapis.com/auth/drive "};
-        final List<String> SCOPES_LIST = Arrays.asList(SCOPE_ARRAY);
-        protected final String SCOPE = SCOPE_ARRAY[0] + SCOPE_ARRAY[1];
-
         final Map<String, ArrayList<ObjectParcel>> mapPhotoProcessed = new HashMap<>();
 
         public DataToGoogleDisk() {
@@ -775,63 +784,89 @@ public class TaskPoolCommand extends CheckTable {
                 }
                 if (executorService.isShutdown())
                     executorService = Executors.newFixedThreadPool(5);
-                List<Future<String>> futures = new ArrayList<>();
+                List<Callable<ObjectPhoto>> tasks = new ArrayList<>();
+                List<Future<ObjectPhoto>> futures = new ArrayList<>();
 
                 for (Map.Entry<String, ContentValues> entry : map.entrySet()) {
-
-                    int taskId = Integer.valueOf(entry.getKey());
-                    int checkId = Integer.valueOf(entry.getValue().get(TaskTable.KEY_DOC).toString());
-                    String folder = entry.getValue().get(TaskTable.KEY_DATA0).toString();
-
-                    Cursor cursor = getEntryItem(checkId, KEY_PHOTO_FIRST, KEY_PHOTO_SECOND);
-                    String[] columnNames = cursor.getColumnNames();
-                    for (String column : columnNames){
-                        String value = cursor.getString(cursor.getColumnIndex(column));
-                        if (value != null){
-                            if(!URLUtil.isHttpsUrl(value)){
-                                java.io.File file = new java.io.File(value);
-                                try {
-                                    /** Получаем доступ к папке рут на google drive. */
-                                    File folderRoot = utilityDriver.getFolder(folder, null);
-                                    Future<String> future = executorService.submit(new Callable<String>() {
-                                        @Override
-                                        public String call() throws Exception {
-                                            /** Получаем индекс папки. */
-                                            final String parentId = folderRoot.getId();
-                                            /** Сохраняем фаил в папку на google disc. */
-                                            String link = saveFileToDrive(file, parentId);
-                                            updateEntry(checkId, column, link);
-                                            mapPhotoProcessed.get(MAP_PHOTO_SEND).add(new ObjectParcel(0, mContext.getString(R.string.sent_to_the_server)));
-                                            mHandler.obtainMessage(NotifyType.HANDLER_NOTIFY_PHOTO.ordinal(), 0, taskId, mapPhotoProcessed.get(MAP_PHOTO_SEND)).sendToTarget();
-                                            return String.valueOf(taskId);
-                                        }
-                                    });
-                                    futures.add(future);
-                                    /** Исключение если не добавлено разрешение для программы в google service play. */
-                                } catch (UserRecoverableAuthIOException e) {
-                                    Intent intent = new Intent(mContext, ActivityGoogleDrivePreference.class).setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                                    intent.setAction("UserRecoverableAuthIOException");
-                                    intent.putExtra("request_authorization", e.getIntent());
-                                    mContext.startActivity(intent);
-                                    return;
-                                } catch (IOException e) {
-                                    e.printStackTrace();
-                                } catch (Exception e) {
-                                    e.printStackTrace();
+                    try {
+                        int taskId = Integer.valueOf(entry.getKey());
+                        int checkId = Integer.valueOf(entry.getValue().get(TaskTable.KEY_DOC).toString());
+                        String path = entry.getValue().get(TaskTable.KEY_DATA0).toString();
+                        String column = entry.getValue().get(TaskTable.KEY_DATA1).toString();
+                        String folder = entry.getValue().get(TaskTable.KEY_DATA2).toString();
+                        if(!URLUtil.isHttpsUrl(path)){
+                            /** получаем фаил для передачи. */
+                            java.io.File file = new java.io.File(path);
+                            /** Получаем доступ к папке рут на google drive. */
+                            File folderRoot = utilityDriver.getFolder(folder, null);
+                            tasks.add(new Callable<ObjectPhoto>() {
+                                @Override
+                                public ObjectPhoto call() throws Exception {
+                                    //int i = Integer.valueOf("0.01");
+                                    /** Получаем индекс папки. */
+                                    final String parentId = folderRoot.getId();
+                                    /** Сохраняем фаил в папку на google disc и возвращаем ссылку. */
+                                    String link = saveFileToDrive(file, parentId);
+                                    /** обновляем в чеке столбец с новой ссылкой. */
+                                    updateEntry(checkId, column, link);
+                                    /** удаляем фаил который отправили. */
+                                    file.delete();
+                                    /** удаляем задачу которую выполнили из map */
+                                    map.remove(String.valueOf(taskId));
+                                    /** удаляем задачу из базы. */
+                                    new TaskTable(mContext).removeEntry(taskId);
+                                    /** добавляем обьект для для отправки сообщения.*/
+                                    mapPhotoProcessed.get(MAP_PHOTO_SEND).add(new ObjectParcel(0, mContext.getString(R.string.sent_to_the_server)));
+                                    mHandler.obtainMessage(NotifyType.HANDLER_NOTIFY_PHOTO.ordinal(), 0, taskId, mapPhotoProcessed.get(MAP_PHOTO_SEND)).sendToTarget();
+                                    return null /*new ObjectPhoto(taskId, checkId, column, link)*/;
                                 }
-
-                            }else{
-                                mapPhotoProcessed.get(MAP_PHOTO_SEND).add(new ObjectParcel(0, mContext.getString(R.string.sent_to_the_server)));
-                                mHandler.obtainMessage(NotifyType.HANDLER_NOTIFY_PHOTO.ordinal(), 0, taskId, mapPhotoProcessed.get(MAP_PHOTO_SEND)).sendToTarget();
-                            }
+                            });
+                        }else {
+                            /** удаляем задачу которую выполнили из map */
+                            map.remove(String.valueOf(taskId));
+                            /** удаляем задачу из базы. */
+                            new TaskTable(mContext).removeEntry(taskId);
+                            /** добавляем обьект для для отправки сообщения.*/
+                            mapPhotoProcessed.get(MAP_PHOTO_SEND).add(new ObjectParcel(0, mContext.getString(R.string.sent_to_the_server)));
+                            mHandler.obtainMessage(NotifyType.HANDLER_NOTIFY_PHOTO.ordinal(), 0, 0, mapPhotoProcessed.get(MAP_PHOTO_SEND)).sendToTarget();
                         }
+                    }catch (UserRecoverableAuthIOException e) {/** Исключение если не добавлено разрешение для программы в google service play. */
+                        Intent intent = new Intent(mContext, ActivityGoogleDrivePreference.class).setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                        intent.setAction("UserRecoverableAuthIOException");
+                        intent.putExtra("request_authorization", e.getIntent());
+                        mContext.startActivity(intent);
+                        return;
+                    }catch (IOException e) {
+                        /** добавляем обьект для для отправки сообщения. */
+                        mapPhotoProcessed.get(MAP_PHOTO_UNSEND).add(new ObjectParcel(0, "Ошибка " + e));
+                    } catch (Exception e){
+
                     }
+
                 }
-                for (Future<String> f : futures){
+                try {
                     /** ждем выполнения задачи. */
-                    while (!f.isDone());
+                    futures = executorService.invokeAll(tasks);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
                 }
                 executorService.shutdown();
+                while (!executorService.isTerminated());
+                /** перебераем задачи которые вызвали ошибки */
+                for (Future<ObjectPhoto> future : futures) {
+                    try {
+                        future.get();
+                        //mapChecksProcessed.get(MAP_CHECKS_SEND).add(new ObjectParcel(check, mContext.getString(R.string.sent_to_the_server)));
+                        //mHandler.obtainMessage(NotifyType.HANDLER_NOTIFY_SHEET.ordinal(), check, 0, mapChecksProcessed.get(MAP_CHECKS_SEND)).sendToTarget();
+                    } catch (InterruptedException e) {
+                    } catch (ExecutionException e) {
+                        mapPhotoProcessed.get(MAP_CHECKS_UNSEND).add(new ObjectParcel(0, "Ошибка "+ e.getCause().getMessage()));
+                    }
+                }
+                for (Map.Entry<String, ContentValues> entry : map.entrySet()) {
+                    /** удаляем задачу из базы. */
+                    new TaskTable(mContext).removeEntryIfErrorOver(Integer.valueOf(entry.getKey()));
+                }
             }
         }
 
@@ -871,10 +906,33 @@ public class TaskPoolCommand extends CheckTable {
             }
         }
 
-        @Override
-        public Object call() throws Exception {
-            mHandler.sendEmptyMessage(NotifyType.HANDLER_NOTIFY_PROCESS.ordinal());
-            return null;
+        class ObjectPhoto{
+            Map.Entry<String, ContentValues> entry;
+            private int taskId;
+            private int checkId;
+            private String nameColumn;
+            private String link;
+
+            ObjectPhoto(int taskId, int checkId, String nameColumn, String link){
+                this.taskId = taskId;
+                this.checkId = checkId;
+                this.nameColumn = nameColumn;
+                this.link = link;
+            }
+            ObjectPhoto(Map.Entry<String, ContentValues> entry, String link){
+                this.entry = entry;
+                this.link = link;
+            }
+
+            public int getCheckId() { return checkId; }
+
+            public String getNameColumn() { return nameColumn; }
+
+            public String getLink() { return link; }
+
+            public int getTaskId() { return taskId; }
+
+            public Map.Entry<String, ContentValues> getEntry() { return entry; }
         }
     }
 

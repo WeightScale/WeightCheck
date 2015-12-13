@@ -7,9 +7,11 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
-import android.graphics.Color;
-import android.graphics.Rect;
+import android.graphics.*;
 import android.graphics.drawable.Drawable;
+import android.hardware.Camera;
+import android.media.AudioManager;
+import android.media.SoundPool;
 import android.os.*;
 import android.provider.BaseColumns;
 import android.provider.ContactsContract.*;
@@ -20,16 +22,24 @@ import android.support.v4.view.ViewPager;
 import android.view.*;
 import android.widget.*;
 import com.konst.module.ScaleModule;
+import com.victjava.scales.camera.CameraCallback;
+import com.victjava.scales.camera.CameraSurface;
 import com.victjava.scales.provider.CheckTable;
 import com.victjava.scales.provider.TaskTable;
 import com.victjava.scales.provider.TaskTable.*;
 import com.victjava.scales.service.ServiceTake;
 
 
+import java.io.*;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
+import java.util.Locale;
 import java.util.concurrent.TimeUnit;
 
-public class ActivityCheck extends FragmentActivity implements View.OnClickListener, Runnable {
+public class ActivityCheck extends FragmentActivity implements View.OnClickListener, Runnable, CameraCallback {
+    private FrameLayout cameraHolder;
+    private CameraSurface cameraSurface;
     Thread threadAutoWeight;
     ScaleModule scaleModule;
     Main main;
@@ -175,20 +185,6 @@ public class ActivityCheck extends FragmentActivity implements View.OnClickListe
     private Drawable dProgressWeight, dWeightDanger;
 
     /**
-     * Энумератор типа веса.
-     */
-    /*protected enum WeightType {
-        *//** Первое взвешивание. *//*
-        FIRST,
-        *//** Второе взвешивание. *//*
-        SECOND,
-        *//** Вес нетто. *//*
-        NETTO
-    }*/
-
-    //public WeightType weightType;
-
-    /**
      * Количество стабильных показаний веса для авто сохранения
      */
     public static final int COUNT_STABLE = 64;
@@ -243,15 +239,22 @@ public class ActivityCheck extends FragmentActivity implements View.OnClickListe
 
         findViewById(R.id.imageViewPage).setOnClickListener(this);
 
-        /*if (values.getAsInteger(CheckTable.KEY_WEIGHT_FIRST) > 0) {
-            weightType = values.getAsInteger(CheckTable.KEY_WEIGHT_SECOND) == 0 ? WeightType.SECOND : WeightType.NETTO;
-        } else {
-            weightType = WeightType.FIRST;
-        }*/
+        cameraHolder = (FrameLayout)findViewById(R.id.camera_preview1);
+        cameraHolder.setOnClickListener(this);
+        setupPictureMode();
 
         if (values.getAsInteger(CheckTable.KEY_WEIGHT_FIRST) == 0 || values.getAsInteger(CheckTable.KEY_WEIGHT_SECOND) == 0) {
             scaleModule.startMeasuringWeight();
         }
+    }
+
+    private void setupPictureMode(){
+        cameraSurface = new CameraSurface(this);
+        cameraSurface.setZOrderOnTop(false);
+        cameraSurface.getHolder().setFormat(PixelFormat.TRANSPARENT);
+        //cameraHolder.addView(cameraSurface, new ViewGroup.LayoutParams(ViewGroup.LayoutParams.FILL_PARENT, ViewGroup.LayoutParams.FILL_PARENT));
+        cameraHolder.addView(cameraSurface);
+        cameraSurface.setCallback(this);
     }
 
     @Override
@@ -276,6 +279,16 @@ public class ActivityCheck extends FragmentActivity implements View.OnClickListe
                 vibrator.vibrate(100);
                 startActivity(new Intent(getBaseContext(), ActivityViewCheck.class).putExtra("id", entryID));
                 exit();
+                break;
+            case R.id.camera_preview1:
+                //cameraHolder.setVisibility(View.GONE);
+                cameraHolder.setEnabled(false);
+                new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        cameraSurface.startTakePicture();
+                    }
+                }).start();
                 break;
             default:
         }
@@ -342,7 +355,7 @@ public class ActivityCheck extends FragmentActivity implements View.OnClickListe
                 //takingTimeout.cancel();
                 checkTable.updateEntry(entryID, values);
                 if (values.getAsInteger(CheckTable.KEY_CHECK_STATE) == CheckTable.State.CHECK_PRELIMINARY.ordinal()) {
-                    new TaskTable(ActivityCheck.this).setCheckReady(entryID);
+                    new TaskTable(ActivityCheck.this).setCheckReady(entryID, values);
                     taskToContact();
                     startActivity(new Intent(getBaseContext(), ActivityViewCheck.class).putExtra("id", entryID));
                 }
@@ -533,37 +546,6 @@ public class ActivityCheck extends FragmentActivity implements View.OnClickListe
         return flag;
     }
 
-    /*private boolean saveWeight(int weight*//*, WeightType type*//*) {
-        boolean flag = false;
-        switch (weightType) {
-            case FIRST:
-                if (weight > 0) {
-                    values.put(CheckTable.KEY_WEIGHT_FIRST, weight);
-                    vibrator.vibrate(100); //вибрация
-                    flag = true;
-                }
-                break;
-            case SECOND:
-                values.put(CheckTable.KEY_WEIGHT_SECOND, weight);
-                int total = sumNetto();
-                values.put(CheckTable.KEY_PRICE_SUM, total);
-                vibrator.vibrate(100); //вибрация
-                flag = true;
-                break;
-            case NETTO:
-                //scaleModule.stopMeasuringWeight(false);
-                exit();
-                break;
-        }
-        if (flag) {
-            ((OnCheckEventListener) mTabsAdapter.getCurrentFragment()).someEvent();
-            buttonFinish.setEnabled(true);
-            buttonFinish.setAlpha(255);
-            flagExit = true;
-        }
-        return flag;
-    }*/
-
     /**
      * Расчет веса нетто.
      *
@@ -601,22 +583,6 @@ public class ActivityCheck extends FragmentActivity implements View.OnClickListe
         buttonFinish.setAlpha(255);
         flagExit = true;
     }
-    /*private void weightTypeUpdate() {
-        switch (weightType) {
-            case FIRST:
-                weightType = WeightType.SECOND;
-                break;
-            case SECOND:
-                weightType = WeightType.NETTO;
-                saveWeight(0);
-                break;
-            default:
-                weightType = WeightType.FIRST;
-        }
-        buttonFinish.setEnabled(true);
-        buttonFinish.setAlpha(255);
-        flagExit = true;
-    }*/
 
     private class TabsAdapter extends FragmentPagerAdapter implements TabHost.OnTabChangeListener, ViewPager.OnPageChangeListener {
 
@@ -809,13 +775,20 @@ public class ActivityCheck extends FragmentActivity implements View.OnClickListe
                     buttonFinish.setAlpha(100);
                     flagExit = false;
                     if(Main.preferencesCamera.read(getString(R.string.KEY_PHOTO_CHECK), false)){
-                        PendingIntent pendingIntent = createPendingResult(values.getAsInteger(CheckTable.KEY_CHECK_STATE), new Intent(), 0);
+                        /*PendingIntent pendingIntent = createPendingResult(values.getAsInteger(CheckTable.KEY_CHECK_STATE), new Intent(), 0);
                         Intent intent = new Intent(getBaseContext(), ServiceTake.class);
                         intent.setAction("com.victjava.scales.TAKE");
                         intent.putExtra("com.victjava.scales.CHECK_ID", entryID);
-                        intent.putExtra(PENDING_TAKE, pendingIntent);
+                        intent.putExtra(PENDING_TAKE, pendingIntent);*/
                         /** Запускаем сервис сделать фото. */
-                        startService(intent);
+                        //startService(intent);
+                        cameraHolder.setEnabled(false);
+                        new Thread(new Runnable() {
+                            @Override
+                            public void run() {
+                                cameraSurface.startTakePicture();
+                            }
+                        }).start();
                         taking = true;
                     }
                     /*if(Main.preferencesCamera.read(getString(R.string.KEY_PHOTO_CHECK), false)){
@@ -910,6 +883,201 @@ public class ActivityCheck extends FragmentActivity implements View.OnClickListe
         taking = false;
     }
 
+    @Override
+    public void onPreviewFrame(byte[] data, Camera camera) {
+
+    }
+
+    @Override
+    public void onShutter() {
+        /*AudioManager meng = (AudioManager) getApplicationContext().getSystemService(Context.AUDIO_SERVICE);
+        int volume = meng.getStreamVolume( AudioManager.STREAM_NOTIFICATION);
+        MediaPlayer _shootMP=null;
+
+        if (volume != 0) {
+            if (_shootMP == null)
+                _shootMP = MediaPlayer.create(getApplicationContext(), Uri.parse("file:///system/media/audio/ui/camera_click.ogg"));
+            if (_shootMP != null)
+                _shootMP.start();
+        }*/
+
+        SoundPool soundPool = new SoundPool(1, AudioManager.STREAM_NOTIFICATION, 0);
+        int shutterSound = soundPool.load(this, R.raw.camera_click, 0);
+        soundPool.play(shutterSound, 1f, 1f, 0, 0, 1);
+
+    }
+
+    @Override
+    public void onJpegPictureTaken(byte[] data, Camera camera) {
+        //new SavePhotoTask(data, cameraSurface.getCamera()).start();
+        //cameraHolder.setVisibility(View.VISIBLE);
+        cameraHolder.setEnabled(true);
+        try {
+            /** Сжимаем данные изображения. */
+            byte[] compressImage = compressImage(data, camera);
+            /** Создаем штамп времени */
+            String timeStamp = new SimpleDateFormat("HHmmss", Locale.getDefault()).format(new Date());
+            /** Создаем имя папки по дате */
+            String folderStamp = new SimpleDateFormat("yyyyMMdd", Locale.getDefault()).format(new Date());
+            /** Сохраняем фаил. */
+            //String path = saveExternalMemory(Main.path.getAbsolutePath() + File.separator + folderStamp, folderStamp + "_" +timeStamp + ".jpg", compressImage);
+            String path = saveInternalMemory(Main.FOLDER_LOCAL, folderStamp + "_" + timeStamp + ".jpg", compressImage);
+            if(path != null){
+                switch (CheckTable.State.values()[values.getAsInteger(CheckTable.KEY_CHECK_STATE)]){
+                    case CHECK_FIRST:
+                        values.put(CheckTable.KEY_PHOTO_FIRST, path);
+                        break;
+                    case CHECK_SECOND:
+                        values.put(CheckTable.KEY_PHOTO_SECOND, path);
+                        break;
+                    default:
+                }
+            }
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        taking = false;
+        cameraSurface.startPreview();
+    }
+
+    /** Сжатие и поворот изибражения.
+     * @param input Входящии данные.
+     * @param camera Экземпляр камеры.
+     * @return Сжатые данные.
+     * @throws Exception Исключение при ошибки преобразования данных.
+     */
+    byte[] compressImage(byte[] input, Camera camera) throws Exception{
+        //Preferences preferences = new Preferences(getSharedPreferences(Preferences.PREF_SETTINGS,Context.MODE_PRIVATE));
+        Bitmap original;
+        try {
+            // First decode with inJustDecodeBounds=true to check dimensions
+            BitmapFactory.Options options = new BitmapFactory.Options();
+            options.inPurgeable = true;
+            options.inJustDecodeBounds = true;
+            BitmapFactory.decodeByteArray(input, 0, input.length, options);
+            Camera.Parameters parameters = camera.getParameters();
+            Camera.Size size = parameters.getPictureSize();
+            // Calculate inSampleSize
+            options.inSampleSize = calculateInSampleSize(options, size.width, size.height);
+            // Decode bitmap with inSampleSize set
+            options.inJustDecodeBounds = false;
+            /** Создаем битовую карту из входящих данных */
+            original = BitmapFactory.decodeByteArray(input, 0, input.length, options);
+            /** Исключение если память выходит за пределы. */
+        } catch (OutOfMemoryError e) {
+            /** Создаем опции битовой карты */
+            BitmapFactory.Options bitmapOptions = new BitmapFactory.Options();
+            bitmapOptions.inJustDecodeBounds = true;
+            /** Временное хранилище */
+            bitmapOptions.inTempStorage = new byte[32 * 1024];
+            Camera.Parameters parameters = camera.getParameters();
+            Camera.Size size = parameters.getPictureSize();
+            /** Получить высоту */
+            int height11 = size.height;
+            /** Получить ширину */
+            int width11 = size.width;
+            /** Размер картинки в мб */
+            float mb = (float)(width11 * height11) / 1024000;
+            if (mb > 4.0f)
+                bitmapOptions.inSampleSize = 4;
+            else if (mb > 3.0f)
+                bitmapOptions.inSampleSize = 2;
+            bitmapOptions.inJustDecodeBounds = false;
+            /** Создаем битовую карту из опций */
+            original = BitmapFactory.decodeByteArray(input, 0, input.length, bitmapOptions);
+        }
+        /** Создаем матрикс обьект */
+        Matrix matrix = new Matrix();
+        /** Поворот изображения в градусах против часовой стрелки*/
+        matrix.postRotate(Integer.parseInt(new Preferences(getApplicationContext()).read(getString(R.string.key_rotation), "90"))); // anti-clockwise by 90 degrees
+        ByteArrayOutputStream blob = new ByteArrayOutputStream();
+        try {
+            Bitmap bitmapRotate = Bitmap.createBitmap(original, 0, 0, original.getWidth(), original.getHeight(), matrix, true);
+            bitmapRotate.compress(Bitmap.CompressFormat.JPEG, Integer.parseInt(new Preferences(getApplicationContext()).read(getString(R.string.key_quality_pic), "50")), blob);
+            original.recycle();
+            original = null;
+            bitmapRotate.recycle();
+            bitmapRotate = null;
+        } catch (OutOfMemoryError e) {
+            original.recycle();
+            original = null;
+            e.printStackTrace();
+        }
+        return blob.toByteArray();
+    }
+
+    public int calculateInSampleSize( BitmapFactory.Options options, int reqWidth, int reqHeight) {
+        // Raw height and width of image
+        final int height = options.outHeight;
+        final int width = options.outWidth;
+        int inSampleSize = 1;
+
+        if (height > reqHeight || width > reqWidth) {
+
+            final int halfHeight = height / 2;
+            final int halfWidth = width / 2;
+
+            // Calculate the largest inSampleSize value that is a power of 2 and keeps both
+            // height and width larger than the requested height and width.
+            while ((halfHeight / inSampleSize) > reqHeight && (halfWidth / inSampleSize) > reqWidth) {
+                inSampleSize *= 2;
+            }
+        }
+
+        return inSampleSize;
+    }
+
+    /** Процедура сохранения файла во внешней памяти.
+     * @param folder Имя папки.
+     * @param file Имя файла.
+     * @param data Данные файла.
+     * @return Возвращяет путь к сохраненному файлу.
+     * @throws IOException Ошибка сохранения фаила.
+     */
+    String saveExternalMemory(String folder, String file, byte[] data) throws IOException {
+        /** Создаем папку с именем штампа даты. */
+        File folderPath = new File(folder);
+        /** Делаем папку. */
+        folderPath.mkdirs();
+        /** Создаем фаил с именем штампа времени. */
+        File fileTake = new File(folderPath.getPath(), file);
+        /** Создаем поток для записи фаила в папку временного хранения. */
+        FileOutputStream fileOutputStream = new FileOutputStream(fileTake.getPath());
+        /** Записываем фаил в папку. */
+        fileOutputStream.write(data);
+        /** Закрываем поток. */
+        fileOutputStream.close();
+        /** Возвращяем путь к файлу. */
+        return fileTake.getPath();
+    }
+
+    /** Процедура сохранения фото во внутренюю память приложения.
+     * @param folderStamp Имя папки.
+     * @param file Имя фаила.
+     * @param data Массив данных файла
+     * @throws IOException Исключение при ошибки записи данных.
+     */
+    String saveInternalMemory(String folderStamp, String file, byte[] data) throws IOException {
+        /** Создаем папку с именем штампа даты. */
+        File folderPath = new File(getFilesDir()+File.separator+folderStamp);
+        /** Делаем папку. */
+        folderPath.mkdirs();
+        /** Создаем фаил с именем штампа времени. */
+        File fileTake = new File(folderPath, file);
+        /** Создаем поток для записи фаила в папку временного хранения. */
+        FileOutputStream fileOutputStream = new FileOutputStream(fileTake);
+        /** Записываем фаил в папку. */
+        fileOutputStream.write(data);
+        /** Закрываем поток. */
+        fileOutputStream.close();
+        /** Возвращяем путь к файлу. */
+        return fileTake.getPath();
+    }
+
     class TakingTimeout extends CountDownTimer{
 
         /**
@@ -932,6 +1100,49 @@ public class ActivityCheck extends FragmentActivity implements View.OnClickListe
         public void onFinish() {
             taking = false;
         }
+    }
+
+    class SavePhotoTask extends Thread {
+        byte[] data;
+        Camera camera;
+        SavePhotoTask(byte[]data, Camera camera){
+            this.data = data;
+            this.camera = camera;
+        }
+
+        @Override
+        public void run() {
+            try {
+                /** Сжимаем данные изображения. */
+                byte[] compressImage = compressImage(data, camera);
+                /** Создаем штамп времени */
+                String timeStamp = new SimpleDateFormat("HHmmss", Locale.getDefault()).format(new Date());
+                /** Создаем имя папки по дате */
+                String folderStamp = new SimpleDateFormat("yyyyMMdd", Locale.getDefault()).format(new Date());
+                /** Сохраняем фаил. */
+                String path = saveExternalMemory(Main.path.getAbsolutePath() + File.separator + folderStamp, folderStamp + timeStamp + ".jpg", compressImage);
+                //String path = saveInternalMemory(Main.FOLDER_LOCAL /*+ File.separator + folderStamp*/, folderStamp + "_" + timeStamp + "(" + String.valueOf(checkId) + ").jpg", compressImage);
+                /*Intent intent = new Intent();
+                intent.putExtra("com.victjava.scales.PHOTO_PATH", path);
+                pendingIntent.send(ServiceTake.this, 0, intent);*/
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+            } catch (IOException e) {
+                e.printStackTrace();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+
+
+
+
+
+
+
+
+
+
     }
 }
 

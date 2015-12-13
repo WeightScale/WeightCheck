@@ -323,12 +323,12 @@ public class ServiceProcessTask extends Service {
                             .setTicker("Фото отправлено")
                             .setContentText("Отправлено фото кол-во: " + ((ArrayList) msg.obj).size());
                     notificationManager.notify(msg.what, generateNotification(new Intent(), mBuilder, msg.what));
-                    handleRemoveEntry(NotifyType.REMOVE_TASK_ENTRY.ordinal(), msg.arg2);
+                    //handleRemoveEntry(NotifyType.REMOVE_TASK_ENTRY.ordinal(), msg.arg2);
                     return;
                 default:
                     return;
             }
-            handleRemoveEntry(msg.what, msg.arg2);
+            //handleRemoveEntry(msg.what, msg.arg2);
             intent.setClass(getApplicationContext(), ActivityListChecks.class).putParcelableArrayListExtra("listCheckNotify", (ArrayList) msg.obj);
             //intent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
             //intent.addCategory(Intent.CATEGORY_LAUNCHER).setComponent(getPackageManager().getLaunchIntentForPackage(getPackageName()).getComponent());;

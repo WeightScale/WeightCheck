@@ -177,14 +177,14 @@ public class TaskTable {
         return mContext.getContentResolver().query(CONTENT_URI, null, KEY_MIME_TYPE + " = " + type.ordinal(), null, null);
     }
 
-    public void setCheckReady(int _rowIndex) {
+    public void setCheckReady(int _rowIndex, ContentValues values) {
 
         Cursor checks = new CheckTable(mContext).getEntryItem(_rowIndex, CheckTable.KEY_PHOTO_FIRST, CheckTable.KEY_PHOTO_SECOND);
         checks.moveToFirst();
         if(checks.isNull(checks.getColumnIndex(CheckTable.KEY_PHOTO_FIRST)) && checks.isNull(checks.getColumnIndex(CheckTable.KEY_PHOTO_SECOND))){
             new CheckTable(mContext).updateEntry(_rowIndex, CheckTable.KEY_CHECK_STATE, CheckTable.State.CHECK_READY.ordinal());
         }else {
-            setDataReady(_rowIndex);
+            setDataReady(_rowIndex, values);
         }
 
         Cursor cursor = new SenderTable(mContext).geSystemItem();
@@ -236,18 +236,23 @@ public class TaskTable {
         } catch (Exception e) {}
     }
 
-    public void setDataReady(int _rowIndex){
+    public void setDataReady(int _rowIndex, ContentValues values){
         Cursor cursor = new SenderTable(mContext).geSystemItem();
         try {
             cursor.moveToFirst();
             if (!cursor.isAfterLast()) {
                 do {
-                    int senderId = cursor.getInt(cursor.getColumnIndex(SenderTable.KEY_ID));
-                    TypeSender type_sender = TypeSender.values()[cursor.getInt(cursor.getColumnIndex(SenderTable.KEY_TYPE))];
-                    switch (type_sender) {
+                    //int senderId = cursor.getInt(cursor.getColumnIndex(SenderTable.KEY_ID));
+                    //TypeSender type_sender = TypeSender.values()[cursor.getInt(cursor.getColumnIndex(SenderTable.KEY_TYPE))];
+                    switch (TypeSender.values()[cursor.getInt(cursor.getColumnIndex(SenderTable.KEY_TYPE))]) {
                         case TYPE_HTTP_POST:
                         case TYPE_GOOGLE_DISK:
-                            insertNewTask(TaskType.TYPE_DATA_SEND_TO_DISK, _rowIndex, scaleModule.getAddressBluetoothDevice());
+                            if(values.containsKey(CheckTable.KEY_PHOTO_FIRST))
+                                if (values.get(CheckTable.KEY_PHOTO_FIRST)!= null)
+                                    insertNewTask(TaskType.TYPE_DATA_SEND_TO_DISK, _rowIndex, values.getAsString(CheckTable.KEY_PHOTO_FIRST),CheckTable.KEY_PHOTO_FIRST,scaleModule.getAddressBluetoothDevice());
+                            if (values.containsKey(CheckTable.KEY_PHOTO_SECOND))
+                                if (values.get(CheckTable.KEY_PHOTO_SECOND)!=null)
+                                    insertNewTask(TaskType.TYPE_DATA_SEND_TO_DISK, _rowIndex, values.getAsString(CheckTable.KEY_PHOTO_SECOND),CheckTable.KEY_PHOTO_SECOND,scaleModule.getAddressBluetoothDevice());
                         return;
                         default:
                     }
