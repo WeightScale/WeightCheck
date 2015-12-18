@@ -159,16 +159,16 @@ public class Main extends Application {
         //ScaleModule.setWeightError(Preferences.read(getString(R.string.KEY_MAX_NULL), default_limit_auto_null));
         timeDelayDetectCapture = getResources().getInteger(R.integer.time_delay_detect_capture);
 
-        /** Создаем путь к временной папке для для хранения файлов */
+        /** Создаем путь к временной папке для для хранения файлов. */
         path = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES) + File.separator + FOLDER_LOCAL);
-        /** Если нет папки тогда создаем */
+        /** Если нет папки тогда создаем. */
         if (!path.exists()) {
             if (!path.mkdirs()) {
                 new ErrorTable(this).insertNewEntry("500", "Path no create: " + path.getPath());
                 //todo что зделать если не создали папку
             }
         }
-        /** Окрываем экземпляр основной камеры */
+        /** Окрываем экземпляр основной камеры. */
         Camera camera = Camera.open(Camera.CameraInfo.CAMERA_FACING_BACK);
         /** Получаем параметры камеры */
         parameters = camera.getParameters();

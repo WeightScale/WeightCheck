@@ -14,7 +14,7 @@ import com.victjava.scales.R;
 /**
  * @author Kostya
  */
-public class DialogPoint2 extends DialogPreference implements ScaleModule.OnEventResultWeight {
+public class DialogPoint2 extends DialogPreference implements ScaleModule.WeightCallback {
     TextView textViewSensor;
     EditText editTextPoint2;
     final ScaleModule scaleModule;
@@ -26,7 +26,7 @@ public class DialogPoint2 extends DialogPreference implements ScaleModule.OnEven
         setPersistent(false);
         setDialogLayoutResource(R.layout.dialog_point2);
         scaleModule = ((Main)context.getApplicationContext()).getScaleModule();
-        scaleModule.setOnEventResultWeight(this);
+        scaleModule.setWeightCallback(this);
     }
 
     @Override

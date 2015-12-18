@@ -17,7 +17,7 @@ import android.view.*;
 import android.widget.*;
 import com.konst.module.BootModule;
 import com.konst.module.Module;
-import com.konst.module.OnEventConnectResult;
+import com.konst.module.ConnectResultCallback;
 import com.victjava.scales.*;
 
 public class ActivityConnect extends Activity implements View.OnClickListener {
@@ -45,7 +45,7 @@ public class ActivityConnect extends Activity implements View.OnClickListener {
         setContentView(R.layout.connect);
         textViewLog = (TextView) findViewById(R.id.textLog);
         try {
-            bootModule = new BootModule("bootloader", onEventConnectResult);
+            bootModule = new BootModule("bootloader", connectResultCallback);
             log(R.string.bluetooth_off, true);
             setupScale();
         } catch (Exception e) {
@@ -218,16 +218,16 @@ public class ActivityConnect extends Activity implements View.OnClickListener {
                     bootModule.init(getIntent().getStringExtra("address"));
                     bootModule.attach();
                 } catch (Exception e) {
-                    onEventConnectResult.handleConnectError(Module.ResultError.CONNECT_ERROR, e.getMessage());
+                    connectResultCallback.connectError(Module.ResultError.CONNECT_ERROR, e.getMessage());
                 }
                 break;
             default:
         }
     }
 
-    final OnEventConnectResult onEventConnectResult = new OnEventConnectResult() {
+    final ConnectResultCallback connectResultCallback = new ConnectResultCallback() {
         @Override
-        public void handleResultConnect(Module.ResultConnect result) {
+        public void resultConnect(Module.ResultConnect result) {
             switch (result) {
                 case STATUS_LOAD_OK:
                     setResult(RESULT_OK, new Intent());
@@ -238,7 +238,7 @@ public class ActivityConnect extends Activity implements View.OnClickListener {
         }
 
         @Override
-        public void handleConnectError(Module.ResultError error, String s) {
+        public void connectError(Module.ResultError error, String s) {
         }
 
     };

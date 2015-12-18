@@ -9,15 +9,15 @@ import android.net.Uri;
 import android.os.*;
 import android.view.*;
 import android.widget.*;
+import com.konst.module.ConnectResultCallback;
 import com.konst.module.Module;
-import com.konst.module.OnEventConnectResult;
 import com.victjava.scales.settings.ActivityPreferences;
 import com.victjava.scales.settings.ActivityTuning;
 
 import java.util.ArrayList;
 
 public class ActivitySearch extends Activity implements View.OnClickListener {
-
+    private Main main;
     private BroadcastReceiver broadcastReceiver; //приёмник намерений
     private ArrayList<BluetoothDevice> foundDevice; //чужие устройства
     private ArrayAdapter<BluetoothDevice> bluetoothAdapter; //адаптер имён
@@ -58,11 +58,13 @@ public class ActivitySearch extends Activity implements View.OnClickListener {
         getWindow().setAttributes(lp);
         setProgressBarIndeterminateVisibility(false);
 
+        main = (Main)getApplication();
+
         textViewLog = (TextView) findViewById(R.id.textLog);
 
         String action = getIntent().getAction();
-        module = "com.victjava.scales.BOOTLOADER".equals(action) ? ((Main) getApplication()).getBootModule() : ((Main) getApplication()).getScaleModule();
-        module.setOnEventConnectResult(onEventConnectResult);
+        module = "com.victjava.scales.BOOTLOADER".equals(action) ? main.getBootModule() : main.getScaleModule();
+        module.setConnectResultCallback(connectResultCallback);
         broadcastReceiver = new BroadcastReceiver() {
 
             @Override
@@ -121,7 +123,7 @@ public class ActivitySearch extends Activity implements View.OnClickListener {
         foundDevice = new ArrayList<>();
 
         for (int i = 0; ((Main)getApplication()).preferencesScale.contains(getString(R.string.KEY_ADDRESS) + i); i++) { //заполнение списка
-            foundDevice.add(module.getAdapter().getRemoteDevice(((Main)getApplication()).preferencesScale.read(getString(R.string.KEY_ADDRESS) + i, "")));
+            foundDevice.add(module.getAdapter().getRemoteDevice(main.preferencesScale.read(getString(R.string.KEY_ADDRESS) + i, "")));
         }
         bluetoothAdapter = new BluetoothListAdapter(this, foundDevice);
 
@@ -245,12 +247,12 @@ public class ActivitySearch extends Activity implements View.OnClickListener {
         }
     }
 
-    final OnEventConnectResult onEventConnectResult = new OnEventConnectResult() {
+    final ConnectResultCallback connectResultCallback = new ConnectResultCallback() {
         AlertDialog.Builder dialog;
         private ProgressDialog dialogSearch;
 
         @Override
-        public void handleResultConnect(final Module.ResultConnect result) {
+        public void resultConnect(final Module.ResultConnect result) {
             runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
@@ -260,7 +262,7 @@ public class ActivitySearch extends Activity implements View.OnClickListener {
                             if (dialogSearch.isShowing()) {
                                 dialogSearch.dismiss();
                             }
-                            log("Result OK");
+                            //log("Result OK");
                             finish();
                             break;
                         case STATUS_VERSION_UNKNOWN:
@@ -292,7 +294,7 @@ public class ActivitySearch extends Activity implements View.OnClickListener {
         }
 
         @Override
-        public void handleConnectError(final Module.ResultError error, final String s) {
+        public void connectError(final Module.ResultError error, final String s) {
             runOnUiThread(new Runnable() {
                 @Override
                 public void run() {

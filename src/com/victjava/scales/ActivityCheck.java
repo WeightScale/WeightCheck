@@ -1,17 +1,22 @@
 package com.victjava.scales;
 
 
-import android.app.PendingIntent;
+import android.annotation.TargetApi;
+import android.app.AlertDialog;
+import android.app.Dialog;
 import android.app.ProgressDialog;
+import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.*;
+import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.hardware.Camera;
 import android.media.AudioManager;
 import android.media.SoundPool;
+import android.net.Uri;
 import android.os.*;
 import android.provider.BaseColumns;
 import android.provider.ContactsContract.*;
@@ -27,25 +32,51 @@ import com.victjava.scales.camera.CameraSurface;
 import com.victjava.scales.provider.CheckTable;
 import com.victjava.scales.provider.TaskTable;
 import com.victjava.scales.provider.TaskTable.*;
-import com.victjava.scales.service.ServiceTake;
 
 
 import java.io.*;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.TimeUnit;
 
 public class ActivityCheck extends FragmentActivity implements View.OnClickListener, Runnable, CameraCallback {
     private FrameLayout cameraHolder;
+    SlidingDrawer slidingDrawer;
     private CameraSurface cameraSurface;
-    Thread threadAutoWeight;
-    ScaleModule scaleModule;
-    Main main;
-    TakingTimeout takingTimeout;
-    boolean running;
-    boolean taking;
+    private Thread threadAutoWeight;
+    private ScaleModule scaleModule;
+    private Main main;
+    private TakingTimeout takingTimeout;
+    private CheckTable checkTable;
+    private Vibrator vibrator; //вибратор
+    private ProgressBar progressBarWeight;
+    private WeightTextView weightTextView;
+    private TabHost mTabHost;
+    private TabsAdapter mTabsAdapter;
+    private ImageView buttonFinish;
+    private SimpleGestureFilter detectorWeightView;
+    private Drawable dProgressWeight, dWeightDanger;
+    protected ContentValues values = new ContentValues();
+    private Dialog dialogCamera;
+    /** Количество стабильных показаний веса для авто сохранения. */
+    public static final int COUNT_STABLE = 64;
+    //public final static int START_TAKE = 1;
+    public static final String PENDING_TAKE = "com.victjava.scales.PENDING_TAKE";
+
+    public int entryID;
+    public int numStable;
+    private int moduleWeight;
+    protected int tempWeight;
+
+    protected boolean isStable;
+    private boolean running;
+    private boolean taking;
+    private boolean flagExit = true;
+    private boolean touchWeightView;
+    private boolean weightViewIsSwipe;
 
     public enum Action {
         /** Остановка взвешивания. */
@@ -58,6 +89,9 @@ public class ActivityCheck extends FragmentActivity implements View.OnClickListe
         UPDATE_PROGRESS,
         /** Показать диалог сохраняем */
         DIALOG_SAVE
+    }
+    protected interface OnCheckEventListener {
+        void someEvent();
     }
 
     @Override
@@ -142,67 +176,6 @@ public class ActivityCheck extends FragmentActivity implements View.OnClickListe
         //start = false;
     }
 
-    protected interface OnCheckEventListener {
-        void someEvent();
-    }
-
-    /**
-     * Обработка обнуления весов.
-     */
-    private class ZeroThread extends Thread {
-        private final ProgressDialog dialog;
-
-        ZeroThread(Context context) {
-            // Создаём новый поток
-            super(getString(R.string.Zeroing));
-            dialog = new ProgressDialog(context);
-            dialog.setCancelable(false);
-            dialog.setIndeterminate(false);
-            dialog.show();
-            dialog.setContentView(R.layout.custom_progress_dialog);
-            TextView tv1 = (TextView) dialog.findViewById(R.id.textView1);
-            tv1.setText(R.string.Zeroing);
-            //start(); // Запускаем поток
-        }
-
-        @Override
-        public void run() {
-            scaleModule.setOffsetScale();
-            if (dialog.isShowing()) {
-                dialog.dismiss();
-            }
-        }
-    }
-
-    private CheckTable checkTable;
-    private Vibrator vibrator; //вибратор
-    private ProgressBar progressBarWeight;
-    private WeightTextView weightTextView;
-    private TabHost mTabHost;
-    private TabsAdapter mTabsAdapter;
-    private ImageView buttonFinish;
-    private SimpleGestureFilter detectorWeightView;
-    private Drawable dProgressWeight, dWeightDanger;
-
-    /**
-     * Количество стабильных показаний веса для авто сохранения
-     */
-    public static final int COUNT_STABLE = 64;
-
-    public final static int START_TAKE = 1;
-    public final static String PENDING_TAKE = "com.victjava.scales.PENDING_TAKE";
-
-    ContentValues values = new ContentValues();
-    public int entryID;
-    public int numStable;
-    protected boolean isStable;
-    int moduleWeight;
-    protected int tempWeight;
-
-    private boolean flagExit = true;
-    private boolean touchWeightView;
-    private boolean weightViewIsSwipe;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -210,7 +183,7 @@ public class ActivityCheck extends FragmentActivity implements View.OnClickListe
 
         main = (Main)getApplication();
         scaleModule = main.getScaleModule();
-        scaleModule.setOnEventResultWeight(onEventResultWeight);
+        scaleModule.setWeightCallback(resultWeightCallback);
 
         vibrator = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
         checkTable = new CheckTable(this);
@@ -239,8 +212,11 @@ public class ActivityCheck extends FragmentActivity implements View.OnClickListe
 
         findViewById(R.id.imageViewPage).setOnClickListener(this);
 
-        cameraHolder = (FrameLayout)findViewById(R.id.camera_preview1);
-        cameraHolder.setOnClickListener(this);
+        cameraHolder = (FrameLayout)findViewById(R.id.camera_preview4);
+        //cameraHolder.setOnClickListener(this);
+        //setupDialogCamera();
+        setupSliding();
+
         setupPictureMode();
 
         if (values.getAsInteger(CheckTable.KEY_WEIGHT_FIRST) == 0 || values.getAsInteger(CheckTable.KEY_WEIGHT_SECOND) == 0) {
@@ -250,11 +226,121 @@ public class ActivityCheck extends FragmentActivity implements View.OnClickListe
 
     private void setupPictureMode(){
         cameraSurface = new CameraSurface(this);
-        cameraSurface.setZOrderOnTop(false);
-        cameraSurface.getHolder().setFormat(PixelFormat.TRANSPARENT);
+        //cameraSurface.setZOrderOnTop(false);
+        //cameraSurface.getHolder().setFormat(PixelFormat.TRANSPARENT);
         //cameraHolder.addView(cameraSurface, new ViewGroup.LayoutParams(ViewGroup.LayoutParams.FILL_PARENT, ViewGroup.LayoutParams.FILL_PARENT));
         cameraHolder.addView(cameraSurface);
         cameraSurface.setCallback(this);
+    }
+
+    void setupSliding() {
+        final ImageView ibHandle = (ImageView) findViewById(R.id.handle);
+        slidingDrawer = (SlidingDrawer) findViewById(R.id.drawer);
+
+        slidingDrawer.setOnDrawerOpenListener(new SlidingDrawer.OnDrawerOpenListener() {
+            public void onDrawerOpened() {
+                //((FrameLayout)findViewById(R.id.fr)).setVisibility(View.INVISIBLE);
+                //((FrameLayout) findViewById(R.id.fr)).setClickable(false);
+                ibHandle.setImageResource(R.drawable.ic_action_sliding_right);
+            }
+        });
+
+        slidingDrawer.setOnDrawerCloseListener(new SlidingDrawer.OnDrawerCloseListener() {
+            public void onDrawerClosed() {
+                //((FrameLayout)findViewById(R.id.fr)).setVisibility(View.VISIBLE);
+                //((FrameLayout) findViewById(R.id.fr)).setClickable(true);
+                ibHandle.setImageResource(R.drawable.ic_action_sliding_up);
+            }
+        });
+
+        slidingDrawer.setOnDrawerScrollListener(new SlidingDrawer.OnDrawerScrollListener() {
+
+            public void onScrollEnded() {
+                return;
+                // TODO Auto-generated method stub
+
+            }
+
+            public void onScrollStarted() {
+                return;
+                // TODO Auto-generated method stub
+            }
+        });
+
+        //slidingDrawer.open();
+        /*TextView textNewDocument = (TextView) findViewById(R.id.textNewDocument);
+        textNewDocument.setOnClickListener(new View.OnClickListener() {
+            @TargetApi(Build.VERSION_CODES.HONEYCOMB)
+            @Override
+            public void onClick(View v) {
+                //mTabsAdapter.addTab(mTabHost.newTabSpec("input").setIndicator(createTabView(ActivityScales.this, "приход")), NewDocFragment.class);
+                new WeightDocDbAdapter(ActivityScales.this).insertNewEntry(WeightDocDbAdapter.TYPE_SINGLE);
+                fragmentTransaction = getSupportFragmentManager().beginTransaction();
+                fragmentTransaction.replace(R.id.fr, new OpenDocFragment());
+                fragmentTransaction.commit();
+                slidingDrawer.close();
+            }
+        });*/
+
+        /*TextView textWeightDocument = (TextView) findViewById(R.id.textWeightDocument);
+        textWeightDocument.setOnClickListener(new View.OnClickListener() {
+            @TargetApi(Build.VERSION_CODES.HONEYCOMB)
+            @Override
+            public void onClick(View v) {
+                //mTabsAdapter.addTab(mTabHost.newTabSpec("input").setIndicator(createTabView(ActivityScales.this, "приход")), NewDocFragment.class);
+                fragmentTransaction = getSupportFragmentManager().beginTransaction();
+                fragmentTransaction.replace(R.id.fr, new ListDocFragment());
+                fragmentTransaction.commit();
+                slidingDrawer.close();
+            }
+        });*/
+
+    }
+
+    private void setupDialogCamera(){
+        /*dialogCamera = new Dialog(this);
+        dialogCamera.requestWindowFeature(Window.FEATURE_NO_TITLE);
+        dialogCamera.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+        dialogCamera.setCancelable(false);
+        dialogCamera.show();
+        LayoutInflater layoutInflater = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        View convertView = layoutInflater.inflate(R.layout.dialog_camera1, null);
+        dialogCamera.setContentView(convertView);
+        cameraHolder = (FrameLayout) convertView.findViewById(R.id.camera_preview4);
+        TextView dialogTitle = (TextView) convertView.findViewById(R.id.dialog_title);
+        dialogTitle.setText("Фото");
+        Button positiveButton = (Button)convertView.findViewById(R.id.buttonClosedDialog);
+        positiveButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View arg0) {
+                dialogCamera.dismiss();
+            }
+        });*/
+
+
+        dialogCamera = new Dialog(this);
+        dialogCamera.setCancelable(false);
+        dialogCamera.requestWindowFeature(Window.FEATURE_NO_TITLE);
+        dialogCamera.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+        dialogCamera.getWindow().clearFlags(WindowManager.LayoutParams.FLAG_DIM_BEHIND);
+        dialogCamera.show();
+        dialogCamera.setContentView(R.layout.dialog_camera);
+        cameraHolder = (FrameLayout)dialogCamera.findViewById(R.id.camera_preview4);
+        cameraHolder.setOnClickListener(this);
+        ImageView closed = (ImageView) dialogCamera.findViewById(R.id.buttonClosedDialog);
+        closed.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                dialogCamera.dismiss();
+            }
+        });
+        ImageView take = (ImageView) dialogCamera.findViewById(R.id.takePhotoDialog);
+        closed.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                dialogCamera.dismiss();
+            }
+        });
     }
 
     @Override
@@ -280,9 +366,7 @@ public class ActivityCheck extends FragmentActivity implements View.OnClickListe
                 startActivity(new Intent(getBaseContext(), ActivityViewCheck.class).putExtra("id", entryID));
                 exit();
                 break;
-            case R.id.camera_preview1:
-                //cameraHolder.setVisibility(View.GONE);
-                cameraHolder.setEnabled(false);
+            case R.id.camera_preview4:
                 new Thread(new Runnable() {
                     @Override
                     public void run() {
@@ -707,7 +791,7 @@ public class ActivityCheck extends FragmentActivity implements View.OnClickListe
     /** Обработчик показаний веса
      * Возвращяем время обновления показаний веса в милисекундах.
      */
-    final ScaleModule.OnEventResultWeight onEventResultWeight = new ScaleModule.OnEventResultWeight() {
+    final ScaleModule.WeightCallback resultWeightCallback = new ScaleModule.WeightCallback() {
         @Override
         public int weight(final ScaleModule.ResultWeight what, final int weight, final int sensor) {
             runOnUiThread(new Runnable() {
@@ -761,28 +845,7 @@ public class ActivityCheck extends FragmentActivity implements View.OnClickListe
 
             switch (Action.values()[msg.what] ) {
                 case STORE_WEIGHTING:
-                    saveWeight(msg.arg1);
-                    break;
-                case STOP_WEIGHTING:
-                    weightTypeUpdate();
-                    buttonFinish.setEnabled(true);
-                    buttonFinish.setAlpha(255);
-                    ((OnCheckEventListener) mTabsAdapter.getCurrentFragment()).someEvent();
-                    flagExit = true;
-                    break;
-                case START_WEIGHTING:
-                    buttonFinish.setEnabled(false);
-                    buttonFinish.setAlpha(100);
-                    flagExit = false;
                     if(Main.preferencesCamera.read(getString(R.string.KEY_PHOTO_CHECK), false)){
-                        /*PendingIntent pendingIntent = createPendingResult(values.getAsInteger(CheckTable.KEY_CHECK_STATE), new Intent(), 0);
-                        Intent intent = new Intent(getBaseContext(), ServiceTake.class);
-                        intent.setAction("com.victjava.scales.TAKE");
-                        intent.putExtra("com.victjava.scales.CHECK_ID", entryID);
-                        intent.putExtra(PENDING_TAKE, pendingIntent);*/
-                        /** Запускаем сервис сделать фото. */
-                        //startService(intent);
-                        cameraHolder.setEnabled(false);
                         new Thread(new Runnable() {
                             @Override
                             public void run() {
@@ -791,16 +854,21 @@ public class ActivityCheck extends FragmentActivity implements View.OnClickListe
                         }).start();
                         taking = true;
                     }
-                    /*if(Main.preferencesCamera.read(getString(R.string.KEY_PHOTO_CHECK), false)){
-                        PendingIntent pendingIntent = createPendingResult(weightType.ordinal(), new Intent(), 0);
-                        Intent intent = new Intent(getApplicationContext(), ServiceTake.class);
-                        intent.setAction("com.victjava.scales.TAKE");
-                        intent.putExtra("com.victjava.scales.CHECK_ID", entryID);
-                        intent.putExtra(PENDING_TAKE, pendingIntent);
-                        *//** Запускаем сервис сделать фото. *//*
-                        startService(intent);
-                        taking = true;
-                    }*/
+                    saveWeight(msg.arg1);
+                    break;
+                case STOP_WEIGHTING:
+                    weightTypeUpdate();
+                    buttonFinish.setEnabled(true);
+                    buttonFinish.setAlpha(255);
+                    ((OnCheckEventListener) mTabsAdapter.getCurrentFragment()).someEvent();
+                    flagExit = true;
+                    slidingDrawer.animateClose();
+                    break;
+                case START_WEIGHTING:
+                    buttonFinish.setEnabled(false);
+                    buttonFinish.setAlpha(100);
+                    flagExit = false;
+                    slidingDrawer.animateOpen();
                     break;
                 case UPDATE_PROGRESS:
                     weightTextView.setSecondaryProgress(msg.arg1);
@@ -911,7 +979,7 @@ public class ActivityCheck extends FragmentActivity implements View.OnClickListe
     public void onJpegPictureTaken(byte[] data, Camera camera) {
         //new SavePhotoTask(data, cameraSurface.getCamera()).start();
         //cameraHolder.setVisibility(View.VISIBLE);
-        cameraHolder.setEnabled(true);
+        //cameraHolder.setEnabled(true);
         try {
             /** Сжимаем данные изображения. */
             byte[] compressImage = compressImage(data, camera);
@@ -920,8 +988,8 @@ public class ActivityCheck extends FragmentActivity implements View.OnClickListe
             /** Создаем имя папки по дате */
             String folderStamp = new SimpleDateFormat("yyyyMMdd", Locale.getDefault()).format(new Date());
             /** Сохраняем фаил. */
-            //String path = saveExternalMemory(Main.path.getAbsolutePath() + File.separator + folderStamp, folderStamp + "_" +timeStamp + ".jpg", compressImage);
-            String path = saveInternalMemory(Main.FOLDER_LOCAL, folderStamp + "_" + timeStamp + ".jpg", compressImage);
+            String path = saveExternalMemory(Main.path.getAbsolutePath() + File.separator + folderStamp, folderStamp + "_" +timeStamp + ".jpg", compressImage);
+            //String path = saveInternalMemory(Main.FOLDER_LOCAL, folderStamp + "_" + timeStamp + ".jpg", compressImage);
             if(path != null){
                 switch (CheckTable.State.values()[values.getAsInteger(CheckTable.KEY_CHECK_STATE)]){
                     case CHECK_FIRST:
@@ -1143,6 +1211,34 @@ public class ActivityCheck extends FragmentActivity implements View.OnClickListe
 
 
 
+    }
+
+    /**
+     * Обработка обнуления весов.
+     */
+    private class ZeroThread extends Thread {
+        private final ProgressDialog dialog;
+
+        ZeroThread(Context context) {
+            // Создаём новый поток
+            super(getString(R.string.Zeroing));
+            dialog = new ProgressDialog(context);
+            dialog.setCancelable(false);
+            dialog.setIndeterminate(false);
+            dialog.show();
+            dialog.setContentView(R.layout.custom_progress_dialog);
+            TextView tv1 = (TextView) dialog.findViewById(R.id.textView1);
+            tv1.setText(R.string.Zeroing);
+            //start(); // Запускаем поток
+        }
+
+        @Override
+        public void run() {
+            scaleModule.setOffsetScale();
+            if (dialog.isShowing()) {
+                dialog.dismiss();
+            }
+        }
     }
 }
 

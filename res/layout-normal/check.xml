@@ -28,15 +28,16 @@
                      android:layout_marginBottom="@dimen/padding" android:layout_marginLeft="@dimen/padding"
                      android:layout_marginRight="@dimen/padding"/>
     </LinearLayout>
-    <LinearLayout
+    <FrameLayout
             android:orientation="horizontal"
             android:layout_width="fill_parent"
             android:layout_height="0dp" android:background="@color/background2" android:layout_weight="1">
+
         <TabHost android:id="@android:id/tabhost"
-                 android:layout_width="fill_parent"
+                 android:layout_width="match_parent"
                  android:layout_height="fill_parent"
-                 android:layout_marginLeft="@dimen/padding" android:layout_marginRight="@dimen/padding"
-        >
+                 android:layout_marginLeft="@dimen/padding"
+                 android:layout_marginRight="30dp">
             <LinearLayout
                     android:orientation="vertical"
                     android:layout_width="fill_parent"
@@ -48,35 +49,47 @@
                         android:layout_height="wrap_content"
                         android:orientation="horizontal" android:layout_marginLeft="@dimen/padding"
                         android:layout_marginRight="@dimen/padding" android:layout_marginTop="@dimen/padding"
-                        style="@style/CustomTabWidget"
-                />
+                        style="@style/CustomTabWidget" />
 
                 <FrameLayout
                         android:id="@android:id/tabcontent"
                         android:layout_width="0dp"
                         android:layout_height="0dp" />
                 <FrameLayout
-                        android:id="@+id/camera_preview2"
-                        android:layout_width="fill_parent"
-                        android:layout_height="fill_parent"
-                >
-
-                    <FrameLayout
-                            android:id="@+id/camera_preview1"
-                            android:layout_width="fill_parent"
-                            android:layout_height="fill_parent"
-                            android:layout_gravity="bottom|center"
-                            android:clickable="true"/>
+                        android:layout_width="wrap_content"
+                        android:layout_height="fill_parent">
 
                     <android.support.v4.view.ViewPager
                             android:id="@+id/pager"
-                            android:layout_width="fill_parent"
+                            android:layout_width="match_parent"
                             android:layout_height="fill_parent" />
                 </FrameLayout>
 
             </LinearLayout>
         </TabHost>
-    </LinearLayout>
+
+        <SlidingDrawer android:id="@+id/drawer"
+                       android:layout_width="wrap_content"
+                       android:layout_height="fill_parent"
+                       android:content="@+id/content"
+                       android:handle="@+id/handle"
+                       android:orientation="horizontal"
+                       android:layout_marginTop="@dimen/padding"
+                       android:layout_marginLeft="@dimen/padding"
+                       android:layout_marginRight="@dimen/padding">
+
+            <ImageView android:id="@+id/handle"
+                       android:layout_width="wrap_content"
+                       android:layout_height="fill_parent"
+                       android:src="@drawable/ic_action_sliding_up"
+                       android:background="@color/background1"
+            />
+
+            <include android:id="@+id/content" layout="@layout/dialog_camera"/>
+
+        </SlidingDrawer>
+    </FrameLayout>
+
     <LinearLayout
             android:orientation="horizontal"
             android:layout_width="fill_parent"
