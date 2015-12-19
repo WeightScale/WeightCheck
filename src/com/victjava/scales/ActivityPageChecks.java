@@ -61,7 +61,7 @@ public class ActivityPageChecks extends Activity {
                 R.id.sum_row,
                 R.id.textNumScale,
                 R.id.imageDirect, R.id.gross, R.id.tare};
-        Cursor cursor = checkTable.getAllEntries(CheckTable.VISIBLE);
+        Cursor cursor = checkTable.getAllReadyCheck(CheckTable.VISIBLE);
         if (cursor == null) {
             return;
         }

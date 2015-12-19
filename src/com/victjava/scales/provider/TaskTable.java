@@ -34,7 +34,8 @@ public class TaskTable {
     public static final String KEY_DATA4        = "data4";
     public static final String KEY_NUM_ERROR    = "num_error";
 
-    private final int COUNT_ERROR = 5;
+    /** Максимальное колличество попыток при ошибки выполнения. */
+    private final int MAX_ERROR = 5;
 
     public static final String TABLE_CREATE = "create table "
             + TABLE + " ("
@@ -167,7 +168,7 @@ public class TaskTable {
     public boolean removeEntryIfErrorOver(int _rowIndex) {
         Uri uri = ContentUris.withAppendedId(CONTENT_URI, _rowIndex);
         int err = getKeyInt(_rowIndex, KEY_NUM_ERROR);
-        if (err++ < COUNT_ERROR) {
+        if (err++ < MAX_ERROR) {
             return updateEntry(_rowIndex, KEY_NUM_ERROR, err);
         }
         return uri != null && mContext.getContentResolver().delete(uri, null, null) > 0;
@@ -175,6 +176,10 @@ public class TaskTable {
 
     public Cursor getTypeEntry(TaskType type) {
         return mContext.getContentResolver().query(CONTENT_URI, null, KEY_MIME_TYPE + " = " + type.ordinal(), null, null);
+    }
+
+    public Cursor getDocEntry(int docId) {
+        return mContext.getContentResolver().query(CONTENT_URI, null, KEY_DOC + " = " + docId, null, null);
     }
 
     public void setCheckReady(int _rowIndex, ContentValues values) {

@@ -44,7 +44,7 @@ import java.util.concurrent.TimeUnit;
 
 public class ActivityCheck extends FragmentActivity implements View.OnClickListener, Runnable, CameraCallback {
     private FrameLayout cameraHolder;
-    SlidingDrawer slidingDrawer;
+    private SlidingDrawer slidingDrawer;
     private CameraSurface cameraSurface;
     private Thread threadAutoWeight;
     private ScaleModule scaleModule;
@@ -233,7 +233,7 @@ public class ActivityCheck extends FragmentActivity implements View.OnClickListe
         cameraSurface.setCallback(this);
     }
 
-    void setupSliding() {
+    private void setupSliding() {
         final ImageView ibHandle = (ImageView) findViewById(R.id.handle);
         slidingDrawer = (SlidingDrawer) findViewById(R.id.drawer);
 
@@ -343,6 +343,100 @@ public class ActivityCheck extends FragmentActivity implements View.OnClickListe
         });
     }
 
+    private void setupTabHost(Bundle savedInstanceState) {
+        mTabHost = (TabHost) findViewById(android.R.id.tabhost);
+        mTabHost.setup();
+        ViewPager mViewPager = (ViewPager) findViewById(R.id.pager);
+        mTabsAdapter = new TabsAdapter(this, mTabHost, mViewPager);
+        mTabsAdapter.addTab(mTabHost.newTabSpec("input").setIndicator(createTabView(this, getString(R.string.incoming))), InputFragment.class);
+        mTabsAdapter.addTab(mTabHost.newTabSpec("output").setIndicator(createTabView(this, getString(R.string.outgo))), OutputFragment.class);
+        switch (values.getAsInteger(CheckTable.KEY_DIRECT)) {
+            case CheckTable.DIRECT_DOWN:
+                mTabHost.setCurrentTab(0);
+                break;
+            case CheckTable.DIRECT_UP:
+                mTabHost.setCurrentTab(1);
+                break;
+            default:
+        }
+
+        if (savedInstanceState != null) {
+            mTabHost.setCurrentTabByTag(savedInstanceState.getString("tab"));
+        }
+    }
+
+    /**
+     * Устоновка индикатора веса.
+     */
+    private void setupWeightView() {
+
+        weightTextView = new WeightTextView(this);
+        weightTextView = (WeightTextView) findViewById(R.id.weightTextView);
+        weightTextView.setMax(COUNT_STABLE);
+        weightTextView.setSecondaryProgress(numStable = 0);
+        dProgressWeight = getResources().getDrawable(R.drawable.progress_weight);
+        dWeightDanger = getResources().getDrawable(R.drawable.progress_weight_danger);
+
+        SimpleGestureFilter.SimpleGestureListener weightViewGestureListener = new SimpleGestureFilter.SimpleGestureListener() {
+            @Override
+            public void onSwipe(int direction) {
+
+                switch (direction) {
+                    case SimpleGestureFilter.SWIPE_RIGHT:
+                    case SimpleGestureFilter.SWIPE_LEFT:
+                        if (saveWeight(moduleWeight)) {
+                            weightViewIsSwipe = true;
+                            buttonFinish.setEnabled(true);
+                            buttonFinish.setAlpha(255);
+                            flagExit = true;
+                        }
+                        if (values.getAsInteger(CheckTable.KEY_CHECK_STATE) == CheckTable.State.CHECK_SECOND.ordinal()) {
+                            weightTypeUpdate();
+                        }
+                        /*if (weightType == WeightType.SECOND) {
+                            weightTypeUpdate();
+                        }*/
+                        break;
+                    default:
+                }
+            }
+
+            @Override
+            public void onDoubleTap() {
+                weightTextView.setSecondaryProgress(0);
+                vibrator.vibrate(100);
+                new ZeroThread(ActivityCheck.this).start();
+            }
+        };
+
+        detectorWeightView = new SimpleGestureFilter(this, weightViewGestureListener);
+        detectorWeightView.setSwipeMinVelocity(50);
+        weightTextView.setOnTouchListener(new View.OnTouchListener() {
+
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                detectorWeightView.setSwipeMaxDistance(v.getMeasuredWidth());
+                detectorWeightView.setSwipeMinDistance(detectorWeightView.getSwipeMaxDistance() / 3);
+                detectorWeightView.onTouchEvent(event);
+                switch (event.getAction()) {
+                    case MotionEvent.ACTION_MOVE:
+                        touchWeightView = true;
+                        vibrator.vibrate(5);
+                        int progress = (int) (event.getX() / (detectorWeightView.getSwipeMaxDistance() / weightTextView.getMax()));
+                        weightTextView.setSecondaryProgress(progress);
+                        break;
+                    //case MotionEvent.ACTION_DOWN:
+                    case MotionEvent.ACTION_UP:
+                    case MotionEvent.ACTION_CANCEL:
+                        touchWeightView = false;
+                        break;
+                    default:
+                }
+                return false;
+            }
+        });
+    }
+
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         outState.putString("tab", mTabHost.getCurrentTabTag()); //save the tab selected
@@ -370,7 +464,7 @@ public class ActivityCheck extends FragmentActivity implements View.OnClickListe
                 new Thread(new Runnable() {
                     @Override
                     public void run() {
-                        cameraSurface.startTakePicture();
+                        cameraSurface.startTakePicture(values.getAsInteger(CheckTable.KEY_CHECK_STATE));
                     }
                 }).start();
                 break;
@@ -396,28 +490,6 @@ public class ActivityCheck extends FragmentActivity implements View.OnClickListe
     protected void onPause() {
         super.onPause();
         scaleModule.stopMeasuringWeight(false);
-    }
-
-    private void setupTabHost(Bundle savedInstanceState) {
-        mTabHost = (TabHost) findViewById(android.R.id.tabhost);
-        mTabHost.setup();
-        ViewPager mViewPager = (ViewPager) findViewById(R.id.pager);
-        mTabsAdapter = new TabsAdapter(this, mTabHost, mViewPager);
-        mTabsAdapter.addTab(mTabHost.newTabSpec("input").setIndicator(createTabView(this, getString(R.string.incoming))), InputFragment.class);
-        mTabsAdapter.addTab(mTabHost.newTabSpec("output").setIndicator(createTabView(this, getString(R.string.outgo))), OutputFragment.class);
-        switch (values.getAsInteger(CheckTable.KEY_DIRECT)) {
-            case CheckTable.DIRECT_DOWN:
-                mTabHost.setCurrentTab(0);
-                break;
-            case CheckTable.DIRECT_UP:
-                mTabHost.setCurrentTab(1);
-                break;
-            default:
-        }
-
-        if (savedInstanceState != null) {
-            mTabHost.setCurrentTabByTag(savedInstanceState.getString("tab"));
-        }
     }
 
     protected void exit() {
@@ -527,77 +599,7 @@ public class ActivityCheck extends FragmentActivity implements View.OnClickListe
         return weight / main.getStepMeasuring() * main.getStepMeasuring();
     }
 
-    /**
-     * Устоновка индикатора веса.
-     */
-    private void setupWeightView() {
 
-        weightTextView = new WeightTextView(this);
-        weightTextView = (WeightTextView) findViewById(R.id.weightTextView);
-        weightTextView.setMax(COUNT_STABLE);
-        weightTextView.setSecondaryProgress(numStable = 0);
-        dProgressWeight = getResources().getDrawable(R.drawable.progress_weight);
-        dWeightDanger = getResources().getDrawable(R.drawable.progress_weight_danger);
-
-        SimpleGestureFilter.SimpleGestureListener weightViewGestureListener = new SimpleGestureFilter.SimpleGestureListener() {
-            @Override
-            public void onSwipe(int direction) {
-
-                switch (direction) {
-                    case SimpleGestureFilter.SWIPE_RIGHT:
-                    case SimpleGestureFilter.SWIPE_LEFT:
-                        if (saveWeight(moduleWeight)) {
-                            weightViewIsSwipe = true;
-                            buttonFinish.setEnabled(true);
-                            buttonFinish.setAlpha(255);
-                            flagExit = true;
-                        }
-                        if (values.getAsInteger(CheckTable.KEY_CHECK_STATE) == CheckTable.State.CHECK_SECOND.ordinal()) {
-                            weightTypeUpdate();
-                        }
-                        /*if (weightType == WeightType.SECOND) {
-                            weightTypeUpdate();
-                        }*/
-                        break;
-                    default:
-                }
-            }
-
-            @Override
-            public void onDoubleTap() {
-                weightTextView.setSecondaryProgress(0);
-                vibrator.vibrate(100);
-                new ZeroThread(ActivityCheck.this).start();
-            }
-        };
-
-        detectorWeightView = new SimpleGestureFilter(this, weightViewGestureListener);
-        detectorWeightView.setSwipeMinVelocity(50);
-        weightTextView.setOnTouchListener(new View.OnTouchListener() {
-
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
-                detectorWeightView.setSwipeMaxDistance(v.getMeasuredWidth());
-                detectorWeightView.setSwipeMinDistance(detectorWeightView.getSwipeMaxDistance() / 3);
-                detectorWeightView.onTouchEvent(event);
-                switch (event.getAction()) {
-                    case MotionEvent.ACTION_MOVE:
-                        touchWeightView = true;
-                        vibrator.vibrate(5);
-                        int progress = (int) (event.getX() / (detectorWeightView.getSwipeMaxDistance() / weightTextView.getMax()));
-                        weightTextView.setSecondaryProgress(progress);
-                        break;
-                    //case MotionEvent.ACTION_DOWN:
-                    case MotionEvent.ACTION_UP:
-                    case MotionEvent.ACTION_CANCEL:
-                        touchWeightView = false;
-                        break;
-                    default:
-                }
-                return false;
-            }
-        });
-    }
 
     private boolean saveWeight(int weight/*, WeightType type*/) {
         boolean flag = false;
@@ -849,7 +851,7 @@ public class ActivityCheck extends FragmentActivity implements View.OnClickListe
                         new Thread(new Runnable() {
                             @Override
                             public void run() {
-                                cameraSurface.startTakePicture();
+                                cameraSurface.startTakePicture(values.getAsInteger(CheckTable.KEY_CHECK_STATE));
                             }
                         }).start();
                         taking = true;
@@ -976,7 +978,7 @@ public class ActivityCheck extends FragmentActivity implements View.OnClickListe
     }
 
     @Override
-    public void onJpegPictureTaken(byte[] data, Camera camera) {
+    public void onJpegPictureTaken(byte[] data, Camera camera, int id) {
         //new SavePhotoTask(data, cameraSurface.getCamera()).start();
         //cameraHolder.setVisibility(View.VISIBLE);
         //cameraHolder.setEnabled(true);
@@ -986,12 +988,12 @@ public class ActivityCheck extends FragmentActivity implements View.OnClickListe
             /** Создаем штамп времени */
             String timeStamp = new SimpleDateFormat("HHmmss", Locale.getDefault()).format(new Date());
             /** Создаем имя папки по дате */
-            String folderStamp = new SimpleDateFormat("yyyyMMdd", Locale.getDefault()).format(new Date());
+            String dateStamp = new SimpleDateFormat("yyyyMMdd", Locale.getDefault()).format(new Date());
             /** Сохраняем фаил. */
-            String path = saveExternalMemory(Main.path.getAbsolutePath() + File.separator + folderStamp, folderStamp + "_" +timeStamp + ".jpg", compressImage);
-            //String path = saveInternalMemory(Main.FOLDER_LOCAL, folderStamp + "_" + timeStamp + ".jpg", compressImage);
+            String path = saveExternalMemory(Main.path.getAbsolutePath(), dateStamp + "_" +timeStamp + ".jpg", compressImage);
+            //String path = saveInternalMemory(Main.FOLDER_LOCAL, dateStamp + "_" + timeStamp + ".jpg", compressImage);
             if(path != null){
-                switch (CheckTable.State.values()[values.getAsInteger(CheckTable.KEY_CHECK_STATE)]){
+                switch (CheckTable.State.values()[id]){
                     case CHECK_FIRST:
                         values.put(CheckTable.KEY_PHOTO_FIRST, path);
                         break;

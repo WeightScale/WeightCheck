@@ -56,19 +56,19 @@ public class CameraSurface extends SurfaceView implements SurfaceHolder.Callback
         camera.startPreview();
     }
 
-    public synchronized void startTakePicture() {
+    public synchronized void startTakePicture(int photoId) {
         while (taking);
         taking = true;
         camera.autoFocus(new AutoFocusCallback() {
             @Override
             public synchronized void onAutoFocus(boolean success, Camera camera) {
                 if (success)
-                    takePicture();
+                    takePicture(photoId);
             }
         });
     }
 
-    public synchronized void takePicture() {
+    public synchronized void takePicture(int photoId) {
         camera.takePicture( new ShutterCallback() {
             @Override
             public void onShutter(){
@@ -79,7 +79,7 @@ public class CameraSurface extends SurfaceView implements SurfaceHolder.Callback
             @Override
             public synchronized void onPictureTaken(byte[] data, Camera camera) {
                 if (callback != null)
-                    callback.onJpegPictureTaken(data, camera);
+                    callback.onJpegPictureTaken(data, camera, photoId);
                 taking=false;
             }
         });

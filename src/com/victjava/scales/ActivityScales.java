@@ -328,6 +328,7 @@ public class ActivityScales extends Activity implements View.OnClickListener, Vi
         listView = (ListView) findViewById(R.id.listViewWeights);
         try {
             setReadyOldChecks();
+            deleteCheckInvisible();
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -458,7 +459,7 @@ public class ActivityScales extends Activity implements View.OnClickListener, Vi
      * @throws Exception
      */
     private void setReadyOldChecks() throws Exception {
-        Cursor cursor = checkTable.getNotReady();
+        Cursor cursor = checkTable.getNotReadyCheck();
         if (cursor.getCount() > 0) {
             cursor.moveToFirst();
             if (!cursor.isAfterLast()) {
@@ -481,6 +482,31 @@ public class ActivityScales extends Activity implements View.OnClickListener, Vi
             }
         }
         cursor.close();
+    }
+
+    /** Удаляем чеки невидемые и отработаные в задачах. */
+    private void deleteCheckInvisible(){
+        Cursor checks = checkTable.getAllReadyCheck(CheckTable.INVISIBLE);
+        try {
+            checks.moveToFirst();
+            do {
+                int checkId = checks.getInt(checks.getColumnIndex(CheckTable.KEY_ID));
+                Cursor task = new TaskTable(this).getDocEntry(checkId);
+                if (task.getCount() != 0)
+                    continue;
+
+                String[] columns = {CheckTable.KEY_PHOTO_FIRST,CheckTable.KEY_PHOTO_SECOND};
+                for (String column : columns){
+                    try {
+                        java.io.File file = new java.io.File(checks.getString(checks.getColumnIndex(column)));
+                        file.delete();
+                    }catch (Exception e){}
+                }
+
+                checkTable.removeEntry(checkId);
+            }while (checks.moveToNext());
+
+        }catch (Exception e){}
     }
 
     /** Вычисляем разницу между датами.

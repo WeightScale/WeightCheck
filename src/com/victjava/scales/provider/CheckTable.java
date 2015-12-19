@@ -47,12 +47,17 @@ public class CheckTable {
     public static final int INVISIBLE = 0;
     public static final int VISIBLE = 1;
 
+    /** Стадии весового чека. */
     public enum State{
+        /** Первое взвешивание. */
         CHECK_FIRST,
+        /** Второе взвешивание. */
         CHECK_SECOND,
-        /*CHECK_UNCLOSED,*/
+        /** Предварительный. */
         CHECK_PRELIMINARY,
+        /** Готовый. */
         CHECK_READY,
+        /** Сохранен на сервере. */
         CHECK_ON_SERVER
     }
 
@@ -73,9 +78,7 @@ public class CheckTable {
             KEY_TYPE_ID,
             KEY_PRICE,
             KEY_PRICE_SUM,
-            //KEY_CHECK_ON_SERVER,
             KEY_CHECK_STATE,
-            //KEY_IS_READY,
             KEY_VISIBILITY,
             KEY_DIRECT,
             KEY_PHOTO_FIRST,
@@ -161,13 +164,6 @@ public class CheckTable {
         contentResolver = mContext.getContentResolver();
     }
 
-    /*public CheckTable(Context context, int d) {
-        mContext = context;
-        scaleModule = ((Main)mContext.getApplicationContext()).getScaleModule();
-        contentResolver = mContext.getContentResolver();
-        day = d;
-    }*/
-
     public Uri insertNewEntry(String vendor, int vendorId, int direct) {
         ContentValues newTaskValues = new ContentValues();
         Date date = new Date();
@@ -177,7 +173,6 @@ public class CheckTable {
         newTaskValues.put(KEY_VENDOR, vendor);
         newTaskValues.put(KEY_VENDOR_ID, vendorId);
         newTaskValues.put(KEY_CHECK_STATE, State.CHECK_FIRST.ordinal());
-        //newTaskValues.put(KEY_IS_READY, false);
         newTaskValues.put(KEY_WEIGHT_FIRST, 0);
         newTaskValues.put(KEY_WEIGHT_NETTO, 0);
         newTaskValues.put(KEY_WEIGHT_SECOND, 0);
@@ -188,7 +183,7 @@ public class CheckTable {
         return contentResolver.insert(CONTENT_URI, newTaskValues);
     }
 
-    void removeEntry(int _rowIndex) {
+    public void removeEntry(int _rowIndex) {
         Uri uri = ContentUris.withAppendedId(CONTENT_URI, _rowIndex);
         contentResolver.delete(uri, null, null);
     }
@@ -211,10 +206,11 @@ public class CheckTable {
         }
     }
 
-    public void invisibleCheckIsReady(long dayAfter) {
+    public void setInvisibleCheckIsReady(long dayAfter) {
         try {
-            Cursor result = contentResolver.query(CONTENT_URI, new String[]{KEY_ID, KEY_DATE_CREATE},
-                    KEY_CHECK_STATE + "= " + State.CHECK_FIRST.ordinal()+ " or " + KEY_CHECK_STATE + "= " + State.CHECK_SECOND.ordinal() /*and " + KEY_VISIBILITY + "= " + VISIBLE*/, null, null);
+            /*Cursor result = contentResolver.query(CONTENT_URI, new String[]{KEY_ID, KEY_DATE_CREATE},
+                    KEY_CHECK_STATE + "= " + State.CHECK_FIRST.ordinal()+ " or " + KEY_CHECK_STATE + "= " + State.CHECK_SECOND.ordinal() *//*and " + KEY_VISIBILITY + "= " + VISIBLE*//*, null, null);*/
+            Cursor result = getAllReadyCheck(VISIBLE);
             result.moveToFirst();
             if (!result.isAfterLast()) {
                 do {
@@ -245,20 +241,7 @@ public class CheckTable {
         return day1 - day2;
     }
 
-    /*private String getKeyString(int _rowIndex, String key) {
-        Uri uri = ContentUris.withAppendedId(CONTENT_URI, _rowIndex);
-        try {
-            Cursor result = contentResolver.query(uri, new String[]{KEY_ID, key}, null, null, null);
-            result.moveToFirst();
-            String str = result.getString(result.getColumnIndex(key));
-            result.close();
-            return str;
-        } catch (Exception e) {
-            return "";
-        }
-    }*/
-
-    public Cursor getAllEntries(int view) {
+    public Cursor getAllReadyCheck(int view) {
         return contentResolver.query(CONTENT_URI, All_COLUMN_TABLE,
                 "( "+KEY_CHECK_STATE + "!= " + State.CHECK_FIRST.ordinal() + " or " + KEY_CHECK_STATE + "!= " + State.CHECK_SECOND.ordinal() + " )"
                         + " and " + KEY_VISIBILITY + "= " + view, null, null);
@@ -274,7 +257,7 @@ public class CheckTable {
                 KEY_CHECK_STATE + "= " + State.CHECK_PRELIMINARY.ordinal(), null, null);
     }
 
-    public Cursor getNotReady() {
+    public Cursor getNotReadyCheck() {
         return contentResolver.query(CONTENT_URI, All_COLUMN_TABLE, KEY_CHECK_STATE + "= " + State.CHECK_FIRST.ordinal() + " or " + KEY_CHECK_STATE + "= " + State.CHECK_SECOND.ordinal(), null, null);
     }
 
@@ -347,39 +330,4 @@ public class CheckTable {
         }
     }
 
-    /*public void updateEntry(int _rowIndex, String key, float fl) {
-        Uri uri = ContentUris.withAppendedId(CONTENT_URI, _rowIndex);
-        try {
-            ContentValues newValues = new ContentValues();
-            newValues.put(key, fl);
-            contentResolver.update(uri, newValues, null, null);
-        } catch (Exception e) {
-        }
-    }*/
-
-    /*public boolean updateEntry(int _rowIndex, String key, String st) {
-        Uri uri = ContentUris.withAppendedId(CONTENT_URI, _rowIndex);
-        try {
-            ContentValues newValues = new ContentValues();
-            newValues.put(key, st);
-            return contentResolver.update(uri, newValues, null, null) > 0;
-        } catch (Exception e) {
-            return false;
-        }
-    }*/
-
-    /*public static String getGoFormHttp(){
-        return GO_FORM_HTTP;
-    }*/
-
-    /*public static String geGoParamHttp(){
-        Collection<BasicNameValuePair> results = new ArrayList<>();
-        results.add(new BasicNameValuePair(GO_DATE_HTTP, KEY_DATE_CREATE));
-        results.add(new BasicNameValuePair(GO_BT_HTTP, KEY_NUMBER_BT));
-        results.add(new BasicNameValuePair(GO_WEIGHT_HTTP, KEY_WEIGHT_NETTO));
-        results.add(new BasicNameValuePair(GO_TYPE_HTTP, KEY_TYPE));
-        results.add(new BasicNameValuePair(GO_IS_READY_HTTP, KEY_IS_READY));
-        results.add(new BasicNameValuePair(GO_TIME_HTTP, KEY_TIME_CREATE));
-        return TextUtils.join(" ", results);
-    }*/
 }

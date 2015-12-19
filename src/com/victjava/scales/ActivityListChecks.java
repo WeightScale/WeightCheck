@@ -88,16 +88,12 @@ public class ActivityListChecks extends ListActivity implements View.OnClickList
     }
 
     private void listSetup() {
-        /**
-        *    Устанавливаем флаг не показывать старые чеки
-        */
-        checkTable.invisibleCheckIsReady(((Main)getApplication()).preferencesScale.read(getString(R.string.KEY_DAY_CHECK_DELETE), main.getDayDeleteCheck()));
-        /*
-            Удаляем чеки отправленые на сервер через n дней
-        */
-        checkTable.deleteCheckIsServer();
 
-        Cursor cursor = checkTable.getAllEntries(CheckTable.VISIBLE);
+        /** Устанавливаем флаг не показывать чеки старше n дней. */
+        checkTable.setInvisibleCheckIsReady(main.preferencesScale.read(getString(R.string.KEY_DAY_CHECK_DELETE), main.getDayDeleteCheck()));
+        /* Удаляем чеки отправленые на сервер через n дней. */
+        checkTable.deleteCheckIsServer();
+        Cursor cursor = checkTable.getAllReadyCheck(CheckTable.VISIBLE);
         if (cursor == null) {
             return;
         }
@@ -123,8 +119,6 @@ public class ActivityListChecks extends ListActivity implements View.OnClickList
         SimpleCursorAdapter namesAdapter = new SimpleCursorAdapter(getApplicationContext(), R.layout.item_check, cursor, columns, to);
         namesAdapter.setViewBinder(new ListCheckViewBinder());
         setListAdapter(namesAdapter);
-        //MyCursorAdapter namesAdapter = new MyCursorAdapter(getApplicationContext(), R.layout.item_check, cursor, columns, to);
-        //setListAdapter(namesAdapter);
         setTitle(getString(R.string.Checks_closed) + getString(R.string.qty) + listView.getCount()); //установить заголовок
 
     }

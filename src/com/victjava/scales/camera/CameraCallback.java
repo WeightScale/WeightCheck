@@ -14,6 +14,6 @@ public interface CameraCallback {
     void onPreviewFrame(byte[] data, Camera camera);
     void onShutter();
     //void onRawPictureTaken(byte[] data, Camera camera);
-    void onJpegPictureTaken(byte[] data, Camera camera);
+    void onJpegPictureTaken(byte[] data, Camera camera, int id);
     //String onGetVideoFilename();
 }
