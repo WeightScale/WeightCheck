@@ -224,8 +224,6 @@ public class CheckTable {
                     }
                     if (day > dayAfter) {
                         updateEntry(id, KEY_VISIBILITY, INVISIBLE);
-                    } else {
-                        updateEntry(id, KEY_VISIBILITY, VISIBLE);
                     }
                 } while (result.moveToNext());
             }

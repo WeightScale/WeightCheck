@@ -37,4 +37,6 @@
     <string name="KEY_MOBIL_INTERNET">key_mobil_internet</string>
     <string name="key_account_name">key_account_name</string>
     <string name="key_folder_id">key_folder_id</string>
+    <string name="KEY_MEMORY_PHOTO">key_memory_photo</string>
+    <string name="KEY_POWER">key_power</string>
 </resources>

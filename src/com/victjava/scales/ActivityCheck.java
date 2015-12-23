@@ -212,7 +212,8 @@ public class ActivityCheck extends FragmentActivity implements View.OnClickListe
 
         findViewById(R.id.imageViewPage).setOnClickListener(this);
 
-        cameraHolder = (FrameLayout)findViewById(R.id.camera_preview4);
+        cameraHolder = (FrameLayout)findViewById(R.id.camera_preview);
+        findViewById(R.id.takePhotoDialog).setOnClickListener(this);
         //cameraHolder.setOnClickListener(this);
         //setupDialogCamera();
         setupSliding();
@@ -325,22 +326,8 @@ public class ActivityCheck extends FragmentActivity implements View.OnClickListe
         dialogCamera.getWindow().clearFlags(WindowManager.LayoutParams.FLAG_DIM_BEHIND);
         dialogCamera.show();
         dialogCamera.setContentView(R.layout.dialog_camera);
-        cameraHolder = (FrameLayout)dialogCamera.findViewById(R.id.camera_preview4);
+        cameraHolder = (FrameLayout)dialogCamera.findViewById(R.id.camera_preview);
         cameraHolder.setOnClickListener(this);
-        ImageView closed = (ImageView) dialogCamera.findViewById(R.id.buttonClosedDialog);
-        closed.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                dialogCamera.dismiss();
-            }
-        });
-        ImageView take = (ImageView) dialogCamera.findViewById(R.id.takePhotoDialog);
-        closed.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                dialogCamera.dismiss();
-            }
-        });
     }
 
     private void setupTabHost(Bundle savedInstanceState) {
@@ -460,7 +447,7 @@ public class ActivityCheck extends FragmentActivity implements View.OnClickListe
                 startActivity(new Intent(getBaseContext(), ActivityViewCheck.class).putExtra("id", entryID));
                 exit();
                 break;
-            case R.id.camera_preview4:
+            case R.id.takePhotoDialog:
                 new Thread(new Runnable() {
                     @Override
                     public void run() {
@@ -979,9 +966,6 @@ public class ActivityCheck extends FragmentActivity implements View.OnClickListe
 
     @Override
     public void onJpegPictureTaken(byte[] data, Camera camera, int id) {
-        //new SavePhotoTask(data, cameraSurface.getCamera()).start();
-        //cameraHolder.setVisibility(View.VISIBLE);
-        //cameraHolder.setEnabled(true);
         try {
             /** Сжимаем данные изображения. */
             byte[] compressImage = compressImage(data, camera);
@@ -990,8 +974,12 @@ public class ActivityCheck extends FragmentActivity implements View.OnClickListe
             /** Создаем имя папки по дате */
             String dateStamp = new SimpleDateFormat("yyyyMMdd", Locale.getDefault()).format(new Date());
             /** Сохраняем фаил. */
-            String path = saveExternalMemory(Main.path.getAbsolutePath(), dateStamp + "_" +timeStamp + ".jpg", compressImage);
-            //String path = saveInternalMemory(Main.FOLDER_LOCAL, dateStamp + "_" + timeStamp + ".jpg", compressImage);
+            String path;
+            /** Проверяем куда сохранять фаил. */
+            if (main.preferencesScale.read(getString(R.string.KEY_MEMORY_PHOTO), false))
+                path = saveInternalMemory(Main.FOLDER_LOCAL, dateStamp + "_" + timeStamp + ".jpg", compressImage);
+            else
+                path = saveExternalMemory(Main.path.getAbsolutePath(), dateStamp + "_" +timeStamp + ".jpg", compressImage);
             if(path != null){
                 switch (CheckTable.State.values()[id]){
                     case CHECK_FIRST:
@@ -1003,13 +991,9 @@ public class ActivityCheck extends FragmentActivity implements View.OnClickListe
                     default:
                 }
             }
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        } catch (FileNotFoundException e) {}
+        catch (IOException e) {}
+        catch (Exception e) {}
         taking = false;
         cameraSurface.startPreview();
     }

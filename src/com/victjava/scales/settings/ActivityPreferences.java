@@ -23,8 +23,8 @@ import com.victjava.scales.bootloader.ActivityBootloader;
 import java.util.ArrayList;
 
 public class ActivityPreferences extends PreferenceActivity implements SharedPreferences.OnSharedPreferenceChangeListener {
-    static ScaleModule scaleModule;
-    static Main main;
+    private static ScaleModule scaleModule;
+    private static Main main;
     private boolean flagChange;
     enum EnumPreference{
         NULL(R.string.KEY_NULL){

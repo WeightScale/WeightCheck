@@ -205,6 +205,7 @@ public class TaskPoolCommand extends CheckTable {
                     mapChecksProcessed.get(MAP_CHECKS_UNSEND).add(new ObjectParcel(0, "Ошибка "+ e.getCause().getMessage()));
                 }
             }
+
             /** помечаем на удаление в очередь задачи которые вызывают ошибку */
             for (Map.Entry<String, ContentValues> entry : mapChecks.entrySet()){
                 /** удаляем задачу из базы. */
@@ -278,7 +279,7 @@ public class TaskPoolCommand extends CheckTable {
     }
 
     /** Класс для отправки чека http post. */
-    public class CheckTokHttpPost implements InterfaceTaskCommand, Callable<String> {
+    public class CheckTokHttpPost implements InterfaceTaskCommand {
         ExecutorService executorService;
         final Map<String, ArrayList<ObjectParcel>> mapChecksProcessed = new HashMap<>();
 
@@ -296,7 +297,8 @@ public class TaskPoolCommand extends CheckTable {
             }
             if (executorService.isShutdown())
                 executorService = Executors.newFixedThreadPool(5);
-            List<Future<String>> futures = new ArrayList<>();
+            List<Callable<Integer>> tasks = new ArrayList<>();
+            List<Future<Integer>> futures = new ArrayList<>();
             for (Map.Entry<String, ContentValues> entry : map.entrySet()) {
                 int taskId = Integer.valueOf(entry.getKey());
                 int checkId = Integer.valueOf(entry.getValue().get(TaskTable.KEY_DOC).toString());
@@ -315,25 +317,48 @@ public class TaskPoolCommand extends CheckTable {
                             results.add(new BasicNameValuePair(valuePair.getName(), check.getString(check.getColumnIndex(valuePair.getValue()))));
                         } catch (Exception e) {}
                     }
-                    futures.add(executorService.submit(new Callable<String>() {
+                    tasks.add(new Callable<Integer>() {
                         @Override
-                        public String call() throws Exception {
+                        public Integer call() throws Exception {
                             submitData(http, results);
+                            /** удаляем задачу которую выполнили из map */
+                            map.remove(String.valueOf(taskId));
+                            /** удаляем задачу из базы. */
+                            new TaskTable(mContext).removeEntry(taskId);
                             mapChecksProcessed.get(MAP_CHECKS_SEND).add(new ObjectParcel(checkId, mContext.getString(R.string.sent_to_the_server)));
                             mHandler.obtainMessage(NotifyType.HANDLER_NOTIFY_HTTP.ordinal(), checkId, taskId, mapChecksProcessed.get(MAP_CHECKS_SEND)).sendToTarget();
-                            return "";
+                            return checkId;
                         }
-                    }));
+                    });
                 } catch (Exception e) {
                     mapChecksProcessed.get(MAP_CHECKS_UNSEND).add(new ObjectParcel(checkId, "Ошибка " + e));
                     mHandler.obtainMessage(NotifyType.HANDLER_NOTIFY_CHECK_UNSEND.ordinal(), checkId, taskId, mapChecksProcessed.get(MAP_CHECKS_UNSEND)).sendToTarget();
-                    mHandler.handleError(401, e.getMessage());
+                    //mHandler.handleError(401, e.getMessage());
                 }
                 check.close();
             }
-            for (Future<String> f : futures){
-                /** ждем выполнения задачи. */
-                while (!f.isDone());
+
+            try { /** ждем выполнения задачи. */
+                futures = executorService.invokeAll(tasks);
+            } catch (InterruptedException e) {
+                return;
+            }
+            executorService.shutdown();
+            while (!executorService.isTerminated());
+            /** перебераем задачи которые вызвали ошибки */
+            for (Future<Integer> future : futures) {
+                try {
+                    future.get();
+                } catch (InterruptedException e) {
+                } catch (ExecutionException e) {
+                    mapChecksProcessed.get(MAP_CHECKS_UNSEND).add(new ObjectParcel(0, "Ошибка "+ e.getCause().getMessage()));
+                }
+            }
+            mHandler.obtainMessage(NotifyType.HANDLER_NOTIFY_HTTP.ordinal(), 0, 0, mapChecksProcessed.get(MAP_CHECKS_UNSEND)).sendToTarget();
+            /** помечаем на удаление в очередь задачи которые вызывают ошибку */
+            for (Map.Entry<String, ContentValues> entry : map.entrySet()){
+                /** удаляем задачу из базы. */
+                new TaskTable(mContext).removeEntryIfErrorOver(Integer.valueOf(entry.getKey()));
             }
             mHandler.sendEmptyMessage(NotifyType.HANDLER_FINISH_THREAD.ordinal());
         }
@@ -351,10 +376,6 @@ public class TaskPoolCommand extends CheckTable {
                 throw new Exception(httpResponse.toString());
         }
 
-        @Override
-        public String call() throws Exception {
-            return "CheckTokHttpPost";
-        }
     }
 
     /** Класс для отправки чека email почтой. */
@@ -376,7 +397,8 @@ public class TaskPoolCommand extends CheckTable {
             }
             if (executorService.isShutdown())
                 executorService = Executors.newFixedThreadPool(5);
-            List<Future<String>> futures = new ArrayList<>();
+            List<Callable<Integer>> tasks = new ArrayList<>();
+            List<Future<Integer>> futures = new ArrayList<>();
             for (Map.Entry<String, ContentValues> entry : map.entrySet()) {
 
                 int taskId = Integer.valueOf(entry.getKey());
@@ -391,7 +413,9 @@ public class TaskPoolCommand extends CheckTable {
                         body.append(mContext.getString(R.string.Date)).append('_').append(check.getString(check.getColumnIndex(CheckTable.KEY_DATE_CREATE))).append("__").append(check.getString(check.getColumnIndex(CheckTable.KEY_TIME_CREATE))).append('\n');
                         body.append(mContext.getString(R.string.Contact)).append("__").append(check.getString(check.getColumnIndex(CheckTable.KEY_VENDOR))).append('\n');
                         body.append(mContext.getString(R.string.GROSS)).append("___").append(check.getString(check.getColumnIndex(CheckTable.KEY_WEIGHT_FIRST))).append('\n');
+                        body.append("Фото:").append(check.getString(check.getColumnIndex(CheckTable.KEY_PHOTO_FIRST))).append('\n');
                         body.append(mContext.getString(R.string.TAPE)).append("_____").append(check.getString(check.getColumnIndex(CheckTable.KEY_WEIGHT_SECOND))).append('\n');
+                        body.append("Фото:").append(check.getString(check.getColumnIndex(CheckTable.KEY_PHOTO_SECOND))).append('\n');
                         body.append(mContext.getString(R.string.Netto)).append(":____").append(check.getString(check.getColumnIndex(CheckTable.KEY_WEIGHT_NETTO))).append('\n');
                         body.append(mContext.getString(R.string.Goods)).append("____").append(check.getString(check.getColumnIndex(CheckTable.KEY_TYPE))).append('\n');
                         body.append(mContext.getString(R.string.Price)).append("_____").append(check.getString(check.getColumnIndex(CheckTable.KEY_PRICE))).append('\n');
@@ -410,26 +434,44 @@ public class TaskPoolCommand extends CheckTable {
                 }
                 mailObject.setUser(entry.getValue().get(TaskTable.KEY_DATA1).toString());
                 mailObject.setPassword(entry.getValue().get(TaskTable.KEY_DATA2).toString());
-                //try {
-                    futures.add(executorService.submit(new Callable<String>() {
-                        @Override
-                        public String call() throws Exception {
-                            MailSend mail = new MailSend(mContext, mailObject);
-                            mail.sendMail();
-                            mapChecksProcessed.get(MAP_CHECKS_SEND).add(new ObjectParcel(checkId, mContext.getString(R.string.Send_to_mail) + ": " + mailObject.getEmail()));
-                            mHandler.obtainMessage(NotifyType.HANDLER_NOTIFY_MAIL.ordinal(), checkId, taskId, mapChecksProcessed.get(MAP_CHECKS_SEND)).sendToTarget();
-                            return "";
-                        }
-                    }));
-                /*} catch (MessagingException e) {
-                    mapChecksProcessed.get(MAP_CHECKS_UNSEND).add(new ObjectParcel(checkId, "Не отправлен " + e.getMessage() + ' ' + mailObject.getEmail()));
-                    mHandler.obtainMessage(NotifyType.HANDLER_NOTIFY_CHECK_UNSEND.ordinal(), checkId, taskId, mapChecksProcessed.get(MAP_CHECKS_UNSEND)).sendToTarget();
-                    mHandler.handleError(401, e.getMessage());
-                } */
+
+                tasks.add(new Callable<Integer>() {
+                    @Override
+                    public Integer call() throws Exception {
+                        MailSend mail = new MailSend(mContext, mailObject);
+                        mail.sendMail();
+                        /** удаляем задачу которую выполнили из map */
+                        map.remove(String.valueOf(taskId));
+                        /** удаляем задачу из базы. */
+                        new TaskTable(mContext).removeEntry(taskId);
+                        mapChecksProcessed.get(MAP_CHECKS_SEND).add(new ObjectParcel(checkId, mContext.getString(R.string.Send_to_mail) + ": " + mailObject.getEmail()));
+                        mHandler.obtainMessage(NotifyType.HANDLER_NOTIFY_MAIL.ordinal(), checkId, taskId, mapChecksProcessed.get(MAP_CHECKS_SEND)).sendToTarget();
+                        return checkId;
+                    }
+                });
             }
-            for (Future<String> f : futures){
-                /** ждем выполнения задачи. */
-                while (!f.isDone());
+
+            try { /** ждем выполнения задачи. */
+                futures = executorService.invokeAll(tasks);
+            } catch (InterruptedException e) {
+                return;
+            }
+            executorService.shutdown();
+            while (!executorService.isTerminated());
+            /** перебераем задачи которые вызвали ошибки */
+            for (Future<Integer> future : futures) {
+                try {
+                    future.get();
+                } catch (InterruptedException e) {
+                } catch (ExecutionException e) {
+                    mapChecksProcessed.get(MAP_CHECKS_UNSEND).add(new ObjectParcel(0, "Ошибка "+ e.getCause().getMessage()));
+                }
+            }
+            mHandler.obtainMessage(NotifyType.HANDLER_NOTIFY_MAIL.ordinal(), 0, 0, mapChecksProcessed.get(MAP_CHECKS_UNSEND)).sendToTarget();
+            /** помечаем на удаление в очередь задачи которые вызывают ошибку */
+            for (Map.Entry<String, ContentValues> entry : map.entrySet()){
+                /** удаляем задачу из базы. */
+                new TaskTable(mContext).removeEntryIfErrorOver(Integer.valueOf(entry.getKey()));
             }
             mHandler.sendEmptyMessage(NotifyType.HANDLER_FINISH_THREAD.ordinal());
         }
@@ -860,9 +902,10 @@ public class TaskPoolCommand extends CheckTable {
                         //mHandler.obtainMessage(NotifyType.HANDLER_NOTIFY_SHEET.ordinal(), check, 0, mapChecksProcessed.get(MAP_CHECKS_SEND)).sendToTarget();
                     } catch (InterruptedException e) {
                     } catch (ExecutionException e) {
-                        mapPhotoProcessed.get(MAP_CHECKS_UNSEND).add(new ObjectParcel(0, "Ошибка "+ e.getCause().getMessage()));
+                        mapPhotoProcessed.get(MAP_PHOTO_UNSEND).add(new ObjectParcel(0, "Ошибка "+ e.getCause().getMessage()));
                     }
                 }
+                mHandler.obtainMessage(NotifyType.HANDLER_NOTIFY_PHOTO.ordinal(), 0, 0, mapPhotoProcessed.get(MAP_PHOTO_UNSEND)).sendToTarget();
                 for (Map.Entry<String, ContentValues> entry : map.entrySet()) {
                     /** удаляем задачу из базы. */
                     new TaskTable(mContext).removeEntryIfErrorOver(Integer.valueOf(entry.getKey()));

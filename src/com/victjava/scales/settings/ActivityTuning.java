@@ -42,8 +42,8 @@ import java.util.Map;
 public class ActivityTuning extends PreferenceActivity {
     public static Preferences preferencesCamera;
     protected static Dialog dialog;
-    static ScaleModule scaleModule;
-    static Main main;
+    private static ScaleModule scaleModule;
+    private static Main main;
     private EditText input;
 
     private static final Point point1 = new Point(Integer.MIN_VALUE, 0);
@@ -90,6 +90,34 @@ public class ActivityTuning extends PreferenceActivity {
                         int temp = Integer.valueOf(newValue.toString());
 
                         if (scaleModule.setModuleSpeedPort(temp) ){
+                            preference.setSummary("Скорость порта: " + newValue);
+                            //scaleModule.setPhone(o.toString());
+                            Toast.makeText(name.getContext(), R.string.preferences_yes, Toast.LENGTH_SHORT).show();
+                            return true;
+                        }
+                        preference.setSummary("Скорость порта: ???");
+                        Toast.makeText(name.getContext(), R.string.preferences_no, Toast.LENGTH_SHORT).show();
+
+                        return false;
+                    }
+                });
+            }
+        },
+        POWER(R.string.KEY_POWER){
+            @Override
+            void setup(Preference name) throws Exception {
+
+                name.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
+                    @Override
+                    public boolean onPreferenceChange(Preference preference, Object newValue) {
+                        if (newValue.toString().isEmpty()) {
+                            Toast.makeText(name.getContext(), R.string.preferences_no, Toast.LENGTH_SHORT).show();
+                            return false;
+                        }
+
+                        int temp = Integer.valueOf(newValue.toString());
+
+                        if (scaleModule.setModulePower(temp) ){
                             preference.setSummary("Скорость порта: " + newValue);
                             //scaleModule.setPhone(o.toString());
                             Toast.makeText(name.getContext(), R.string.preferences_yes, Toast.LENGTH_SHORT).show();

@@ -54,6 +54,7 @@
         <Preference android:title="Настройка отсылателя" android:summary="Выбор куда отсылать весовой чек" android:key="@string/KEY_SENDER"/>
         <CheckBoxPreference android:enabled="true" android:title="Мобильный интернет" android:summary="Использовать мобильный интернет" android:key="@string/KEY_MOBIL_INTERNET" android:defaultValue="false"/>
         <CheckBoxPreference android:enabled="true" android:title="Фото взвешивания" android:summary="Делать фото при взвешивании" android:key="@string/KEY_PHOTO_CHECK" android:defaultValue="false"/>
+        <CheckBoxPreference android:enabled="true" android:title="Память для фото" android:summary="Выбрано сохраняем фото в память программы или во внешней памяти" android:key="@string/KEY_MEMORY_PHOTO" android:defaultValue="false"/>
     </PreferenceCategory>
     <Preference android:title="НАСТРОЙКИ КАМЕРЫ" android:summary="установка свойств камеры" android:key="@string/key_camera_settings"/>
     <!--<PreferenceCategory android:title="НАСТРОЙКИ КАМЕРЫ" android:summary="установка свойств камеры">
