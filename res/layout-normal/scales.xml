@@ -43,6 +43,20 @@
                             android:progress="22"
                             android:layout_margin="@dimen/padding"/>
                 </LinearLayout>
+
+                <ImageView
+                        style="@style/CustomButtonImage"
+                        android:layout_width="@dimen/image_button_size"
+                        android:layout_height="wrap_content"
+                        android:id="@+id/imageNewCheck1"
+                        android:contentDescription="@string/des_image_down"
+                        android:src="@drawable/ic_add_check"
+                        android:focusableInTouchMode="true"
+                        android:layout_gravity="center_horizontal"
+                        android:layout_alignParentBottom="true"
+                        android:layout_toLeftOf="@+id/imageViewRemote"
+                        android:layout_toStartOf="@+id/imageViewRemote"/>
+
                 <ImageView
                         android:layout_width="@dimen/image_button_size"
                         android:layout_height="wrap_content"
@@ -79,7 +93,7 @@
                         android:layout_alignParentRight="true"
                         android:layout_alignLeft="@+id/textView"
                         android:layout_below="@+id/textView"
-                        />
+                />
             </RelativeLayout>
         </LinearLayout>
     </LinearLayout>

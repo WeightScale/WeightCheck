@@ -1,23 +1,17 @@
 package com.victjava.scales.service;
 
-import android.annotation.TargetApi;
 import android.app.PendingIntent;
 import android.app.Service;
-import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
 import android.hardware.Camera;
 import android.media.AudioManager;
-import android.media.MediaActionSound;
-import android.media.MediaPlayer;
 import android.media.SoundPool;
-import android.net.Uri;
-import android.os.Build;
 import android.os.IBinder;
 import com.victjava.scales.ActivityCheck;
-import com.victjava.scales.Main;
+import com.victjava.scales.Globals;
 import com.victjava.scales.Preferences;
 import com.victjava.scales.R;
 
@@ -32,9 +26,8 @@ import java.util.concurrent.TimeUnit;
  * @author Kostya
  */
 public class ServiceTake extends Service {
-    /**
-     * Таймер для периода сьемки
-     */
+    Globals globals;
+    /** Таймер для периода сьемки. */
     Timer timer;
     /**
      * Камера
@@ -84,6 +77,7 @@ public class ServiceTake extends Service {
     @Override
     public void onCreate() {
         super.onCreate();
+        globals = Globals.getInstance();
         /** Экземпляр настроек камеры */
         preferences = new Preferences(getApplicationContext());
         /** Качество фото в процентах*/
@@ -94,7 +88,7 @@ public class ServiceTake extends Service {
         /** Открываем главную камеру*/
         camera = Camera.open(Camera.CameraInfo.CAMERA_FACING_BACK);
         /** Получить параметры камеры */
-        Main.parameters = camera.getParameters();
+        globals.parameters = camera.getParameters();
         /** Сбрасываем настройки */
         camera.release();
         /** Загружаем сохраненные настройки. */
@@ -106,62 +100,62 @@ public class ServiceTake extends Service {
 
         Preferences preferences = new Preferences(getApplicationContext());
 
-        List<String> colorEffects = Main.parameters.getSupportedColorEffects();
+        List<String> colorEffects = globals.parameters.getSupportedColorEffects();
         if (colorEffects != null) {
-            String color = preferences.read(getString(R.string.key_color_effect), Main.parameters.getColorEffect());
+            String color = preferences.read(getString(R.string.key_color_effect), globals.parameters.getColorEffect());
             if (colorEffects.contains(color))
-                Main.parameters.setColorEffect(color);
+                globals.parameters.setColorEffect(color);
         }
 
-        List<String> antiBanding = Main.parameters.getSupportedAntibanding();
+        List<String> antiBanding = globals.parameters.getSupportedAntibanding();
         if (antiBanding != null) {
-            String banding = preferences.read(getString(R.string.key_anti_banding), Main.parameters.getAntibanding());
+            String banding = preferences.read(getString(R.string.key_anti_banding), globals.parameters.getAntibanding());
             if (antiBanding.contains(banding))
-                Main.parameters.setAntibanding(banding);
+                globals.parameters.setAntibanding(banding);
         }
 
-        List<String> flashModes = Main.parameters.getSupportedFlashModes();
+        List<String> flashModes = globals.parameters.getSupportedFlashModes();
         if (flashModes != null) {
-            String flash = preferences.read(getString(R.string.key_flash_mode), Main.parameters.getFlashMode());
+            String flash = preferences.read(getString(R.string.key_flash_mode), globals.parameters.getFlashMode());
             if (flashModes.contains(flash))
-                Main.parameters.setFlashMode(flash);
+                globals.parameters.setFlashMode(flash);
         }
 
-        List<String> focusModes = Main.parameters.getSupportedFocusModes();
+        List<String> focusModes = globals.parameters.getSupportedFocusModes();
         if (focusModes != null) {
-            String focus = preferences.read(getString(R.string.key_focus_mode), Main.parameters.getFocusMode());
+            String focus = preferences.read(getString(R.string.key_focus_mode), globals.parameters.getFocusMode());
             if (focusModes.contains(focus))
-                Main.parameters.setFocusMode(focus);
+                globals.parameters.setFocusMode(focus);
         }
 
-        List<String> sceneModes = Main.parameters.getSupportedSceneModes();
+        List<String> sceneModes = globals.parameters.getSupportedSceneModes();
         if (sceneModes != null) {
-            String scene = preferences.read(getString(R.string.key_scene_mode), Main.parameters.getSceneMode());
+            String scene = preferences.read(getString(R.string.key_scene_mode), globals.parameters.getSceneMode());
             if (sceneModes.contains(scene))
-                Main.parameters.setSceneMode(scene);
+                globals.parameters.setSceneMode(scene);
         }
 
-        List<String> whiteBalance = Main.parameters.getSupportedWhiteBalance();
+        List<String> whiteBalance = globals.parameters.getSupportedWhiteBalance();
         if (whiteBalance != null) {
-            String white = preferences.read(getString(R.string.key_white_mode), Main.parameters.getWhiteBalance());
+            String white = preferences.read(getString(R.string.key_white_mode), globals.parameters.getWhiteBalance());
             if (whiteBalance.contains(white))
-                Main.parameters.setWhiteBalance(white);
+                globals.parameters.setWhiteBalance(white);
         }
 
-        int max_exp = Main.parameters.getMaxExposureCompensation();
-        int min_exp = Main.parameters.getMinExposureCompensation();
-        int exposure = Integer.parseInt(preferences.read(getString(R.string.key_exposure), String.valueOf(Main.parameters.getExposureCompensation())));
+        int max_exp = globals.parameters.getMaxExposureCompensation();
+        int min_exp = globals.parameters.getMinExposureCompensation();
+        int exposure = Integer.parseInt(preferences.read(getString(R.string.key_exposure), String.valueOf(globals.parameters.getExposureCompensation())));
         if (exposure >= min_exp && exposure <= max_exp)
-            Main.parameters.setExposureCompensation(exposure);
+            globals.parameters.setExposureCompensation(exposure);
 
         //List<Camera.Size> pictureSizes = parameters.getSupportedPictureSizes();
-        int width = Integer.parseInt(preferences.read(getString(R.string.key_pic_size_width), String.valueOf(Main.parameters.getPictureSize().width)));
-        int height = Integer.parseInt(preferences.read(getString(R.string.key_pic_size_height), String.valueOf(Main.parameters.getPictureSize().height)));
-        Main.parameters.setPictureSize(width, height);
+        int width = Integer.parseInt(preferences.read(getString(R.string.key_pic_size_width), String.valueOf(globals.parameters.getPictureSize().width)));
+        int height = Integer.parseInt(preferences.read(getString(R.string.key_pic_size_height), String.valueOf(globals.parameters.getPictureSize().height)));
+        globals.parameters.setPictureSize(width, height);
 
         int rotation = Integer.parseInt(preferences.read(getString(R.string.key_rotation), "90"));
         if (rotation >= 0 && rotation <= 270)
-            Main.parameters.setRotation(rotation);
+            globals.parameters.setRotation(rotation);
     }
 
     /** Сжатие и поворот изибражения.
@@ -335,7 +329,7 @@ public class ServiceTake extends Service {
             /** Открываем главную камеру. */
             camera = Camera.open(Camera.CameraInfo.CAMERA_FACING_BACK);
             /** Загружаем настройки из программы. */
-            camera.setParameters(Main.parameters);
+            camera.setParameters(globals.parameters);
             /** Начать сьемку изображения. */
             camera.startPreview();
             /** Задержка  2 секунды для стабилизации камеры. */
@@ -379,7 +373,7 @@ public class ServiceTake extends Service {
                             /** Создаем имя папки по дате */
                             String folderStamp = new SimpleDateFormat("yyyyMMdd", Locale.getDefault()).format(new Date());
                             /** Сохраняем фаил. */
-                            String path = saveExternalMemory(Main.path.getAbsolutePath() + File.separator + folderStamp, "№" + String.valueOf(checkId) + "(" + timeStamp + ").jpg", compressImage);
+                            String path = saveExternalMemory(globals.path.getAbsolutePath() + File.separator + folderStamp, "№" + String.valueOf(checkId) + "(" + timeStamp + ").jpg", compressImage);
                             //String path = saveInternalMemory(Main.FOLDER_LOCAL /*+ File.separator + folderStamp*/, folderStamp + "_" + timeStamp + "(" + String.valueOf(checkId) + ").jpg", compressImage);
                             Intent intent = new Intent();
                             intent.putExtra("com.victjava.scales.PHOTO_PATH", path);

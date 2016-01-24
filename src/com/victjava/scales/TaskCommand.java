@@ -8,10 +8,8 @@ import android.os.*;
 import android.webkit.URLUtil;
 import com.google.android.gms.auth.GoogleAuthException;
 import com.google.android.gms.auth.GoogleAuthUtil;
-import com.google.android.gms.auth.UserRecoverableNotifiedException;
 import com.google.api.client.googleapis.extensions.android.gms.auth.UserRecoverableAuthIOException;
 import com.google.api.client.http.FileContent;
-import com.google.api.services.drive.Drive;
 import com.google.api.services.drive.model.File;
 import com.konst.module.ScaleModule;
 import com.konst.sms_commander.SMS;
@@ -30,13 +28,10 @@ import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.params.HttpParams;
 
 import javax.mail.MessagingException;
-import javax.mail.internet.InternetAddress;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.util.*;
-import java.util.concurrent.Callable;
-import java.util.concurrent.TimeUnit;
 
 /**
  * Класс задач.
@@ -68,6 +63,7 @@ public class TaskCommand extends CheckTable {
         HANDLER_NOTIFY_CHECK_UNSEND,
         HANDLER_NOTIFY_HTTP,
         HANDLER_NOTIFY_PHOTO,
+        HANDLER_NOTIFY_PHOTO_UNSEND,
         HANDLER_NOTIFY_PROCESS,
         REMOVE_TASK_ENTRY,
         REMOVE_TASK_ENTRY_ERROR_OVER,
@@ -85,18 +81,18 @@ public class TaskCommand extends CheckTable {
     public TaskCommand(Context context, HandlerTaskNotification handler) {
         super(context);
         mContext = context;
-        scaleModule = ((Main)mContext.getApplicationContext()).getScaleModule();
+        scaleModule = Globals.getInstance().getScaleModule();
         mHandler = handler;
         cancel = false;
 
         mapTasks.put(TaskType.TYPE_CHECK_SEND_HTTP_POST, new CheckTokHttpPost());
-        mapTasks.put(TaskType.TYPE_CHECK_SEND_SHEET_DISK, new CheckToSpreadsheet(((Main)mContext.getApplicationContext()).getVersionName()));
+        mapTasks.put(TaskType.TYPE_CHECK_SEND_SHEET_DISK, new CheckToSpreadsheet(Globals.getInstance().getVersionName()));
         mapTasks.put(TaskType.TYPE_CHECK_SEND_MAIL, new CheckToMail());
         //mapTasks.put(TaskType.TYPE_CHECK_SEND_MAIL_ADMIN, new CheckToMail());
         mapTasks.put(TaskType.TYPE_CHECK_SEND_SMS_CONTACT, new CheckToSmsContact());
         mapTasks.put(TaskType.TYPE_CHECK_SEND_SMS_ADMIN, new CheckToSmsAdmin());
         mapTasks.put(TaskType.TYPE_PREF_SEND_HTTP_POST, new PreferenceTokHttpPost());
-        mapTasks.put(TaskType.TYPE_PREF_SEND_SHEET_DISK, new PreferenceToSpreadsheet(((Main)mContext.getApplicationContext()).getVersionName()));
+        mapTasks.put(TaskType.TYPE_PREF_SEND_SHEET_DISK, new PreferenceToSpreadsheet(Globals.getInstance().getVersionName()));
         mapTasks.put(TaskType.TYPE_DATA_SEND_TO_DISK, new DataToGoogleDisk());
     }
 
@@ -223,7 +219,7 @@ public class TaskCommand extends CheckTable {
                 mHandler.sendEmptyMessage(NotifyType.HANDLER_FINISH_THREAD.ordinal());
                 return null;
             }
-            String user = ((Main)mContext.getApplicationContext()).preferencesScale.read(mContext.getString(R.string.KEY_LAST_USER), "");
+            String user = Globals.getInstance().getPreferencesScale().read(mContext.getString(R.string.KEY_LAST_USER), "");
             return GoogleAuthUtil.getTokenWithNotification(mContext, user /*ScaleModule.getUserName()*/, "oauth2:" + SCOPE, null, makeCallback());
         }
 
@@ -639,7 +635,7 @@ public class TaskCommand extends CheckTable {
                 mHandler.sendEmptyMessage(NotifyType.HANDLER_FINISH_THREAD.ordinal());
                 return null;
             }
-            String user = ((Main)mContext.getApplicationContext()).preferencesScale.read(mContext.getString(R.string.KEY_LAST_USER), "");
+            String user = Globals.getInstance().getPreferencesScale().read(mContext.getString(R.string.KEY_LAST_USER), "");
             return GoogleAuthUtil.getTokenWithNotification(mContext, user /*ScaleModule.getUserName()*/, "oauth2:" + SCOPE, null, makeCallback());
         }
 
@@ -747,7 +743,7 @@ public class TaskCommand extends CheckTable {
                         }
 
                         try {
-                            String user = ((Main)mContext.getApplicationContext()).preferencesScale.read(mContext.getString(R.string.KEY_LAST_USER), "");
+                            String user = Globals.getInstance().getPreferencesScale().read(mContext.getString(R.string.KEY_LAST_USER), "");
                             /** Экземпляр для работы с google drive */
                             utilityDriver = new UtilityDriver(mContext, user);
                         } catch (NullPointerException e) {

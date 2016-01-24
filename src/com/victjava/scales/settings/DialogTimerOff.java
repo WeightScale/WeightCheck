@@ -5,7 +5,7 @@ import android.content.res.TypedArray;
 import android.preference.DialogPreference;
 import android.util.AttributeSet;
 import android.view.View;
-import com.victjava.scales.Main;
+import com.victjava.scales.Globals;
 import com.victjava.scales.NumberPicker;
 import com.victjava.scales.R;
 
@@ -15,7 +15,7 @@ import java.util.Arrays;
  * @author Kostya
  */
 class DialogTimerOff extends DialogPreference /*implements ActivityPreferences.InterfacePreference*/ {
-    final Main main;
+    final Globals globals;
     private int mNumber;
     private final String[] timeArray;
     private NumberPicker numberPicker;
@@ -27,8 +27,8 @@ class DialogTimerOff extends DialogPreference /*implements ActivityPreferences.I
         timeArray = context.getResources().getStringArray(R.array.array_timer_minute);
         minValue = 0;
         maxValue = timeArray.length > 0 ? timeArray.length - 1 : 0;
-        main = (Main)context.getApplicationContext();
-        int time = main.getScaleModule().isAttach()?((Main)context.getApplicationContext()).getScaleModule().getTimeOff():0;
+        globals = Globals.getInstance();
+        int time = globals.isScaleConnect()?globals.getScaleModule().getTimeOff():0;
         int index = Arrays.asList(timeArray).indexOf(String.valueOf(time));
         if(index != -1)
             mNumber = index;

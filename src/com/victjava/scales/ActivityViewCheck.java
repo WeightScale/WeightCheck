@@ -108,7 +108,7 @@ public class ActivityViewCheck extends Activity implements View.OnClickListener 
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.imageViewBack:
-                startService(new Intent(this, ServiceProcessTask.class).setAction("send_sms"));
+                startService(new Intent(this, ServiceProcessTask.class).setAction("com.victjava.scales.ACTION.SEND_SMS"));
                 onBackPressed();
                 break;
             case R.id.imageViewMail:
@@ -147,8 +147,17 @@ public class ActivityViewCheck extends Activity implements View.OnClickListener 
                             setViewText((TextView) v, getString(R.string.Gross));
                         }
                         break;
-                    default:
+                    case R.id.gross_row:
+                    case R.id.tare_row:
+                    case R.id.netto_row:
                         String text = cursor.getString(from[i]);
+                        if (text == null) {
+                            text = "";
+                        }
+                        setViewText((TextView) v, text + ' '+ getString(R.string.scales_kg));
+                    break;
+                    default:
+                        text = cursor.getString(from[i]);
                         if (text == null) {
                             text = "";
                         }

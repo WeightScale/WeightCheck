@@ -20,7 +20,8 @@
                 android:layout_height="0dp"
                 android:id="@android:id/list" android:layout_gravity="left|center_vertical"
                 android:layout_margin="@dimen/padding"
-                android:drawSelectorOnTop="false" android:layout_weight="1"/>
+                android:drawSelectorOnTop="false" android:layout_weight="1"
+        />
         <LinearLayout
                 android:orientation="horizontal"
                 android:layout_width="fill_parent"

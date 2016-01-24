@@ -39,4 +39,5 @@
     <string name="key_folder_id">key_folder_id</string>
     <string name="KEY_MEMORY_PHOTO">key_memory_photo</string>
     <string name="KEY_POWER">key_power</string>
+    <string name="KEY_CHECK_AUTO_NULL">key_check_auto_null</string>
 </resources>

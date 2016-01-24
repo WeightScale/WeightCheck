@@ -16,7 +16,7 @@
       <excludeFolder url="file://$MODULE_DIR$/Doc" />
       <excludeFolder url="file://$MODULE_DIR$/temp" />
     </content>
-    <orderEntry type="jdk" jdkName="Android API 17 Platform" jdkType="Android SDK" />
+    <orderEntry type="jdk" jdkName="Android API 19 Platform" jdkType="Android SDK" />
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="library" exported="" name="SMSCommander" level="project" />
     <orderEntry type="library" exported="" name="libs" level="project" />

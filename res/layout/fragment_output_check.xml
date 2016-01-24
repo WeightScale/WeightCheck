@@ -24,10 +24,18 @@
                         android:layout_height="fill_parent"
                         android:id="@+id/spinnerType"
                         android:focusable="false" android:focusableInTouchMode="false"
-                        android:gravity="center"
+                        android:gravity="left|center_vertical"
                         android:layout_marginRight="@dimen/corners"
                         android:layout_gravity="left|center_horizontal"
                         />
+            </LinearLayout>
+            <LinearLayout
+                    android:orientation="vertical"
+                    android:layout_width="fill_parent"
+                    android:layout_height="@dimen/padding"
+                    android:background="@color/background1"
+                    android:layout_marginTop="@dimen/corners"
+                    android:layout_marginBottom="@dimen/corners">
             </LinearLayout>
             <LinearLayout
                     android:orientation="horizontal"
@@ -38,13 +46,13 @@
                         android:layout_width="wrap_content"
                         android:layout_height="fill_parent"
                         android:id="@+id/textViewFirst"
-                        android:textSize="@dimen/text_large_x"
+                        android:textSize="@dimen/text_large"
                         android:gravity="left|center_vertical"
                         android:textColor="@android:color/black"
                         android:text="@string/TAPE" android:padding="@dimen/corners"/>
                 <TextView android:layout_width="fill_parent" android:layout_height="wrap_content"
-                          android:id="@+id/viewFirst" android:textSize="@dimen/text_large_x"
-                          android:gravity="center_vertical|right" android:textColor="@android:color/black"
+                          android:id="@+id/viewFirst" android:textSize="@dimen/text_large"
+                          android:gravity="center_vertical|center_horizontal" android:textColor="@android:color/black"
                           android:padding="@dimen/corners" android:text="@string/weighed"/>
             </LinearLayout>
             <LinearLayout
@@ -56,14 +64,14 @@
                         android:layout_width="wrap_content"
                         android:layout_height="fill_parent"
                         android:id="@+id/textViewSecond"
-                        android:textSize="@dimen/text_large_x"
+                        android:textSize="@dimen/text_large"
                         android:gravity="left|center_vertical"
                         android:textColor="@android:color/black"
                         android:text="@string/GROSS" android:padding="@dimen/corners"
                         />
                 <TextView android:layout_width="fill_parent" android:layout_height="wrap_content"
-                          android:id="@+id/viewSecond" android:textSize="@dimen/text_large_x"
-                          android:gravity="center_vertical|right" android:textColor="@android:color/black"
+                          android:id="@+id/viewSecond" android:textSize="@dimen/text_large"
+                          android:gravity="center_vertical|center_horizontal" android:textColor="@android:color/black"
                           android:padding="@dimen/corners" android:text="@string/weighed"/>
             </LinearLayout>
         </LinearLayout>

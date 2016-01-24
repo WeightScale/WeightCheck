@@ -5,7 +5,6 @@ import android.app.*;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.content.*;
-import android.net.Uri;
 import android.os.*;
 import android.view.*;
 import android.widget.*;
@@ -17,7 +16,7 @@ import com.victjava.scales.settings.ActivityTuning;
 import java.util.ArrayList;
 
 public class ActivitySearch extends Activity implements View.OnClickListener {
-    private Main main;
+    private Globals globals; /** Глобальные переменные */
     private BroadcastReceiver broadcastReceiver; //приёмник намерений
     private ArrayList<BluetoothDevice> foundDevice; //чужие устройства
     private ArrayAdapter<BluetoothDevice> bluetoothAdapter; //адаптер имён
@@ -58,12 +57,12 @@ public class ActivitySearch extends Activity implements View.OnClickListener {
         getWindow().setAttributes(lp);
         setProgressBarIndeterminateVisibility(false);
 
-        main = (Main)getApplication();
+        globals = Globals.getInstance();
 
         textViewLog = (TextView) findViewById(R.id.textLog);
 
         String action = getIntent().getAction();
-        module = "com.victjava.scales.BOOTLOADER".equals(action) ? main.getBootModule() : main.getScaleModule();
+        module = "com.victjava.scales.BOOTLOADER".equals(action) ? globals.getBootModule() : globals.getScaleModule();
         module.setConnectResultCallback(connectResultCallback);
         broadcastReceiver = new BroadcastReceiver() {
 
@@ -122,8 +121,8 @@ public class ActivitySearch extends Activity implements View.OnClickListener {
 
         foundDevice = new ArrayList<>();
 
-        for (int i = 0; ((Main)getApplication()).preferencesScale.contains(getString(R.string.KEY_ADDRESS) + i); i++) { //заполнение списка
-            foundDevice.add(module.getAdapter().getRemoteDevice(main.preferencesScale.read(getString(R.string.KEY_ADDRESS) + i, "")));
+        for (int i = 0; globals.getPreferencesScale().contains(getString(R.string.KEY_ADDRESS) + i); i++) { //заполнение списка
+            foundDevice.add(module.getAdapter().getRemoteDevice(globals.getPreferencesScale().read(getString(R.string.KEY_ADDRESS) + i, "")));
         }
         bluetoothAdapter = new BluetoothListAdapter(this, foundDevice);
 
@@ -154,11 +153,11 @@ public class ActivitySearch extends Activity implements View.OnClickListener {
         }
         unregisterReceiver(broadcastReceiver);
 
-        for (int i = 0; ((Main)getApplication()).preferencesScale.contains(getString(R.string.KEY_ADDRESS) + i); i++) { //стереть прошлый список
-            ((Main)getApplication()).preferencesScale.remove(getString(R.string.KEY_ADDRESS) + i);
+        for (int i = 0; globals.getPreferencesScale().contains(getString(R.string.KEY_ADDRESS) + i); i++) { //стереть прошлый список
+            globals.getPreferencesScale().remove(getString(R.string.KEY_ADDRESS) + i);
         }
         for (int i = 0; i < foundDevice.size(); i++) { //сохранить новый список
-            ((Main)getApplication()).preferencesScale.write(getString(R.string.KEY_ADDRESS) + i, ((BluetoothDevice) foundDevice.toArray()[i]).getAddress());
+            globals.getPreferencesScale().write(getString(R.string.KEY_ADDRESS) + i, ((BluetoothDevice) foundDevice.toArray()[i]).getAddress());
         }
 
     }

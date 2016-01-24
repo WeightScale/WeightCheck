@@ -160,7 +160,7 @@
     <string name="ConstantA">Константа А:</string>
     <string name="Table">"Таблица: "</string>
     <string name="TEXT_MESSAGE7">"Имя таблици spreadsheet в Google drive "</string>
-    <string name="weighed">ВЗВЕСИТЬ</string>
+    <string name="weighed">ЖДЕМ</string>
     <string name="No_data_check">Нет данных чек №</string>
     <string name="delete">" удален"</string>
     <string name="Contact">Контакт:</string>
@@ -171,7 +171,7 @@
     <string name="TEXT_MESSAGE11">Email не сохранен. Нет контакта</string>
     <string name="Enter_phone">Введите телефон?</string>
     <string name="TEXT_MESSAGE12">Phone не сохранен. Нет контакта</string>
-    <string name="Set_values">Значения</string>
+    <string name="Set_values">Установки значений</string>
     <string name="TEXT_MESSAGES13">Ограничения, лимиты, прочее</string>
     <string name="Update_scale">Обновление весов</string>
     <string name="TEXT_MESSAGE14">Обновление весов до последней версии</string>

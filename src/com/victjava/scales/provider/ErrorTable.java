@@ -8,7 +8,7 @@ import android.net.Uri;
 import android.provider.BaseColumns;
 import android.telephony.TelephonyManager;
 import com.konst.module.ScaleModule;
-import com.victjava.scales.Main;
+import com.victjava.scales.Globals;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -41,7 +41,7 @@ public class ErrorTable {
 
     public ErrorTable(Context cnt) {
         context = cnt;
-        scaleModule = ((Main)context.getApplicationContext()).getScaleModule();
+        scaleModule = Globals.getInstance().getScaleModule();
     }
 
     public Uri insertNewEntry(String number, String des) {

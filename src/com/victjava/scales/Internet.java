@@ -3,16 +3,14 @@ package com.victjava.scales;
 import android.bluetooth.BluetoothAdapter;
 import android.content.*;
 import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.net.wifi.WifiManager;
 import android.os.Build;
-import android.provider.Settings;
 import android.telephony.PhoneStateListener;
 import android.telephony.TelephonyManager;
 import android.util.Log;
 
-import java.io.IOException;
 import java.lang.reflect.Method;
-import java.net.*;
 
 /**
  * Управляет соединениями (Bluetooth, Wi-Fi, мобильная сеть)
@@ -91,6 +89,13 @@ public class Internet {
         }
     }
 
+    public boolean isInternetConnect(){
+        ConnectivityManager cm = (ConnectivityManager)mContext.getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
+        boolean isConnected = activeNetwork.isConnectedOrConnecting();
+        return isConnected;
+    }
+
     /**
      * Выполнить соединение с интернетом по wifi.
      *
@@ -112,7 +117,7 @@ public class Internet {
      */
     private boolean turnOnDataConnection(boolean on) {
         /** Настройки администратора мобильный интернет */
-        if(((Main)mContext.getApplicationContext()).preferencesScale.read(mContext.getString(R.string.KEY_MOBIL_INTERNET), false)){
+        if(Globals.getInstance().getPreferencesScale().read(mContext.getString(R.string.KEY_MOBIL_INTERNET), false)){
             try {
                 int bv = Build.VERSION.SDK_INT;
                 //int bv = Build.VERSION_CODES.FROYO;

@@ -4,6 +4,7 @@ import android.app.AlertDialog;
 import android.app.ListActivity;
 import android.content.DialogInterface;
 import android.database.Cursor;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.view.View;
 import android.view.WindowManager;
@@ -37,6 +38,7 @@ public class ActivityType extends ListActivity implements View.OnClickListener {
         dialog = new AlertDialog.Builder(this);
         dialog.setMessage(getString(R.string.Enter_type));
         input = new EditText(this);
+        input.setTextColor(Color.BLACK);
         dialog.setView(input);
         dialog.setPositiveButton(getString(R.string.OK), new DialogInterface.OnClickListener() {
             @Override
@@ -69,6 +71,7 @@ public class ActivityType extends ListActivity implements View.OnClickListener {
                 break;
             case R.id.buttonNew:
                 input = new EditText(getBaseContext());
+                input.setTextColor(Color.BLACK);
                 dialog.setView(input);
                 dialog.show();
                 break;

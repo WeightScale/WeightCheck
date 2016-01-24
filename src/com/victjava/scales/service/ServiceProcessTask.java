@@ -12,6 +12,8 @@ import android.provider.BaseColumns;
 import android.support.annotation.NonNull;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.TaskStackBuilder;
+import android.webkit.URLUtil;
+import com.victjava.scales.provider.CheckTable;
 import com.victjava.scales.provider.ErrorTable;
 import com.victjava.scales.provider.TaskTable;
 import com.victjava.scales.provider.TaskTable.*;
@@ -21,16 +23,12 @@ import com.victjava.scales.TaskCommand.*;
 import java.util.*;
 import java.util.concurrent.*;
 
-/**
- * Сервис обработки задач.
- * Задачи отправки данных.
+/** Сервис обработки задач.
  *
  * @author Kostya
  */
 public class ServiceProcessTask extends Service {
-    /**
-     * Таблица задач
-     */
+    /** Таблица задач. */
     private TaskTable taskTable;
     private Internet internet;
     TaskCommand taskCommand;
@@ -48,9 +46,7 @@ public class ServiceProcessTask extends Service {
     public int onStartCommand(Intent intent, int flags, int startId) {
         if(intent !=null){
             String action = intent.getAction();
-            if("send_sms".equals(action)){
-                //taskProcess(TaskType.TYPE_CHECK_SEND_SMS_CONTACT);
-                //taskProcess(TaskType.TYPE_CHECK_SEND_SMS_ADMIN);
+            if("com.victjava.scales.ACTION.SEND_SMS".equals(action)){
                 taskSendSms();
                 return START_STICKY;
             }
@@ -202,7 +198,7 @@ public class ServiceProcessTask extends Service {
         });
     }
 
-    /** Обрабатываем чеки PRELIMINARY.
+    /** Обрабатываем чеки PRELIMINARY (с прикреплкнными данными).
      * Отправляем приклепленные данные к чеку на диск.
      */
     private void taskSendData(){
@@ -225,7 +221,25 @@ public class ServiceProcessTask extends Service {
                 while (!futureTask.isDone());
                 if (futureTask.isDone())
                     msgHandler.sendEmptyMessage(NotifyType.HANDLER_NOTIFY_PROCESS.ordinal());
-                //executorService.shutdown();
+
+                CheckTable checkTable = new CheckTable(getApplicationContext());
+                Cursor checks = checkTable.getPreliminaryCheck();
+                if (checks.getCount() > 0) {
+                    checks.moveToFirst();
+                    if (!checks.isAfterLast()) {
+                        do {
+                            int checkId = checks.getInt(checks.getColumnIndex(CheckTable.KEY_ID));
+                            String first = checks.getString(checks.getColumnIndex(CheckTable.KEY_PHOTO_FIRST));
+                            String second = checks.getString(checks.getColumnIndex(CheckTable.KEY_PHOTO_SECOND));
+                            boolean f = first==null? true : URLUtil.isHttpsUrl(first);
+                            boolean s = second==null? true : URLUtil.isHttpsUrl(second);
+                            if(f && s){
+                                new CheckTable(getApplicationContext()).updateEntry(checkId, CheckTable.KEY_CHECK_STATE, CheckTable.State.CHECK_READY.ordinal());
+                            }
+                        } while (checks.moveToNext());
+                    }
+                }
+                checks.close();
             }
         });
     }
@@ -325,6 +339,11 @@ public class ServiceProcessTask extends Service {
                     notificationManager.notify(msg.what, generateNotification(new Intent(), mBuilder, msg.what));
                     //handleRemoveEntry(NotifyType.REMOVE_TASK_ENTRY.ordinal(), msg.arg2);
                     return;
+                case HANDLER_NOTIFY_PHOTO_UNSEND: //не отправлено фото
+                    mBuilder.setSmallIcon(R.drawable.ic_stat_information)
+                            .setTicker("Фото неотправлено" + ' ' + msg.arg1 + ' ' + getString(R.string.Warning_Error))
+                            .setContentText(getString(R.string.Checks_not_send_count) + ' ' + ((ArrayList) msg.obj).size());
+                    break;
                 default:
                     return;
             }
@@ -366,18 +385,20 @@ public class ServiceProcessTask extends Service {
                 case TYPE_CHECK_SEND_MAIL:
                 case TYPE_CHECK_SEND_SMS_ADMIN:
                 case TYPE_CHECK_SEND_SMS_CONTACT:
-                    msgHandler.obtainMessage(NotifyType.HANDLER_TASK_START.ordinal(), 1, 0).sendToTarget();
                     Cursor cursor = taskTable.getTypeEntry(taskType);
                     ContentQueryMap mQueryMap = new ContentQueryMap(cursor, BaseColumns._ID, true, null);
                     Map<String, ContentValues> map = mQueryMap.getRows();
                     cursor.close();
-                    callables.add(new Callable<String>() {
-                        @Override
-                        public String call() throws Exception {
-                            taskPoolCommand.getTask(taskType).onExecuteTask(map);
-                            return taskType.toString();
-                        }
-                    });
+                    if (!map.isEmpty()){
+                        msgHandler.obtainMessage(NotifyType.HANDLER_TASK_START.ordinal(), 1, 0).sendToTarget();
+                        callables.add(new Callable<String>() {
+                            @Override
+                            public String call() throws Exception {
+                                taskPoolCommand.getTask(taskType).onExecuteTask(map);
+                                return taskType.toString();
+                            }
+                        });
+                    }
                 break;
             }
         }

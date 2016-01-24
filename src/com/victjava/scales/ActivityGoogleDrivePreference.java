@@ -42,11 +42,9 @@ public class ActivityGoogleDrivePreference extends PreferenceActivity implements
             if ("UserRecoverableAuthIOException".equalsIgnoreCase(getIntent().getAction())) {
                 try {
                     startActivityForResult((Intent) getIntent().getExtras().get("request_authorization"), REQUEST_ACTIVITY_AUTH);
-                } catch (Exception e) {
-                }
+                } catch (Exception e) {}
             }
-        } catch (Exception e) {
-        }
+        } catch (Exception e) { }
 
         PreferenceManager.getDefaultSharedPreferences(this).registerOnSharedPreferenceChangeListener(this);
         //preferences = new Preferences(getSharedPreferences(getResources().getString(R.string.pref_settings), Context.MODE_PRIVATE));

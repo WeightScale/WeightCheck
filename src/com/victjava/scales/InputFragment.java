@@ -148,8 +148,8 @@ public class InputFragment extends Fragment implements ActivityCheck.OnCheckEven
 
         int first = activityCheck.values.getAsInteger(CheckTable.KEY_WEIGHT_FIRST);
         int second = activityCheck.values.getAsInteger(CheckTable.KEY_WEIGHT_SECOND);
-        viewFirst.setText(String.valueOf(first));
-        viewSecond.setText(String.valueOf(second));
+        viewFirst.setText(String.valueOf(first)+' '+getString(R.string.scales_kg));
+        viewSecond.setText(String.valueOf(second)+' '+getString(R.string.scales_kg));
 
         switch (CheckTable.State.values()[activityCheck.values.getAsInteger(CheckTable.KEY_CHECK_STATE)]) {
             case CHECK_FIRST:

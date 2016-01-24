@@ -19,7 +19,7 @@ class DialogFilterADC extends DialogPreference /*implements ActivityPreferences.
 
     public DialogFilterADC(Context context, AttributeSet attrs) {
         super(context, attrs);
-        TypedArray attributesArray = context.obtainStyledAttributes(attrs, R.styleable.dialogFilterADC,R.attr.dialogFilterADCStyle, 0);
+        TypedArray attributesArray = context.obtainStyledAttributes(attrs, R.styleable.dialogFilterADC, R.attr.dialogFilterADCStyle, 0);
         minValue = attributesArray.getInt(R.styleable.dialogFilterADC_minFilterADC, 0);
         maxValue = attributesArray.getInt(R.styleable.dialogFilterADC_maxFilterADC, 0);
         setPersistent(true);

@@ -1,14 +1,10 @@
 package com.victjava.scales;
 
 
-import android.annotation.TargetApi;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.ProgressDialog;
-import android.content.ContentUris;
-import android.content.ContentValues;
-import android.content.Context;
-import android.content.Intent;
+import android.content.*;
 import android.database.Cursor;
 import android.graphics.*;
 import android.graphics.drawable.ColorDrawable;
@@ -16,7 +12,6 @@ import android.graphics.drawable.Drawable;
 import android.hardware.Camera;
 import android.media.AudioManager;
 import android.media.SoundPool;
-import android.net.Uri;
 import android.os.*;
 import android.provider.BaseColumns;
 import android.provider.ContactsContract.*;
@@ -38,7 +33,6 @@ import java.io.*;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.TimeUnit;
 
@@ -48,7 +42,7 @@ public class ActivityCheck extends FragmentActivity implements View.OnClickListe
     private CameraSurface cameraSurface;
     private Thread threadAutoWeight;
     private ScaleModule scaleModule;
-    private Main main;
+    private Globals globals;
     private TakingTimeout takingTimeout;
     private CheckTable checkTable;
     private Vibrator vibrator; //вибратор
@@ -56,11 +50,12 @@ public class ActivityCheck extends FragmentActivity implements View.OnClickListe
     private WeightTextView weightTextView;
     private TabHost mTabHost;
     private TabsAdapter mTabsAdapter;
-    private ImageView buttonFinish;
+    private ImageView buttonFinish, buttonPhoto;
     private SimpleGestureFilter detectorWeightView;
     private Drawable dProgressWeight, dWeightDanger;
     protected ContentValues values = new ContentValues();
     private Dialog dialogCamera;
+    private WeightCallback weightCallback = null;
     /** Количество стабильных показаний веса для авто сохранения. */
     public static final int COUNT_STABLE = 64;
     //public final static int START_TAKE = 1;
@@ -131,9 +126,9 @@ public class ActivityCheck extends FragmentActivity implements View.OnClickListe
             if (!running) {
                 break;
             }
-            if (isStable) {
+            //if (isStable) {
                 handler.obtainMessage(Action.STORE_WEIGHTING.ordinal(), moduleWeight, 0).sendToTarget();                //сохраняем стабильный вес
-            }
+            //}
 
             weightViewIsSwipe = false;
 
@@ -179,11 +174,12 @@ public class ActivityCheck extends FragmentActivity implements View.OnClickListe
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        Thread.setDefaultUncaughtExceptionHandler(new ReportHelper(this));
         setContentView(R.layout.check);
 
-        main = (Main)getApplication();
-        scaleModule = main.getScaleModule();
-        scaleModule.setWeightCallback(resultWeightCallback);
+        globals = Globals.getInstance();
+        scaleModule = globals.getScaleModule();
+        //scaleModule.setWeightCallback(resultWeightCallback);
 
         vibrator = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
         checkTable = new CheckTable(this);
@@ -213,7 +209,9 @@ public class ActivityCheck extends FragmentActivity implements View.OnClickListe
         findViewById(R.id.imageViewPage).setOnClickListener(this);
 
         cameraHolder = (FrameLayout)findViewById(R.id.camera_preview);
-        findViewById(R.id.takePhotoDialog).setOnClickListener(this);
+        buttonPhoto = (ImageView) findViewById(R.id.takePhotoDialog);
+        buttonPhoto.setOnClickListener(this);
+        //buttonPhoto.setEnabled(false);
         //cameraHolder.setOnClickListener(this);
         //setupDialogCamera();
         setupSliding();
@@ -221,7 +219,8 @@ public class ActivityCheck extends FragmentActivity implements View.OnClickListe
         setupPictureMode();
 
         if (values.getAsInteger(CheckTable.KEY_WEIGHT_FIRST) == 0 || values.getAsInteger(CheckTable.KEY_WEIGHT_SECOND) == 0) {
-            scaleModule.startMeasuringWeight();
+            weightCallback = new WeightCallback();
+            scaleModule.startMeasuringWeight(weightCallback);
         }
     }
 
@@ -377,9 +376,9 @@ public class ActivityCheck extends FragmentActivity implements View.OnClickListe
                             buttonFinish.setAlpha(255);
                             flagExit = true;
                         }
-                        if (values.getAsInteger(CheckTable.KEY_CHECK_STATE) == CheckTable.State.CHECK_SECOND.ordinal()) {
+                        /*if (values.getAsInteger(CheckTable.KEY_CHECK_STATE) == CheckTable.State.CHECK_SECOND.ordinal()) {
                             weightTypeUpdate();
-                        }
+                        }*/
                         /*if (weightType == WeightType.SECOND) {
                             weightTypeUpdate();
                         }*/
@@ -448,12 +447,14 @@ public class ActivityCheck extends FragmentActivity implements View.OnClickListe
                 exit();
                 break;
             case R.id.takePhotoDialog:
-                new Thread(new Runnable() {
+                weightViewIsSwipe = true;
+                //handler.obtainMessage(Action.STORE_WEIGHTING.ordinal(), moduleWeight, 0).sendToTarget();
+                /*new Thread(new Runnable() {
                     @Override
                     public void run() {
                         cameraSurface.startTakePicture(values.getAsInteger(CheckTable.KEY_CHECK_STATE));
                     }
-                }).start();
+                }).start();*/
                 break;
             default:
         }
@@ -470,17 +471,17 @@ public class ActivityCheck extends FragmentActivity implements View.OnClickListe
     @Override
     protected void onResume() {
         super.onResume();
-        scaleModule.startMeasuringWeight();
+        scaleModule.startMeasuringWeight(weightCallback);
     }
 
     @Override
     protected void onPause() {
         super.onPause();
-        scaleModule.stopMeasuringWeight(false);
+        scaleModule.stopMeasuringWeight();
     }
 
     protected void exit() {
-        scaleModule.stopMeasuringWeight(false);
+        scaleModule.stopMeasuringWeight();
         stopThread();
         new Thread(new Runnable() {
             @Override
@@ -550,12 +551,12 @@ public class ActivityCheck extends FragmentActivity implements View.OnClickListe
      */
     public boolean isCapture() {
         boolean capture = false;
-        while (moduleWeight > main.getAutoCapture()) {
+        while (moduleWeight > globals.getAutoCapture()) {
             if (capture) {
                 return true;
             } else {
                 try {
-                    TimeUnit.SECONDS.sleep(main.timeDelayDetectCapture);
+                    TimeUnit.SECONDS.sleep(globals.getTimeDelayDetectCapture());
                 } catch (InterruptedException ignored) {}
                 capture = true;
             }
@@ -564,7 +565,7 @@ public class ActivityCheck extends FragmentActivity implements View.OnClickListe
     }
 
     public boolean processStable(int weight) {
-        if (tempWeight - main.getStepMeasuring() <= weight && tempWeight + main.getStepMeasuring() >= weight) {
+        if (tempWeight - globals.getStepMeasuring() <= weight && tempWeight + globals.getStepMeasuring() >= weight) {
             if (++numStable >= COUNT_STABLE) {
                 return true;
             }
@@ -583,10 +584,8 @@ public class ActivityCheck extends FragmentActivity implements View.OnClickListe
      * @return Преобразованый вес.
      */
     private int getWeightToStepMeasuring(int weight) {
-        return weight / main.getStepMeasuring() * main.getStepMeasuring();
+        return weight / globals.getStepMeasuring() * globals.getStepMeasuring();
     }
-
-
 
     private boolean saveWeight(int weight/*, WeightType type*/) {
         boolean flag = false;
@@ -777,12 +776,12 @@ public class ActivityCheck extends FragmentActivity implements View.OnClickListe
 
     }
 
-    /** Обработчик показаний веса
+    /** Класс обработчик показаний веса
      * Возвращяем время обновления показаний веса в милисекундах.
      */
-    final ScaleModule.WeightCallback resultWeightCallback = new ScaleModule.WeightCallback() {
+    class WeightCallback implements ScaleModule.WeightCallback {
         @Override
-        public int weight(final ScaleModule.ResultWeight what, final int weight, final int sensor) {
+        public void weight(final ScaleModule.ResultWeight what, final int weight, final int sensor) {
             runOnUiThread(new Runnable() {
                 Rect bounds;
 
@@ -819,7 +818,6 @@ public class ActivityCheck extends FragmentActivity implements View.OnClickListe
                     }
                 }
             });
-            return 20; // Обновляем через милисикунды
         }
     };
 
@@ -831,10 +829,9 @@ public class ActivityCheck extends FragmentActivity implements View.OnClickListe
          */
         @Override
         public void handleMessage(Message msg) {
-
             switch (Action.values()[msg.what] ) {
                 case STORE_WEIGHTING:
-                    if(Main.preferencesCamera.read(getString(R.string.KEY_PHOTO_CHECK), false)){
+                    if(globals.getPreferencesCamera().read(getString(R.string.KEY_PHOTO_CHECK), false)){
                         new Thread(new Runnable() {
                             @Override
                             public void run() {
@@ -851,7 +848,6 @@ public class ActivityCheck extends FragmentActivity implements View.OnClickListe
                     buttonFinish.setAlpha(255);
                     ((OnCheckEventListener) mTabsAdapter.getCurrentFragment()).someEvent();
                     flagExit = true;
-                    slidingDrawer.animateClose();
                     break;
                 case START_WEIGHTING:
                     buttonFinish.setEnabled(false);
@@ -903,10 +899,8 @@ public class ActivityCheck extends FragmentActivity implements View.OnClickListe
         while(retry){
             try {
                 threadAutoWeight.join(3000);
-                retry = false;
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
+            } catch (InterruptedException | NullPointerException e) {}
+            retry = false;
         }
     }
 
@@ -926,17 +920,6 @@ public class ActivityCheck extends FragmentActivity implements View.OnClickListe
                 default:
             }
         }
-        /*if(path != null){
-            switch (WeightType.values()[requestCode]){
-                case FIRST:
-                    values.put(CheckTable.KEY_PHOTO_FIRST, path);
-                    break;
-                case SECOND:
-                    values.put(CheckTable.KEY_PHOTO_SECOND, path);
-                    break;
-                default:
-            }
-        }*/
         taking = false;
     }
 
@@ -966,36 +949,43 @@ public class ActivityCheck extends FragmentActivity implements View.OnClickListe
 
     @Override
     public void onJpegPictureTaken(byte[] data, Camera camera, int id) {
-        try {
-            /** Сжимаем данные изображения. */
-            byte[] compressImage = compressImage(data, camera);
-            /** Создаем штамп времени */
-            String timeStamp = new SimpleDateFormat("HHmmss", Locale.getDefault()).format(new Date());
-            /** Создаем имя папки по дате */
-            String dateStamp = new SimpleDateFormat("yyyyMMdd", Locale.getDefault()).format(new Date());
-            /** Сохраняем фаил. */
-            String path;
-            /** Проверяем куда сохранять фаил. */
-            if (main.preferencesScale.read(getString(R.string.KEY_MEMORY_PHOTO), false))
-                path = saveInternalMemory(Main.FOLDER_LOCAL, dateStamp + "_" + timeStamp + ".jpg", compressImage);
-            else
-                path = saveExternalMemory(Main.path.getAbsolutePath(), dateStamp + "_" +timeStamp + ".jpg", compressImage);
-            if(path != null){
-                switch (CheckTable.State.values()[id]){
-                    case CHECK_FIRST:
-                        values.put(CheckTable.KEY_PHOTO_FIRST, path);
-                        break;
-                    case CHECK_SECOND:
-                        values.put(CheckTable.KEY_PHOTO_SECOND, path);
-                        break;
-                    default:
-                }
+        /** Задвигаем окно камеры */
+        slidingDrawer.animateClose();
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    /** Сжимаем данные изображения. */
+                    byte[] compressImage = compressImage(data, camera);
+                    /** Создаем штамп времени */
+                    String timeStamp = new SimpleDateFormat("HHmmss", Locale.getDefault()).format(new Date());
+                    /** Создаем имя папки по дате */
+                    String dateStamp = new SimpleDateFormat("yyyyMMdd", Locale.getDefault()).format(new Date());
+                    /** Сохраняем фаил. */
+                    String path;
+                    /** Проверяем куда сохранять фаил. */
+                    if (globals.getPreferencesScale().read(getString(R.string.KEY_MEMORY_PHOTO), false))
+                        path = saveInternalMemory(globals.FOLDER_LOCAL, dateStamp + "_" + timeStamp + ".jpg", compressImage);
+                    else
+                        path = saveExternalMemory(globals.path.getAbsolutePath(), dateStamp + "_" +timeStamp + ".jpg", compressImage);
+                    if(path != null){
+                        switch (CheckTable.State.values()[id]){
+                            case CHECK_FIRST:
+                                values.put(CheckTable.KEY_PHOTO_FIRST, path);
+                                break;
+                            case CHECK_SECOND:
+                                values.put(CheckTable.KEY_PHOTO_SECOND, path);
+                                break;
+                            default:
+                        }
+                    }
+                } catch (FileNotFoundException e) {}
+                catch (IOException e) {}
+                catch (Exception e) {}
+                taking = false;
+                cameraSurface.startPreview();
             }
-        } catch (FileNotFoundException e) {}
-        catch (IOException e) {}
-        catch (Exception e) {}
-        taking = false;
-        cameraSurface.startPreview();
+        }).start();
     }
 
     /** Сжатие и поворот изибражения.
@@ -1174,7 +1164,7 @@ public class ActivityCheck extends FragmentActivity implements View.OnClickListe
                 /** Создаем имя папки по дате */
                 String folderStamp = new SimpleDateFormat("yyyyMMdd", Locale.getDefault()).format(new Date());
                 /** Сохраняем фаил. */
-                String path = saveExternalMemory(Main.path.getAbsolutePath() + File.separator + folderStamp, folderStamp + timeStamp + ".jpg", compressImage);
+                String path = saveExternalMemory(globals.path.getAbsolutePath() + File.separator + folderStamp, folderStamp + timeStamp + ".jpg", compressImage);
                 //String path = saveInternalMemory(Main.FOLDER_LOCAL /*+ File.separator + folderStamp*/, folderStamp + "_" + timeStamp + "(" + String.valueOf(checkId) + ").jpg", compressImage);
                 /*Intent intent = new Intent();
                 intent.putExtra("com.victjava.scales.PHOTO_PATH", path);
@@ -1224,6 +1214,49 @@ public class ActivityCheck extends FragmentActivity implements View.OnClickListe
             if (dialog.isShowing()) {
                 dialog.dismiss();
             }
+        }
+    }
+
+    public class ReportHelper implements Thread.UncaughtExceptionHandler {
+        private AlertDialog dialog;
+        private Context context;
+
+        public ReportHelper(Context context) {
+            this.context = context;
+        }
+
+        @Override
+        public void uncaughtException(Thread thread, Throwable ex) {
+            String text = ex.getCause().getMessage();
+            if(text == null){
+                text = "";
+            }
+            showToastInThread(text);
+        }
+
+        public void showToastInThread(final String str){
+            new Thread() {
+                @Override
+                public void run() {
+                    Looper.prepare();
+                    AlertDialog.Builder builder = new AlertDialog.Builder(context);
+                    builder.setMessage(str)
+                            .setTitle("Ошибка приложения")
+                            .setCancelable(false)
+                            .setNegativeButton("Выход", new DialogInterface.OnClickListener() {
+                                public void onClick(DialogInterface dialog, int id) {
+                                    dialog.dismiss();
+                                    exit();
+                                }
+                            });
+                    dialog = builder.create();
+
+                    //Toast.makeText(context, str, Toast.LENGTH_LONG).show();
+                    if(!dialog.isShowing())
+                        dialog.show();
+                    Looper.loop();
+                }
+            }.start();
         }
     }
 }

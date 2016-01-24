@@ -13,15 +13,11 @@ import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.os.Message;
-import android.os.Parcel;
-import android.os.Parcelable;
 import android.webkit.URLUtil;
 import com.google.android.gms.auth.GoogleAuthException;
 import com.google.android.gms.auth.GoogleAuthUtil;
 import com.google.api.client.googleapis.extensions.android.gms.auth.UserRecoverableAuthIOException;
 import com.google.api.client.http.FileContent;
-import com.google.api.client.repackaged.com.google.common.base.Strings;
-import com.google.api.services.drive.Drive;
 import com.google.api.services.drive.model.File;
 import com.konst.module.ScaleModule;
 import com.konst.sms_commander.SMS;
@@ -40,9 +36,7 @@ import org.apache.http.params.BasicHttpParams;
 import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.params.HttpParams;
 
-import javax.mail.MessagingException;
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.util.*;
 import java.util.concurrent.*;
@@ -58,9 +52,9 @@ public class TaskPoolCommand extends CheckTable {
     final HandlerTaskNotification mHandler;
     boolean cancel = true;
     /** Чек отправлен. */
-    static final String MAP_CHECKS_SEND = "send";
+    static final String CHECKS_SEND = "send";
     /** Чек не отправлен. */
-    static final String MAP_CHECKS_UNSEND = "unsend";
+    static final String CHECKS_UNSEND = "unsend";
     /** Кодовое слово для дешифрации сообщения. */
     final String codeword = "weightcheck";
 
@@ -76,6 +70,7 @@ public class TaskPoolCommand extends CheckTable {
         HANDLER_NOTIFY_CHECK_UNSEND,
         HANDLER_NOTIFY_HTTP,
         HANDLER_NOTIFY_PHOTO,
+        HANDLER_NOTIFY_PHOTO_UNSEND,
         HANDLER_NOTIFY_PROCESS,
         REMOVE_TASK_ENTRY,
         REMOVE_TASK_ENTRY_ERROR_OVER,
@@ -93,18 +88,18 @@ public class TaskPoolCommand extends CheckTable {
     public TaskPoolCommand(Context context, HandlerTaskNotification handler) {
         super(context);
         mContext = context;
-        scaleModule = ((Main)mContext.getApplicationContext()).getScaleModule();
+        scaleModule = Globals.getInstance().getScaleModule();
         mHandler = handler;
         cancel = false;
 
         mapTasks.put(TaskType.TYPE_CHECK_SEND_HTTP_POST, new CheckTokHttpPost());
-        mapTasks.put(TaskType.TYPE_CHECK_SEND_SHEET_DISK, new CheckToSpreadsheet(((Main)mContext.getApplicationContext()).getVersionName()));
+        mapTasks.put(TaskType.TYPE_CHECK_SEND_SHEET_DISK, new CheckToSpreadsheet(Globals.getInstance().getVersionName()));
         mapTasks.put(TaskType.TYPE_CHECK_SEND_MAIL, new CheckToMail());
         //mapTasks.put(TaskType.TYPE_CHECK_SEND_MAIL_ADMIN, new CheckToMail());
         mapTasks.put(TaskType.TYPE_CHECK_SEND_SMS_CONTACT, new CheckToSmsContact());
         mapTasks.put(TaskType.TYPE_CHECK_SEND_SMS_ADMIN, new CheckToSmsAdmin());
         mapTasks.put(TaskType.TYPE_PREF_SEND_HTTP_POST, new PreferenceTokHttpPost());
-        mapTasks.put(TaskType.TYPE_PREF_SEND_SHEET_DISK, new PreferenceToSpreadsheet(((Main)mContext.getApplicationContext()).getVersionName()));
+        mapTasks.put(TaskType.TYPE_PREF_SEND_SHEET_DISK, new PreferenceToSpreadsheet(Globals.getInstance().getVersionName()));
         mapTasks.put(TaskType.TYPE_DATA_SEND_TO_DISK, new DataToGoogleDisk());
     }
 
@@ -147,8 +142,8 @@ public class TaskPoolCommand extends CheckTable {
          */
         public CheckToSpreadsheet(String service) {
             super(service);
-            mapChecksProcessed.put(MAP_CHECKS_SEND, new ArrayList<>());     /** Лист чеков отправленых */
-            mapChecksProcessed.put(MAP_CHECKS_UNSEND, new ArrayList<>());   /** Лист чеков не отправленых */
+            mapChecksProcessed.put(CHECKS_SEND, new ArrayList<>());     /** Лист чеков отправленых */
+            mapChecksProcessed.put(CHECKS_UNSEND, new ArrayList<>());   /** Лист чеков не отправленых */
             executorService = Executors.newFixedThreadPool(5);
         }
 
@@ -165,50 +160,55 @@ public class TaskPoolCommand extends CheckTable {
                 executorService = Executors.newFixedThreadPool(5);
 
             for (Map.Entry<String, ContentValues> entry : mapChecks.entrySet()) {
+                int taskId = Integer.valueOf(entry.getKey());
+                int checkId = Integer.valueOf(entry.getValue().get(TaskTable.KEY_DOC).toString());
                 try {
-                    int taskId = Integer.valueOf(entry.getKey());
-                    int checkId = Integer.valueOf(entry.getValue().get(TaskTable.KEY_DOC).toString());
                     getSheetEntry(entry.getValue().get(TaskTable.KEY_DATA0).toString());
                     UpdateListWorksheets();
-
+                    /** Добавляем задачу для обработяика. */
                     tasks.add(new Callable<Integer>() {
                         @Override
                         public Integer call() throws Exception {
+                            /** Посылаем чек в таблицу на диске. */
                             sendCheckToDisk(checkId);
-                            /** удаляем задачу которую выполнили из map */
+                            /** Удаляем задачу которую выполнили из map. */
                             mapChecks.remove(String.valueOf(taskId));
-                            /** удаляем задачу из базы. */
+                            /** Удаляем задачу из базы. */
                             new TaskTable(mContext).removeEntry(taskId);
-                            mapChecksProcessed.get(MAP_CHECKS_SEND).add(new ObjectParcel(checkId, mContext.getString(R.string.sent_to_the_server)));
-                            mHandler.obtainMessage(NotifyType.HANDLER_NOTIFY_SHEET.ordinal(), checkId, taskId, mapChecksProcessed.get(MAP_CHECKS_SEND)).sendToTarget();
+                            /** Добавляем в контейнер обьект для отправки сообщения.*/
+                            mapChecksProcessed.get(CHECKS_SEND).add(new ObjectParcel(checkId, mContext.getString(R.string.sent_to_the_server)));
+                            /** Отправляем уведомление.*/
+                            mHandler.obtainMessage(NotifyType.HANDLER_NOTIFY_SHEET.ordinal(), checkId, taskId, mapChecksProcessed.get(CHECKS_SEND)).sendToTarget();
                             return checkId;
                         }
                     });
                 } catch (Exception e) {
-                    mapChecksProcessed.get(MAP_CHECKS_UNSEND).add(new ObjectParcel(0, "Не отправлен " + e.getMessage()));
+                    /** Добавляем в контейнер обьект для отправки сообщения.*/
+                    mapChecksProcessed.get(CHECKS_UNSEND).add(new ObjectParcel(0, "Не отправлен " + e.getMessage()));
+                    mHandler.obtainMessage(NotifyType.HANDLER_NOTIFY_CHECK_UNSEND.ordinal(), checkId, taskId, mapChecksProcessed.get(CHECKS_UNSEND)).sendToTarget();
                 }
             }
 
-            try { /** ждем выполнения задачи. */
+            try { /** Ждем выполнения задачи. */
                 futures = executorService.invokeAll(tasks);
             } catch (InterruptedException e) {
                 return;
             }
             executorService.shutdown();
             while (!executorService.isTerminated());
-            /** перебераем задачи которые вызвали ошибки */
+            /** Перебераем задачи которые вызвали ошибки. */
             for (Future<Integer> future : futures) {
                 try {
                     future.get();
                 } catch (InterruptedException e) {
                 } catch (ExecutionException e) {
-                    mapChecksProcessed.get(MAP_CHECKS_UNSEND).add(new ObjectParcel(0, "Ошибка "+ e.getCause().getMessage()));
+                    mapChecksProcessed.get(CHECKS_UNSEND).add(new ObjectParcel(0, "Ошибка "+ e.getCause().getMessage()));
+                    mHandler.obtainMessage(NotifyType.HANDLER_NOTIFY_CHECK_UNSEND.ordinal(), 0, 0, mapChecksProcessed.get(CHECKS_UNSEND)).sendToTarget();
                 }
             }
-
-            /** помечаем на удаление в очередь задачи которые вызывают ошибку */
+            /** Помечаем на удаление в очередь задачи которые вызывают ошибку. */
             for (Map.Entry<String, ContentValues> entry : mapChecks.entrySet()){
-                /** удаляем задачу из базы. */
+                /** Удаляем задачу из базы. */
                 new TaskTable(mContext).removeEntryIfErrorOver(Integer.valueOf(entry.getKey()));
             }
             mHandler.sendEmptyMessage(NotifyType.HANDLER_FINISH_THREAD.ordinal());
@@ -232,7 +232,7 @@ public class TaskPoolCommand extends CheckTable {
                 mHandler.sendEmptyMessage(NotifyType.HANDLER_FINISH_THREAD.ordinal());
                 return null;
             }
-            String user = ((Main)mContext.getApplicationContext()).preferencesScale.read(mContext.getString(R.string.KEY_LAST_USER), "");
+            String user = Globals.getInstance().getPreferencesScale().read(mContext.getString(R.string.KEY_LAST_USER), "");
             return GoogleAuthUtil.getTokenWithNotification(mContext, user /*ScaleModule.getUserName()*/, "oauth2:" + SCOPE, null, makeCallback());
         }
 
@@ -246,6 +246,7 @@ public class TaskPoolCommand extends CheckTable {
             /** Процесс получения доступа к SpreadsheetService. */
             try {
                 spreadsheetService.setAuthSubToken(fetchToken());
+                /** Токен получен. */
                 tokenIsReceived();
             }catch (IOException | GoogleAuthException e) {
                 tokenIsFalse(e.getMessage());
@@ -284,8 +285,8 @@ public class TaskPoolCommand extends CheckTable {
         final Map<String, ArrayList<ObjectParcel>> mapChecksProcessed = new HashMap<>();
 
         public CheckTokHttpPost() {
-            mapChecksProcessed.put(MAP_CHECKS_SEND, new ArrayList<>());
-            mapChecksProcessed.put(MAP_CHECKS_UNSEND, new ArrayList<>());
+            mapChecksProcessed.put(CHECKS_SEND, new ArrayList<>());
+            mapChecksProcessed.put(CHECKS_UNSEND, new ArrayList<>());
             executorService = Executors.newFixedThreadPool(5);
         }
 
@@ -325,14 +326,14 @@ public class TaskPoolCommand extends CheckTable {
                             map.remove(String.valueOf(taskId));
                             /** удаляем задачу из базы. */
                             new TaskTable(mContext).removeEntry(taskId);
-                            mapChecksProcessed.get(MAP_CHECKS_SEND).add(new ObjectParcel(checkId, mContext.getString(R.string.sent_to_the_server)));
-                            mHandler.obtainMessage(NotifyType.HANDLER_NOTIFY_HTTP.ordinal(), checkId, taskId, mapChecksProcessed.get(MAP_CHECKS_SEND)).sendToTarget();
+                            mapChecksProcessed.get(CHECKS_SEND).add(new ObjectParcel(checkId, mContext.getString(R.string.sent_to_the_server)));
+                            mHandler.obtainMessage(NotifyType.HANDLER_NOTIFY_HTTP.ordinal(), checkId, taskId, mapChecksProcessed.get(CHECKS_SEND)).sendToTarget();
                             return checkId;
                         }
                     });
                 } catch (Exception e) {
-                    mapChecksProcessed.get(MAP_CHECKS_UNSEND).add(new ObjectParcel(checkId, "Ошибка " + e));
-                    mHandler.obtainMessage(NotifyType.HANDLER_NOTIFY_CHECK_UNSEND.ordinal(), checkId, taskId, mapChecksProcessed.get(MAP_CHECKS_UNSEND)).sendToTarget();
+                    mapChecksProcessed.get(CHECKS_UNSEND).add(new ObjectParcel(checkId, "Ошибка " + e));
+                    mHandler.obtainMessage(NotifyType.HANDLER_NOTIFY_CHECK_UNSEND.ordinal(), checkId, taskId, mapChecksProcessed.get(CHECKS_UNSEND)).sendToTarget();
                     //mHandler.handleError(401, e.getMessage());
                 }
                 check.close();
@@ -351,10 +352,10 @@ public class TaskPoolCommand extends CheckTable {
                     future.get();
                 } catch (InterruptedException e) {
                 } catch (ExecutionException e) {
-                    mapChecksProcessed.get(MAP_CHECKS_UNSEND).add(new ObjectParcel(0, "Ошибка "+ e.getCause().getMessage()));
+                    mapChecksProcessed.get(CHECKS_UNSEND).add(new ObjectParcel(0, "Ошибка "+ e.getCause().getMessage()));
+                    mHandler.obtainMessage(NotifyType.HANDLER_NOTIFY_CHECK_UNSEND.ordinal(), 0, 0, mapChecksProcessed.get(CHECKS_UNSEND)).sendToTarget();
                 }
             }
-            mHandler.obtainMessage(NotifyType.HANDLER_NOTIFY_HTTP.ordinal(), 0, 0, mapChecksProcessed.get(MAP_CHECKS_UNSEND)).sendToTarget();
             /** помечаем на удаление в очередь задачи которые вызывают ошибку */
             for (Map.Entry<String, ContentValues> entry : map.entrySet()){
                 /** удаляем задачу из базы. */
@@ -384,8 +385,8 @@ public class TaskPoolCommand extends CheckTable {
         final Map<String, ArrayList<ObjectParcel>> mapChecksProcessed = new HashMap<>();
 
         public CheckToMail() {
-            mapChecksProcessed.put(MAP_CHECKS_SEND, new ArrayList<>());
-            mapChecksProcessed.put(MAP_CHECKS_UNSEND, new ArrayList<>());
+            mapChecksProcessed.put(CHECKS_SEND, new ArrayList<>());
+            mapChecksProcessed.put(CHECKS_UNSEND, new ArrayList<>());
             executorService = Executors.newFixedThreadPool(5);
         }
 
@@ -444,8 +445,8 @@ public class TaskPoolCommand extends CheckTable {
                         map.remove(String.valueOf(taskId));
                         /** удаляем задачу из базы. */
                         new TaskTable(mContext).removeEntry(taskId);
-                        mapChecksProcessed.get(MAP_CHECKS_SEND).add(new ObjectParcel(checkId, mContext.getString(R.string.Send_to_mail) + ": " + mailObject.getEmail()));
-                        mHandler.obtainMessage(NotifyType.HANDLER_NOTIFY_MAIL.ordinal(), checkId, taskId, mapChecksProcessed.get(MAP_CHECKS_SEND)).sendToTarget();
+                        mapChecksProcessed.get(CHECKS_SEND).add(new ObjectParcel(checkId, mContext.getString(R.string.Send_to_mail) + ": " + mailObject.getEmail()));
+                        mHandler.obtainMessage(NotifyType.HANDLER_NOTIFY_MAIL.ordinal(), checkId, taskId, mapChecksProcessed.get(CHECKS_SEND)).sendToTarget();
                         return checkId;
                     }
                 });
@@ -464,10 +465,10 @@ public class TaskPoolCommand extends CheckTable {
                     future.get();
                 } catch (InterruptedException e) {
                 } catch (ExecutionException e) {
-                    mapChecksProcessed.get(MAP_CHECKS_UNSEND).add(new ObjectParcel(0, "Ошибка "+ e.getCause().getMessage()));
+                    mapChecksProcessed.get(CHECKS_UNSEND).add(new ObjectParcel(0, "Ошибка "+ e.getCause().getMessage()));
+                    mHandler.obtainMessage(NotifyType.HANDLER_NOTIFY_CHECK_UNSEND.ordinal(), 0, 0, mapChecksProcessed.get(CHECKS_UNSEND)).sendToTarget();
                 }
             }
-            mHandler.obtainMessage(NotifyType.HANDLER_NOTIFY_MAIL.ordinal(), 0, 0, mapChecksProcessed.get(MAP_CHECKS_UNSEND)).sendToTarget();
             /** помечаем на удаление в очередь задачи которые вызывают ошибку */
             for (Map.Entry<String, ContentValues> entry : map.entrySet()){
                 /** удаляем задачу из базы. */
@@ -488,8 +489,8 @@ public class TaskPoolCommand extends CheckTable {
         final Map<String, ArrayList<ObjectParcel>> mapChecksProcessed = new HashMap<>();
 
         public CheckToSmsContact() {
-            mapChecksProcessed.put(MAP_CHECKS_SEND, new ArrayList<>());
-            mapChecksProcessed.put(MAP_CHECKS_UNSEND, new ArrayList<>());
+            mapChecksProcessed.put(CHECKS_SEND, new ArrayList<>());
+            mapChecksProcessed.put(CHECKS_UNSEND, new ArrayList<>());
         }
 
         @Override
@@ -521,11 +522,11 @@ public class TaskPoolCommand extends CheckTable {
                 Message msg;
                 try {
                     SMS.sendSMS(address, body.toString());
-                    mapChecksProcessed.get(MAP_CHECKS_SEND).add(new ObjectParcel(checkId, mContext.getString(R.string.Send_to_phone) + ": " + address));
-                    msg = mHandler.obtainMessage(NotifyType.HANDLER_NOTIFY_MESSAGE.ordinal(), checkId, taskId, mapChecksProcessed.get(MAP_CHECKS_SEND));
+                    mapChecksProcessed.get(CHECKS_SEND).add(new ObjectParcel(checkId, mContext.getString(R.string.Send_to_phone) + ": " + address));
+                    msg = mHandler.obtainMessage(NotifyType.HANDLER_NOTIFY_MESSAGE.ordinal(), checkId, taskId, mapChecksProcessed.get(CHECKS_SEND));
                 } catch (Exception e) {
-                    mapChecksProcessed.get(MAP_CHECKS_UNSEND).add(new ObjectParcel(checkId, "Не отправлен " + e.getMessage() + ' ' + address));
-                    msg = mHandler.obtainMessage(NotifyType.HANDLER_NOTIFY_CHECK_UNSEND.ordinal(), checkId, taskId, mapChecksProcessed.get(MAP_CHECKS_UNSEND));
+                    mapChecksProcessed.get(CHECKS_UNSEND).add(new ObjectParcel(checkId, "Не отправлен " + e.getMessage() + ' ' + address));
+                    msg = mHandler.obtainMessage(NotifyType.HANDLER_NOTIFY_CHECK_UNSEND.ordinal(), checkId, taskId, mapChecksProcessed.get(CHECKS_UNSEND));
                     mHandler.handleError(401, e.getMessage());
                 }
                 mHandler.sendMessage(msg);
@@ -545,8 +546,8 @@ public class TaskPoolCommand extends CheckTable {
         final Map<String, ArrayList<ObjectParcel>> mapChecksProcessed = new HashMap<>();
 
         public CheckToSmsAdmin() {
-            mapChecksProcessed.put(MAP_CHECKS_SEND, new ArrayList<>());
-            mapChecksProcessed.put(MAP_CHECKS_UNSEND, new ArrayList<>());
+            mapChecksProcessed.put(CHECKS_SEND, new ArrayList<>());
+            mapChecksProcessed.put(CHECKS_UNSEND, new ArrayList<>());
         }
 
         @Override
@@ -578,11 +579,11 @@ public class TaskPoolCommand extends CheckTable {
                 Message msg;
                 try {
                     SMS.sendSMS(address, SMS.encrypt(codeword, body.toString()));
-                    mapChecksProcessed.get(MAP_CHECKS_SEND).add(new ObjectParcel(checkId, mContext.getString(R.string.Send_to_phone) + ": " + address));
-                    msg = mHandler.obtainMessage(NotifyType.HANDLER_NOTIFY_MESSAGE.ordinal(), checkId, taskId, mapChecksProcessed.get(MAP_CHECKS_SEND));
+                    mapChecksProcessed.get(CHECKS_SEND).add(new ObjectParcel(checkId, mContext.getString(R.string.Send_to_phone) + ": " + address));
+                    msg = mHandler.obtainMessage(NotifyType.HANDLER_NOTIFY_MESSAGE.ordinal(), checkId, taskId, mapChecksProcessed.get(CHECKS_SEND));
                 } catch (Exception e) {
-                    mapChecksProcessed.get(MAP_CHECKS_UNSEND).add(new ObjectParcel(checkId, "Не отправлен " + e.getMessage() + ' ' + address));
-                    msg = mHandler.obtainMessage(NotifyType.HANDLER_NOTIFY_CHECK_UNSEND.ordinal(), checkId, taskId, mapChecksProcessed.get(MAP_CHECKS_UNSEND));
+                    mapChecksProcessed.get(CHECKS_UNSEND).add(new ObjectParcel(checkId, "Не отправлен " + e.getMessage() + ' ' + address));
+                    msg = mHandler.obtainMessage(NotifyType.HANDLER_NOTIFY_CHECK_UNSEND.ordinal(), checkId, taskId, mapChecksProcessed.get(CHECKS_UNSEND));
                     mHandler.handleError(401, e.getMessage());
                 }
                 mHandler.sendMessage(msg);
@@ -695,7 +696,7 @@ public class TaskPoolCommand extends CheckTable {
                 mHandler.sendEmptyMessage(NotifyType.HANDLER_FINISH_THREAD.ordinal());
                 return null;
             }
-            String user = ((Main)mContext.getApplicationContext()).preferencesScale.read(mContext.getString(R.string.KEY_LAST_USER), "");
+            String user = Globals.getInstance().getPreferencesScale().read(mContext.getString(R.string.KEY_LAST_USER), "");
             return GoogleAuthUtil.getTokenWithNotification(mContext, user /*ScaleModule.getUserName()*/, "oauth2:" + SCOPE, null, makeCallback());
         }
 
@@ -798,13 +799,13 @@ public class TaskPoolCommand extends CheckTable {
         ExecutorService executorService;
         //int NUMBER_OF_CORES = Runtime.getRuntime().availableProcessors();
         private UtilityDriver utilityDriver = null;
-        final String MAP_PHOTO_SEND = "send";
-        final String MAP_PHOTO_UNSEND = "unsend";
+        final String PHOTO_SEND = "send";
+        final String PHOTO_UNSEND = "unsend";
         final Map<String, ArrayList<ObjectParcel>> mapPhotoProcessed = new HashMap<>();
 
         public DataToGoogleDisk() {
-            mapPhotoProcessed.put(MAP_PHOTO_SEND, new ArrayList<>());
-            mapPhotoProcessed.put(MAP_PHOTO_UNSEND, new ArrayList<>());
+            mapPhotoProcessed.put(PHOTO_SEND, new ArrayList<>());
+            mapPhotoProcessed.put(PHOTO_UNSEND, new ArrayList<>());
             executorService = Executors.newFixedThreadPool(5);
         }
 
@@ -818,7 +819,7 @@ public class TaskPoolCommand extends CheckTable {
                 }
 
                 try {
-                    String user = ((Main)mContext.getApplicationContext()).preferencesScale.read(mContext.getString(R.string.KEY_LAST_USER), "");
+                    String user = Globals.getInstance().getPreferencesScale().read(mContext.getString(R.string.KEY_LAST_USER), "");
                     /** Экземпляр для работы с google drive */
                     utilityDriver = new UtilityDriver(mContext, user);
                 } catch (NullPointerException e) {
@@ -841,36 +842,38 @@ public class TaskPoolCommand extends CheckTable {
                             java.io.File file = new java.io.File(path);
                             /** Получаем доступ к папке рут на google drive. */
                             File folderRoot = utilityDriver.getFolder(folder, null);
+                            /** Добавляем задачу для обработчика. */
                             tasks.add(new Callable<ObjectPhoto>() {
                                 @Override
                                 public ObjectPhoto call() throws Exception {
-                                    //int i = Integer.valueOf("0.01");
                                     /** Получаем индекс папки. */
                                     final String parentId = folderRoot.getId();
                                     /** Сохраняем фаил в папку на google disc и возвращаем ссылку. */
                                     String link = saveFileToDrive(file, parentId);
-                                    /** обновляем в чеке столбец с новой ссылкой. */
+                                    /** Обновляем в чеке столбец с новой ссылкой. */
                                     updateEntry(checkId, column, link);
-                                    /** удаляем фаил который отправили. */
+                                    /** Удаляем фаил который отправили. */
                                     file.delete();
-                                    /** удаляем задачу которую выполнили из map */
+                                    /** Удаляем задачу которую выполнили из map. */
                                     map.remove(String.valueOf(taskId));
-                                    /** удаляем задачу из базы. */
+                                    /** Удаляем задачу из базы. */
                                     new TaskTable(mContext).removeEntry(taskId);
-                                    /** добавляем обьект для для отправки сообщения.*/
-                                    mapPhotoProcessed.get(MAP_PHOTO_SEND).add(new ObjectParcel(0, mContext.getString(R.string.sent_to_the_server)));
-                                    mHandler.obtainMessage(NotifyType.HANDLER_NOTIFY_PHOTO.ordinal(), 0, taskId, mapPhotoProcessed.get(MAP_PHOTO_SEND)).sendToTarget();
+                                    /** Добавляем в контейнер обьект для отправки сообщения.*/
+                                    mapPhotoProcessed.get(PHOTO_SEND).add(new ObjectParcel(checkId, mContext.getString(R.string.sent_to_the_server)));
+                                    /** Отправляем сообщение.*/
+                                    mHandler.obtainMessage(NotifyType.HANDLER_NOTIFY_PHOTO.ordinal(), checkId, taskId, mapPhotoProcessed.get(PHOTO_SEND)).sendToTarget();
                                     return null /*new ObjectPhoto(taskId, checkId, column, link)*/;
                                 }
                             });
                         }else {
-                            /** удаляем задачу которую выполнили из map */
+                            /** Удаляем задачу которую выполнили из map. */
                             map.remove(String.valueOf(taskId));
-                            /** удаляем задачу из базы. */
+                            /** Удаляем задачу из базы. */
                             new TaskTable(mContext).removeEntry(taskId);
-                            /** добавляем обьект для для отправки сообщения.*/
-                            mapPhotoProcessed.get(MAP_PHOTO_SEND).add(new ObjectParcel(0, mContext.getString(R.string.sent_to_the_server)));
-                            mHandler.obtainMessage(NotifyType.HANDLER_NOTIFY_PHOTO.ordinal(), 0, 0, mapPhotoProcessed.get(MAP_PHOTO_SEND)).sendToTarget();
+                            /** Добавляем в контейнер обьект для отправки сообщения. */
+                            mapPhotoProcessed.get(PHOTO_SEND).add(new ObjectParcel(checkId, mContext.getString(R.string.sent_to_the_server)));
+                            /** Отправляем сообщение.*/
+                            mHandler.obtainMessage(NotifyType.HANDLER_NOTIFY_PHOTO.ordinal(), checkId, taskId, mapPhotoProcessed.get(PHOTO_SEND)).sendToTarget();
                         }
                     }catch (UserRecoverableAuthIOException e) {/** Исключение если не добавлено разрешение для программы в google service play. */
                         Intent intent = new Intent(mContext, ActivityGoogleDrivePreference.class).setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
@@ -879,35 +882,35 @@ public class TaskPoolCommand extends CheckTable {
                         mContext.startActivity(intent);
                         return;
                     }catch (IOException e) {
-                        /** добавляем обьект для для отправки сообщения. */
-                        mapPhotoProcessed.get(MAP_PHOTO_UNSEND).add(new ObjectParcel(0, "Ошибка " + e));
+                        /** Добавляем обьект для для отправки сообщения. */
+                        mapPhotoProcessed.get(PHOTO_UNSEND).add(new ObjectParcel(0, "Ошибка " + e));
+                        mHandler.obtainMessage(NotifyType.HANDLER_NOTIFY_PHOTO_UNSEND.ordinal(), 0, 0, mapPhotoProcessed.get(PHOTO_UNSEND)).sendToTarget();
                     } catch (Exception e){
 
                     }
 
                 }
                 try {
-                    /** ждем выполнения задачи. */
+                    /** Ждем выполнения задачи. */
                     futures = executorService.invokeAll(tasks);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
                 executorService.shutdown();
                 while (!executorService.isTerminated());
-                /** перебераем задачи которые вызвали ошибки */
+                /** Перебираем задачи которые вызвали ошибки. */
                 for (Future<ObjectPhoto> future : futures) {
                     try {
                         future.get();
-                        //mapChecksProcessed.get(MAP_CHECKS_SEND).add(new ObjectParcel(check, mContext.getString(R.string.sent_to_the_server)));
-                        //mHandler.obtainMessage(NotifyType.HANDLER_NOTIFY_SHEET.ordinal(), check, 0, mapChecksProcessed.get(MAP_CHECKS_SEND)).sendToTarget();
                     } catch (InterruptedException e) {
                     } catch (ExecutionException e) {
-                        mapPhotoProcessed.get(MAP_PHOTO_UNSEND).add(new ObjectParcel(0, "Ошибка "+ e.getCause().getMessage()));
+                        mapPhotoProcessed.get(PHOTO_UNSEND).add(new ObjectParcel(0, "Ошибка "+ e.getCause().getMessage()));
+                        mHandler.obtainMessage(NotifyType.HANDLER_NOTIFY_PHOTO_UNSEND.ordinal(), 0, 0, mapPhotoProcessed.get(PHOTO_UNSEND)).sendToTarget();
                     }
                 }
-                mHandler.obtainMessage(NotifyType.HANDLER_NOTIFY_PHOTO.ordinal(), 0, 0, mapPhotoProcessed.get(MAP_PHOTO_UNSEND)).sendToTarget();
+
                 for (Map.Entry<String, ContentValues> entry : map.entrySet()) {
-                    /** удаляем задачу из базы. */
+                    /** Удаляем задачу невыполненую из базы если количество ошибок превысило. */
                     new TaskTable(mContext).removeEntryIfErrorOver(Integer.valueOf(entry.getKey()));
                 }
             }
@@ -923,12 +926,12 @@ public class TaskPoolCommand extends CheckTable {
         private String saveFileToDrive(final java.io.File fileContent, String parentId) throws Exception {
 
             try {
-                /** Проверяе фаил */
+                /** Проверяе фаил. */
                 if (!fileContent.exists())
                     throw new Exception("Нет файла " + fileContent.getPath());
-                /** Создаем контента экземпляр файла для закрузки*/
+                /** Создаем контента экземпляр файла для закрузки. */
                 FileContent mediaContent = new FileContent("image/jpeg", fileContent);
-                /**Не содержит контент */
+                /**Не содержит контент. */
                 if (mediaContent.getLength() == 0) {
                     /** Фаил удаляем */
                     if (!fileContent.delete()) {

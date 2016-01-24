@@ -7,8 +7,7 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.provider.BaseColumns;
 import com.konst.module.ScaleModule;
-import com.victjava.scales.Main;
-import com.victjava.scales.TaskCommand.*;
+import com.victjava.scales.Globals;
 import com.victjava.scales.provider.SenderTable.TypeSender;
 
 /**
@@ -74,7 +73,7 @@ public class TaskTable {
 
     public TaskTable(Context cnt) {
         mContext = cnt;
-        scaleModule = ((Main)mContext.getApplicationContext()).getScaleModule();
+        scaleModule = Globals.getInstance().getScaleModule();
     }
 
     public Uri insertNewTask(TaskType mimeType, long documentId, long dataId, String ... data) {

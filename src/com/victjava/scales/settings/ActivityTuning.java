@@ -11,7 +11,6 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.Cursor;
-import android.graphics.Color;
 import android.graphics.Point;
 import android.hardware.Camera;
 import android.os.Build;
@@ -24,7 +23,7 @@ import android.view.*;
 import android.widget.*;
 import com.konst.module.Commands;
 import com.konst.module.ScaleModule;
-import com.victjava.scales.Main;
+import com.victjava.scales.Globals;
 import com.victjava.scales.Preferences;
 import com.victjava.scales.R;
 import com.victjava.scales.bootloader.ActivityBootloader;
@@ -33,9 +32,7 @@ import com.victjava.scales.provider.SenderTable;
 import com.victjava.scales.provider.TaskTable;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 //import android.preference.PreferenceManager;
 
@@ -43,7 +40,7 @@ public class ActivityTuning extends PreferenceActivity {
     public static Preferences preferencesCamera;
     protected static Dialog dialog;
     private static ScaleModule scaleModule;
-    private static Main main;
+    private static Globals globals;
     private EditText input;
 
     private static final Point point1 = new Point(Integer.MIN_VALUE, 0);
@@ -134,7 +131,7 @@ public class ActivityTuning extends PreferenceActivity {
         POINT1(R.string.KEY_POINT1){
             @Override
             void setup(Preference name) throws Exception {
-                if(!scaleModule.isAttach())
+                if(!globals.isScaleConnect())
                     throw new Exception(" ");
                 name.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
                     @Override
@@ -158,7 +155,7 @@ public class ActivityTuning extends PreferenceActivity {
         POINT2(R.string.KEY_POINT2){
             @Override
             void setup(Preference name) throws Exception {
-                if(!scaleModule.isAttach())
+                if(!globals.isScaleConnect())
                     throw new Exception(" ");
                 name.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
                     @Override
@@ -517,7 +514,7 @@ public class ActivityTuning extends PreferenceActivity {
         SERVICE_COD(R.string.KEY_SERVICE_COD){
             @Override
             void setup(Preference name) throws Exception {
-                if(!scaleModule.isAttach())
+                if(!globals.isScaleConnect())
                     throw new Exception(" ");
                 name.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
                     @Override
@@ -544,7 +541,7 @@ public class ActivityTuning extends PreferenceActivity {
             void setup(Preference name) throws Exception {
                 Context context = name.getContext();
                 if (scaleModule.getVersion() != null) {
-                    if (scaleModule.getNumVersion() < main.microSoftware) {
+                    if (scaleModule.getNumVersion() < globals.getMicroSoftware()) {
                         name.setSummary(context.getString(R.string.Is_new_version));
                         //name.setEnabled(true);
                     } else {
@@ -567,9 +564,14 @@ public class ActivityTuning extends PreferenceActivity {
                         else
                             intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
                         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                        intent.putExtra(context.getString(R.string.KEY_ADDRESS), scaleModule.isAttach()? scaleModule.getAddressBluetoothDevice():"");
+                        intent.putExtra(context.getString(R.string.KEY_ADDRESS), globals.isScaleConnect()? scaleModule.getAddressBluetoothDevice():"");
                         intent.putExtra(Commands.CMD_HARDWARE.getName(), hardware);
                         intent.putExtra(Commands.CMD_VERSION.getName(), scaleModule.getNumVersion());
+                        if (globals.isScaleConnect()){
+                            if(scaleModule.setModulePowerOff())
+                                intent.putExtra(context.getString(R.string.KEY_POWER), true);
+                        }
+                        scaleModule.dettach();
                         context.startActivity(intent);
                         return false;
                     }
@@ -592,7 +594,7 @@ public class ActivityTuning extends PreferenceActivity {
             @Override
             void setup( Preference listPreference) {
                 listPreference.setSummary(preferencesCamera.read(listPreference.getKey(),""));
-                List<String> parameters = Main.parameters.getSupportedColorEffects();
+                List<String> parameters = globals.parameters.getSupportedColorEffects();
                 if (parameters != null) {
                     CharSequence[] entries = new CharSequence[0];
                     entries = parameters.toArray(entries);
@@ -603,7 +605,7 @@ public class ActivityTuning extends PreferenceActivity {
                         public boolean onPreferenceChange(Preference preference, Object o) {
                             preference.getEditor().putString(preference.getKey(), o.toString());
                             preference.setSummary(o.toString());
-                            Main.parameters.setColorEffect(o.toString());
+                            globals.parameters.setColorEffect(o.toString());
                             return true;
                         }
                     });
@@ -617,7 +619,7 @@ public class ActivityTuning extends PreferenceActivity {
             @Override
             void setup(Preference listPreference) {
                 listPreference.setSummary(((ListPreference)listPreference).getValue());
-                List<String> parameters = Main.parameters.getSupportedAntibanding();
+                List<String> parameters = globals.parameters.getSupportedAntibanding();
                 if(parameters != null){
                     CharSequence[] entries = new CharSequence[0];
                     entries = parameters.toArray(entries);
@@ -628,7 +630,7 @@ public class ActivityTuning extends PreferenceActivity {
                         public boolean onPreferenceChange(Preference preference, Object o) {
                             preference.getEditor().putString(preference.getKey(), o.toString());
                             preference.setSummary(o.toString());
-                            Main.parameters.setAntibanding(o.toString());
+                            globals.parameters.setAntibanding(o.toString());
                             return true;
                         }
                     });
@@ -642,7 +644,7 @@ public class ActivityTuning extends PreferenceActivity {
             @Override
             void setup(Preference listPreference) {
                 listPreference.setSummary(((ListPreference)listPreference).getValue());
-                List<String> parameters = Main.parameters.getSupportedFlashModes();
+                List<String> parameters = globals.parameters.getSupportedFlashModes();
                 if(parameters != null){
                     CharSequence[] entries = new CharSequence[0];
                     entries = parameters.toArray(entries);
@@ -653,7 +655,7 @@ public class ActivityTuning extends PreferenceActivity {
                         public boolean onPreferenceChange(Preference preference, Object o) {
                             preference.getEditor().putString(preference.getKey(), o.toString());
                             preference.setSummary(o.toString());
-                            Main.parameters.setFlashMode(o.toString());
+                            globals.parameters.setFlashMode(o.toString());
                             return true;
                         }
                     });
@@ -667,7 +669,7 @@ public class ActivityTuning extends PreferenceActivity {
             @Override
             void setup(Preference listPreference) {
                 listPreference.setSummary(((ListPreference)listPreference).getValue());
-                List<String> parameters = Main.parameters.getSupportedFocusModes();
+                List<String> parameters = globals.parameters.getSupportedFocusModes();
                 if(parameters != null){
                     CharSequence[] entries = new CharSequence[0];
                     entries = parameters.toArray(entries);
@@ -678,7 +680,7 @@ public class ActivityTuning extends PreferenceActivity {
                         public boolean onPreferenceChange(Preference preference, Object o) {
                             preference.getEditor().putString(preference.getKey(), o.toString());
                             preference.setSummary(o.toString());
-                            Main.parameters.setFocusMode(o.toString());
+                            globals.parameters.setFocusMode(o.toString());
                             return true;
                         }
                     });
@@ -692,7 +694,7 @@ public class ActivityTuning extends PreferenceActivity {
             @Override
             void setup(Preference listPreference) {
                 listPreference.setSummary(((ListPreference)listPreference).getValue());
-                List<String> parameters = Main.parameters.getSupportedSceneModes();
+                List<String> parameters = globals.parameters.getSupportedSceneModes();
                 if(parameters != null){
                     CharSequence[] entries = new CharSequence[0];
                     entries = parameters.toArray(entries);
@@ -703,7 +705,7 @@ public class ActivityTuning extends PreferenceActivity {
                         public boolean onPreferenceChange(Preference preference, Object o) {
                             preference.getEditor().putString(preference.getKey(), o.toString());
                             preference.setSummary(o.toString());
-                            Main.parameters.setSceneMode(o.toString());
+                            globals.parameters.setSceneMode(o.toString());
                             return true;
                         }
                     });
@@ -717,7 +719,7 @@ public class ActivityTuning extends PreferenceActivity {
             @Override
             void setup(Preference listPreference) {
                 listPreference.setSummary(((ListPreference)listPreference).getValue());
-                List<String> parameters = Main.parameters.getSupportedWhiteBalance();
+                List<String> parameters = globals.parameters.getSupportedWhiteBalance();
                 if(parameters != null){
                     CharSequence[] entries = new CharSequence[0];
                     entries = parameters.toArray(entries);
@@ -728,7 +730,7 @@ public class ActivityTuning extends PreferenceActivity {
                         public boolean onPreferenceChange(Preference preference, Object o) {
                             preference.getEditor().putString(preference.getKey(), o.toString());
                             preference.setSummary(o.toString());
-                            Main.parameters.setWhiteBalance(o.toString());
+                            globals.parameters.setWhiteBalance(o.toString());
                             return true;
                         }
                     });
@@ -742,9 +744,9 @@ public class ActivityTuning extends PreferenceActivity {
             @Override
             void setup(Preference listPreference) {
                 listPreference.setSummary(((ListPreference)listPreference).getValue());
-                int max = Main.parameters.getMaxExposureCompensation();
-                int min = Main.parameters.getMinExposureCompensation();
-                int step = (int) Main.parameters.getExposureCompensationStep();
+                int max = globals.parameters.getMaxExposureCompensation();
+                int min = globals.parameters.getMinExposureCompensation();
+                int step = (int) globals.parameters.getExposureCompensationStep();
                 List<String> exposure = new ArrayList<>();
                 for (; max >= min; max -= step) {
                     exposure.add(String.valueOf(max));
@@ -759,7 +761,7 @@ public class ActivityTuning extends PreferenceActivity {
                         public boolean onPreferenceChange(Preference preference, Object o) {
                             preference.getEditor().putString(preference.getKey(), o.toString());
                             preference.setSummary(o.toString());
-                            Main.parameters.setExposureCompensation(Integer.parseInt(o.toString()));
+                            globals.parameters.setExposureCompensation(Integer.parseInt(o.toString()));
                             return true;
                         }
                     });
@@ -774,7 +776,7 @@ public class ActivityTuning extends PreferenceActivity {
             void setup(Preference listPreference) {
                 Context context = listPreference.getContext();
                 listPreference.setSummary(((ListPreference)listPreference).getValue());
-                List<Camera.Size> pictureSizes = Main.parameters.getSupportedPictureSizes();
+                List<Camera.Size> pictureSizes = globals.parameters.getSupportedPictureSizes();
                 if (pictureSizes != null) {
                     CharSequence[] entries = new CharSequence[0];
                     List<String> sizeList = new ArrayList<>();
@@ -798,7 +800,7 @@ public class ActivityTuning extends PreferenceActivity {
                             preference.getPreferenceManager().findPreference(preference.getContext().getString(R.string.key_pic_size_width)).setSummary(str[0]);
                             preference.getPreferenceManager().findPreference(preference.getContext().getString(R.string.key_pic_size_height)).setSummary(str[1]);
                             preference.setSummary(o.toString());
-                            Main.parameters.setPictureSize(Integer.parseInt(str[0]), Integer.parseInt(str[1]));
+                            globals.parameters.setPictureSize(Integer.parseInt(str[0]), Integer.parseInt(str[1]));
                             return true;
                         }
                     });
@@ -826,7 +828,7 @@ public class ActivityTuning extends PreferenceActivity {
                         if (rotation >= 0 && rotation <= 270) {
                             preference.getEditor().putString(preference.getKey(), o.toString());
                             preference.setSummary(o.toString());
-                            Main.parameters.setRotation(rotation);
+                            globals.parameters.setRotation(rotation);
                             return true;
                         }
                         return false;
@@ -902,10 +904,15 @@ public class ActivityTuning extends PreferenceActivity {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
                 if (input.getText() != null) {
+                    boolean key = false;
                     String string = input.getText().toString();
                     if (!string.isEmpty()){
                         try{
-                            if("343434".equals(string) || string.equals(scaleModule.getModuleServiceCod())){
+                            if ("343434".equals(string))
+                                key = true;
+                            else if (string.equals(scaleModule.getModuleServiceCod()))
+                                key = true;
+                            if (key){
                                 if (Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB) {
                                     addPreferencesFromResource(R.xml.admin_preferences);
                                     process();
@@ -927,9 +934,7 @@ public class ActivityTuning extends PreferenceActivity {
 
                                 return;
                             }
-                        }catch (Exception e){
-
-                        }
+                        }catch (Exception e){}
 
                     }
 
@@ -953,8 +958,8 @@ public class ActivityTuning extends PreferenceActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         flag_restore = false;
-        main = (Main)getApplication();
-        scaleModule = main.getScaleModule();
+        globals = Globals.getInstance();
+        scaleModule = globals.getScaleModule();
         dialog = new Dialog(this);
         dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
         startDialog();

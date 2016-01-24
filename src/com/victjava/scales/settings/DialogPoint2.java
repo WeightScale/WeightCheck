@@ -8,7 +8,7 @@ import android.view.View;
 import android.widget.EditText;
 import android.widget.TextView;
 import com.konst.module.ScaleModule;
-import com.victjava.scales.Main;
+import com.victjava.scales.Globals;
 import com.victjava.scales.R;
 
 /**
@@ -25,13 +25,13 @@ public class DialogPoint2 extends DialogPreference implements ScaleModule.Weight
         mContext = context;
         setPersistent(false);
         setDialogLayoutResource(R.layout.dialog_point2);
-        scaleModule = ((Main)context.getApplicationContext()).getScaleModule();
-        scaleModule.setWeightCallback(this);
+        scaleModule = Globals.getInstance().getScaleModule();
+        //scaleModule.setWeightCallback(this);
     }
 
     @Override
     protected View onCreateDialogView() {
-        scaleModule.startMeasuringWeight();
+        scaleModule.startMeasuringWeight(this);
         return super.onCreateDialogView();
     }
 
@@ -48,19 +48,18 @@ public class DialogPoint2 extends DialogPreference implements ScaleModule.Weight
             // needed when user edits the text field and clicks OK
             setValue(editTextPoint2.getText().toString());
         }
-        scaleModule.stopMeasuringWeight(true);
+        scaleModule.stopMeasuringWeight();
     }
 
 
     @Override
-    public int weight(ScaleModule.ResultWeight what, int weight, final int sensor) {
+    public void weight(ScaleModule.ResultWeight what, int weight, final int sensor) {
         ((Activity)mContext).runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 textViewSensor.setText("датчик:"+ sensor);
             }
         });
-        return 50;
     }
 
     public void setValue(String value) {

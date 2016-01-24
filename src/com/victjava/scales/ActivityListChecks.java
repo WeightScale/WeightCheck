@@ -27,7 +27,7 @@ import java.util.List;
 public class ActivityListChecks extends ListActivity implements View.OnClickListener {
     CheckTable checkTable;
     private ListView listView;
-    Main main;
+    Globals globals;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -40,7 +40,7 @@ public class ActivityListChecks extends ListActivity implements View.OnClickList
         lp.screenBrightness = 1.0f;
         getWindow().setAttributes(lp);
 
-        main = (Main)getApplication();
+        globals = Globals.getInstance();
         //ArrayList<Integer> checks = getIntent().getIntegerArrayListExtra("listChecks");
         checkTable = new CheckTable(this);
         listView = getListView();
@@ -90,7 +90,7 @@ public class ActivityListChecks extends ListActivity implements View.OnClickList
     private void listSetup() {
 
         /** Устанавливаем флаг не показывать чеки старше n дней. */
-        checkTable.setInvisibleCheckIsReady(main.preferencesScale.read(getString(R.string.KEY_DAY_CHECK_DELETE), main.getDayDeleteCheck()));
+        checkTable.setInvisibleCheckIsReady(globals.getPreferencesScale().read(getString(R.string.KEY_DAY_CHECK_DELETE), globals.getDayDeleteCheck()));
         /* Удаляем чеки отправленые на сервер через n дней. */
         checkTable.deleteCheckIsServer();
         Cursor cursor = checkTable.getAllReadyCheck(CheckTable.VISIBLE);

@@ -16,12 +16,9 @@ import android.hardware.Camera.AutoFocusCallback;
 import android.hardware.Camera.PictureCallback;
 import android.hardware.Camera.ShutterCallback;
 import android.util.AttributeSet;
-import android.view.GestureDetector;
-import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
-import android.view.GestureDetector.OnGestureListener;
-import com.victjava.scales.Main;
+import com.victjava.scales.Globals;
 
 public class CameraSurface extends SurfaceView implements SurfaceHolder.Callback{
     private volatile Camera camera;
@@ -95,7 +92,7 @@ public class CameraSurface extends SurfaceView implements SurfaceHolder.Callback
     @Override
     public void surfaceCreated(SurfaceHolder holder) {
         camera = Camera.open();
-        camera.setParameters(Main.parameters);
+        camera.setParameters(Globals.getInstance().parameters);
         camera.setDisplayOrientation(90);
         try {
             camera.setPreviewDisplay(holder);

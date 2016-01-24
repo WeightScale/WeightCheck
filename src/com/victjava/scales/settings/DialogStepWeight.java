@@ -3,10 +3,9 @@ package com.victjava.scales.settings;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.preference.DialogPreference;
-import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.view.View;
-import com.victjava.scales.Main;
+import com.victjava.scales.Globals;
 import com.victjava.scales.NumberPicker;
 import com.victjava.scales.R;
 
@@ -27,7 +26,7 @@ class DialogStepWeight extends DialogPreference /*implements ActivityPreferences
         stepArray = context.getResources().getStringArray(R.array.array_step_kg);
         minValue = 0;
         maxValue = stepArray.length > 0 ? stepArray.length - 1 : 0;
-        int step = ((Main)context.getApplicationContext()).getStepMeasuring();
+        int step = Globals.getInstance().getStepMeasuring();
         int index = Arrays.asList(stepArray).indexOf(String.valueOf(step));
         if(index != -1)
             mNumber = index;

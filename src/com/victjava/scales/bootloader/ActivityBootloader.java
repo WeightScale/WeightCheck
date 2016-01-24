@@ -30,6 +30,8 @@ public class ActivityBootloader extends Activity implements View.OnClickListener
     private ImageView startBoot, buttonBack;
     private TextView textViewLog;
     private ProgressDialog progressDialog;
+
+    private Globals globals;
     private BootModule bootModule;
 
     private String addressDevice = "";
@@ -138,9 +140,10 @@ public class ActivityBootloader extends Activity implements View.OnClickListener
         super.onCreate(savedInstanceState);
         setContentView(R.layout.bootloder);
 
+        globals = Globals.getInstance();
         addressDevice = getIntent().getStringExtra(getString(R.string.KEY_ADDRESS));
         hardware = getIntent().getStringExtra(Commands.CMD_HARDWARE.getName());
-        powerOff = getIntent().getBooleanExtra("power_off", false);
+        powerOff = getIntent().getBooleanExtra(getString(R.string.KEY_POWER), false);
 
         //Spinner spinnerField = (Spinner) findViewById(R.id.spinnerField);
         textViewLog = (TextView) findViewById(R.id.textLog);
@@ -168,7 +171,7 @@ public class ActivityBootloader extends Activity implements View.OnClickListener
                             finish();
                         }
                         try {
-                            ((Main)getApplication()).setBootModule(bootModule);
+                            globals.setBootModule(bootModule);
                             bootModule.init(addressDevice);
                             bootModule.attach();
                         } catch (Exception e) {
@@ -352,7 +355,7 @@ public class ActivityBootloader extends Activity implements View.OnClickListener
     void exit() {
         if (flagProgramsFinish) {
             //Preferences.load(getSharedPreferences(Preferences.PREFERENCES, Context.MODE_PRIVATE));
-            Main.preferencesUpdate.write(getString(R.string.KEY_FLAG_UPDATE), true);
+            globals.getPreferencesScale().write(getString(R.string.KEY_FLAG_UPDATE), true);
             if(bootModule != null)
                 bootModule.dettach();
             BluetoothAdapter.getDefaultAdapter().disable();
@@ -416,7 +419,7 @@ public class ActivityBootloader extends Activity implements View.OnClickListener
                     .append(descriptor).append('_')               //дескриптор сигнатура 1 и сигнатура 2
                     .append(hardware.toLowerCase())         //hardware- это версия платы
                     .append('_')
-                    .append(((Main)getApplication()).microSoftware)             //version- этоверсия программы платы
+                    .append(globals.getMicroSoftware())             //version- этоверсия программы платы
                     .append(".hex").toString();
             log(getString(R.string.TEXT_MESSAGE3) + constructBootFile);
             String[] bootFiles = getAssets().list(dirBootFiles);

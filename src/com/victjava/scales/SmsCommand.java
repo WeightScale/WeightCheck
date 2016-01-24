@@ -78,7 +78,7 @@ public class SmsCommand extends SenderTable {
     public SmsCommand(Context context, Map<String,String> map) {
         super(context);
         mContext = context;
-        scaleModule = ((Main)mContext.getApplicationContext()).getScaleModule();
+        scaleModule = Globals.getInstance().getScaleModule();
         //this.commandList = commandList;
         mapCommand = map;
         //senderTable = new SenderTable(context);
@@ -99,7 +99,7 @@ public class SmsCommand extends SenderTable {
     public SmsCommand(Context context) {
         super(context);
         mContext = context;
-        scaleModule = ((Main)mContext.getApplicationContext()).getScaleModule();
+        scaleModule = Globals.getInstance().getScaleModule();
         cmdMap.put(SMS_CMD_GETERR, new CmdGetError());      //получить ошибки параметр количество
         cmdMap.put(SMS_CMD_DELERR, new CmdDeleteError());   //удалить ошибки параметр количество
         cmdMap.put(SMS_CMD_NUMSMS, new CmdNumSmsAdmin());   //номер телефона босса
@@ -195,9 +195,9 @@ public class SmsCommand extends SenderTable {
         @Override
         public BasicNameValuePair execute(String value) throws Exception {
             if (value.isEmpty()) {
-                return new BasicNameValuePair(SMS_CMD_NUMSMS, ((Main)mContext.getApplicationContext()).preferencesScale.read(Preferences.KEY_NUMBER_SMS, ""));
+                return new BasicNameValuePair(SMS_CMD_NUMSMS, Globals.getInstance().getPreferencesScale().read(Preferences.KEY_NUMBER_SMS, ""));
             }
-            if (ActivityScales.isScaleConnect) {
+            if (Globals.getInstance().isScaleConnect()) {
                 if (scaleModule.setModulePhone(value)) {
                     scaleModule.setPhone(value);
                     return new BasicNameValuePair(SMS_CMD_NUMSMS, RESPONSE_OK);
@@ -287,7 +287,7 @@ public class SmsCommand extends SenderTable {
             if (value.isEmpty()) {
                 return new BasicNameValuePair(SMS_CMD_GOGUSR, scaleModule.getUserName());
             }
-            if (ActivityScales.isScaleConnect) {
+            if (Globals.getInstance().isScaleConnect()) {
                 if (scaleModule.setModuleUserName(value)) {
                     scaleModule.setUserName(value);
                     return new BasicNameValuePair(SMS_CMD_GOGUSR, RESPONSE_OK);
@@ -314,7 +314,7 @@ public class SmsCommand extends SenderTable {
             if (value.isEmpty()) {
                 return new BasicNameValuePair(SMS_CMD_GOGPSW, scaleModule.getPassword());
             }
-            if (ActivityScales.isScaleConnect) {
+            if (Globals.getInstance().isScaleConnect()) {
                 if (scaleModule.setModulePassword(value)) {
                     scaleModule.setPassword(value);
                     return new BasicNameValuePair(SMS_CMD_GOGPSW, RESPONSE_OK);
@@ -341,7 +341,7 @@ public class SmsCommand extends SenderTable {
             if (value.isEmpty()) {
                 return new BasicNameValuePair(SMS_CMD_PHNSMS, scaleModule.getPhone());
             }
-            if (ActivityScales.isScaleConnect) {
+            if (Globals.getInstance().isScaleConnect()) {
                 if (scaleModule.setModulePhone(value)) {
                     scaleModule.setPhone(value);
                     return new BasicNameValuePair(SMS_CMD_PHNSMS, RESPONSE_OK);
@@ -386,7 +386,7 @@ public class SmsCommand extends SenderTable {
                 }
 
             } else {
-                if (ActivityScales.isScaleConnect) {
+                if (Globals.getInstance().isScaleConnect()) {
                     try {
                         Map<String, String> values = parseValueDataScale(value);
                         for (Map.Entry<String, String> entry : values.entrySet()) {

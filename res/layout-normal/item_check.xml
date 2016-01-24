@@ -9,8 +9,12 @@
     <LinearLayout
             android:orientation="vertical"
             android:layout_width="fill_parent"
-            android:layout_height="fill_parent" android:layout_margin="@dimen/corners"
-            android:background="@drawable/round_item_check" android:padding="@dimen/corners">
+            android:layout_height="fill_parent"
+            android:background="@drawable/round_item_check" android:padding="@dimen/corners"
+            android:layout_marginLeft="@dimen/stroke1"
+            android:layout_marginRight="@dimen/stroke1"
+            android:layout_marginTop="@dimen/corners"
+            android:layout_marginBottom="@dimen/corners">
         <LinearLayout
                 android:orientation="vertical"
                 android:layout_width="fill_parent"

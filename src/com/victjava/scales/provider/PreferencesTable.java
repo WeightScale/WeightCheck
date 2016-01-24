@@ -7,14 +7,10 @@ import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
 import android.provider.BaseColumns;
-import android.text.TextUtils;
 import com.konst.module.ScaleModule;
-import com.victjava.scales.Main;
-import org.apache.http.message.BasicNameValuePair;
+import com.victjava.scales.Globals;
 
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Date;
 import java.util.Locale;
 
@@ -78,7 +74,7 @@ public class PreferencesTable {
 
     public PreferencesTable(Context cnt) {
         context = cnt;
-        scaleModule = ((Main)context.getApplicationContext()).getScaleModule();
+        scaleModule = Globals.getInstance().getScaleModule();
     }
 
     public Uri insertAllEntry() throws Exception {
@@ -91,8 +87,8 @@ public class PreferencesTable {
         newTaskValues.put(KEY_COEFFICIENT_B, scaleModule.getCoefficientB());
         newTaskValues.put(KEY_MAX_WEIGHT, scaleModule.getWeightMax());
         newTaskValues.put(KEY_FILTER_ADC, scaleModule.getFilterADC());
-        newTaskValues.put(KEY_STEP_SCALE, ((Main)context.getApplicationContext()).getStepMeasuring());
-        newTaskValues.put(KEY_STEP_CAPTURE, ((Main)context.getApplicationContext()).getAutoCapture());
+        newTaskValues.put(KEY_STEP_SCALE, Globals.getInstance().getStepMeasuring());
+        newTaskValues.put(KEY_STEP_CAPTURE, Globals.getInstance().getAutoCapture());
         newTaskValues.put(KEY_TIME_OFF, scaleModule.getTimeOff());
         newTaskValues.put(KEY_NUMBER_BT_TERMINAL, BluetoothAdapter.getDefaultAdapter().getAddress());
         newTaskValues.put(KEY_CHECK_ON_SERVER, 0);

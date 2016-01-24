@@ -245,6 +245,15 @@ public class ActivityPageChecks extends Activity {
                         setViewText((TextView) view, getString(R.string.Gross));
                     }
                     break;
+                case R.id.gross_row:
+                case R.id.tare_row:
+                case R.id.netto_row:
+                    String text = cursor.getString(columnIndex);
+                    if (text == null) {
+                        text = "";
+                    }
+                    setViewText((TextView) view, text + ' '+ getString(R.string.scales_kg));
+                    break;
                 default:
                     return false;
             }

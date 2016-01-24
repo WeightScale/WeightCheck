@@ -4,11 +4,9 @@ import android.content.*;
 import android.database.Cursor;
 import android.net.Uri;
 import android.provider.BaseColumns;
-import android.text.TextUtils;
 import com.konst.module.ScaleModule;
-import com.victjava.scales.Main;
+import com.victjava.scales.Globals;
 import com.victjava.scales.R;
-import org.apache.http.message.BasicNameValuePair;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -16,6 +14,7 @@ import java.util.*;
 
 public class CheckTable {
     final ScaleModule scaleModule;
+    Globals globals;
     private final Context mContext;
     final ContentResolver contentResolver;
 
@@ -160,7 +159,8 @@ public class CheckTable {
 
     public CheckTable(Context context) {
         mContext = context;
-        scaleModule = ((Main)mContext.getApplicationContext()).getScaleModule();
+        //scaleModule = ((Main)mContext.getApplicationContext()).getScaleModule();
+        scaleModule = Globals.getInstance().getScaleModule();
         contentResolver = mContext.getContentResolver();
     }
 
@@ -251,7 +251,7 @@ public class CheckTable {
     }
 
     public Cursor getPreliminaryCheck() {
-        return contentResolver.query(CONTENT_URI, new String[]{KEY_PHOTO_FIRST, KEY_PHOTO_SECOND},
+        return contentResolver.query(CONTENT_URI, new String[]{KEY_ID,KEY_PHOTO_FIRST, KEY_PHOTO_SECOND},
                 KEY_CHECK_STATE + "= " + State.CHECK_PRELIMINARY.ordinal(), null, null);
     }
 

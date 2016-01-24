@@ -94,7 +94,7 @@ public abstract class GoogleSpreadsheets extends AsyncTask<Void, Void, String[]>
      */
     protected GoogleSpreadsheets(Context context, String service, String accountName) throws GoogleAuthException, IOException, IllegalArgumentException {
         this.context = context;
-        scaleModule = ((Main)context.getApplicationContext()).getScaleModule();
+        scaleModule = Globals.getInstance().getScaleModule();
         spreadsheetService = new SpreadsheetService(service);
         spreadsheetService.setProtocolVersion(SpreadsheetService.Versions.V3);
         spreadsheetService.setAuthSubToken(getToken(accountName));

@@ -6,6 +6,7 @@
             <PreferenceCategory android:title="@string/Set_values">
                     <PreferenceScreen android:title="@string/setting_auto_zero" android:summary="@string/sum_setting_auto_zero">
                         <PreferenceCategory android:title="@string/Auto_zero" android:summary="@string/sum_auto_zero">
+                            <CheckBoxPreference android:enabled="true" android:title="Авто ноль" android:summary="Авто обнуление" android:key="@string/KEY_CHECK_AUTO_NULL" android:defaultValue="true"/>
                             <com.victjava.scales.settings.IntegerEditPreference android:title="@string/Time" android:summary="@string/sum_time_auto_zero"
                                                                                 android:key="@string/KEY_TIMER_NULL" android:numeric="integer"
                                                                                 android:defaultValue="@integer/default_max_time_auto_null" android:gravity="right" android:inputType="number"/>

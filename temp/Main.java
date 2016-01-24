@@ -21,41 +21,41 @@ import java.util.List;
  * @author Kostya
  */
 public class Main extends Application {
-    ScaleModule scaleModule;
-    BootModule bootModule;
+    private ScaleModule scaleModule;
+    private BootModule bootModule;
     public static Camera.Parameters parameters;
     public static File path;
     public static String FOLDER_LOCAL = "CheckPhoto";
     /** Класс формы для передачи данных весового чека. */
     /** Настройки для весов. */
-    public static Preferences preferencesScale;
+    private Preferences preferencesScale;
     /** Настройки для обновления весов. */
-    public static Preferences preferencesUpdate;
+    private Preferences preferencesUpdate;
     /** Настройки для камеры. */
-    public static Preferences preferencesCamera;
+    private Preferences preferencesCamera;
 
-    PackageInfo packageInfo;
+    private PackageInfo packageInfo;
 
     /** Версия пограммы весового модуля. */
-    public final int microSoftware = 4;
+    private final int microSoftware = 4;
 
     protected String networkOperatorName;
     protected String simNumber;
     protected String telephoneNumber;
     protected String networkCountry;
     protected int versionNumber;
-    public String versionName = "";
+    private String versionName = "";
 
     /** Шаг измерения (округление). */
-    public int stepMeasuring;
+    private int stepMeasuring;
 
     /** Шаг захвата (округление). */
-    public int autoCapture;
+    private int autoCapture;
 
     /** Время задержки для авто захвата после которого начинается захват в секундах. */
-    public int timeDelayDetectCapture;
-    public int dayClosedCheck;
-    public int dayDeleteCheck;
+    private int timeDelayDetectCapture;
+    private int dayClosedCheck;
+    private int dayDeleteCheck;
 
     public ScaleModule getScaleModule() {
         return scaleModule;
@@ -136,6 +136,14 @@ public class Main extends Application {
     public void setNetworkCountry(String networkCountry) {
         this.networkCountry = networkCountry;
     }
+
+    public int getTimeDelayDetectCapture() { return timeDelayDetectCapture;  }
+
+    public Preferences getPreferencesScale() { return preferencesScale; }
+
+    public Preferences getPreferencesCamera() { return preferencesCamera; }
+
+    public int getMicroSoftware() { return microSoftware; }
 
     @Override
     public void onCreate() {

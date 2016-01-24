@@ -15,7 +15,7 @@ import com.konst.module.ScaleModule;
  */
 public class ActivityAbout extends Activity {
     static ScaleModule scaleModule;
-    static Main main;
+    static Globals globals;
     enum StrokeSettings{
         VERSION(R.string.Version_scale){
             @Override
@@ -41,14 +41,14 @@ public class ActivityAbout extends Activity {
         },
         OPERATOR(R.string.Operator){
             @Override
-            String getValue() {return main.getNetworkOperatorName(); }
+            String getValue() {return globals.getNetworkOperatorName(); }
 
             @Override
             int getMeasure() { return -1; }
         },
         PHONE(R.string.Number_phone){
             @Override
-            String getValue() { return  main.getTelephoneNumber() + '\n'; }
+            String getValue() { return  globals.getTelephoneNumber() + '\n'; }
 
             @Override
             int getMeasure() {  return -1;  }
@@ -84,7 +84,7 @@ public class ActivityAbout extends Activity {
         TEMPERATURE(R.string.Temperature) {
             @Override
             String getValue() {
-                return scaleModule.isAttach()?scaleModule.getModuleTemperature() + "°" + 'C' :"error"+ '\n';
+                return globals.isScaleConnect()?scaleModule.getModuleTemperature() + "°" + 'C' :"error"+ '\n';
             }
 
             @Override
@@ -116,7 +116,7 @@ public class ActivityAbout extends Activity {
         STEP(R.string.Step_capacity_scale){
             final int resIdKg = R.string.scales_kg;
             @Override
-            String getValue() { return main.getStepMeasuring() + " "; }
+            String getValue() { return globals.getStepMeasuring() + " "; }
 
             @Override
             int getMeasure() {  return resIdKg; }
@@ -124,7 +124,7 @@ public class ActivityAbout extends Activity {
         CAPTURE(R.string.Capture_weight){
             final int resIdKg = R.string.scales_kg;
             @Override
-            String getValue() {  return main.getAutoCapture() + " "; }
+            String getValue() {  return globals.getAutoCapture() + " "; }
 
             @Override
             int getMeasure() {   return resIdKg;  }
@@ -151,11 +151,11 @@ public class ActivityAbout extends Activity {
         lp.screenBrightness = 1.0f;
         getWindow().setAttributes(lp);
 
-        main = (Main)getApplication();
-        scaleModule = main.getScaleModule();
+        globals = Globals.getInstance();
+        scaleModule = globals.getScaleModule();
 
         TextView textSoftVersion = (TextView) findViewById(R.id.textSoftVersion);
-        textSoftVersion.setText(main.getVersionName() + ' ' + String.valueOf(main.getVersionNumber()));
+        textSoftVersion.setText(globals.getVersionName() + ' ' + String.valueOf(globals.getVersionNumber()));
 
         TextView textSettings = (TextView) findViewById(R.id.textSettings);
         parserTextSettings(textSettings);

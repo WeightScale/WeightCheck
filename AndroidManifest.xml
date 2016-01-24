@@ -41,12 +41,11 @@
     <uses-feature android:name="android.hardware.camera.autofocus"/>
     <uses-feature android:name="android.hardware.camera.flash"/>
     <application android:label="@string/app_name"
-                 android:name=".Main"
                  android:icon="@mipmap/scale_launcher"
                  android:theme="@style/MyTheme"
-                 android:allowClearUserData="true"
-                 android:manageSpaceActivity=".ActivityScales"
-                 android:allowBackup="true">
+                 ><!--android:name=".Main" android:allowClearUserData="true"
+        android:manageSpaceActivity=".ActivityScales"
+        android:allowBackup="true"-->
         <meta-data android:name="com.google.android.gms.version" android:value="@integer/google_play_services_version"/>
         <!--<meta-data android:name="com.google.android.apps.drive.APP_ID" android:value="id=AIzaSyCwAYmvWi_mpIlXA-KJ_k0u2ONaNn7rHcw"/>-->
         <activity android:name=".ActivitySearch"

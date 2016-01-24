@@ -5,7 +5,7 @@ import android.content.res.TypedArray;
 import android.preference.DialogPreference;
 import android.util.AttributeSet;
 import android.view.View;
-import com.victjava.scales.Main;
+import com.victjava.scales.Globals;
 import com.victjava.scales.NumberPicker;
 import com.victjava.scales.R;
 
@@ -13,7 +13,7 @@ import com.victjava.scales.R;
  * @author Kostya
  */
 public class DialogSpeedPort extends DialogPreference {
-    final Main main;
+    final Globals globals;
     private int mNumber;
     private final String[] speedPortArray;
     private NumberPicker numberPicker;
@@ -25,8 +25,8 @@ public class DialogSpeedPort extends DialogPreference {
         speedPortArray = context.getResources().getStringArray(R.array.array_speed_port);
         minValue = 1;
         maxValue = speedPortArray.length > 0 ? speedPortArray.length : 1;
-        main = (Main)context.getApplicationContext();
-        int speed = main.getScaleModule().isAttach()?((Main)context.getApplicationContext()).getScaleModule().getSpeedPort():0;
+        globals = Globals.getInstance();
+        int speed = globals.isScaleConnect()?globals.getScaleModule().getSpeedPort():0;
         if(speed >= minValue && speed <= maxValue)
             mNumber = speed;
         setPersistent(true);
