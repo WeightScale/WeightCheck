@@ -6,7 +6,7 @@ import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
 import android.provider.BaseColumns;
-import com.konst.module.ScaleModule;
+import com.konst.module.scale.ScaleModule;
 import com.victjava.scales.Globals;
 import com.victjava.scales.provider.SenderTable.TypeSender;
 

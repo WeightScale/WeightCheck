@@ -19,9 +19,14 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
+import android.text.SpannableStringBuilder;
+import android.text.Spanned;
+import android.text.style.AbsoluteSizeSpan;
+import android.text.style.ForegroundColorSpan;
+import android.text.style.TextAppearanceSpan;
 import android.view.*;
 import android.widget.*;
-import com.konst.module.ScaleModule;
+import com.konst.module.scale.ScaleModule;
 import com.victjava.scales.camera.CameraCallback;
 import com.victjava.scales.camera.CameraSurface;
 import com.victjava.scales.provider.CheckTable;
@@ -37,6 +42,7 @@ import java.util.Locale;
 import java.util.concurrent.TimeUnit;
 
 public class ActivityCheck extends FragmentActivity implements View.OnClickListener, Runnable, CameraCallback {
+    private SpannableStringBuilder textKg;
     private FrameLayout cameraHolder;
     private SlidingDrawer slidingDrawer;
     private CameraSurface cameraSurface;
@@ -46,8 +52,9 @@ public class ActivityCheck extends FragmentActivity implements View.OnClickListe
     private TakingTimeout takingTimeout;
     private CheckTable checkTable;
     private Vibrator vibrator; //вибратор
-    private ProgressBar progressBarWeight;
-    private WeightTextView weightTextView;
+    private ProgressBar progressBarSensor, progressBarStable;
+    //private WeightView weightTextView;
+    TextView textViewWeight;
     private TabHost mTabHost;
     private TabsAdapter mTabsAdapter;
     private ImageView buttonFinish, buttonPhoto;
@@ -55,7 +62,7 @@ public class ActivityCheck extends FragmentActivity implements View.OnClickListe
     private Drawable dProgressWeight, dWeightDanger;
     protected ContentValues values = new ContentValues();
     private Dialog dialogCamera;
-    private WeightCallback weightCallback = null;
+    //private WeightCallback weightCallback = null;
     /** Количество стабильных показаний веса для авто сохранения. */
     public static final int COUNT_STABLE = 64;
     //public final static int START_TAKE = 1;
@@ -102,10 +109,7 @@ public class ActivityCheck extends FragmentActivity implements View.OnClickListe
             numStable = 0;
 
             while (running && !isCapture() && !weightViewIsSwipe) {                                                     //ждём начала нагружения
-                try {
-                    Thread.sleep(50);
-                } catch (InterruptedException ignored) {
-                }
+                try { Thread.sleep(50);} catch (InterruptedException ignored) {}
             }
             if (!running) {
                 break;
@@ -113,10 +117,7 @@ public class ActivityCheck extends FragmentActivity implements View.OnClickListe
             handler.obtainMessage(Action.START_WEIGHTING.ordinal()).sendToTarget();
             isStable = false;
             while (running && !(isStable || weightViewIsSwipe)) {                                                       //ждем стабилизации веса или нажатием выбора веса
-                try {
-                    Thread.sleep(50);
-                } catch (InterruptedException ignored) {
-                }
+                try { Thread.sleep(50);} catch (InterruptedException ignored) {}
                 if (!touchWeightView) {                                                                                 //если не прикасаемся к индикатору тогда стабилизируем вес
                     isStable = processStable(moduleWeight);
                     handler.obtainMessage(Action.UPDATE_PROGRESS.ordinal(), numStable, 0).sendToTarget();
@@ -133,10 +134,7 @@ public class ActivityCheck extends FragmentActivity implements View.OnClickListe
             weightViewIsSwipe = false;
 
             while (running && moduleWeight >= getResources().getInteger(R.integer.default_min_auto_capture)) {
-                try {
-                    Thread.sleep(50);
-                } catch (InterruptedException ignored) {
-                }                                   // ждем разгрузки весов
+                try {Thread.sleep(50); } catch (InterruptedException ignored) {}                                        // ждем разгрузки весов
             }
             vibrator.vibrate(100);
             handler.obtainMessage(Action.UPDATE_PROGRESS.ordinal(), 0, 0).sendToTarget();
@@ -174,7 +172,7 @@ public class ActivityCheck extends FragmentActivity implements View.OnClickListe
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        Thread.setDefaultUncaughtExceptionHandler(new ReportHelper(this));
+        //Thread.setDefaultUncaughtExceptionHandler(new ReportHelper(this));
         setContentView(R.layout.check);
 
         globals = Globals.getInstance();
@@ -199,36 +197,176 @@ public class ActivityCheck extends FragmentActivity implements View.OnClickListe
         setupTabHost(savedInstanceState);
         setupWeightView();
 
-        progressBarWeight = (ProgressBar) findViewById(R.id.progressBarWeight);
-        progressBarWeight.setMax(scaleModule.getMarginTenzo());
-        progressBarWeight.setSecondaryProgress(scaleModule.getLimitTenzo());
+        textKg = new SpannableStringBuilder(getResources().getString(R.string.scales_kg));
+        textKg.setSpan(new TextAppearanceSpan(this, R.style.SpanTextKg),0,textKg.length(), Spanned.SPAN_INCLUSIVE_INCLUSIVE);
+
+        progressBarSensor = (ProgressBar) findViewById(R.id.progressBarSensor);
+        progressBarSensor.setMax(scaleModule.getMarginTenzo());
+        progressBarSensor.setSecondaryProgress(scaleModule.getLimitTenzo());
+
+
 
         buttonFinish = (ImageView) findViewById(R.id.buttonFinish);
         buttonFinish.setOnClickListener(this);
 
         findViewById(R.id.imageViewPage).setOnClickListener(this);
 
-        cameraHolder = (FrameLayout)findViewById(R.id.camera_preview);
-        buttonPhoto = (ImageView) findViewById(R.id.takePhotoDialog);
-        buttonPhoto.setOnClickListener(this);
-        //buttonPhoto.setEnabled(false);
-        //cameraHolder.setOnClickListener(this);
-        //setupDialogCamera();
         setupSliding();
+        if(globals.getPreferencesCamera().read(getString(R.string.KEY_PHOTO_CHECK), false))
+            setupPictureMode();
 
-        setupPictureMode();
-
-        if (values.getAsInteger(CheckTable.KEY_WEIGHT_FIRST) == 0 || values.getAsInteger(CheckTable.KEY_WEIGHT_SECOND) == 0) {
+        /*if (values.getAsInteger(CheckTable.KEY_WEIGHT_FIRST) == 0 || values.getAsInteger(CheckTable.KEY_WEIGHT_SECOND) == 0) {
             weightCallback = new WeightCallback();
             scaleModule.startMeasuringWeight(weightCallback);
+        }*/
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        outState.putString("tab", mTabHost.getCurrentTabTag()); //save the tab selected
+        super.onSaveInstanceState(outState);
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        startThread();
+    }
+
+    @Override
+    public void onClick(View v) {
+        switch (v.getId()) {
+            case R.id.buttonFinish:
+                exit();
+                break;
+            case R.id.imageViewPage:
+                vibrator.vibrate(100);
+                startActivity(new Intent(getBaseContext(), ActivityViewCheck.class).putExtra("id", entryID));
+                exit();
+                break;
+            case R.id.takePhotoDialog:
+                weightViewIsSwipe = true;
+                //handler.obtainMessage(Action.STORE_WEIGHTING.ordinal(), moduleWeight, 0).sendToTarget();
+                /*new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        cameraSurface.startTakePicture(values.getAsInteger(CheckTable.KEY_CHECK_STATE));
+                    }
+                }).start();*/
+                break;
+            default:
         }
     }
 
+    @Override
+    public void onBackPressed() {
+        if (flagExit) {
+            super.onBackPressed();
+            exit();
+        }
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        scaleModule.startMeasuringWeight(weightCallback);
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        scaleModule.stopMeasuringWeight();
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        String path = data.getStringExtra("com.victjava.scales.PHOTO_PATH");
+        if(path != null){
+            switch (CheckTable.State.values()[requestCode]){
+                case CHECK_FIRST:
+                    values.put(CheckTable.KEY_PHOTO_FIRST, path);
+                    break;
+                case CHECK_SECOND:
+                    values.put(CheckTable.KEY_PHOTO_SECOND, path);
+                    break;
+                default:
+            }
+        }
+        taking = false;
+    }
+
+    @Override
+    public void onPreviewFrame(byte[] data, Camera camera) {
+
+    }
+
+    @Override
+    public void onShutter() {
+        /*AudioManager meng = (AudioManager) getApplicationContext().getSystemService(Context.AUDIO_SERVICE);
+        int volume = meng.getStreamVolume( AudioManager.STREAM_NOTIFICATION);
+        MediaPlayer _shootMP=null;
+
+        if (volume != 0) {
+            if (_shootMP == null)
+                _shootMP = MediaPlayer.create(getApplicationContext(), Uri.parse("file:///system/media/audio/ui/camera_click.ogg"));
+            if (_shootMP != null)
+                _shootMP.start();
+        }*/
+
+        SoundPool soundPool = new SoundPool(1, AudioManager.STREAM_NOTIFICATION, 0);
+        int shutterSound = soundPool.load(this, R.raw.camera_click, 0);
+        soundPool.play(shutterSound, 1f, 1f, 0, 0, 1);
+
+    }
+
+    @Override
+    public void onJpegPictureTaken(byte[] data, Camera camera, int id) {
+        /** Задвигаем окно камеры */
+        slidingDrawer.animateClose();
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    /** Сжимаем данные изображения. */
+                    byte[] compressImage = compressImage(data, camera.getParameters().getPictureSize().width, camera.getParameters().getPictureSize().height);
+                    /** Создаем штамп времени */
+                    String timeStamp = new SimpleDateFormat("HHmmss", Locale.getDefault()).format(new Date());
+                    /** Создаем имя папки по дате */
+                    String dateStamp = new SimpleDateFormat("yyyyMMdd", Locale.getDefault()).format(new Date());
+                    /** Сохраняем фаил. */
+                    String path;
+                    /** Проверяем куда сохранять фаил. */
+                    if (globals.getPreferencesScale().read(getString(R.string.KEY_MEMORY_PHOTO), false))
+                        path = saveInternalMemory(globals.FOLDER_LOCAL, dateStamp + "_" + timeStamp + ".jpg", compressImage);
+                    else
+                        path = saveExternalMemory(globals.path.getAbsolutePath(), dateStamp + "_" +timeStamp + ".jpg", compressImage);
+                    if(path != null){
+                        switch (CheckTable.State.values()[id]){
+                            case CHECK_FIRST:
+                                values.put(CheckTable.KEY_PHOTO_FIRST, path);
+                                break;
+                            case CHECK_SECOND:
+                                values.put(CheckTable.KEY_PHOTO_SECOND, path);
+                                break;
+                            default:
+                        }
+                    }
+                } catch (FileNotFoundException e) {}
+                catch (IOException e) {}
+                catch (Exception e) {}
+                cameraSurface.startPreview();
+                taking = false;
+            }
+        }).start();
+    }
+
     private void setupPictureMode(){
+        cameraHolder = (FrameLayout)findViewById(R.id.camera_preview);
+        buttonPhoto = (ImageView) findViewById(R.id.takePhotoDialog);
+        buttonPhoto.setOnClickListener(this);
         cameraSurface = new CameraSurface(this);
-        //cameraSurface.setZOrderOnTop(false);
-        //cameraSurface.getHolder().setFormat(PixelFormat.TRANSPARENT);
-        //cameraHolder.addView(cameraSurface, new ViewGroup.LayoutParams(ViewGroup.LayoutParams.FILL_PARENT, ViewGroup.LayoutParams.FILL_PARENT));
         cameraHolder.addView(cameraSurface);
         cameraSurface.setCallback(this);
     }
@@ -236,23 +374,16 @@ public class ActivityCheck extends FragmentActivity implements View.OnClickListe
     private void setupSliding() {
         final ImageView ibHandle = (ImageView) findViewById(R.id.handle);
         slidingDrawer = (SlidingDrawer) findViewById(R.id.drawer);
-
         slidingDrawer.setOnDrawerOpenListener(new SlidingDrawer.OnDrawerOpenListener() {
             public void onDrawerOpened() {
-                //((FrameLayout)findViewById(R.id.fr)).setVisibility(View.INVISIBLE);
-                //((FrameLayout) findViewById(R.id.fr)).setClickable(false);
                 ibHandle.setImageResource(R.drawable.ic_action_sliding_right);
             }
         });
-
         slidingDrawer.setOnDrawerCloseListener(new SlidingDrawer.OnDrawerCloseListener() {
             public void onDrawerClosed() {
-                //((FrameLayout)findViewById(R.id.fr)).setVisibility(View.VISIBLE);
-                //((FrameLayout) findViewById(R.id.fr)).setClickable(true);
                 ibHandle.setImageResource(R.drawable.ic_action_sliding_up);
             }
         });
-
         slidingDrawer.setOnDrawerScrollListener(new SlidingDrawer.OnDrawerScrollListener() {
 
             public void onScrollEnded() {
@@ -266,35 +397,6 @@ public class ActivityCheck extends FragmentActivity implements View.OnClickListe
                 // TODO Auto-generated method stub
             }
         });
-
-        //slidingDrawer.open();
-        /*TextView textNewDocument = (TextView) findViewById(R.id.textNewDocument);
-        textNewDocument.setOnClickListener(new View.OnClickListener() {
-            @TargetApi(Build.VERSION_CODES.HONEYCOMB)
-            @Override
-            public void onClick(View v) {
-                //mTabsAdapter.addTab(mTabHost.newTabSpec("input").setIndicator(createTabView(ActivityScales.this, "приход")), NewDocFragment.class);
-                new WeightDocDbAdapter(ActivityScales.this).insertNewEntry(WeightDocDbAdapter.TYPE_SINGLE);
-                fragmentTransaction = getSupportFragmentManager().beginTransaction();
-                fragmentTransaction.replace(R.id.fr, new OpenDocFragment());
-                fragmentTransaction.commit();
-                slidingDrawer.close();
-            }
-        });*/
-
-        /*TextView textWeightDocument = (TextView) findViewById(R.id.textWeightDocument);
-        textWeightDocument.setOnClickListener(new View.OnClickListener() {
-            @TargetApi(Build.VERSION_CODES.HONEYCOMB)
-            @Override
-            public void onClick(View v) {
-                //mTabsAdapter.addTab(mTabHost.newTabSpec("input").setIndicator(createTabView(ActivityScales.this, "приход")), NewDocFragment.class);
-                fragmentTransaction = getSupportFragmentManager().beginTransaction();
-                fragmentTransaction.replace(R.id.fr, new ListDocFragment());
-                fragmentTransaction.commit();
-                slidingDrawer.close();
-            }
-        });*/
-
     }
 
     private void setupDialogCamera(){
@@ -356,10 +458,11 @@ public class ActivityCheck extends FragmentActivity implements View.OnClickListe
      */
     private void setupWeightView() {
 
-        weightTextView = new WeightTextView(this);
-        weightTextView = (WeightTextView) findViewById(R.id.weightTextView);
-        weightTextView.setMax(COUNT_STABLE);
-        weightTextView.setSecondaryProgress(numStable = 0);
+        //weightTextView = new WeightView(this);
+        textViewWeight = (TextView) findViewById(R.id.textViewWeight);
+        progressBarStable = (ProgressBar)findViewById(R.id.progressBarStable);
+        progressBarStable.setMax(COUNT_STABLE);
+        progressBarStable.setProgress(numStable = 0);
         dProgressWeight = getResources().getDrawable(R.drawable.progress_weight);
         dWeightDanger = getResources().getDrawable(R.drawable.progress_weight_danger);
 
@@ -389,7 +492,7 @@ public class ActivityCheck extends FragmentActivity implements View.OnClickListe
 
             @Override
             public void onDoubleTap() {
-                weightTextView.setSecondaryProgress(0);
+                progressBarStable.setProgress(0);
                 vibrator.vibrate(100);
                 new ZeroThread(ActivityCheck.this).start();
             }
@@ -397,7 +500,7 @@ public class ActivityCheck extends FragmentActivity implements View.OnClickListe
 
         detectorWeightView = new SimpleGestureFilter(this, weightViewGestureListener);
         detectorWeightView.setSwipeMinVelocity(50);
-        weightTextView.setOnTouchListener(new View.OnTouchListener() {
+        textViewWeight.setOnTouchListener(new View.OnTouchListener() {
 
             @Override
             public boolean onTouch(View v, MotionEvent event) {
@@ -408,8 +511,8 @@ public class ActivityCheck extends FragmentActivity implements View.OnClickListe
                     case MotionEvent.ACTION_MOVE:
                         touchWeightView = true;
                         vibrator.vibrate(5);
-                        int progress = (int) (event.getX() / (detectorWeightView.getSwipeMaxDistance() / weightTextView.getMax()));
-                        weightTextView.setSecondaryProgress(progress);
+                        int progress = (int) (event.getX() / (detectorWeightView.getSwipeMaxDistance() / progressBarStable.getMax()));
+                        progressBarStable.setProgress(progress);
                         break;
                     //case MotionEvent.ACTION_DOWN:
                     case MotionEvent.ACTION_UP:
@@ -423,63 +526,6 @@ public class ActivityCheck extends FragmentActivity implements View.OnClickListe
         });
     }
 
-    @Override
-    protected void onSaveInstanceState(Bundle outState) {
-        outState.putString("tab", mTabHost.getCurrentTabTag()); //save the tab selected
-        super.onSaveInstanceState(outState);
-    }
-
-    @Override
-    protected void onStart() {
-        super.onStart();
-        startThread();
-    }
-
-    @Override
-    public void onClick(View v) {
-        switch (v.getId()) {
-            case R.id.buttonFinish:
-                exit();
-                break;
-            case R.id.imageViewPage:
-                vibrator.vibrate(100);
-                startActivity(new Intent(getBaseContext(), ActivityViewCheck.class).putExtra("id", entryID));
-                exit();
-                break;
-            case R.id.takePhotoDialog:
-                weightViewIsSwipe = true;
-                //handler.obtainMessage(Action.STORE_WEIGHTING.ordinal(), moduleWeight, 0).sendToTarget();
-                /*new Thread(new Runnable() {
-                    @Override
-                    public void run() {
-                        cameraSurface.startTakePicture(values.getAsInteger(CheckTable.KEY_CHECK_STATE));
-                    }
-                }).start();*/
-                break;
-            default:
-        }
-    }
-
-    @Override
-    public void onBackPressed() {
-        if (flagExit) {
-            super.onBackPressed();
-            exit();
-        }
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-        scaleModule.startMeasuringWeight(weightCallback);
-    }
-
-    @Override
-    protected void onPause() {
-        super.onPause();
-        scaleModule.stopMeasuringWeight();
-    }
-
     protected void exit() {
         scaleModule.stopMeasuringWeight();
         stopThread();
@@ -490,7 +536,7 @@ public class ActivityCheck extends FragmentActivity implements View.OnClickListe
                     runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
-                            takingTimeout = new TakingTimeout(5000,5000);
+                            takingTimeout = new TakingTimeout(10000,10000);
                             takingTimeout.start();
                         }
                     });
@@ -779,15 +825,54 @@ public class ActivityCheck extends FragmentActivity implements View.OnClickListe
     /** Класс обработчик показаний веса
      * Возвращяем время обновления показаний веса в милисекундах.
      */
-    class WeightCallback implements ScaleModule.WeightCallback {
+    ScaleModule.WeightCallback weightCallback = new  ScaleModule.WeightCallback() {
         @Override
         public void weight(final ScaleModule.ResultWeight what, final int weight, final int sensor) {
+            moduleWeight = getWeightToStepMeasuring(weight);
             runOnUiThread(new Runnable() {
                 Rect bounds;
-
+                SpannableStringBuilder w;
                 @Override
                 public void run() {
                     switch (what) {
+                        case WEIGHT_NORMAL:
+                            w = new SpannableStringBuilder(String.valueOf(moduleWeight));
+                            w.setSpan(new AbsoluteSizeSpan(getResources().getDimensionPixelSize(R.dimen.text_big)), 0, w.length(), Spanned.SPAN_INCLUSIVE_INCLUSIVE);
+                            w.setSpan(new ForegroundColorSpan(Color.BLACK), 0, w.length(), Spanned.SPAN_INCLUSIVE_INCLUSIVE);
+                            w.append(textKg);
+                            progressBarSensor.setProgress(sensor);
+                            bounds = progressBarSensor.getProgressDrawable().getBounds();
+                            progressBarSensor.setProgressDrawable(dProgressWeight);
+                            progressBarSensor.getProgressDrawable().setBounds(bounds);
+                            break;
+                        case WEIGHT_LIMIT:
+                            w = new SpannableStringBuilder(String.valueOf(moduleWeight));
+                            w.setSpan(new AbsoluteSizeSpan(getResources().getDimensionPixelSize(R.dimen.text_big)), 0, w.length(), Spanned.SPAN_INCLUSIVE_INCLUSIVE);
+                            w.setSpan(new ForegroundColorSpan(Color.RED), 0, w.length(), Spanned.SPAN_INCLUSIVE_INCLUSIVE);
+                            w.append(textKg);
+                            progressBarSensor.setProgress(sensor);
+                            bounds = progressBarSensor.getProgressDrawable().getBounds();
+                            progressBarSensor.setProgressDrawable(dWeightDanger);
+                            progressBarSensor.getProgressDrawable().setBounds(bounds);
+                            break;
+                        case WEIGHT_MARGIN:
+                            w = new SpannableStringBuilder(String.valueOf(moduleWeight));
+                            w.setSpan(new AbsoluteSizeSpan(getResources().getDimensionPixelSize(R.dimen.text_big)), 0, w.length(), Spanned.SPAN_INCLUSIVE_INCLUSIVE);
+                            w.setSpan(new ForegroundColorSpan(Color.RED), 0, w.length(), Spanned.SPAN_INCLUSIVE_INCLUSIVE);
+                            progressBarSensor.setProgress(sensor);
+                            vibrator.vibrate(100);
+                            break;
+                        case WEIGHT_ERROR:
+                            w = new SpannableStringBuilder("---");
+                            w.setSpan(new AbsoluteSizeSpan(getResources().getDimensionPixelSize(R.dimen.text_big)), 0, w.length(), Spanned.SPAN_INCLUSIVE_INCLUSIVE);
+                            w.setSpan(new ForegroundColorSpan(Color.BLACK), 0, w.length(), Spanned.SPAN_INCLUSIVE_INCLUSIVE);
+                            w.append(textKg);
+                            progressBarSensor.setProgress(0);
+                            break;
+                        default:
+                    }
+                    textViewWeight.setText(w, TextView.BufferType.SPANNABLE);
+                    /*switch (what) {
                         case WEIGHT_NORMAL:
                             moduleWeight = getWeightToStepMeasuring(weight);
                             progressBarWeight.setProgress(sensor);
@@ -815,7 +900,7 @@ public class ActivityCheck extends FragmentActivity implements View.OnClickListe
                             progressBarWeight.setProgress(0);
                             break;
                         default:
-                    }
+                    }*/
                 }
             });
         }
@@ -835,10 +920,12 @@ public class ActivityCheck extends FragmentActivity implements View.OnClickListe
                         new Thread(new Runnable() {
                             @Override
                             public void run() {
+                                while (taking);
+                                taking = true;
                                 cameraSurface.startTakePicture(values.getAsInteger(CheckTable.KEY_CHECK_STATE));
                             }
                         }).start();
-                        taking = true;
+                        //taking = true;
                     }
                     saveWeight(msg.arg1);
                     break;
@@ -853,10 +940,11 @@ public class ActivityCheck extends FragmentActivity implements View.OnClickListe
                     buttonFinish.setEnabled(false);
                     buttonFinish.setAlpha(100);
                     flagExit = false;
-                    slidingDrawer.animateOpen();
+                    if(globals.getPreferencesCamera().read(getString(R.string.KEY_PHOTO_CHECK), false))
+                        slidingDrawer.animateOpen();
                     break;
                 case UPDATE_PROGRESS:
-                    weightTextView.setSecondaryProgress(msg.arg1);
+                    progressBarStable.setProgress(msg.arg1);
                     break;
                 case DIALOG_SAVE:
                     if ((Boolean)msg.obj){
@@ -904,97 +992,14 @@ public class ActivityCheck extends FragmentActivity implements View.OnClickListe
         }
     }
 
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-
-        String path = data.getStringExtra("com.victjava.scales.PHOTO_PATH");
-        if(path != null){
-            switch (CheckTable.State.values()[requestCode]){
-                case CHECK_FIRST:
-                    values.put(CheckTable.KEY_PHOTO_FIRST, path);
-                    break;
-                case CHECK_SECOND:
-                    values.put(CheckTable.KEY_PHOTO_SECOND, path);
-                    break;
-                default:
-            }
-        }
-        taking = false;
-    }
-
-    @Override
-    public void onPreviewFrame(byte[] data, Camera camera) {
-
-    }
-
-    @Override
-    public void onShutter() {
-        /*AudioManager meng = (AudioManager) getApplicationContext().getSystemService(Context.AUDIO_SERVICE);
-        int volume = meng.getStreamVolume( AudioManager.STREAM_NOTIFICATION);
-        MediaPlayer _shootMP=null;
-
-        if (volume != 0) {
-            if (_shootMP == null)
-                _shootMP = MediaPlayer.create(getApplicationContext(), Uri.parse("file:///system/media/audio/ui/camera_click.ogg"));
-            if (_shootMP != null)
-                _shootMP.start();
-        }*/
-
-        SoundPool soundPool = new SoundPool(1, AudioManager.STREAM_NOTIFICATION, 0);
-        int shutterSound = soundPool.load(this, R.raw.camera_click, 0);
-        soundPool.play(shutterSound, 1f, 1f, 0, 0, 1);
-
-    }
-
-    @Override
-    public void onJpegPictureTaken(byte[] data, Camera camera, int id) {
-        /** Задвигаем окно камеры */
-        slidingDrawer.animateClose();
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    /** Сжимаем данные изображения. */
-                    byte[] compressImage = compressImage(data, camera);
-                    /** Создаем штамп времени */
-                    String timeStamp = new SimpleDateFormat("HHmmss", Locale.getDefault()).format(new Date());
-                    /** Создаем имя папки по дате */
-                    String dateStamp = new SimpleDateFormat("yyyyMMdd", Locale.getDefault()).format(new Date());
-                    /** Сохраняем фаил. */
-                    String path;
-                    /** Проверяем куда сохранять фаил. */
-                    if (globals.getPreferencesScale().read(getString(R.string.KEY_MEMORY_PHOTO), false))
-                        path = saveInternalMemory(globals.FOLDER_LOCAL, dateStamp + "_" + timeStamp + ".jpg", compressImage);
-                    else
-                        path = saveExternalMemory(globals.path.getAbsolutePath(), dateStamp + "_" +timeStamp + ".jpg", compressImage);
-                    if(path != null){
-                        switch (CheckTable.State.values()[id]){
-                            case CHECK_FIRST:
-                                values.put(CheckTable.KEY_PHOTO_FIRST, path);
-                                break;
-                            case CHECK_SECOND:
-                                values.put(CheckTable.KEY_PHOTO_SECOND, path);
-                                break;
-                            default:
-                        }
-                    }
-                } catch (FileNotFoundException e) {}
-                catch (IOException e) {}
-                catch (Exception e) {}
-                taking = false;
-                cameraSurface.startPreview();
-            }
-        }).start();
-    }
-
     /** Сжатие и поворот изибражения.
      * @param input Входящии данные.
-     * @param camera Экземпляр камеры.
+     * @param width Ширина картинки.
+     * @param height Высота картинки.
      * @return Сжатые данные.
      * @throws Exception Исключение при ошибки преобразования данных.
      */
-    byte[] compressImage(byte[] input, Camera camera) throws Exception{
+    byte[] compressImage(byte[] input, int width, int height) throws Exception{
         //Preferences preferences = new Preferences(getSharedPreferences(Preferences.PREF_SETTINGS,Context.MODE_PRIVATE));
         Bitmap original;
         try {
@@ -1003,10 +1008,10 @@ public class ActivityCheck extends FragmentActivity implements View.OnClickListe
             options.inPurgeable = true;
             options.inJustDecodeBounds = true;
             BitmapFactory.decodeByteArray(input, 0, input.length, options);
-            Camera.Parameters parameters = camera.getParameters();
-            Camera.Size size = parameters.getPictureSize();
+            //Camera.Parameters parameters = camera.getParameters();
+            //Camera.Size size = parameters.getPictureSize();
             // Calculate inSampleSize
-            options.inSampleSize = calculateInSampleSize(options, size.width, size.height);
+            options.inSampleSize = calculateInSampleSize(options, width, height);
             // Decode bitmap with inSampleSize set
             options.inJustDecodeBounds = false;
             /** Создаем битовую карту из входящих данных */
@@ -1018,14 +1023,14 @@ public class ActivityCheck extends FragmentActivity implements View.OnClickListe
             bitmapOptions.inJustDecodeBounds = true;
             /** Временное хранилище */
             bitmapOptions.inTempStorage = new byte[32 * 1024];
-            Camera.Parameters parameters = camera.getParameters();
-            Camera.Size size = parameters.getPictureSize();
+            //Camera.Parameters parameters = camera.getParameters();
+            //Camera.Size size = parameters.getPictureSize();
             /** Получить высоту */
-            int height11 = size.height;
+            //int height11 = size.height;
             /** Получить ширину */
-            int width11 = size.width;
+            //int width11 = size.width;
             /** Размер картинки в мб */
-            float mb = (float)(width11 * height11) / 1024000;
+            float mb = (float)(width * height) / 1024000;
             if (mb > 4.0f)
                 bitmapOptions.inSampleSize = 4;
             else if (mb > 3.0f)
@@ -1049,9 +1054,174 @@ public class ActivityCheck extends FragmentActivity implements View.OnClickListe
         } catch (OutOfMemoryError e) {
             original.recycle();
             original = null;
-            e.printStackTrace();
         }
+        byte[] b = blob.toByteArray();
+        Bitmap src = createByteToBitmap(b, width, height); // the original file is cuty.jpg i added in resources
+        Bitmap dest = Bitmap.createBitmap(src.getWidth(), src.getHeight(), Bitmap.Config.ARGB_8888);
+        //original = createByteToBitmap(b, width, height);
+        //original = Bitmap.createScaledBitmap(original, original.getWidth(), original.getHeight(), true);
+        Canvas canvas = new Canvas(dest);
+        Paint paint = new Paint();
+        paint.setColor(Color.MAGENTA);
+        paint.setTextSize(getResources().getDimension(R.dimen.text_micro));
+        canvas.drawBitmap(src, 0f, 0f, null);
+        int x = 2/*(canvas.getWidth() / 2) - 2*/;     //-2 is for regulating the x position offset
+        //"- ((paint.descent() + paint.ascent()) / 2)" is the distance from the baseline to the center.
+        int y = (int) (paint.getTextSize())/*(int) ((canvas.getHeight() / 2) - ((paint.descent() + paint.ascent()) / 2))*/;
+        StringBuilder stringBuilder = new StringBuilder(getString(R.string.app_name));
+        stringBuilder.append('\n');
+        stringBuilder.append("Some Text here");
+        drawMultiLineText(stringBuilder.toString(), x, y, paint, canvas);
+        //canvas.drawText(stringBuilder.toString(), x, y, paint);
+        blob = new ByteArrayOutputStream();
+        dest.compress(Bitmap.CompressFormat.JPEG, 100, blob);
+        dest.recycle();
+        dest = null;
         return blob.toByteArray();
+    }
+
+    /** Сжатие и поворот изибражения.
+     * @param input Входящии данные.
+     * @param width Ширина картинки.
+     * @param height Высота картинки.
+     * @return Сжатые данные.
+     * @throws Exception Исключение при ошибки преобразования данных.
+     */
+//    byte[] compressImage(byte[] input, int width, int height) throws Exception{
+//        //Preferences preferences = new Preferences(getSharedPreferences(Preferences.PREF_SETTINGS,Context.MODE_PRIVATE));
+//        Bitmap original = createByteToBitmap(input, width, height);
+//        //BitmapFactory.Options options;
+//        //Camera.Size size = camera.getParameters().getPictureSize();
+//        /*try {
+//            // First decode with inJustDecodeBounds=true to check dimensions
+//            options = new BitmapFactory.Options();
+//            options.inPurgeable = true;
+//            options.inJustDecodeBounds = true;
+//            BitmapFactory.decodeByteArray(input, 0, input.length, options);
+//            // Calculate inSampleSize
+//            options.inSampleSize = calculateInSampleSize(options, width, height);
+//            // Decode bitmap with inSampleSize set
+//            options.inJustDecodeBounds = false;
+//            *//**//** Создаем битовую карту из входящих данных. *//**//*
+//            original = BitmapFactory.decodeByteArray(input, 0, input.length, options);
+//            *//**//** Исключение если память выходит за пределы.*//**//*
+//        } catch (OutOfMemoryError e) {
+//            *//**//** Создаем опции битовой карты.*//**//*
+//            options = new BitmapFactory.Options();
+//            options.inJustDecodeBounds = true;
+//            *//**//** Временное хранилище.*//**//*
+//            options.inTempStorage = new byte[32 * 1024];
+//            *//**//** Размер картинки в мб.*//**//*
+//            float mb = (float)(width * height) / 1024000;
+//            if (mb > 4.0f)
+//                options.inSampleSize = 4;
+//            else if (mb > 3.0f)
+//                options.inSampleSize = 2;
+//            options.inJustDecodeBounds = false;
+//            *//**//** Создаем битовую карту из опций. *//**//*
+//            original = BitmapFactory.decodeByteArray(input, 0, input.length, options);
+//        }*/
+//        /** Создаем матрикс обьект. */
+//        Matrix matrix = new Matrix();
+//        /** Поворот изображения в градусах против часовой стрелки. */
+//        matrix.postRotate(Integer.parseInt(new Preferences(getApplicationContext()).read(getString(R.string.key_rotation), "90"))); // anti-clockwise by 90 degrees
+//        ByteArrayOutputStream blob = new ByteArrayOutputStream();
+//        try {
+//            Bitmap bitmapRotate = Bitmap.createBitmap(original, 0, 0, original.getWidth(), original.getHeight(), matrix, true);
+//            bitmapRotate.compress(Bitmap.CompressFormat.JPEG, Integer.parseInt(new Preferences(getApplicationContext()).read(getString(R.string.key_quality_pic), "50")), blob);
+//            original.recycle();
+//            original = null;
+//            bitmapRotate.recycle();
+//            bitmapRotate = null;
+//        } catch (OutOfMemoryError e) {
+//            original.recycle();
+//            original = null;
+//        }
+//        //BitmapFactory.Options options = new BitmapFactory.Options();
+//        /*original = createByteToBitmap(blob.toByteArray(), width, height); //BitmapFactory.decodeByteArray(blob.toByteArray() , 0, blob.toByteArray().length);
+//        original = Bitmap.createScaledBitmap(original, width, height, true);
+//        Canvas canvas = new Canvas(original);
+//        Paint paint = new Paint();
+//        paint.setColor(Color.MAGENTA);
+//        paint.setTextSize(getResources().getDimension(R.dimen.text_micro));
+//        int x = 2*//**//*(canvas.getWidth() / 2) - 2*//**//*;     //-2 is for regulating the x position offset
+//        //"- ((paint.descent() + paint.ascent()) / 2)" is the distance from the baseline to the center.
+//        int y = (int) (paint.getTextSize())*//**//*(int) ((canvas.getHeight() / 2) - ((paint.descent() + paint.ascent()) / 2))*//**//* ;
+//        StringBuilder stringBuilder = new StringBuilder("Hello");
+//        stringBuilder.append('\n');
+//        stringBuilder.append("Some Text here");
+//        drawMultiLineText(stringBuilder.toString(), x, y, paint, canvas);
+//        //canvas.drawText(stringBuilder.toString(), x, y, paint);
+//        blob = new ByteArrayOutputStream();
+//        original.compress(Bitmap.CompressFormat.JPEG, 100, blob);
+//        original.recycle();
+//        original = null;*/
+//        return blob.toByteArray();
+//    }
+
+    private Bitmap createByteToBitmap(byte[] input, int width, int height) throws Exception{
+        //Bitmap original;
+        BitmapFactory.Options options;
+        //Camera.Size size = camera.getParameters().getPictureSize();
+        try {
+            // First decode with inJustDecodeBounds=true to check dimensions
+            options = new BitmapFactory.Options();
+            options.inPurgeable = true;
+            options.inJustDecodeBounds = true;
+            BitmapFactory.decodeByteArray(input, 0, input.length, options);
+            // Calculate inSampleSize
+            options.inSampleSize = calculateInSampleSize(options, width, height);
+            // Decode bitmap with inSampleSize set
+            options.inJustDecodeBounds = false;
+            /** Создаем битовую карту из входящих данных. */
+            return BitmapFactory.decodeByteArray(input, 0, input.length, options);
+            /** Исключение если память выходит за пределы.*/
+        } catch (OutOfMemoryError e) {
+            /** Создаем опции битовой карты.*/
+            options = new BitmapFactory.Options();
+            options.inJustDecodeBounds = true;
+            /** Временное хранилище.*/
+            options.inTempStorage = new byte[32 * 1024];
+            /** Размер картинки в мб.*/
+            float mb = (float)(width * height) / 1024000;
+            if (mb > 4.0f)
+                options.inSampleSize = 4;
+            else if (mb > 3.0f)
+                options.inSampleSize = 2;
+            options.inJustDecodeBounds = false;
+            /** Создаем битовую карту из опций. */
+            return BitmapFactory.decodeByteArray(input, 0, input.length, options);
+        }
+    }
+
+    public String getRotation(Context context){
+        final int rotation = ((WindowManager) context.getSystemService(Context.WINDOW_SERVICE)).getDefaultDisplay().getRotation();
+        switch (rotation) {
+            case Surface.ROTATION_0:
+                return "0";
+            case Surface.ROTATION_90:
+                return "90";
+            case Surface.ROTATION_180:
+                return "180";
+            case Surface.ROTATION_270:
+                return "270";
+            default:
+                return "0";
+        }
+    }
+
+    void drawMultiLineText(String str, float x, float y, Paint paint, Canvas canvas) {
+        String[] lines = str.split("\n");
+        float txtSize = -paint.ascent() + paint.descent();
+
+        if (paint.getStyle() == Paint.Style.FILL_AND_STROKE || paint.getStyle() == Paint.Style.STROKE){
+            txtSize += paint.getStrokeWidth(); //add stroke width to the text size
+        }
+        float lineSpace = txtSize * 0.2f;  //default line spacing
+
+        for (int i = 0; i < lines.length; ++i) {
+            canvas.drawText(lines[i], x, y + (txtSize + lineSpace) * i, paint);
+        }
     }
 
     public int calculateInSampleSize( BitmapFactory.Options options, int reqWidth, int reqHeight) {
@@ -1158,7 +1328,7 @@ public class ActivityCheck extends FragmentActivity implements View.OnClickListe
         public void run() {
             try {
                 /** Сжимаем данные изображения. */
-                byte[] compressImage = compressImage(data, camera);
+                byte[] compressImage = compressImage(data, camera.getParameters().getPictureSize().width, camera.getParameters().getPictureSize().height);
                 /** Создаем штамп времени */
                 String timeStamp = new SimpleDateFormat("HHmmss", Locale.getDefault()).format(new Date());
                 /** Создаем имя папки по дате */

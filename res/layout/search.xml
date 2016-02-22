@@ -12,8 +12,8 @@
         <TextView
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
-                android:gravity="center_horizontal" android:background="@drawable/round_rectangle"
-                android:singleLine="false" android:text="@string/scales_list" android:textColor="@color/text"
+                android:gravity="center_horizontal"
+                android:singleLine="false" android:text="@string/scales_list" android:textColor="@color/background_light"
                 />
         <ListView
                 android:layout_width="fill_parent"
@@ -23,8 +23,8 @@
                 android:padding="@dimen/corners" android:divider="@color/background"
                 android:dividerHeight="@dimen/stroke"/>
         <TextView android:layout_width="fill_parent" android:layout_height="wrap_content" android:id="@+id/textView"
-                  android:gravity="center_horizontal" android:background="@drawable/round_rectangle"
-                  android:singleLine="false" android:text="@string/search_log" android:textColor="@color/text"
+                  android:gravity="center_horizontal"
+                  android:singleLine="false" android:text="@string/search_log" android:textColor="@color/background_light"
                 />
         <ScrollView
                 android:layout_width="fill_parent"

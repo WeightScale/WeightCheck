@@ -1,42 +1,26 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright (c) 2016. Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+  ~ Morbi non lorem porttitor neque feugiat blandit. Ut vitae ipsum eget quam lacinia accumsan.
+  ~ Etiam sed turpis ac ipsum condimentum fringilla. Maecenas magna.
+  ~ Proin dapibus sapien vel ante. Aliquam erat volutpat. Pellentesque sagittis ligula eget metus.
+  ~ Vestibulum commodo. Ut rhoncus gravida arcu.
+  -->
+
 <layer-list xmlns:android="http://schemas.android.com/apk/res/android">
 
     <item android:id="@android:id/background">
-        <shape>
-            <corners android:radius="5dip"/>
-            <gradient
-                    android:startColor="#ffb7b8b7"
-                    android:centerColor="#ff747774"
-                    android:centerY="0.75"
-                    android:endColor="#ff8e908e"
-                    android:angle="270"/>
-        </shape>
+        <color android:color="#ff747774"/>
     </item>
-    <item
-            android:id="@android:id/secondaryProgress">
+    <item   android:id="@android:id/secondaryProgress">
         <clip>
-            <shape>
-                <corners android:radius="5dip"/>
-                <gradient android:startColor="@color/greenStart"
-                          android:centerColor="@color/greenMid"
-                          android:centerY="0.75"
-                          android:endColor="@color/greenEnd"
-                          android:angle="270"/>
-            </shape>
+            <color android:color="@color/background_item_list"/>
         </clip>
     </item>
     <item
             android:id="@android:id/progress">
         <clip>
-            <shape>
-                <corners android:radius="5dip"/>
-                <gradient
-                        android:startColor="@color/redStart"
-                        android:centerColor="@color/redMid"
-                        android:centerY="0.75"
-                        android:endColor="@color/redEnd"
-                        android:angle="270"/>
-            </shape>
+            <color android:color="#ff0000"/>
         </clip>
     </item>
 </layer-list>

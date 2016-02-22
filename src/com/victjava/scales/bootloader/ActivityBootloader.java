@@ -12,6 +12,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import com.konst.bootloader.*;
 import com.konst.module.*;
+import com.konst.module.boot.BootModule;
 import com.victjava.scales.*;
 
 import java.io.IOException;
@@ -27,10 +28,10 @@ import java.util.Arrays;
  * To change this template use File | Settings | File Templates.
  */
 public class ActivityBootloader extends Activity implements View.OnClickListener {
+    //AlertDialog.Builder dialog;
     private ImageView startBoot, buttonBack;
     private TextView textViewLog;
     private ProgressDialog progressDialog;
-
     private Globals globals;
     private BootModule bootModule;
 
@@ -71,7 +72,7 @@ public class ActivityBootloader extends Activity implements View.OnClickListener
     }
 
     private class ThreadDoDeviceDependent extends AsyncTask<Void, Void, Boolean> {
-        protected AlertDialog.Builder dialog;
+        //protected AlertDialog.Builder dialog;
 
         @Override
         protected void onPreExecute() {
@@ -95,13 +96,13 @@ public class ActivityBootloader extends Activity implements View.OnClickListener
             super.onPostExecute(b);
             flagProgramsFinish = true;
             buttonBack.setEnabled(true);
-            dialog = new AlertDialog.Builder(ActivityBootloader.this);
+            AlertDialog.Builder dialog = new AlertDialog.Builder(ActivityBootloader.this);
             dialog.setCancelable(false);
 
             if (b) {
                 dialog.setTitle(getString(R.string.Warning_Loading_settings));
                 dialog.setMessage(getString(R.string.TEXT_MESSAGE1));
-                dialog.setPositiveButton(getString(R.string.OK), new DialogInterface.OnClickListener() {
+                /*dialog.setPositiveButton(getString(R.string.OK), new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
                         switch (i) {
@@ -109,11 +110,11 @@ public class ActivityBootloader extends Activity implements View.OnClickListener
                                 Intent intent = new Intent(getBaseContext(), ActivityConnect.class);
                                 intent.putExtra("address", addressDevice);
                                 startActivityForResult(intent, REQUEST_CONNECT_SCALE);
-                                break;
+                            break;
                             default:
                         }
                     }
-                });
+                });*/
                 dialog.setNegativeButton(getString(R.string.Close), new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
@@ -155,7 +156,7 @@ public class ActivityBootloader extends Activity implements View.OnClickListener
         buttonBack.setOnClickListener(this);
 
         progressDialog = new ProgressDialog(this);
-        AlertDialog.Builder dialog = new AlertDialog.Builder(this);
+        final AlertDialog.Builder dialog = new AlertDialog.Builder(this);
         dialog.setTitle(getString(R.string.Warning_Connect));
         dialog.setCancelable(false);
         dialog.setPositiveButton(getString(R.string.OK), new DialogInterface.OnClickListener() {
@@ -164,20 +165,16 @@ public class ActivityBootloader extends Activity implements View.OnClickListener
                 switch (i) {
                     case DialogInterface.BUTTON_POSITIVE:
                         try {
-                            bootModule = new BootModule("BOOT", connectResultCallback);
+                            //bootModule = new BootModule("BOOT", addressDevice, connectResultCallback);
+                            BootModule.create("BOOT", addressDevice, connectResultCallback);
                             log(getString(R.string.bluetooth_off));
                         } catch (Exception e) {
                             log(e.getMessage());
                             finish();
+                        }catch (ErrorDeviceException e) {
+                            connectResultCallback.resultConnect(Module.ResultConnect.CONNECT_ERROR, e.getMessage(), null);
                         }
-                        try {
-                            globals.setBootModule(bootModule);
-                            bootModule.init(addressDevice);
-                            bootModule.attach();
-                        } catch (Exception e) {
-                            connectResultCallback.connectError(Module.ResultError.CONNECT_ERROR, e.getMessage());
-                        }
-                        break;
+                    break;
                     default:
                 }
             }
@@ -186,7 +183,7 @@ public class ActivityBootloader extends Activity implements View.OnClickListener
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 dialog.dismiss();
-                exit();
+                finish();
             }
         });
         if (powerOff)
@@ -201,7 +198,7 @@ public class ActivityBootloader extends Activity implements View.OnClickListener
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.buttonBack:
-                exit();
+                finish();
                 break;
             case R.id.buttonBoot:
                 if (!startProgramed()) {
@@ -214,8 +211,7 @@ public class ActivityBootloader extends Activity implements View.OnClickListener
 
     @Override
     public void onBackPressed() {
-        exit();
-        //return;
+        finish();
     }
 
     @Override
@@ -225,7 +221,7 @@ public class ActivityBootloader extends Activity implements View.OnClickListener
             switch (requestCode) {
                 case REQUEST_CONNECT_BOOT:
                     //scaleModule.obtainMessage(HandlerScaleConnect.Result.STATUS_LOAD_OK.ordinal()).sendToTarget();
-                    connectResultCallback.resultConnect(Module.ResultConnect.STATUS_LOAD_OK);
+                    connectResultCallback.resultConnect(Module.ResultConnect.STATUS_LOAD_OK, "", BootModule.getInstance());
                     break;
                 case REQUEST_CONNECT_SCALE:
                     log(getString(R.string.Loading_settings));
@@ -244,23 +240,27 @@ public class ActivityBootloader extends Activity implements View.OnClickListener
         }
     }
 
-    /*@Override
+    @Override
     protected void onDestroy() {
-        exit();
         super.onDestroy();
-    }*/
+        exit();
+    }
 
     final ConnectResultCallback connectResultCallback = new ConnectResultCallback() {
-        private AlertDialog.Builder dialog;
+
 
         @Override
-        public void resultConnect(final Module.ResultConnect result) {
+        public void resultConnect(final Module.ResultConnect result, String msg, Object module) {
+
             runOnUiThread(new Runnable() {
+
                 @Override
                 public void run() {
                     switch (result) {
                         case STATUS_LOAD_OK:
-                            dialog = new AlertDialog.Builder(ActivityBootloader.this);
+                            bootModule = (BootModule)module;
+                            globals.setBootModule(bootModule);
+                            AlertDialog.Builder dialog = new AlertDialog.Builder(ActivityBootloader.this);
                             dialog.setTitle(getString(R.string.Warning_update));
                             dialog.setCancelable(false);
                             int numVersion = bootModule.getBootVersion();
@@ -279,12 +279,12 @@ public class ActivityBootloader extends Activity implements View.OnClickListener
                                     switch (i) {
                                         case DialogInterface.BUTTON_POSITIVE:
                                             if(flagAutoPrograming){
-                                                while (bootModule.startProgramming());
+                                                if (bootModule.startProgramming())
+                                                    if (!startProgramed()) {
+                                                        flagProgramsFinish = true;
+                                                    }
                                             }
-                                            if (!startProgramed()) {
-                                                flagProgramsFinish = true;
-                                            }
-                                            break;
+                                        break;
                                         default:
                                     }
                                 }
@@ -299,24 +299,17 @@ public class ActivityBootloader extends Activity implements View.OnClickListener
 
                             dialog.show();
                             break;
+                        case CONNECT_ERROR:
+                            //Intent intent = new Intent(getBaseContext(), ActivityConnect.class);
+                            Intent intent = new Intent(getBaseContext(), ActivitySearch.class);
+                            intent.putExtra("address", addressDevice);
+                            intent.setAction("com.victjava.scales.BOOTLOADER");
+                            startActivityForResult(intent, REQUEST_CONNECT_BOOT);
+                            break;
                         default:
                     }
                 }
             });
-        }
-
-        @Override
-        public void connectError(Module.ResultError error, String s) {
-            switch (error) {
-                case CONNECT_ERROR:
-                    //Intent intent = new Intent(getBaseContext(), ActivityConnect.class);
-                    Intent intent = new Intent(getBaseContext(), ActivitySearch.class);
-                    intent.putExtra("address", addressDevice);
-                    intent.setAction("com.victjava.scales.BOOTLOADER");
-                    startActivityForResult(intent, REQUEST_CONNECT_BOOT);
-                    break;
-                default:
-            }
         }
     };
 

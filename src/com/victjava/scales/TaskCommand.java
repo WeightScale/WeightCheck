@@ -11,7 +11,7 @@ import com.google.android.gms.auth.GoogleAuthUtil;
 import com.google.api.client.googleapis.extensions.android.gms.auth.UserRecoverableAuthIOException;
 import com.google.api.client.http.FileContent;
 import com.google.api.services.drive.model.File;
-import com.konst.module.ScaleModule;
+import com.konst.module.scale.ScaleModule;
 import com.konst.sms_commander.SMS;
 import com.victjava.scales.provider.CheckTable;
 import com.victjava.scales.provider.PreferencesTable;

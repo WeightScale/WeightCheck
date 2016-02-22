@@ -7,14 +7,64 @@
               android:padding="@dimen/padding" android:id="@+id/screenCheck" android:clickable="true">
 
 
-    <LinearLayout android:layout_width="fill_parent" android:layout_height="wrap_content"
+    <LinearLayout
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+    >
+
+        <FrameLayout
+                android:layout_width="fill_parent"
+                android:layout_height="fill_parent">
+
+            <ProgressBar
+                    style="@android:style/Widget.ProgressBar.Horizontal"
+                    android:layout_width="match_parent"
+                    android:layout_height="@dimen/corners1"
+                    android:id="@+id/progressBarStable"
+                    android:focusableInTouchMode="false"
+                    android:progressDrawable="@drawable/progress_stable"
+                    android:layout_marginTop="@dimen/padding"
+                    android:progress="46"/>
+
+            <LinearLayout
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/linearLayout2"
+                    android:layout_gravity="center"
+                    android:orientation="horizontal">
+
+                <TextView
+                        android:layout_width="fill_parent"
+                        android:layout_height="wrap_content"
+                        android:id="@+id/textViewWeight"
+                        android:textColor="@color/text"
+                        android:textSize="@dimen/text_big"
+                        android:gravity="center"
+                        android:clickable="true"
+                        android:textAppearance="?android:attr/textAppearanceMedium"
+                        android:textStyle="italic"/>
+            </LinearLayout>
+        </FrameLayout>
+
+        <ProgressBar
+                style="@android:style/Widget.ProgressBar.Horizontal"
+                android:layout_width="fill_parent"
+                android:layout_height="@dimen/height_progress_weight"
+                android:id="@+id/progressBarSensor"
+                android:layout_gravity="left|center_vertical"
+                android:progressDrawable="@drawable/progress_weight"
+                android:layout_marginBottom="@dimen/padding"/>
+    </LinearLayout>
+
+    <!--<LinearLayout android:layout_width="fill_parent" android:layout_height="wrap_content"
                   android:background="#ff4e4e4e"
                   android:orientation="vertical">
         <LinearLayout android:layout_width="fill_parent" android:layout_height="wrap_content"
                       android:id="@+id/linearLayout"
                       android:layout_gravity="center" android:layout_margin="@dimen/padding"
                       android:orientation="horizontal">
-            <com.victjava.scales.WeightTextView
+            <com.victjava.scales.WeightView
                     style="@style/CustomWeightTextView"
                     android:layout_width="fill_parent"
                     android:layout_height="@dimen/text_big"
@@ -27,7 +77,7 @@
                      android:focusableInTouchMode="false"
                      android:layout_marginBottom="@dimen/padding" android:layout_marginLeft="@dimen/padding"
                      android:layout_marginRight="@dimen/padding"/>
-    </LinearLayout>
+    </LinearLayout>-->
     <FrameLayout
             android:orientation="horizontal"
             android:layout_width="fill_parent"
@@ -110,4 +160,5 @@
                 android:src="@drawable/ic_action_mail"
                 style="@style/CustomButtonImage"/>
     </LinearLayout>
+
 </LinearLayout>

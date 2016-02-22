@@ -16,7 +16,7 @@ import android.provider.BaseColumns;
 import android.provider.ContactsContract;
 import android.widget.Toast;
 import com.konst.module.Commands;
-import com.konst.module.ScaleModule;
+import com.konst.module.scale.ScaleModule;
 import com.victjava.scales.*;
 import com.victjava.scales.bootloader.ActivityBootloader;
 
@@ -37,7 +37,7 @@ public class ActivityPreferences extends PreferenceActivity implements SharedPre
                 name.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
                     @Override
                     public boolean onPreferenceClick(Preference preference) {
-                        if (scaleModule.setScaleNull()) {
+                        if (scaleModule.setOffsetScale()) {
                             Toast.makeText(preference.getContext(), R.string.preferences_yes, Toast.LENGTH_SHORT).show();
                             return true;
                         }

@@ -19,7 +19,7 @@ import com.google.android.gms.auth.GoogleAuthUtil;
 import com.google.api.client.googleapis.extensions.android.gms.auth.UserRecoverableAuthIOException;
 import com.google.api.client.http.FileContent;
 import com.google.api.services.drive.model.File;
-import com.konst.module.ScaleModule;
+import com.konst.module.scale.ScaleModule;
 import com.konst.sms_commander.SMS;
 import com.victjava.scales.provider.CheckTable;
 import com.victjava.scales.provider.PreferencesTable;
@@ -886,7 +886,7 @@ public class TaskPoolCommand extends CheckTable {
                         mapPhotoProcessed.get(PHOTO_UNSEND).add(new ObjectParcel(0, "Ошибка " + e));
                         mHandler.obtainMessage(NotifyType.HANDLER_NOTIFY_PHOTO_UNSEND.ordinal(), 0, 0, mapPhotoProcessed.get(PHOTO_UNSEND)).sendToTarget();
                     } catch (Exception e){
-
+                        e.printStackTrace();
                     }
 
                 }

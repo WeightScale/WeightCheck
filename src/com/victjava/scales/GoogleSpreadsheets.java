@@ -24,7 +24,7 @@ import com.google.gdata.data.batch.BatchOperationType;
 import com.google.gdata.data.batch.BatchUtils;
 import com.google.gdata.data.spreadsheet.*;
 import com.google.gdata.util.ServiceException;
-import com.konst.module.ScaleModule;
+import com.konst.module.scale.ScaleModule;
 
 import java.io.*;
 import java.net.MalformedURLException;

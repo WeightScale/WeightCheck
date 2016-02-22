@@ -149,42 +149,28 @@ public class InputFragment extends Fragment implements ActivityCheck.OnCheckEven
         int first = activityCheck.values.getAsInteger(CheckTable.KEY_WEIGHT_FIRST);
         int second = activityCheck.values.getAsInteger(CheckTable.KEY_WEIGHT_SECOND);
         viewFirst.setText(String.valueOf(first)+' '+getString(R.string.scales_kg));
+        viewFirst.setCompoundDrawablesWithIntrinsicBounds(null,null,null,null);
         viewSecond.setText(String.valueOf(second)+' '+getString(R.string.scales_kg));
+        viewSecond.setCompoundDrawablesWithIntrinsicBounds(null,null,null,null);
 
         switch (CheckTable.State.values()[activityCheck.values.getAsInteger(CheckTable.KEY_CHECK_STATE)]) {
             case CHECK_FIRST:
                 layoutFirst.setVisibility(View.VISIBLE);
                 if (first == 0) {
-                    viewFirst.setText(getString(R.string.weighed));
+                    viewFirst.setText("");
+                    viewFirst.setCompoundDrawablesWithIntrinsicBounds(null,null,getResources().getDrawable(R.drawable.ic_action_wait_weight),null);
                 }
                 break;
             case CHECK_SECOND:
                 layoutFirst.setVisibility(View.VISIBLE);
                 layoutSecond.setVisibility(View.VISIBLE);
                 if (second == 0) {
-                    viewSecond.setText(getString(R.string.weighed));
+                    viewSecond.setText("");
+                    viewSecond.setCompoundDrawablesWithIntrinsicBounds(null,null,getResources().getDrawable(R.drawable.ic_action_wait_weight),null);
                 }
                 break;
             default:
         }
-        /*switch (((ActivityCheck) getActivity()).weightType) {
-            case FIRST:
-                layoutFirst.setVisibility(View.VISIBLE);
-                if (first == 0) {
-                    viewFirst.setText(getString(R.string.weighed));
-                }
-                break;
-            case SECOND:
-                layoutFirst.setVisibility(View.VISIBLE);
-                layoutSecond.setVisibility(View.VISIBLE);
-                if (second == 0) {
-                    viewSecond.setText(getString(R.string.weighed));
-                }
-                break;
-            default:
-        }*/
-
-
         for (int i = 0; i < spinnerType.getCount(); i++) {
             long object = spinnerType.getItemIdAtPosition(i);
             if ((int) object == activityCheck.values.getAsInteger(CheckTable.KEY_TYPE_ID)) {

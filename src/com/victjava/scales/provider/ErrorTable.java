@@ -7,7 +7,7 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.provider.BaseColumns;
 import android.telephony.TelephonyManager;
-import com.konst.module.ScaleModule;
+import com.konst.module.scale.ScaleModule;
 import com.victjava.scales.Globals;
 
 import java.text.SimpleDateFormat;

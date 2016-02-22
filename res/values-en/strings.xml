@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">Scales</string>
+    <string name="app_name">Weight check</string>
     <string name="discovery_started">Search scales…</string>
     <string name="scales_list">List of scales</string>
     <string name="scales_kg">kg</string>

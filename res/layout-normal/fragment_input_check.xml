@@ -69,7 +69,8 @@
                         android:layout_height="wrap_content"
                         android:textSize="@dimen/text_large"
                         android:textColor="@android:color/black"
-                        android:id="@+id/viewFirst" android:padding="@dimen/corners" android:text="@string/weighed"
+                        android:id="@+id/viewFirst" android:padding="@dimen/corners"
+                        android:drawableRight="@drawable/ic_action_wait_weight"
                         android:gravity="center|right"/>
             </LinearLayout>
             <LinearLayout
@@ -87,8 +88,9 @@
                         android:id="@+id/viewSecond"
                         android:textSize="@dimen/text_large"
                         android:gravity="center|right"
+                        android:drawableRight="@drawable/ic_action_wait_weight"
                         android:textColor="@android:color/black"
-                        android:padding="@dimen/corners" android:text="@string/weighed"/>
+                        android:padding="@dimen/corners" />
             </LinearLayout>
         </LinearLayout>
     </ScrollView>

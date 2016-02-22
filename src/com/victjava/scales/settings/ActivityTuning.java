@@ -22,7 +22,7 @@ import android.text.method.PasswordTransformationMethod;
 import android.view.*;
 import android.widget.*;
 import com.konst.module.Commands;
-import com.konst.module.ScaleModule;
+import com.konst.module.scale.ScaleModule;
 import com.victjava.scales.Globals;
 import com.victjava.scales.Preferences;
 import com.victjava.scales.R;
@@ -100,7 +100,7 @@ public class ActivityTuning extends PreferenceActivity {
                 });
             }
         },
-        POWER(R.string.KEY_POWER){
+        /*POWER(R.string.KEY_POWER){
             @Override
             void setup(Preference name) throws Exception {
 
@@ -127,7 +127,7 @@ public class ActivityTuning extends PreferenceActivity {
                     }
                 });
             }
-        },
+        },*/
         POINT1(R.string.KEY_POINT1){
             @Override
             void setup(Preference name) throws Exception {
@@ -228,7 +228,7 @@ public class ActivityTuning extends PreferenceActivity {
             @Override
             void setup(Preference name) throws Exception {
                 Context context = name.getContext();
-                name.setTitle(context.getString(R.string.Battery) + scaleModule.getBattery() + '%');
+                name.setTitle(context.getString(R.string.Battery) + globals.getBattery() + '%');
                 name.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
                     @Override
                     public boolean onPreferenceChange(Preference preference, Object o) {
@@ -236,9 +236,8 @@ public class ActivityTuning extends PreferenceActivity {
                             Toast.makeText(context, R.string.preferences_no, Toast.LENGTH_SHORT).show();
                             return false;
                         }
-                        if (scaleModule.setModuleBatteryCharge(0)) {
-                            scaleModule.setBattery(Integer.valueOf(o.toString()));
-                            preference.setTitle(context.getString(R.string.Battery) + scaleModule.getBattery() + '%');
+                        if (scaleModule.setModuleBatteryCharge(Integer.valueOf(o.toString()))) {
+                            preference.setTitle(context.getString(R.string.Battery) + globals.getBattery() + '%');
                             Toast.makeText(context, R.string.preferences_yes, Toast.LENGTH_SHORT).show();
                             return true;
                         }
@@ -264,7 +263,6 @@ public class ActivityTuning extends PreferenceActivity {
                         }
                         if (scaleModule.setModuleSpreadsheet(o.toString())) {
                             preference.setTitle(context.getString(R.string.Table) + '"' + o + '"');
-                            scaleModule.setSpreadSheet(o.toString());
                             Toast.makeText(context, R.string.preferences_yes, Toast.LENGTH_SHORT).show();
                             return true;
                         }
@@ -289,7 +287,6 @@ public class ActivityTuning extends PreferenceActivity {
                         }
                         if (scaleModule.setModuleUserName(o.toString())) {
                             preference.setSummary("Account Google: " + o);
-                            scaleModule.setUserName(o.toString());
                             Toast.makeText(name.getContext(), R.string.preferences_yes, Toast.LENGTH_SHORT).show();
                             return true;
                         }
@@ -315,7 +312,6 @@ public class ActivityTuning extends PreferenceActivity {
 
                         if (scaleModule.setModulePassword(o.toString())) {
                             preference.setSummary("Password account Google: " + o);
-                            scaleModule.setPassword(o.toString());
                             Toast.makeText(name.getContext(), R.string.preferences_yes, Toast.LENGTH_SHORT).show();
                             return true;
                         }
@@ -341,7 +337,6 @@ public class ActivityTuning extends PreferenceActivity {
 
                         if (scaleModule.setModulePhone(o.toString())) {
                             preference.setSummary("Номер телефона для смс: " + o);
-                            scaleModule.setPhone(o.toString());
                             Toast.makeText(name.getContext(), R.string.preferences_yes, Toast.LENGTH_SHORT).show();
                             return true;
                         }
@@ -540,38 +535,37 @@ public class ActivityTuning extends PreferenceActivity {
             @Override
             void setup(Preference name) throws Exception {
                 Context context = name.getContext();
-                if (scaleModule.getVersion() != null) {
-                    if (scaleModule.getNumVersion() < globals.getMicroSoftware()) {
-                        name.setSummary(context.getString(R.string.Is_new_version));
-                        //name.setEnabled(true);
-                    } else {
-                        name.setSummary(context.getString(R.string.Scale_update));
-                        //name.setEnabled(false);
+                try {
+                    if (scaleModule.getVersion() != null) {
+                        if (scaleModule.getNumVersion() < globals.getMicroSoftware()) {
+                            name.setSummary(context.getString(R.string.Is_new_version));
+                        } else {
+                            name.setSummary(context.getString(R.string.Scale_update));
+                        }
                     }
+                }catch (Exception e){
+                    name.setSummary(context.getString(R.string.TEXT_MESSAGE14));
                 }
                 name.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
                     //@TargetApi(Build.VERSION_CODES.HONEYCOMB)
                     @Override
                     public boolean onPreferenceClick(Preference preference) {
-                        //Scales.vScale.backupPreference();
-                        String hardware = scaleModule.getModuleHardware();
-                        if (hardware.isEmpty()) {
-                            hardware = "MBC04.36.2";
-                        }
                         Intent intent = new Intent(context, ActivityBootloader.class);
-                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB)
+                        /*if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB)
                             intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
                         else
-                            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);*/
                         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                        intent.putExtra(context.getString(R.string.KEY_ADDRESS), globals.isScaleConnect()? scaleModule.getAddressBluetoothDevice():"");
-                        intent.putExtra(Commands.CMD_HARDWARE.getName(), hardware);
-                        intent.putExtra(Commands.CMD_VERSION.getName(), scaleModule.getNumVersion());
-                        if (globals.isScaleConnect()){
-                            if(scaleModule.setModulePowerOff())
-                                intent.putExtra(context.getString(R.string.KEY_POWER), true);
-                        }
-                        scaleModule.dettach();
+                        try {
+                            intent.putExtra(context.getString(R.string.KEY_ADDRESS), globals.isScaleConnect()? scaleModule.getAddressBluetoothDevice():"");
+                            intent.putExtra(Commands.CMD_HARDWARE.getName(), scaleModule.getModuleHardware());
+                            intent.putExtra(Commands.CMD_VERSION.getName(), scaleModule.getNumVersion());
+                            if (globals.isScaleConnect()){
+                                if(scaleModule.powerOff())
+                                    intent.putExtra(context.getString(R.string.KEY_POWER), true);
+                            }
+                            scaleModule.dettach();
+                        }catch (Exception e){}
                         context.startActivity(intent);
                         return false;
                     }

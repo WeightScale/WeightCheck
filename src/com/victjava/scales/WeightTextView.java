@@ -56,7 +56,7 @@ public class WeightTextView extends ProgressBar {
         textPaint.setColor(textColor);
         textPaint.setTextSize(textSize);
         //Rect bounds = new Rect();
-        textPaint.getTextBounds(text, 0, text.length(), bounds);
+        textPaint.getTextBounds(text.toString(), 0, text.length(), bounds);
         int x = getWidth() - bounds.right - (int) getResources().getDimension(R.dimen.padding);
         int y = getHeight() / 2 - bounds.centerY();
         canvas.drawText(text, x, y, textPaint);
@@ -66,10 +66,5 @@ public class WeightTextView extends ProgressBar {
         this.text = text;
         postInvalidate();
     }
-
-    /*private void setTextColor(int color) {
-        textColor = color;
-        postInvalidate();
-    }*/
 
 }

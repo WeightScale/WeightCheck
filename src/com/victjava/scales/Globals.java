@@ -14,8 +14,8 @@ import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.hardware.Camera;
 import android.os.Environment;
-import com.konst.module.BootModule;
-import com.konst.module.ScaleModule;
+import com.konst.module.boot.BootModule;
+import com.konst.module.scale.ScaleModule;
 import com.victjava.scales.provider.ErrorTable;
 import com.victjava.scales.service.ServiceSmsCommand;
 
@@ -59,6 +59,21 @@ public class Globals {
     private int timeDelayDetectCapture;
     private int dayClosedCheck;
     private int dayDeleteCheck;
+    /** Процент заряда батареи (0-100%). */
+    private int battery;
+    private int temperature;
+
+    public int getTemperature() { return temperature;  }
+
+    public void setTemperature(int temperature) { this.temperature = temperature; }
+
+    /** Получаем заряд батареи раннее загруженый в процентах.
+     * @return заряд батареи в процентах.
+     */
+    public int getBattery() { return battery; }
+
+    public void setBattery(int battery) { this.battery = battery; }
+
     /** Флаг есть соединение */
     private boolean isScaleConnect;
 

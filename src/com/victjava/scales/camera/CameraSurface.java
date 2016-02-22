@@ -24,7 +24,7 @@ public class CameraSurface extends SurfaceView implements SurfaceHolder.Callback
     private volatile Camera camera;
     private SurfaceHolder holder;
     private CameraCallback callback;
-    boolean taking;
+    //boolean taking;
     //private GestureDetector gesturedetector;
 
     public CameraSurface(Context context, AttributeSet attrs, int defStyle) {
@@ -53,9 +53,7 @@ public class CameraSurface extends SurfaceView implements SurfaceHolder.Callback
         camera.startPreview();
     }
 
-    public synchronized void startTakePicture(int photoId) {
-        while (taking);
-        taking = true;
+    public void startTakePicture(int photoId) {
         camera.autoFocus(new AutoFocusCallback() {
             @Override
             public synchronized void onAutoFocus(boolean success, Camera camera) {
@@ -65,7 +63,7 @@ public class CameraSurface extends SurfaceView implements SurfaceHolder.Callback
         });
     }
 
-    public synchronized void takePicture(int photoId) {
+    public void takePicture(int photoId) {
         camera.takePicture( new ShutterCallback() {
             @Override
             public void onShutter(){
@@ -74,10 +72,10 @@ public class CameraSurface extends SurfaceView implements SurfaceHolder.Callback
             }
         }, null, new PictureCallback() {
             @Override
-            public synchronized void onPictureTaken(byte[] data, Camera camera) {
+            public void onPictureTaken(byte[] data, Camera camera) {
                 if (callback != null)
                     callback.onJpegPictureTaken(data, camera, photoId);
-                taking=false;
+                //taking=false;
             }
         });
     }

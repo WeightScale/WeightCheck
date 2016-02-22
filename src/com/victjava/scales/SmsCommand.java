@@ -3,8 +3,8 @@ package com.victjava.scales;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
-import com.konst.module.InterfaceVersions;
-import com.konst.module.ScaleModule;
+import com.konst.module.InterfaceModule;
+import com.konst.module.scale.ScaleModule;
 import com.victjava.scales.provider.CommandTable;
 import com.victjava.scales.provider.ErrorTable;
 import com.victjava.scales.provider.SenderTable;
@@ -57,8 +57,7 @@ public class SmsCommand extends SenderTable {
     static final String SMS_CMD_WRTDAT = "wrtdat";
 
     /** Условия отправки чеков sndchk=0-1,1-1,2-1,3-1.
-     * После тире параметр для KEY_SYS TYPE_GOOGLE_DISK-(KEY_SYS).TYPE_HTTP_POST-(KEY_SYS).TYPE_SMS-(KEY_SYS).TYPE_EMAIL-(KEY_SYS).
-     */
+     * После тире параметр для KEY_SYS TYPE_GOOGLE_DISK-(KEY_SYS).TYPE_HTTP_POST-(KEY_SYS).TYPE_SMS-(KEY_SYS).TYPE_EMAIL-(KEY_SYS). */
     static final String SMS_CMD_SNDCHK = "sndchk";
 
     static final String RESPONSE_OK = "ok";
@@ -199,7 +198,6 @@ public class SmsCommand extends SenderTable {
             }
             if (Globals.getInstance().isScaleConnect()) {
                 if (scaleModule.setModulePhone(value)) {
-                    scaleModule.setPhone(value);
                     return new BasicNameValuePair(SMS_CMD_NUMSMS, RESPONSE_OK);
                 }
             }
@@ -289,7 +287,6 @@ public class SmsCommand extends SenderTable {
             }
             if (Globals.getInstance().isScaleConnect()) {
                 if (scaleModule.setModuleUserName(value)) {
-                    scaleModule.setUserName(value);
                     return new BasicNameValuePair(SMS_CMD_GOGUSR, RESPONSE_OK);
                 }
             }
@@ -316,7 +313,6 @@ public class SmsCommand extends SenderTable {
             }
             if (Globals.getInstance().isScaleConnect()) {
                 if (scaleModule.setModulePassword(value)) {
-                    scaleModule.setPassword(value);
                     return new BasicNameValuePair(SMS_CMD_GOGPSW, RESPONSE_OK);
                 }
             }
@@ -343,7 +339,6 @@ public class SmsCommand extends SenderTable {
             }
             if (Globals.getInstance().isScaleConnect()) {
                 if (scaleModule.setModulePhone(value)) {
-                    scaleModule.setPhone(value);
                     return new BasicNameValuePair(SMS_CMD_PHNSMS, RESPONSE_OK);
                 }
             }
@@ -355,8 +350,7 @@ public class SmsCommand extends SenderTable {
 
     /** Данные настройки весового модуля.
      * Без параметра возвращяет запить раннее сохраненые.
-     * формат команды wrtdat=wgm_5000:cfa_0.00019
-     */
+     * формат команды wrtdat=wgm_5000:cfa_0.00019/.  */
     private final class CmdWeightData implements InterfaceSmsCommand {
 
         /**
@@ -365,16 +359,15 @@ public class SmsCommand extends SenderTable {
         private final Map<String, Data> mapDate = new LinkedHashMap<>();
 
         private CmdWeightData() {
-            mapDate.put(InterfaceVersions.CMD_DATA_CFA, new CoefficientA());
-            mapDate.put(InterfaceVersions.CMD_DATA_WGM, new WeightMax());
+            mapDate.put(InterfaceModule.CMD_DATA_CFA, new CoefficientA());
+            mapDate.put(InterfaceModule.CMD_DATA_WGM, new WeightMax());
             //mapDate = Collections.unmodifiableMap(mapDate);
         }
 
         /** Выполнить команду данные настроек модуля.
          * @param value Параметр команды если параметр есть тогда сохраняем парамет, иначе возвращяем.
          * @return Возвращяем результат выполнения команды.
-         * @throws Exception Исключение при выполнении.
-         */
+         * @throws Exception Исключение при выполнении.  */
         @Override
         public BasicNameValuePair execute(String value) throws Exception {
             if (value.isEmpty()) {

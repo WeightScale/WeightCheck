@@ -252,4 +252,10 @@
         <item name="android:textStyle">normal</item>
     </style>
 
+    <style name="SpanTextKg" parent="@android:style/TextAppearance">
+        <item name="android:textColor">@color/text</item>
+        <item name="android:textSize">@dimen/text_large_x</item>
+        <item name="android:textStyle">italic</item>
+    </style>
+
 </resources>

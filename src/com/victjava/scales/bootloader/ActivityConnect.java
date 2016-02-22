@@ -15,7 +15,8 @@ import android.net.NetworkInfo;
 import android.os.*;
 import android.view.*;
 import android.widget.*;
-import com.konst.module.BootModule;
+import com.konst.module.ErrorDeviceException;
+import com.konst.module.boot.BootModule;
 import com.konst.module.Module;
 import com.konst.module.ConnectResultCallback;
 import com.victjava.scales.*;
@@ -45,19 +46,22 @@ public class ActivityConnect extends Activity implements View.OnClickListener {
         setContentView(R.layout.connect);
         textViewLog = (TextView) findViewById(R.id.textLog);
         try {
-            bootModule = new BootModule("bootloader", connectResultCallback);
+            //bootModule = new BootModule("bootloader", getIntent().getStringExtra("address"), connectResultCallback);
+            BootModule.create("bootloader", getIntent().getStringExtra("address"), connectResultCallback);
             log(R.string.bluetooth_off, true);
             setupScale();
         } catch (Exception e) {
             Toast.makeText(getBaseContext(), e.getMessage(), Toast.LENGTH_LONG).show();
             finish();
+        } catch (ErrorDeviceException e) {
+            e.printStackTrace();
         }
     }
 
     //==================================================================================================================
     private void exit() {
-        if (bootModule.getAdapter().isDiscovering()) {
-            bootModule.getAdapter().cancelDiscovery();
+        if (BluetoothAdapter.getDefaultAdapter().isDiscovering()) {
+            BluetoothAdapter.getDefaultAdapter().cancelDiscovery();
         }
         if (broadcastReceiver != null)
             unregisterReceiver(broadcastReceiver);
@@ -77,7 +81,7 @@ public class ActivityConnect extends Activity implements View.OnClickListener {
             //exit();
             return;
         }
-        bootModule.getAdapter().cancelDiscovery();
+        BluetoothAdapter.getDefaultAdapter().cancelDiscovery();
         doubleBackToExitPressedOnce = true;
         Toast.makeText(this, R.string.press_again_to_exit /*Please click BACK again to exit*/, Toast.LENGTH_SHORT).show();
         new Handler().postDelayed(new Runnable() {
@@ -147,12 +151,12 @@ public class ActivityConnect extends Activity implements View.OnClickListener {
                 if (action != null) {
                     //switch (action) {
                         if (BluetoothAdapter.ACTION_STATE_CHANGED.equals(action)) {//case BluetoothAdapter.ACTION_STATE_CHANGED:
-                            if (bootModule.getAdapter().getState() == BluetoothAdapter.STATE_OFF) {
+                            if (BluetoothAdapter.getDefaultAdapter().getState() == BluetoothAdapter.STATE_OFF) {
                                 log(R.string.bluetooth_off);
-                                bootModule.getAdapter().enable();
-                            } else if (bootModule.getAdapter().getState() == BluetoothAdapter.STATE_TURNING_ON) {
+                                BluetoothAdapter.getDefaultAdapter().enable();
+                            } else if (BluetoothAdapter.getDefaultAdapter().getState() == BluetoothAdapter.STATE_TURNING_ON) {
                                 log(R.string.bluetooth_turning_on, true);
-                            } else if (bootModule.getAdapter().getState() == BluetoothAdapter.STATE_ON) {
+                            } else if (BluetoothAdapter.getDefaultAdapter().getState() == BluetoothAdapter.STATE_ON) {
                                 log(R.string.bluetooth_on, true);
                             }
                         }//break;
@@ -215,10 +219,10 @@ public class ActivityConnect extends Activity implements View.OnClickListener {
                 break;
             case R.id.buttonSearchBluetooth:
                 try {
-                    bootModule.init(getIntent().getStringExtra("address"));
-                    bootModule.attach();
+                    //bootModule.init(getIntent().getStringExtra("address"));
+                    //bootModule.attach();
                 } catch (Exception e) {
-                    connectResultCallback.connectError(Module.ResultError.CONNECT_ERROR, e.getMessage());
+                    connectResultCallback.resultConnect(Module.ResultConnect.CONNECT_ERROR, e.getMessage(), null);
                 }
                 break;
             default:
@@ -227,7 +231,7 @@ public class ActivityConnect extends Activity implements View.OnClickListener {
 
     final ConnectResultCallback connectResultCallback = new ConnectResultCallback() {
         @Override
-        public void resultConnect(Module.ResultConnect result) {
+        public void resultConnect(Module.ResultConnect result, String msg, Object module) {
             switch (result) {
                 case STATUS_LOAD_OK:
                     setResult(RESULT_OK, new Intent());
@@ -236,11 +240,6 @@ public class ActivityConnect extends Activity implements View.OnClickListener {
                 default:
             }
         }
-
-        @Override
-        public void connectError(Module.ResultError error, String s) {
-        }
-
     };
 
 }

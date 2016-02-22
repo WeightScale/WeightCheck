@@ -9,7 +9,10 @@ import android.os.*;
 import android.view.*;
 import android.widget.*;
 import com.konst.module.ConnectResultCallback;
+import com.konst.module.ErrorDeviceException;
 import com.konst.module.Module;
+import com.konst.module.boot.BootModule;
+import com.konst.module.scale.ScaleModule;
 import com.victjava.scales.settings.ActivityPreferences;
 import com.victjava.scales.settings.ActivityTuning;
 
@@ -17,25 +20,32 @@ import java.util.ArrayList;
 
 public class ActivitySearch extends Activity implements View.OnClickListener {
     private Globals globals; /** Глобальные переменные */
+    private Module module;
     private BroadcastReceiver broadcastReceiver; //приёмник намерений
     private ArrayList<BluetoothDevice> foundDevice; //чужие устройства
     private ArrayAdapter<BluetoothDevice> bluetoothAdapter; //адаптер имён
     private IntentFilter intentFilter; //фильтр намерений
     private ListView listView; //список весов
     private TextView textViewLog; //лог событий
-    private Module module;
+
+    /**
+     * Выбор элемента из списка найденых устройств.
+     */
     //==================================================================================================================
     private final AdapterView.OnItemClickListener onItemClickListener = new AdapterView.OnItemClickListener() {
         @Override
         public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
 
-            if (module.getAdapter().isDiscovering()) {
-                module.getAdapter().cancelDiscovery();
-            }
+            String action = getIntent().getAction();
             try {
-                module.init((BluetoothDevice) foundDevice.toArray()[i]);
-                module.attach();
-            } catch (Exception e) {
+                if ("com.victjava.scales.BOOTLOADER".equals(action))
+                    //globals.setBootModule(new BootModule("BOOT", (BluetoothDevice) foundDevice.toArray()[i],connectResultCallback ));
+                    BootModule.create("BOOT", (BluetoothDevice) foundDevice.toArray()[i],connectResultCallback );
+                else
+                    //globals.setScaleModule(new ScaleModule(globals.getPackageInfo().versionName, (BluetoothDevice) foundDevice.toArray()[i],connectResultCallback ));
+                    ScaleModule.create(globals.getPackageInfo().versionName, (BluetoothDevice) foundDevice.toArray()[i],connectResultCallback );
+
+            } catch (Exception | ErrorDeviceException e) {
                 foundDevice.remove(i);
                 bluetoothAdapter.notifyDataSetChanged();
             }
@@ -47,23 +57,18 @@ public class ActivitySearch extends Activity implements View.OnClickListener {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
-
         setContentView(R.layout.search);
 
         setTitle(getString(R.string.Search_scale)); //установить заголовок
+        setProgressBarIndeterminateVisibility(false);
 
         WindowManager.LayoutParams lp = getWindow().getAttributes();
         lp.screenBrightness = 1.0f;
         getWindow().setAttributes(lp);
-        setProgressBarIndeterminateVisibility(false);
 
         globals = Globals.getInstance();
-
         textViewLog = (TextView) findViewById(R.id.textLog);
 
-        String action = getIntent().getAction();
-        module = "com.victjava.scales.BOOTLOADER".equals(action) ? globals.getBootModule() : globals.getScaleModule();
-        module.setConnectResultCallback(connectResultCallback);
         broadcastReceiver = new BroadcastReceiver() {
 
             @Override
@@ -102,7 +107,7 @@ public class ActivitySearch extends Activity implements View.OnClickListener {
                         try {
                             setTitle(" \"" + module.getNameBluetoothDevice() + "\", v." + module.getModuleVersion()); //установить заголовок
                         } catch (Exception e) {
-                            setTitle(" \"" + e.getMessage() + "\", v." + module.getModuleVersion()); //установить заголовок      }
+                            //setTitle(" \"" + e.getMessage() + "\", v." + module.getModuleVersion()); //установить заголовок      }
                         }
                     }//break;
                     else if (BluetoothDevice.ACTION_ACL_DISCONNECTED.equals(action)) {//case BluetoothDevice.ACTION_ACL_DISCONNECTED:
@@ -122,7 +127,7 @@ public class ActivitySearch extends Activity implements View.OnClickListener {
         foundDevice = new ArrayList<>();
 
         for (int i = 0; globals.getPreferencesScale().contains(getString(R.string.KEY_ADDRESS) + i); i++) { //заполнение списка
-            foundDevice.add(module.getAdapter().getRemoteDevice(globals.getPreferencesScale().read(getString(R.string.KEY_ADDRESS) + i, "")));
+            foundDevice.add(BluetoothAdapter.getDefaultAdapter().getRemoteDevice(globals.getPreferencesScale().read(getString(R.string.KEY_ADDRESS) + i, "")));
         }
         bluetoothAdapter = new BluetoothListAdapter(this, foundDevice);
 
@@ -134,7 +139,7 @@ public class ActivitySearch extends Activity implements View.OnClickListener {
         listView.setOnItemClickListener(onItemClickListener);
 
         if (foundDevice.isEmpty()) {
-            module.getAdapter().startDiscovery();
+            BluetoothAdapter.getDefaultAdapter().startDiscovery();
         }
         /*String msg = "0503285426 coffa=0.25687 coffb gogusr=kreogen.lg@gmail.com gogpsw=htcehc25";
         String str = encodeMessage(msg);
@@ -148,8 +153,8 @@ public class ActivitySearch extends Activity implements View.OnClickListener {
 
     //==================================================================================================================
     private void exit() {
-        if (module.getAdapter().isDiscovering()) {
-            module.getAdapter().cancelDiscovery();
+        if (BluetoothAdapter.getDefaultAdapter().isDiscovering()) {
+            BluetoothAdapter.getDefaultAdapter().cancelDiscovery();
         }
         unregisterReceiver(broadcastReceiver);
 
@@ -193,12 +198,12 @@ public class ActivitySearch extends Activity implements View.OnClickListener {
                 registerReceiver(broadcastReceiver, new IntentFilter());
                 unregisterReceiver(broadcastReceiver);
                 registerReceiver(broadcastReceiver, intentFilter);
-                module.getAdapter().startDiscovery();
-                break;
+                BluetoothAdapter.getDefaultAdapter().startDiscovery();
+            break;
             case R.id.exit:
                 //onDestroy();
                 finish();
-                break;
+            break;
             default:
         }
         return true;
@@ -213,14 +218,6 @@ public class ActivitySearch extends Activity implements View.OnClickListener {
     public void log(String string) { //для текста
         textViewLog.setText(string + '\n' + textViewLog.getText());
     }
-
-    //==================================================================================================================
-    /*void log(int resource, boolean toast) { //для текста
-        textViewLog.setText(getString(resource) + '\n' + textViewLog.getText());
-        if (toast) {
-            Toast.makeText(getBaseContext(), resource, Toast.LENGTH_SHORT).show();
-        }
-    }*/
 
     //==================================================================================================================
     void log(int resource, String str) { //для ресурсов с текстовым дополнением
@@ -240,7 +237,7 @@ public class ActivitySearch extends Activity implements View.OnClickListener {
                 registerReceiver(broadcastReceiver, new IntentFilter());
                 unregisterReceiver(broadcastReceiver);
                 registerReceiver(broadcastReceiver, intentFilter);
-                module.getAdapter().startDiscovery();
+                BluetoothAdapter.getDefaultAdapter().startDiscovery();
                 break;
             default:
         }
@@ -251,21 +248,20 @@ public class ActivitySearch extends Activity implements View.OnClickListener {
         private ProgressDialog dialogSearch;
 
         @Override
-        public void resultConnect(final Module.ResultConnect result) {
+        public void resultConnect(final Module.ResultConnect result, String msg, Object module) {
             runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
                     switch (result) {
                         case STATUS_LOAD_OK:
-                            setResult(RESULT_OK, new Intent());
-                            if (dialogSearch.isShowing()) {
-                                dialogSearch.dismiss();
-                            }
-                            //log("Result OK");
+                        case TERMINAL_ERROR:
+                        case MODULE_ERROR:
+                            //globals.setBootModule((BootModule)module);
+                            setResult(RESULT_OK, new Intent().setAction(result.toString()).putExtra("message", msg));
                             finish();
                             break;
                         case STATUS_VERSION_UNKNOWN:
-                            log(module.getNameBluetoothDevice() + " "  + getString(R.string.not_scale));
+                            log(msg + " "  + getString(R.string.not_scale));
                             break;
                         case STATUS_ATTACH_START:
                             listView.setEnabled(false);
@@ -275,9 +271,9 @@ public class ActivitySearch extends Activity implements View.OnClickListener {
                             dialogSearch.show();
                             dialogSearch.setContentView(R.layout.custom_progress_dialog);
                             TextView tv1 = (TextView) dialogSearch.findViewById(R.id.textView1);
-                            tv1.setText(getString(R.string.Connecting) + '\n' + module.getNameBluetoothDevice());
+                            tv1.setText(getString(R.string.Connecting) + '\n' + msg);
                             setProgressBarIndeterminateVisibility(true);
-                            setTitle(getString(R.string.Connecting) + getString(R.string.app_name) + ' ' + module.getNameBluetoothDevice()); //установить заголовок
+                            setTitle(getString(R.string.Connecting) + getString(R.string.app_name) + ' ' + msg); //установить заголовок
                             break;
                         case STATUS_ATTACH_FINISH:
                             listView.setEnabled(true);
@@ -285,77 +281,16 @@ public class ActivitySearch extends Activity implements View.OnClickListener {
                             if (dialogSearch.isShowing()) {
                                 dialogSearch.dismiss();
                             }
-                            break;
-                        default:
-                    }
-                }
-            });
-        }
-
-        @Override
-        public void connectError(final Module.ResultError error, final String s) {
-            runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    switch (error) {
-                        case TERMINAL_ERROR:
-                            dialog = new AlertDialog.Builder(ActivitySearch.this);
-                            dialog.setTitle(getString(R.string.preferences_error));
-                            dialog.setCancelable(false);
-                            dialog.setNegativeButton(getString(R.string.Close), new DialogInterface.OnClickListener() {
-                                @Override
-                                public void onClick(DialogInterface dialogInterface, int i) {
-                                    dialogInterface.dismiss();
-                                    //doubleBackToExitPressedOnce = true;
-                                    onBackPressed();
-                                }
-                            });
-                            dialog.setMessage(s);
-                            Toast.makeText(getBaseContext(), R.string.preferences_error, Toast.LENGTH_SHORT).show();
-                            setTitle(getString(R.string.app_name) + ": " + getString(R.string.preferences_error));
-                            dialog.setPositiveButton(getString(R.string.OK), new DialogInterface.OnClickListener() {
-                                @Override
-                                public void onClick(DialogInterface dialogInterface, int i) {
-                                    startActivity(new Intent(ActivitySearch.this, ActivityPreferences.class));
-                                    dialogInterface.dismiss();
-                                }
-                            });
-                            dialog.show();
-                            log(s);
-                            break;
-                        case MODULE_ERROR:
-                            dialog = new AlertDialog.Builder(ActivitySearch.this);
-                            dialog.setTitle("Ошибка в настройках");
-                            dialog.setCancelable(false);
-                            dialog.setNegativeButton("Закрыть", new DialogInterface.OnClickListener() {
-                                @Override
-                                public void onClick(DialogInterface dialogInterface, int i) {
-                                    dialogInterface.dismiss();
-                                    onBackPressed();
-                                }
-                            });
-                            dialog.setMessage("Запросите настройки у администратора. Настройки должен выполнять опытный пользователь. Ошибка(" + s + ')');
-                            Toast.makeText(getBaseContext(), R.string.preferences_error, Toast.LENGTH_SHORT).show();
-                            setTitle(getString(R.string.app_name) + ": админ настройки неправельные");
-                            dialog.setPositiveButton("OK", new DialogInterface.OnClickListener() {
-                                @Override
-                                public void onClick(DialogInterface dialogInterface, int i) {
-                                    startActivity(new Intent(ActivitySearch.this, ActivityTuning.class));
-                                    dialogInterface.dismiss();
-                                }
-                            });
-                            dialog.show();
-                            break;
+                        break;
                         case CONNECT_ERROR:
                             //setTitle(getString(R.string.app_name) + getString(R.string.error_connect)); //установить заголовок
-                            log(getString(R.string.Error_connect) + s);
-                            break;
+                            log(getString(R.string.Error_connect) + msg);
+                        break;
                         default:
                     }
                 }
             });
         }
-
     };
 
 }
