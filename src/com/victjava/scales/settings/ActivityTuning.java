@@ -129,14 +129,17 @@ public class ActivityTuning extends PreferenceActivity {
             }
         },*/
         POINT1(R.string.KEY_POINT1){
+            Context context;
             @Override
             void setup(Preference name) throws Exception {
+                context = name.getContext();
                 if(!globals.isScaleConnect())
                     throw new Exception(" ");
                 name.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
                     @Override
                     public boolean onPreferenceClick(Preference preference) {
-                        try {
+                        return startDialog(name);
+                        /*try {
                             String str = scaleModule.feelWeightSensor();
                             scaleModule.setSensorTenzo(Integer.valueOf(str));
                             point1.x = Integer.valueOf(str);
@@ -147,9 +150,39 @@ public class ActivityTuning extends PreferenceActivity {
                         } catch (Exception e) {
                             Toast.makeText(name.getContext(), R.string.preferences_no + e.getMessage(), Toast.LENGTH_SHORT).show();
                             return false;
+                        }*/
+                    }
+                });
+            }
+
+            boolean startDialog(Preference name){
+                AlertDialog.Builder dialog = new AlertDialog.Builder(context);
+                dialog.setTitle("Установка ноль");
+                dialog.setCancelable(false);
+                dialog.setPositiveButton(context.getString(R.string.OK), new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        try {
+                            String str = scaleModule.feelWeightSensor();
+                            scaleModule.setSensorTenzo(Integer.valueOf(str));
+                            point1.x = Integer.valueOf(str);
+                            point1.y = 0;
+                            Toast.makeText(name.getContext(), R.string.preferences_yes, Toast.LENGTH_SHORT).show();
+                            flag_restore = true;
+                        } catch (Exception e) {
+                            Toast.makeText(name.getContext(), R.string.preferences_no + e.getMessage(), Toast.LENGTH_SHORT).show();
                         }
                     }
                 });
+                dialog.setNegativeButton(context.getString(R.string.Close), new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.dismiss();
+                    }
+                });
+                dialog.setMessage("Вы действительно хотите установить ноль калибровки.");
+                dialog.show();
+                return true;
             }
         },
         POINT2(R.string.KEY_POINT2){

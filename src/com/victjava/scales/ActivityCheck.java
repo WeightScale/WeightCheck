@@ -1068,9 +1068,13 @@ public class ActivityCheck extends FragmentActivity implements View.OnClickListe
         int x = 2/*(canvas.getWidth() / 2) - 2*/;     //-2 is for regulating the x position offset
         //"- ((paint.descent() + paint.ascent()) / 2)" is the distance from the baseline to the center.
         int y = (int) (paint.getTextSize())/*(int) ((canvas.getHeight() / 2) - ((paint.descent() + paint.ascent()) / 2))*/;
-        StringBuilder stringBuilder = new StringBuilder(getString(R.string.app_name));
+        StringBuilder stringBuilder = new StringBuilder(getString(R.string.app_name)+"#" + entryID);
         stringBuilder.append('\n');
-        stringBuilder.append("Some Text here");
+        /** Создаем штамп времени */
+        String timeStamp = new SimpleDateFormat("HH:mm:ss", Locale.getDefault()).format(new Date());
+        /** Создаем имя папки по дате */
+        String dateStamp = new SimpleDateFormat("yyyy.MM.dd", Locale.getDefault()).format(new Date());
+        stringBuilder.append(dateStamp).append(' ').append(timeStamp).append('\n');
         drawMultiLineText(stringBuilder.toString(), x, y, paint, canvas);
         //canvas.drawText(stringBuilder.toString(), x, y, paint);
         blob = new ByteArrayOutputStream();

@@ -244,9 +244,7 @@ public class ServiceProcessTask extends Service {
         });
     }
 
-    /**
-     * Обработчик сообщений
-     */
+    /** Обработчик сообщений. */
     public final HandlerTaskNotification msgHandler = new HandlerTaskNotification() {
 
         /** Количество запущеных процессов */

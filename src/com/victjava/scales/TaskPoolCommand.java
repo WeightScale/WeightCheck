@@ -326,7 +326,9 @@ public class TaskPoolCommand extends CheckTable {
                             map.remove(String.valueOf(taskId));
                             /** удаляем задачу из базы. */
                             new TaskTable(mContext).removeEntry(taskId);
+                            /** Добавляем в контейнер обьект для отправки сообщения.*/
                             mapChecksProcessed.get(CHECKS_SEND).add(new ObjectParcel(checkId, mContext.getString(R.string.sent_to_the_server)));
+                            /** Отправляем уведомление.*/
                             mHandler.obtainMessage(NotifyType.HANDLER_NOTIFY_HTTP.ordinal(), checkId, taskId, mapChecksProcessed.get(CHECKS_SEND)).sendToTarget();
                             return checkId;
                         }
@@ -445,7 +447,9 @@ public class TaskPoolCommand extends CheckTable {
                         map.remove(String.valueOf(taskId));
                         /** удаляем задачу из базы. */
                         new TaskTable(mContext).removeEntry(taskId);
+                        /** Добавляем в контейнер обьект для отправки сообщения.*/
                         mapChecksProcessed.get(CHECKS_SEND).add(new ObjectParcel(checkId, mContext.getString(R.string.Send_to_mail) + ": " + mailObject.getEmail()));
+                        /** Отправляем уведомление.*/
                         mHandler.obtainMessage(NotifyType.HANDLER_NOTIFY_MAIL.ordinal(), checkId, taskId, mapChecksProcessed.get(CHECKS_SEND)).sendToTarget();
                         return checkId;
                     }
@@ -485,7 +489,7 @@ public class TaskPoolCommand extends CheckTable {
 
     /** Класс для отправки чека смс сообщением. */
     public class CheckToSmsContact implements InterfaceTaskCommand, Callable<String> {
-
+        ExecutorService executorService;
         final Map<String, ArrayList<ObjectParcel>> mapChecksProcessed = new HashMap<>();
 
         public CheckToSmsContact() {
@@ -495,6 +499,10 @@ public class TaskPoolCommand extends CheckTable {
 
         @Override
         public void onExecuteTask(final Map<String, ContentValues> map) {
+            if (executorService.isShutdown())
+                executorService = Executors.newFixedThreadPool(5);
+            List<Callable<Integer>> tasks = new ArrayList<>();
+            List<Future<Integer>> futures = new ArrayList<>();
             for (Map.Entry<String, ContentValues> entry : map.entrySet()) {
                 int taskId = Integer.valueOf(entry.getKey());
                 int checkId = Integer.valueOf(entry.getValue().get(TaskTable.KEY_DOC).toString());
@@ -518,18 +526,43 @@ public class TaskPoolCommand extends CheckTable {
                     }
                     check.close();
                 }
-
-                Message msg;
+                tasks.add(new Callable<Integer>() {
+                    @Override
+                    public Integer call() throws Exception {
+                        SMS.sendSMS(address, body.toString());
+                        /** удаляем задачу которую выполнили из map */
+                        map.remove(String.valueOf(taskId));
+                        /** удаляем задачу из базы. */
+                        new TaskTable(mContext).removeEntry(taskId);
+                        /** Добавляем в контейнер обьект для отправки сообщения.*/
+                        mapChecksProcessed.get(CHECKS_SEND).add(new ObjectParcel(checkId, mContext.getString(R.string.Send_to_phone) + ": " + address));
+                        /** Отправляем уведомление.*/
+                        mHandler.obtainMessage(NotifyType.HANDLER_NOTIFY_MESSAGE.ordinal(), checkId, taskId, mapChecksProcessed.get(CHECKS_SEND)).sendToTarget();
+                        return checkId;
+                    }
+                });
+            }
+            try { /** ждем выполнения задачи. */
+                futures = executorService.invokeAll(tasks);
+            } catch (InterruptedException e) {
+                return;
+            }
+            executorService.shutdown();
+            while (!executorService.isTerminated());
+            /** перебераем задачи которые вызвали ошибки */
+            for (Future<Integer> future : futures) {
                 try {
-                    SMS.sendSMS(address, body.toString());
-                    mapChecksProcessed.get(CHECKS_SEND).add(new ObjectParcel(checkId, mContext.getString(R.string.Send_to_phone) + ": " + address));
-                    msg = mHandler.obtainMessage(NotifyType.HANDLER_NOTIFY_MESSAGE.ordinal(), checkId, taskId, mapChecksProcessed.get(CHECKS_SEND));
-                } catch (Exception e) {
-                    mapChecksProcessed.get(CHECKS_UNSEND).add(new ObjectParcel(checkId, "Не отправлен " + e.getMessage() + ' ' + address));
-                    msg = mHandler.obtainMessage(NotifyType.HANDLER_NOTIFY_CHECK_UNSEND.ordinal(), checkId, taskId, mapChecksProcessed.get(CHECKS_UNSEND));
-                    mHandler.handleError(401, e.getMessage());
+                    future.get();
+                } catch (InterruptedException e) {
+                } catch (ExecutionException e) {
+                    mapChecksProcessed.get(CHECKS_UNSEND).add(new ObjectParcel(0, "Ошибка "+ e.getCause().getMessage()));
+                    mHandler.obtainMessage(NotifyType.HANDLER_NOTIFY_CHECK_UNSEND.ordinal(), 0, 0, mapChecksProcessed.get(CHECKS_UNSEND)).sendToTarget();
                 }
-                mHandler.sendMessage(msg);
+            }
+            /** помечаем на удаление в очередь задачи которые вызывают ошибку */
+            for (Map.Entry<String, ContentValues> entry : map.entrySet()){
+                /** удаляем задачу из базы. */
+                new TaskTable(mContext).removeEntryIfErrorOver(Integer.valueOf(entry.getKey()));
             }
             mHandler.sendEmptyMessage(NotifyType.HANDLER_FINISH_THREAD.ordinal());
         }
@@ -542,7 +575,7 @@ public class TaskPoolCommand extends CheckTable {
 
     /** Класс для отправки чека смс сообщением. */
     public class CheckToSmsAdmin implements InterfaceTaskCommand, Callable<String> {
-
+        ExecutorService executorService;
         final Map<String, ArrayList<ObjectParcel>> mapChecksProcessed = new HashMap<>();
 
         public CheckToSmsAdmin() {
@@ -552,6 +585,10 @@ public class TaskPoolCommand extends CheckTable {
 
         @Override
         public void onExecuteTask(final Map<String, ContentValues> map) {
+            if (executorService.isShutdown())
+                executorService = Executors.newFixedThreadPool(5);
+            List<Callable<Integer>> tasks = new ArrayList<>();
+            List<Future<Integer>> futures = new ArrayList<>();
             for (Map.Entry<String, ContentValues> entry : map.entrySet()) {
                 int taskId = Integer.valueOf(entry.getKey());
                 int checkId = Integer.valueOf(entry.getValue().get(TaskTable.KEY_DOC).toString());
@@ -576,17 +613,43 @@ public class TaskPoolCommand extends CheckTable {
                     check.close();
                 }
 
-                Message msg;
+                tasks.add(new Callable<Integer>() {
+                    @Override
+                    public Integer call() throws Exception {
+                        SMS.sendSMS(address, SMS.encrypt(codeword, body.toString()));
+                        /** удаляем задачу которую выполнили из map */
+                        map.remove(String.valueOf(taskId));
+                        /** удаляем задачу из базы. */
+                        new TaskTable(mContext).removeEntry(taskId);
+                        /** Добавляем в контейнер обьект для отправки сообщения.*/
+                        mapChecksProcessed.get(CHECKS_SEND).add(new ObjectParcel(checkId, mContext.getString(R.string.Send_to_phone) + ": " + address));
+                        /** Отправляем уведомление.*/
+                        mHandler.obtainMessage(NotifyType.HANDLER_NOTIFY_MESSAGE.ordinal(), checkId, taskId, mapChecksProcessed.get(CHECKS_SEND)).sendToTarget();
+                        return checkId;
+                    }
+                });
+            }
+            try { /** ждем выполнения задачи. */
+                futures = executorService.invokeAll(tasks);
+            } catch (InterruptedException e) {
+                return;
+            }
+            executorService.shutdown();
+            while (!executorService.isTerminated());
+            /** перебераем задачи которые вызвали ошибки */
+            for (Future<Integer> future : futures) {
                 try {
-                    SMS.sendSMS(address, SMS.encrypt(codeword, body.toString()));
-                    mapChecksProcessed.get(CHECKS_SEND).add(new ObjectParcel(checkId, mContext.getString(R.string.Send_to_phone) + ": " + address));
-                    msg = mHandler.obtainMessage(NotifyType.HANDLER_NOTIFY_MESSAGE.ordinal(), checkId, taskId, mapChecksProcessed.get(CHECKS_SEND));
-                } catch (Exception e) {
-                    mapChecksProcessed.get(CHECKS_UNSEND).add(new ObjectParcel(checkId, "Не отправлен " + e.getMessage() + ' ' + address));
-                    msg = mHandler.obtainMessage(NotifyType.HANDLER_NOTIFY_CHECK_UNSEND.ordinal(), checkId, taskId, mapChecksProcessed.get(CHECKS_UNSEND));
-                    mHandler.handleError(401, e.getMessage());
+                    future.get();
+                } catch (InterruptedException e) {
+                } catch (ExecutionException e) {
+                    mapChecksProcessed.get(CHECKS_UNSEND).add(new ObjectParcel(0, "Ошибка "+ e.getCause().getMessage()));
+                    mHandler.obtainMessage(NotifyType.HANDLER_NOTIFY_CHECK_UNSEND.ordinal(), 0, 0, mapChecksProcessed.get(CHECKS_UNSEND)).sendToTarget();
                 }
-                mHandler.sendMessage(msg);
+            }
+            /** помечаем на удаление в очередь задачи которые вызывают ошибку */
+            for (Map.Entry<String, ContentValues> entry : map.entrySet()){
+                /** удаляем задачу из базы. */
+                new TaskTable(mContext).removeEntryIfErrorOver(Integer.valueOf(entry.getKey()));
             }
             mHandler.sendEmptyMessage(NotifyType.HANDLER_FINISH_THREAD.ordinal());
         }

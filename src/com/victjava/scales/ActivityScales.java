@@ -63,7 +63,7 @@ public class ActivityScales extends Activity implements View.OnClickListener, Vi
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        Thread.setDefaultUncaughtExceptionHandler(new ReportHelper(this));
+        //Thread.setDefaultUncaughtExceptionHandler(new ReportHelper(this));
         //main = (Main)getApplication();
         globals = Globals.getInstance();
         globals.initialize(this);
@@ -77,6 +77,7 @@ public class ActivityScales extends Activity implements View.OnClickListener, Vi
         if (telephonyManager.getSimState() == TelephonyManager.SIM_STATE_READY) {
             try {
                 //scaleModule = new ScaleModule(globals.getPackageInfo().versionName, globals.getPreferencesScale().read(getString(R.string.KEY_LAST_SCALES), ""), connectResultCallback);
+                //ScaleModule.createWiFi(globals.getPackageInfo().versionName, this, connectResultCallback);
                 ScaleModule.create(globals.getPackageInfo().versionName, globals.getPreferencesScale().read(getString(R.string.KEY_LAST_SCALES), ""), connectResultCallback);
                 Toast.makeText(getBaseContext(), R.string.bluetooth_off, Toast.LENGTH_SHORT).show();
             } catch (Exception e) {
@@ -381,19 +382,6 @@ public class ActivityScales extends Activity implements View.OnClickListener, Vi
         namesAdapter.setViewBinder(new ListCheckViewBinder());
         listView.setAdapter(namesAdapter);
     }
-
-    /** Соеденяемся с Весовым модулем.
-     * Инициализируем созданый экземпляр модуля.
-     */
-    /*private void connectScaleModule(String address) {
-        try {
-            scaleModule.init(address);
-            scaleModule.attach();
-        } catch (Exception e) {
-            openSearch();
-        }
-
-    }*/
 
     /** Выход. */
     private void exit() {
