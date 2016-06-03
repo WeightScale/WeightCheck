@@ -107,7 +107,7 @@ public class SenderTable {
         results.add(new BasicNameValuePair(GO_TIME_HTTP, CheckTable.KEY_TIME_CREATE));
         String joined = TextUtils.join(" ", results);
         contentValues.put(KEY_DATA2, joined);*/
-        contentValues.put(KEY_SYS, 0);
+        contentValues.put(KEY_SYS, 1);
         db.insert(TABLE, null, contentValues);
     }
 

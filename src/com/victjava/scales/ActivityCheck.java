@@ -330,7 +330,34 @@ public class ActivityCheck extends FragmentActivity implements View.OnClickListe
             public void run() {
                 try {
                     /** Сжимаем данные изображения. */
-                    byte[] compressImage = compressImage(data, camera.getParameters().getPictureSize().width, camera.getParameters().getPictureSize().height);
+                    byte[] compressImage = compressImage(data, camera.getParameters().getPictureSize().width, camera.getParameters().getPictureSize().height, id);
+                    /** Создаем штам чека. */
+                    StringBuilder stringBuilder = new StringBuilder(getString(R.string.WEIGHT_CHECK_N) + entryID);
+                    stringBuilder.append('\n');
+                    /** Создаем штамп даты. */
+                    stringBuilder.append(new SimpleDateFormat("yyyy.mm.dd", Locale.getDefault()).format(new Date())).append(' ')
+                            /** Создаем штамп времени. */
+                            .append(new SimpleDateFormat("HH:MM:SS", Locale.getDefault()).format(new Date())).append('\n');
+                    /** Создаем штамп веса. */
+                    switch (CheckTable.State.values()[id]){
+                        case CHECK_FIRST:
+                            stringBuilder.append(getString(R.string.weight))
+                                    .append(": ")
+                                    .append(values.getAsInteger(CheckTable.KEY_WEIGHT_FIRST))
+                                    .append(getString(R.string.scales_kg))
+                                    .append('\n');
+                            break;
+                        case CHECK_SECOND:
+                            stringBuilder.append(getString(R.string.weight))
+                                    .append(": ")
+                                    .append(values.getAsInteger(CheckTable.KEY_WEIGHT_SECOND))
+                                    .append(getString(R.string.scales_kg))
+                                    .append('\n');
+                            break;
+                        default:
+                    }
+                    /** Накладываем штамп чека на фото. */
+                    compressImage = doStamp(compressImage, camera.getParameters().getPictureSize().width, camera.getParameters().getPictureSize().height, stringBuilder.toString());
                     /** Создаем штамп времени */
                     String timeStamp = new SimpleDateFormat("HHmmss", Locale.getDefault()).format(new Date());
                     /** Создаем имя папки по дате */
@@ -999,7 +1026,7 @@ public class ActivityCheck extends FragmentActivity implements View.OnClickListe
      * @return Сжатые данные.
      * @throws Exception Исключение при ошибки преобразования данных.
      */
-    byte[] compressImage(byte[] input, int width, int height) throws Exception{
+    byte[] compressImage(byte[] input, int width, int height, int id) throws Exception{
         //Preferences preferences = new Preferences(getSharedPreferences(Preferences.PREF_SETTINGS,Context.MODE_PRIVATE));
         Bitmap original;
         try {
@@ -1008,27 +1035,18 @@ public class ActivityCheck extends FragmentActivity implements View.OnClickListe
             options.inPurgeable = true;
             options.inJustDecodeBounds = true;
             BitmapFactory.decodeByteArray(input, 0, input.length, options);
-            //Camera.Parameters parameters = camera.getParameters();
-            //Camera.Size size = parameters.getPictureSize();
-            // Calculate inSampleSize
             options.inSampleSize = calculateInSampleSize(options, width, height);
             // Decode bitmap with inSampleSize set
             options.inJustDecodeBounds = false;
-            /** Создаем битовую карту из входящих данных */
+            /** Создаем битовую карту из входящих данных. */
             original = BitmapFactory.decodeByteArray(input, 0, input.length, options);
             /** Исключение если память выходит за пределы. */
         } catch (OutOfMemoryError e) {
-            /** Создаем опции битовой карты */
+            /** Создаем опции битовой карты. */
             BitmapFactory.Options bitmapOptions = new BitmapFactory.Options();
             bitmapOptions.inJustDecodeBounds = true;
-            /** Временное хранилище */
+            /** Временное хранилище. */
             bitmapOptions.inTempStorage = new byte[32 * 1024];
-            //Camera.Parameters parameters = camera.getParameters();
-            //Camera.Size size = parameters.getPictureSize();
-            /** Получить высоту */
-            //int height11 = size.height;
-            /** Получить ширину */
-            //int width11 = size.width;
             /** Размер картинки в мб */
             float mb = (float)(width * height) / 1024000;
             if (mb > 4.0f)
@@ -1039,9 +1057,9 @@ public class ActivityCheck extends FragmentActivity implements View.OnClickListe
             /** Создаем битовую карту из опций */
             original = BitmapFactory.decodeByteArray(input, 0, input.length, bitmapOptions);
         }
-        /** Создаем матрикс обьект */
+        /** Создаем матрикс обьект. */
         Matrix matrix = new Matrix();
-        /** Поворот изображения в градусах против часовой стрелки*/
+        /** Поворот изображения в градусах против часовой стрелки. */
         matrix.postRotate(Integer.parseInt(new Preferences(getApplicationContext()).read(getString(R.string.key_rotation), "90"))); // anti-clockwise by 90 degrees
         ByteArrayOutputStream blob = new ByteArrayOutputStream();
         try {
@@ -1055,113 +1073,43 @@ public class ActivityCheck extends FragmentActivity implements View.OnClickListe
             original.recycle();
             original = null;
         }
-        byte[] b = blob.toByteArray();
-        Bitmap src = createByteToBitmap(b, width, height); // the original file is cuty.jpg i added in resources
+        return blob.toByteArray();
+    }
+
+    byte[] doStamp(byte[] input, int width, int height, String text) throws Exception {
+        //byte[] b = blob.toByteArray();
+        Bitmap src = createByteToBitmap(input, width, height); // the original file is cuty.jpg i added in resources
         Bitmap dest = Bitmap.createBitmap(src.getWidth(), src.getHeight(), Bitmap.Config.ARGB_8888);
         //original = createByteToBitmap(b, width, height);
         //original = Bitmap.createScaledBitmap(original, original.getWidth(), original.getHeight(), true);
         Canvas canvas = new Canvas(dest);
         Paint paint = new Paint();
-        paint.setColor(Color.MAGENTA);
-        paint.setTextSize(getResources().getDimension(R.dimen.text_micro));
+        paint.setAntiAlias(true);
+        paint.setColor(Color.WHITE);
+        paint.setTextSize(getResources().getDimension(R.dimen.text_large));
+        paint.setTypeface(Typeface.create(Typeface.DEFAULT, Typeface.BOLD));
+        //paint.setStyle(Paint.Style.FILL);
+
+        Paint strokePaint = new Paint();
+        strokePaint.setAntiAlias(true);
+        strokePaint.setColor(Color.BLACK);
+        strokePaint.setTextSize(getResources().getDimension(R.dimen.text_large));
+        strokePaint.setStyle(Paint.Style.STROKE);
+        //strokePaint.setStrokeWidth(getResources().getDimension(R.dimen.stroke));
+
         canvas.drawBitmap(src, 0f, 0f, null);
         int x = 2/*(canvas.getWidth() / 2) - 2*/;     //-2 is for regulating the x position offset
         //"- ((paint.descent() + paint.ascent()) / 2)" is the distance from the baseline to the center.
         int y = (int) (paint.getTextSize())/*(int) ((canvas.getHeight() / 2) - ((paint.descent() + paint.ascent()) / 2))*/;
-        StringBuilder stringBuilder = new StringBuilder(getString(R.string.app_name)+"#" + entryID);
-        stringBuilder.append('\n');
-        /** Создаем штамп времени */
-        String timeStamp = new SimpleDateFormat("HH:mm:ss", Locale.getDefault()).format(new Date());
-        /** Создаем имя папки по дате */
-        String dateStamp = new SimpleDateFormat("yyyy.MM.dd", Locale.getDefault()).format(new Date());
-        stringBuilder.append(dateStamp).append(' ').append(timeStamp).append('\n');
-        drawMultiLineText(stringBuilder.toString(), x, y, paint, canvas);
-        //canvas.drawText(stringBuilder.toString(), x, y, paint);
-        blob = new ByteArrayOutputStream();
+
+        drawMultiLineText(text, x, y, paint, canvas);
+        drawMultiLineText(text, x, y, strokePaint, canvas);
+        ByteArrayOutputStream blob = new ByteArrayOutputStream();
         dest.compress(Bitmap.CompressFormat.JPEG, 100, blob);
         dest.recycle();
         dest = null;
         return blob.toByteArray();
     }
-
-    /** Сжатие и поворот изибражения.
-     * @param input Входящии данные.
-     * @param width Ширина картинки.
-     * @param height Высота картинки.
-     * @return Сжатые данные.
-     * @throws Exception Исключение при ошибки преобразования данных.
-     */
-//    byte[] compressImage(byte[] input, int width, int height) throws Exception{
-//        //Preferences preferences = new Preferences(getSharedPreferences(Preferences.PREF_SETTINGS,Context.MODE_PRIVATE));
-//        Bitmap original = createByteToBitmap(input, width, height);
-//        //BitmapFactory.Options options;
-//        //Camera.Size size = camera.getParameters().getPictureSize();
-//        /*try {
-//            // First decode with inJustDecodeBounds=true to check dimensions
-//            options = new BitmapFactory.Options();
-//            options.inPurgeable = true;
-//            options.inJustDecodeBounds = true;
-//            BitmapFactory.decodeByteArray(input, 0, input.length, options);
-//            // Calculate inSampleSize
-//            options.inSampleSize = calculateInSampleSize(options, width, height);
-//            // Decode bitmap with inSampleSize set
-//            options.inJustDecodeBounds = false;
-//            *//**//** Создаем битовую карту из входящих данных. *//**//*
-//            original = BitmapFactory.decodeByteArray(input, 0, input.length, options);
-//            *//**//** Исключение если память выходит за пределы.*//**//*
-//        } catch (OutOfMemoryError e) {
-//            *//**//** Создаем опции битовой карты.*//**//*
-//            options = new BitmapFactory.Options();
-//            options.inJustDecodeBounds = true;
-//            *//**//** Временное хранилище.*//**//*
-//            options.inTempStorage = new byte[32 * 1024];
-//            *//**//** Размер картинки в мб.*//**//*
-//            float mb = (float)(width * height) / 1024000;
-//            if (mb > 4.0f)
-//                options.inSampleSize = 4;
-//            else if (mb > 3.0f)
-//                options.inSampleSize = 2;
-//            options.inJustDecodeBounds = false;
-//            *//**//** Создаем битовую карту из опций. *//**//*
-//            original = BitmapFactory.decodeByteArray(input, 0, input.length, options);
-//        }*/
-//        /** Создаем матрикс обьект. */
-//        Matrix matrix = new Matrix();
-//        /** Поворот изображения в градусах против часовой стрелки. */
-//        matrix.postRotate(Integer.parseInt(new Preferences(getApplicationContext()).read(getString(R.string.key_rotation), "90"))); // anti-clockwise by 90 degrees
-//        ByteArrayOutputStream blob = new ByteArrayOutputStream();
-//        try {
-//            Bitmap bitmapRotate = Bitmap.createBitmap(original, 0, 0, original.getWidth(), original.getHeight(), matrix, true);
-//            bitmapRotate.compress(Bitmap.CompressFormat.JPEG, Integer.parseInt(new Preferences(getApplicationContext()).read(getString(R.string.key_quality_pic), "50")), blob);
-//            original.recycle();
-//            original = null;
-//            bitmapRotate.recycle();
-//            bitmapRotate = null;
-//        } catch (OutOfMemoryError e) {
-//            original.recycle();
-//            original = null;
-//        }
-//        //BitmapFactory.Options options = new BitmapFactory.Options();
-//        /*original = createByteToBitmap(blob.toByteArray(), width, height); //BitmapFactory.decodeByteArray(blob.toByteArray() , 0, blob.toByteArray().length);
-//        original = Bitmap.createScaledBitmap(original, width, height, true);
-//        Canvas canvas = new Canvas(original);
-//        Paint paint = new Paint();
-//        paint.setColor(Color.MAGENTA);
-//        paint.setTextSize(getResources().getDimension(R.dimen.text_micro));
-//        int x = 2*//**//*(canvas.getWidth() / 2) - 2*//**//*;     //-2 is for regulating the x position offset
-//        //"- ((paint.descent() + paint.ascent()) / 2)" is the distance from the baseline to the center.
-//        int y = (int) (paint.getTextSize())*//**//*(int) ((canvas.getHeight() / 2) - ((paint.descent() + paint.ascent()) / 2))*//**//* ;
-//        StringBuilder stringBuilder = new StringBuilder("Hello");
-//        stringBuilder.append('\n');
-//        stringBuilder.append("Some Text here");
-//        drawMultiLineText(stringBuilder.toString(), x, y, paint, canvas);
-//        //canvas.drawText(stringBuilder.toString(), x, y, paint);
-//        blob = new ByteArrayOutputStream();
-//        original.compress(Bitmap.CompressFormat.JPEG, 100, blob);
-//        original.recycle();
-//        original = null;*/
-//        return blob.toByteArray();
-//    }
 
     private Bitmap createByteToBitmap(byte[] input, int width, int height) throws Exception{
         //Bitmap original;
@@ -1181,12 +1129,12 @@ public class ActivityCheck extends FragmentActivity implements View.OnClickListe
             return BitmapFactory.decodeByteArray(input, 0, input.length, options);
             /** Исключение если память выходит за пределы.*/
         } catch (OutOfMemoryError e) {
-            /** Создаем опции битовой карты.*/
+            /** Создаем опции битовой карты. */
             options = new BitmapFactory.Options();
             options.inJustDecodeBounds = true;
-            /** Временное хранилище.*/
+            /** Временное хранилище. */
             options.inTempStorage = new byte[32 * 1024];
-            /** Размер картинки в мб.*/
+            /** Размер картинки в мб. */
             float mb = (float)(width * height) / 1024000;
             if (mb > 4.0f)
                 options.inSampleSize = 4;
@@ -1218,9 +1166,9 @@ public class ActivityCheck extends FragmentActivity implements View.OnClickListe
         String[] lines = str.split("\n");
         float txtSize = -paint.ascent() + paint.descent();
 
-        if (paint.getStyle() == Paint.Style.FILL_AND_STROKE || paint.getStyle() == Paint.Style.STROKE){
+        /*if (*//*paint.getStyle() == Paint.Style.FILL ||*//* paint.getStyle() == Paint.Style.STROKE){
             txtSize += paint.getStrokeWidth(); //add stroke width to the text size
-        }
+        }*/
         float lineSpace = txtSize * 0.2f;  //default line spacing
 
         for (int i = 0; i < lines.length; ++i) {
@@ -1320,7 +1268,7 @@ public class ActivityCheck extends FragmentActivity implements View.OnClickListe
         }
     }
 
-    class SavePhotoTask extends Thread {
+    /*class SavePhotoTask extends Thread {
         byte[] data;
         Camera camera;
         SavePhotoTask(byte[]data, Camera camera){
@@ -1331,18 +1279,18 @@ public class ActivityCheck extends FragmentActivity implements View.OnClickListe
         @Override
         public void run() {
             try {
-                /** Сжимаем данные изображения. */
+                *//** Сжимаем данные изображения. *//*
                 byte[] compressImage = compressImage(data, camera.getParameters().getPictureSize().width, camera.getParameters().getPictureSize().height);
-                /** Создаем штамп времени */
+                *//** Создаем штамп времени *//*
                 String timeStamp = new SimpleDateFormat("HHmmss", Locale.getDefault()).format(new Date());
-                /** Создаем имя папки по дате */
+                *//** Создаем имя папки по дате *//*
                 String folderStamp = new SimpleDateFormat("yyyyMMdd", Locale.getDefault()).format(new Date());
-                /** Сохраняем фаил. */
+                *//** Сохраняем фаил. *//*
                 String path = saveExternalMemory(globals.path.getAbsolutePath() + File.separator + folderStamp, folderStamp + timeStamp + ".jpg", compressImage);
-                //String path = saveInternalMemory(Main.FOLDER_LOCAL /*+ File.separator + folderStamp*/, folderStamp + "_" + timeStamp + "(" + String.valueOf(checkId) + ").jpg", compressImage);
-                /*Intent intent = new Intent();
+                //String path = saveInternalMemory(Main.FOLDER_LOCAL *//*+ File.separator + folderStamp*//*, folderStamp + "_" + timeStamp + "(" + String.valueOf(checkId) + ").jpg", compressImage);
+                *//*Intent intent = new Intent();
                 intent.putExtra("com.victjava.scales.PHOTO_PATH", path);
-                pendingIntent.send(ServiceTake.this, 0, intent);*/
+                pendingIntent.send(ServiceTake.this, 0, intent);*//*
             } catch (FileNotFoundException e) {
                 e.printStackTrace();
             } catch (IOException e) {
@@ -1351,17 +1299,7 @@ public class ActivityCheck extends FragmentActivity implements View.OnClickListe
                 e.printStackTrace();
             }
         }
-
-
-
-
-
-
-
-
-
-
-    }
+    }*/
 
     /**
      * Обработка обнуления весов.

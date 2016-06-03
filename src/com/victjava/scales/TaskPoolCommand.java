@@ -48,7 +48,7 @@ import java.util.concurrent.*;
  */
 public class TaskPoolCommand extends CheckTable {
     final Context mContext;
-    private ScaleModule scaleModule;
+    private final ScaleModule scaleModule;
     final HandlerTaskNotification mHandler;
     boolean cancel = true;
     /** Чек отправлен. */
@@ -150,8 +150,8 @@ public class TaskPoolCommand extends CheckTable {
         /** Вызывается когда токен получен. */
         @Override
         protected void tokenIsReceived() {
-            List<Callable<Integer>> tasks = new ArrayList<>();
-            List<Future<Integer>> futures = new ArrayList<>();
+            Collection<Callable<Integer>> tasks = new ArrayList<>();
+            List<Future<Integer>> futures;
             if (!getConnection(10000, 10)) {
                 mHandler.sendEmptyMessage(NotifyType.HANDLER_FINISH_THREAD.ordinal());
                 return;
@@ -192,6 +192,7 @@ public class TaskPoolCommand extends CheckTable {
             try { /** Ждем выполнения задачи. */
                 futures = executorService.invokeAll(tasks);
             } catch (InterruptedException e) {
+                mHandler.sendEmptyMessage(NotifyType.HANDLER_FINISH_THREAD.ordinal());
                 return;
             }
             executorService.shutdown();
@@ -298,8 +299,8 @@ public class TaskPoolCommand extends CheckTable {
             }
             if (executorService.isShutdown())
                 executorService = Executors.newFixedThreadPool(5);
-            List<Callable<Integer>> tasks = new ArrayList<>();
-            List<Future<Integer>> futures = new ArrayList<>();
+            Collection<Callable<Integer>> tasks = new ArrayList<>();
+            List<Future<Integer>> futures;
             for (Map.Entry<String, ContentValues> entry : map.entrySet()) {
                 int taskId = Integer.valueOf(entry.getKey());
                 int checkId = Integer.valueOf(entry.getValue().get(TaskTable.KEY_DOC).toString());
@@ -344,6 +345,7 @@ public class TaskPoolCommand extends CheckTable {
             try { /** ждем выполнения задачи. */
                 futures = executorService.invokeAll(tasks);
             } catch (InterruptedException e) {
+                mHandler.sendEmptyMessage(NotifyType.HANDLER_FINISH_THREAD.ordinal());
                 return;
             }
             executorService.shutdown();
@@ -400,8 +402,8 @@ public class TaskPoolCommand extends CheckTable {
             }
             if (executorService.isShutdown())
                 executorService = Executors.newFixedThreadPool(5);
-            List<Callable<Integer>> tasks = new ArrayList<>();
-            List<Future<Integer>> futures = new ArrayList<>();
+            Collection<Callable<Integer>> tasks = new ArrayList<>();
+            List<Future<Integer>> futures;
             for (Map.Entry<String, ContentValues> entry : map.entrySet()) {
 
                 int taskId = Integer.valueOf(entry.getKey());
@@ -459,6 +461,7 @@ public class TaskPoolCommand extends CheckTable {
             try { /** ждем выполнения задачи. */
                 futures = executorService.invokeAll(tasks);
             } catch (InterruptedException e) {
+                mHandler.sendEmptyMessage(NotifyType.HANDLER_FINISH_THREAD.ordinal());
                 return;
             }
             executorService.shutdown();
@@ -501,8 +504,8 @@ public class TaskPoolCommand extends CheckTable {
         public void onExecuteTask(final Map<String, ContentValues> map) {
             if (executorService.isShutdown())
                 executorService = Executors.newFixedThreadPool(5);
-            List<Callable<Integer>> tasks = new ArrayList<>();
-            List<Future<Integer>> futures = new ArrayList<>();
+            Collection<Callable<Integer>> tasks = new ArrayList<>();
+            List<Future<Integer>> futures;
             for (Map.Entry<String, ContentValues> entry : map.entrySet()) {
                 int taskId = Integer.valueOf(entry.getKey());
                 int checkId = Integer.valueOf(entry.getValue().get(TaskTable.KEY_DOC).toString());
@@ -545,6 +548,7 @@ public class TaskPoolCommand extends CheckTable {
             try { /** ждем выполнения задачи. */
                 futures = executorService.invokeAll(tasks);
             } catch (InterruptedException e) {
+                //mHandler.sendEmptyMessage(NotifyType.HANDLER_FINISH_THREAD.ordinal());
                 return;
             }
             executorService.shutdown();
@@ -564,7 +568,7 @@ public class TaskPoolCommand extends CheckTable {
                 /** удаляем задачу из базы. */
                 new TaskTable(mContext).removeEntryIfErrorOver(Integer.valueOf(entry.getKey()));
             }
-            mHandler.sendEmptyMessage(NotifyType.HANDLER_FINISH_THREAD.ordinal());
+            //mHandler.sendEmptyMessage(NotifyType.HANDLER_FINISH_THREAD.ordinal());
         }
 
         @Override
@@ -587,8 +591,8 @@ public class TaskPoolCommand extends CheckTable {
         public void onExecuteTask(final Map<String, ContentValues> map) {
             if (executorService.isShutdown())
                 executorService = Executors.newFixedThreadPool(5);
-            List<Callable<Integer>> tasks = new ArrayList<>();
-            List<Future<Integer>> futures = new ArrayList<>();
+            Collection<Callable<Integer>> tasks = new ArrayList<>();
+            List<Future<Integer>> futures;
             for (Map.Entry<String, ContentValues> entry : map.entrySet()) {
                 int taskId = Integer.valueOf(entry.getKey());
                 int checkId = Integer.valueOf(entry.getValue().get(TaskTable.KEY_DOC).toString());
@@ -651,7 +655,7 @@ public class TaskPoolCommand extends CheckTable {
                 /** удаляем задачу из базы. */
                 new TaskTable(mContext).removeEntryIfErrorOver(Integer.valueOf(entry.getKey()));
             }
-            mHandler.sendEmptyMessage(NotifyType.HANDLER_FINISH_THREAD.ordinal());
+            //mHandler.sendEmptyMessage(NotifyType.HANDLER_FINISH_THREAD.ordinal());
         }
 
         @Override
@@ -708,7 +712,7 @@ public class TaskPoolCommand extends CheckTable {
             }
             if (executorService.isShutdown())
                 executorService = Executors.newFixedThreadPool(5);
-            List<Future<String>> futures = new ArrayList<>();
+            Collection<Future<String>> futures = new ArrayList<>();
             try {
                 for (Map.Entry<String, ContentValues> entry : map.entrySet()) {
                     try {
@@ -791,7 +795,7 @@ public class TaskPoolCommand extends CheckTable {
             }
             if (executorService.isShutdown())
                 executorService = Executors.newFixedThreadPool(5);
-            List<Future<String>> futures = new ArrayList<>();
+            Collection<Future<String>> futures = new ArrayList<>();
             for (Map.Entry<String, ContentValues> entry : map.entrySet()) {
                 //Message msg = new Message();
                 int taskId = Integer.valueOf(entry.getKey());
@@ -861,7 +865,7 @@ public class TaskPoolCommand extends CheckTable {
     public class DataToGoogleDisk implements InterfaceTaskCommand{
         ExecutorService executorService;
         //int NUMBER_OF_CORES = Runtime.getRuntime().availableProcessors();
-        private UtilityDriver utilityDriver = null;
+        private UtilityDriver utilityDriver;
         final String PHOTO_SEND = "send";
         final String PHOTO_UNSEND = "unsend";
         final Map<String, ArrayList<ObjectParcel>> mapPhotoProcessed = new HashMap<>();
@@ -890,7 +894,7 @@ public class TaskPoolCommand extends CheckTable {
                 }
                 if (executorService.isShutdown())
                     executorService = Executors.newFixedThreadPool(5);
-                List<Callable<ObjectPhoto>> tasks = new ArrayList<>();
+                Collection<Callable<ObjectPhoto>> tasks = new ArrayList<>();
                 List<Future<ObjectPhoto>> futures = new ArrayList<>();
 
                 for (Map.Entry<String, ContentValues> entry : map.entrySet()) {
@@ -1020,7 +1024,7 @@ public class TaskPoolCommand extends CheckTable {
             private int taskId;
             private int checkId;
             private String nameColumn;
-            private String link;
+            private final String link;
 
             ObjectPhoto(int taskId, int checkId, String nameColumn, String link){
                 this.taskId = taskId;

@@ -49,15 +49,25 @@ public class CheckTable {
     /** Стадии весового чека. */
     public enum State{
         /** Первое взвешивание. */
-        CHECK_FIRST,
+        CHECK_FIRST("ПЕРВОЕ"),
         /** Второе взвешивание. */
-        CHECK_SECOND,
+        CHECK_SECOND("ВТОРОЕ"),
         /** Предварительный. */
-        CHECK_PRELIMINARY,
+        CHECK_PRELIMINARY("ПРЕДВАРИТЕЛЬНЫЙ"),
         /** Готовый. */
-        CHECK_READY,
+        CHECK_READY("ГОТОВЫЙ"),
         /** Сохранен на сервере. */
-        CHECK_ON_SERVER
+        CHECK_ON_SERVER("НА СЕРВЕРЕ");
+
+        public String getText() {
+            return text;
+        }
+
+        private final String text;
+
+        State(String t) {
+            text = t;
+        }
     }
 
     public static final int DIRECT_DOWN = R.drawable.ic_action_down;

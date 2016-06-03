@@ -58,13 +58,14 @@ public class CameraSurface extends SurfaceView implements SurfaceHolder.Callback
             @Override
             public synchronized void onAutoFocus(boolean success, Camera camera) {
                 if (success)
+                    camera.autoFocus(null);
                     takePicture(photoId);
             }
         });
     }
 
     public void takePicture(int photoId) {
-        camera.takePicture( new ShutterCallback() {
+        camera.takePicture(new ShutterCallback() {
             @Override
             public void onShutter(){
                 if(callback != null)

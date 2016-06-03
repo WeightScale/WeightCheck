@@ -169,7 +169,7 @@ public class ServiceProcessTask extends Service {
             switch (taskType) {
                 case TYPE_CHECK_SEND_SMS_ADMIN:
                 case TYPE_CHECK_SEND_SMS_CONTACT:
-                    msgHandler.obtainMessage(NotifyType.HANDLER_TASK_START.ordinal(), 1, 0).sendToTarget();
+                    //msgHandler.obtainMessage(NotifyType.HANDLER_TASK_START.ordinal(), 1, 0).sendToTarget();
                     Cursor cursor = taskTable.getTypeEntry(taskType);
                     ContentQueryMap mQueryMap = new ContentQueryMap(cursor, BaseColumns._ID, true, null);
                     Map<String, ContentValues> map = mQueryMap.getRows();
@@ -189,10 +189,7 @@ public class ServiceProcessTask extends Service {
             public void run() {
                 try {
                     List<Future<String>> futures = executorService.invokeAll(callables);
-
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
+                } catch (InterruptedException e) {}
                 executorService.shutdown();
             }
         });
@@ -202,6 +199,8 @@ public class ServiceProcessTask extends Service {
      * Отправляем приклепленные данные к чеку на диск.
      */
     private void taskSendData(){
+        if (executorService.isShutdown())
+            executorService = Executors.newFixedThreadPool(2);
         /** Сообщение на обработчик запущен процесс задач. */
         Cursor cursor = taskTable.getTypeEntry(TaskType.TYPE_DATA_SEND_TO_DISK);
         ContentQueryMap mQueryMap = new ContentQueryMap(cursor, BaseColumns._ID, true, null);
@@ -383,6 +382,8 @@ public class ServiceProcessTask extends Service {
                 case TYPE_CHECK_SEND_MAIL:
                 case TYPE_CHECK_SEND_SMS_ADMIN:
                 case TYPE_CHECK_SEND_SMS_CONTACT:
+                case TYPE_PREF_SEND_HTTP_POST:
+                case TYPE_PREF_SEND_SHEET_DISK:
                     Cursor cursor = taskTable.getTypeEntry(taskType);
                     ContentQueryMap mQueryMap = new ContentQueryMap(cursor, BaseColumns._ID, true, null);
                     Map<String, ContentValues> map = mQueryMap.getRows();
